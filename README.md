@@ -50,10 +50,42 @@ Los contratos vigentes se documentan en:
 
 ## Ejecución local
 
-Se requiere Node.js y npm.
+### Requisitos
+
+- Node.js `24.18.0`, perteneciente a la línea LTS 24 (Krypton).
+- npm `11`, incluido con la versión de Node indicada.
+
+El archivo `.nvmrc` fija la versión exacta utilizada como línea base. Además,
+`package.json` admite actualizaciones compatibles dentro de Node 24 y rechaza
+otras versiones mayores para evitar diferencias inadvertidas entre desarrollo,
+integración continua y despliegue.
+
+Con nvm en macOS o Linux:
 
 ```bash
-npm install
+nvm install
+nvm use
+```
+
+Con nvm-windows:
+
+```powershell
+nvm install 24.18.0
+nvm use 24.18.0
+```
+
+Comprueba el entorno activo antes de instalar:
+
+```bash
+node --version
+npm --version
+```
+
+`node --version` debe informar `v24.18.0`. Para restaurar exactamente las
+dependencias registradas en `package-lock.json` y ejecutar el proyecto:
+
+```bash
+npm ci
 npm run dev
 ```
 
