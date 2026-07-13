@@ -1,0 +1,1 @@
+export const descripcionCapaAplicacion = "Esta es la capa de aplicación.";

@@ -1,0 +1,1 @@
+export const descripcionCapaDominio = "Esta es la capa de dominio.";

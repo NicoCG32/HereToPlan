@@ -1,0 +1,73 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #18202b;
+  background: #f3f6fa;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.contenedor-principal {
+  width: min(960px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 4rem 0;
+}
+
+.encabezado {
+  max-width: 720px;
+  margin-bottom: 2rem;
+}
+
+.encabezado h1 {
+  margin: 0.25rem 0 0.75rem;
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  line-height: 1;
+}
+
+.encabezado p {
+  line-height: 1.65;
+  color: #4f5d6d;
+}
+
+.etiqueta {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.rejilla-capas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.tarjeta-capa {
+  min-height: 150px;
+  padding: 1.4rem;
+  border: 1px solid #dce3eb;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgb(31 45 61 / 7%);
+}
+
+.tarjeta-capa h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.tarjeta-capa p {
+  margin-bottom: 0;
+  color: #596778;
+  line-height: 1.55;
+}
