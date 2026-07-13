@@ -6,6 +6,8 @@ El propósito del proyecto es ayudar a planificar estudio, entrenamiento, proyec
 
 El proyecto apunta a publicarse como aplicación web estática mediante GitHub Pages, de modo que pueda probarse directamente desde el repositorio.
 
+**Aplicación publicada:** [abrir HereToPlan en GitHub Pages](https://nicocg32.github.io/HereToPlan/).
+
 ## Estado del proyecto
 
 HereToPlan está en construcción. El repositorio contiene la base del dominio, sus invariantes principales y las decisiones arquitectónicas que orientan el desarrollo del producto. La interfaz funcional, la persistencia y varios casos de uso todavía están pendientes de implementación.
