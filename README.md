@@ -10,7 +10,8 @@ El proyecto apunta a publicarse como aplicación web estática mediante GitHub P
 
 HereToPlan está en construcción. El repositorio contiene la base del dominio, sus invariantes principales y las decisiones arquitectónicas que orientan el desarrollo del producto. La interfaz funcional, la persistencia y varios casos de uso todavía están pendientes de implementación.
 
-La configuración de Vite utiliza una base relativa para facilitar su publicación futura mediante GitHub Pages.
+La configuración de Vite utiliza la ruta base `/HereToPlan/`, correspondiente a
+la subruta asignada al repositorio por GitHub Pages.
 
 Esta base permite explorar, entre otras, las siguientes reglas:
 
@@ -100,6 +101,17 @@ npm run dev
 
 La dirección local se mostrará en la terminal al iniciar Vite.
 
+## Entrega continua
+
+El workflow [`Calidad y despliegue`](.github/workflows/calidad-y-pages.yml)
+verifica formato, análisis estático, pruebas, cobertura y build tanto en pull
+requests como en cambios de `main`. Los cambios aceptados en `main` publican el
+mismo artefacto verificado en GitHub Pages.
+
+Actualmente la aplicación no incorpora un router del lado del cliente. Su única
+ruta navegable es la raíz `/HereToPlan/`; cualquier ruta adicional deberá usar
+una estrategia compatible con GitHub Pages antes de considerarse soportada.
+
 ## Verificación
 
 ```bash
@@ -108,6 +120,7 @@ npm run test:coverage
 npm run lint
 npm run format:check
 npm run build
+npm run verify:pages
 ```
 
 `npm test` comprueba las invariantes implementadas del dominio y
@@ -116,6 +129,8 @@ analiza TypeScript, React y la dirección de las dependencias arquitectónicas.
 `npm run format:check` comprueba el formato sin modificar archivos; para
 aplicarlo se utiliza `npm run format`. Finalmente, `npm run build` ejecuta la
 comprobación de TypeScript y genera la aplicación de producción.
+`npm run verify:pages` comprueba que el HTML apunte a recursos JavaScript y CSS
+existentes bajo `/HereToPlan/`; debe ejecutarse después del build.
 
 ## Capacidades implementadas
 

@@ -26,6 +26,25 @@ La vista `Despliegue` muestra cómo el código pasa del repositorio al sitio pú
 
 ![Diagrama de despliegue de HereToPlan](arquitectura-despliegue.svg)
 
+#### Contrato de entrega continua
+
+El workflow de GitHub Actions separa dos responsabilidades:
+
+1. `calidad` restaura el lockfile, comprueba formato y arquitectura, ejecuta las
+   pruebas con cobertura, construye `dist/` y valida sus referencias estáticas;
+2. `desplegar` solo se ejecuta para cambios aceptados en `main`, depende del job
+   de calidad y publica exactamente el artefacto producido por este.
+
+El workflow posee permiso de lectura del contenido por defecto. Únicamente el
+job de despliegue obtiene `pages: write` e `id-token: write`, necesarios para la
+publicación mediante GitHub Pages.
+
+Vite construye con `base: "/HereToPlan/"` porque el sitio pertenece a un
+repositorio de proyecto y no al dominio raíz de la cuenta. Mientras no exista
+un router del lado del cliente, la única ruta soportada es `/HereToPlan/`. Una
+futura navegación deberá usar rutas hash o incorporar una estrategia explícita
+de fallback antes de añadir rutas navegables.
+
 ## 3. Conceptos fundamentales
 
 ### Núcleo
