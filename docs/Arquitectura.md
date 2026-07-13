@@ -154,6 +154,33 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 
 Esta lista no autoriza a implementar contratos anticipadamente. Un puerto existe para servir a un caso de uso, no para completar una plantilla arquitectónica.
 
+### 6.1. Primer contrato de entrada
+
+`CrearAgendaBorrador` recibe un comando formado por valores primitivos y devuelve
+un resultado discriminado. El resultado exitoso contiene una representación de
+lectura inmutable; nunca entrega la entidad `Agenda` a presentación. Los rechazos
+esperados se expresan mediante códigos estables y pueden señalar el campo de
+entrada correspondiente.
+
+El comando no recibe identificadores ni instantes. Estas dos decisiones pertenecen
+al caso de uso y se obtienen mediante los puertos `GeneradorIdentificadores` y
+`Reloj`, lo que permite controlar ambos valores durante las pruebas.
+
+### 6.2. Semántica de `RepositorioAgendas`
+
+El puerto contiene únicamente las operaciones requeridas por el primer caso de
+uso:
+
+| Operación          | Semántica contractual                                                                                                                               |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `guardar(agenda)`  | Registra una agenda nueva. Si el identificador ya existe, rechaza con `ErrorAgendaDuplicada` y conserva intacta la agenda anterior.                 |
+| `obtenerPorId(id)` | Recupera la agenda asociada o devuelve `undefined` cuando no existe. No garantiza identidad de referencia entre el objeto guardado y el recuperado. |
+
+La suite `verificarContratoRepositorioAgendas` expresa estas reglas una sola vez.
+Todo adaptador, inicialmente memoria y posteriormente IndexedDB, debe ejecutar la
+misma suite. Los fallos técnicos se propagan como errores; la ausencia de una
+agenda no se considera un fallo.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 `Agenda` y `BilleteraPuntos` son agregados diferentes. El dominio puede evaluar reglas y preparar una decisión, pero no debe simular una transacción técnica entre agregados.
@@ -182,14 +209,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                   |
-| --------------- | --------------------------------------------------------------- |
-| Dominio         | Implementado parcialmente y cubierto por pruebas de invariantes |
-| Presentación    | Adaptador mínimo que solo identifica la estructura              |
-| Aplicación      | Marcador; todavía no existen casos de uso ni puertos reales     |
-| Infraestructura | Marcador; todavía no existen adaptadores de salida              |
-| Composición     | Ensambla únicamente la demostración actual                      |
-| Persistencia    | No implementada                                                 |
+| Elemento        | Estado actual                                                                                       |
+| --------------- | --------------------------------------------------------------------------------------------------- |
+| Dominio         | Implementado parcialmente y cubierto por pruebas de invariantes                                     |
+| Presentación    | Adaptador mínimo que solo identifica la estructura                                                  |
+| Aplicación      | Contrato de creación y puertos de agenda, tiempo e identificadores; caso de uso aún no implementado |
+| Infraestructura | Marcador; todavía no existen adaptadores de salida                                                  |
+| Composición     | Ensambla únicamente la demostración actual                                                          |
+| Persistencia    | No implementada                                                                                     |
 
 Por tanto, HereToPlan posee actualmente un **núcleo de dominio con arquitectura hexagonal definida como objetivo y contrato**. Se considerará una implementación hexagonal efectiva cuando al menos un corte vertical atraviese adaptador de entrada, puerto de entrada, caso de uso, dominio, puerto de salida y adaptador de salida.
 
