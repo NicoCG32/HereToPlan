@@ -57,7 +57,3 @@ export class PoliticaCompromiso {
     };
   }
 }
-
-
-
-

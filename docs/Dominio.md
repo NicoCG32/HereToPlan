@@ -149,5 +149,3 @@ La base permite crecer sin romper la regla central:
 - las vistas de los agregados pueden convertirse en DTO persistibles.
 
 La evolución se entiende como capacidad de extensión controlada, no como implementación anticipada de todas las funciones.
-
-

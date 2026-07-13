@@ -139,8 +139,3 @@ export class BloqueTrabajo {
     }
   }
 }
-
-
-
-
-

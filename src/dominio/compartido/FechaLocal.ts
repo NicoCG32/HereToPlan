@@ -52,5 +52,3 @@ export class FechaLocal {
     return this.valor;
   }
 }
-
-

@@ -111,9 +111,10 @@ export class ServicioCanjeRecompensas {
     return {
       canje,
       gasto,
-      ajustesPorAgenda: [...agrupados.entries()].map(
-        ([agendaId, ajustes]) => ({ agendaId, ajustes }),
-      ),
+      ajustesPorAgenda: [...agrupados.entries()].map(([agendaId, ajustes]) => ({
+        agendaId,
+        ajustes,
+      })),
     };
   }
 }

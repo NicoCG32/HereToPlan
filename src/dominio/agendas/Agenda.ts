@@ -118,10 +118,7 @@ export class Agenda {
     this.finalizarSiCorresponde(fecha);
   }
 
-  public marcarBloqueIncumplido(
-    bloqueId: Identificador,
-    fecha: Date,
-  ): void {
+  public marcarBloqueIncumplido(bloqueId: Identificador, fecha: Date): void {
     this.exigirConfirmada();
     this.obtenerBloque(bloqueId).marcarIncumplido(fecha);
     this.finalizarSiCorresponde(fecha);
@@ -231,8 +228,3 @@ export class Agenda {
     }
   }
 }
-
-
-
-
-

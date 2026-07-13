@@ -23,6 +23,15 @@ Esta base permite explorar, entre otras, las siguientes reglas:
 
 El repositorio crecerá mediante incrementos funcionales verificables. Las decisiones documentadas constituyen la base vigente del proyecto, aunque podrán revisarse cuando la evidencia de uso revele una alternativa mejor.
 
+## Roadmap y seguimiento
+
+El desarrollo se planifica y registra públicamente en el
+[GitHub Project de HereToPlan](https://github.com/users/NicoCG32/projects/3).
+El tablero organiza los hitos, las épicas y las tareas ejecutables, y conserva
+su avance desde el backlog hasta su finalización. Las decisiones y resultados
+de cada unidad de trabajo quedan vinculados mediante las
+[issues del repositorio](https://github.com/NicoCG32/HereToPlan/issues).
+
 ## Tecnologías
 
 - React
@@ -95,10 +104,18 @@ La dirección local se mostrará en la terminal al iniciar Vite.
 
 ```bash
 npm test
+npm run test:coverage
+npm run lint
+npm run format:check
 npm run build
 ```
 
-`npm test` comprueba las invariantes implementadas del dominio. `npm run build` ejecuta la comprobación de TypeScript y genera la aplicación de producción.
+`npm test` comprueba las invariantes implementadas del dominio y
+`npm run test:coverage` verifica sus umbrales de cobertura. `npm run lint`
+analiza TypeScript, React y la dirección de las dependencias arquitectónicas.
+`npm run format:check` comprueba el formato sin modificar archivos; para
+aplicarlo se utiliza `npm run format`. Finalmente, `npm run build` ejecuta la
+comprobación de TypeScript y genera la aplicación de producción.
 
 ## Capacidades implementadas
 

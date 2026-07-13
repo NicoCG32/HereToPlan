@@ -35,5 +35,3 @@ export class AjusteCompromiso {
     return new Date(this._aplicadoEn);
   }
 }
-
-

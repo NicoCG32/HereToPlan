@@ -51,4 +51,3 @@ export class CanjeRecompensa {
     return [...this.bloquesAfectados];
   }
 }
-

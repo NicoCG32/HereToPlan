@@ -74,13 +74,13 @@ src/
 
 Esta estructura física sirve a la arquitectura hexagonal; no establece una cadena descendente del tipo presentación → negocio → base de datos.
 
-| Directorio | Papel hexagonal | Puede depender de |
-|---|---|---|
-| `dominio/` | Núcleo de dominio | Código compartido del propio dominio |
-| `aplicacion/` | Casos de uso y puertos | Dominio |
-| `presentacion/` | Adaptador de entrada | Puertos de entrada y DTO de aplicación |
-| `infraestructura/` | Adaptadores de salida | Puertos de salida y tipos mínimos necesarios |
-| `app/` | Composición | Todas las zonas para ensamblarlas |
+| Directorio         | Papel hexagonal        | Puede depender de                            |
+| ------------------ | ---------------------- | -------------------------------------------- |
+| `dominio/`         | Núcleo de dominio      | Código compartido del propio dominio         |
+| `aplicacion/`      | Casos de uso y puertos | Dominio                                      |
+| `presentacion/`    | Adaptador de entrada   | Puertos de entrada y DTO de aplicación       |
+| `infraestructura/` | Adaptadores de salida  | Puertos de salida y tipos mínimos necesarios |
+| `app/`             | Composición            | Todas las zonas para ensamblarlas            |
 
 ## 5. Regla de dependencias
 
@@ -163,14 +163,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento | Estado actual |
-|---|---|
-| Dominio | Implementado parcialmente y cubierto por pruebas de invariantes |
-| Presentación | Adaptador mínimo que solo identifica la estructura |
-| Aplicación | Marcador; todavía no existen casos de uso ni puertos reales |
-| Infraestructura | Marcador; todavía no existen adaptadores de salida |
-| Composición | Ensambla únicamente la demostración actual |
-| Persistencia | No implementada |
+| Elemento        | Estado actual                                                   |
+| --------------- | --------------------------------------------------------------- |
+| Dominio         | Implementado parcialmente y cubierto por pruebas de invariantes |
+| Presentación    | Adaptador mínimo que solo identifica la estructura              |
+| Aplicación      | Marcador; todavía no existen casos de uso ni puertos reales     |
+| Infraestructura | Marcador; todavía no existen adaptadores de salida              |
+| Composición     | Ensambla únicamente la demostración actual                      |
+| Persistencia    | No implementada                                                 |
 
 Por tanto, HereToPlan posee actualmente un **núcleo de dominio con arquitectura hexagonal definida como objetivo y contrato**. Se considerará una implementación hexagonal efectiva cuando al menos un corte vertical atraviese adaptador de entrada, puerto de entrada, caso de uso, dominio, puerto de salida y adaptador de salida.
 
@@ -197,7 +197,3 @@ npm test
 ```
 
 Una funcionalidad no está terminada si satisface la interfaz pero viola la dirección de dependencias o las invariantes del núcleo.
-
-
-
-

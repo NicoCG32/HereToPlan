@@ -44,7 +44,3 @@ export function copiarFecha(fecha: Date, nombre = "fecha"): Date {
   }
   return new Date(fecha);
 }
-
-
-
-
