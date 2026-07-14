@@ -10,7 +10,7 @@ El proyecto apunta a publicarse como aplicación web estática mediante GitHub P
 
 ## Estado del proyecto
 
-HereToPlan está en construcción. El repositorio contiene la base del dominio, sus invariantes principales y las decisiones arquitectónicas que orientan el desarrollo del producto. La interfaz funcional, la persistencia y varios casos de uso todavía están pendientes de implementación.
+HereToPlan está en construcción. El repositorio contiene la base del dominio, sus invariantes principales y las decisiones arquitectónicas que orientan el desarrollo del producto. La interfaz funcional, la integración de la persistencia y varios casos de uso todavía están pendientes de implementación.
 
 La configuración de Vite utiliza la ruta base `/HereToPlan/`, correspondiente a
 la subruta asignada al repositorio por GitHub Pages.
