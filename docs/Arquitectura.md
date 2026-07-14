@@ -177,9 +177,9 @@ uso:
 | `obtenerPorId(id)` | Recupera la agenda asociada o devuelve `undefined` cuando no existe. No garantiza identidad de referencia entre el objeto guardado y el recuperado. |
 
 La suite `verificarContratoRepositorioAgendas` expresa estas reglas una sola vez.
-Todo adaptador, inicialmente memoria y posteriormente IndexedDB, debe ejecutar la
-misma suite. Los fallos técnicos se propagan como errores; la ausencia de una
-agenda no se considera un fallo.
+Los adaptadores en memoria e IndexedDB ejecutan la misma suite. Los fallos
+técnicos se propagan como errores; la ausencia de una agenda no se considera un
+fallo.
 
 ### 6.3. Registro persistido `AgendaV1`
 
@@ -203,6 +203,25 @@ La rehidratación valida nuevamente la coherencia interna: estados y timestamps,
 rangos de bloques, duplicados y la correspondencia entre cada bloque excusado y
 su ajuste. Una versión desconocida o un registro incoherente se rechaza sin
 producir una agenda parcial.
+
+### 6.4. Adaptador IndexedDB
+
+`RepositorioAgendasIndexedDB` implementa el puerto de aplicación sin exponer
+tipos de IndexedDB fuera de infraestructura. El adaptador convierte el agregado
+en `AgendaV1` antes de escribir y lo rehidrata únicamente después de leer el
+registro completo.
+
+Cada escritura usa `IDBObjectStore.add` dentro de una transacción `readwrite`.
+Así, dos escrituras concurrentes con el mismo identificador no pueden superar
+ambas una comprobación previa: IndexedDB acepta una y aborta la otra con la
+semántica contractual de `ErrorAgendaDuplicada`. No se reemplaza el registro
+ganador.
+
+La fábrica `IDBFactory` es una dependencia configurable del adaptador. En el
+navegador se usa la implementación nativa; las pruebas inyectan una
+implementación aislada y ejecutan el mismo código de producción. Crear una nueva
+instancia del repositorio sobre la misma base simula la recarga y demuestra que
+el estado no depende de referencias conservadas en memoria.
 
 ## 7. Operaciones entre agregados y atomicidad
 
@@ -232,14 +251,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                |
-| --------------- | ---------------------------------------------------------------------------- |
-| Dominio         | Implementado parcialmente y cubierto por pruebas de invariantes              |
-| Presentación    | Adaptador mínimo que solo identifica la estructura                           |
-| Aplicación      | Caso de uso para crear agendas borrador mediante puertos                     |
-| Infraestructura | Adaptador en memoria, `AgendaV1` y mapeadores; IndexedDB aún no implementado |
-| Composición     | Ensambla únicamente la demostración actual                                   |
-| Persistencia    | No implementada                                                              |
+| Elemento        | Estado actual                                                   |
+| --------------- | --------------------------------------------------------------- |
+| Dominio         | Implementado parcialmente y cubierto por pruebas de invariantes |
+| Presentación    | Adaptador mínimo que solo identifica la estructura              |
+| Aplicación      | Caso de uso para crear agendas borrador mediante puertos        |
+| Infraestructura | Adaptadores en memoria e IndexedDB, `AgendaV1` y mapeadores     |
+| Composición     | Ensambla únicamente la demostración actual                      |
+| Persistencia    | Implementada como adaptador; aún no integrada con la interfaz   |
 
 Por tanto, HereToPlan posee actualmente un **núcleo de dominio con arquitectura hexagonal definida como objetivo y contrato**. Se considerará una implementación hexagonal efectiva cuando al menos un corte vertical atraviese adaptador de entrada, puerto de entrada, caso de uso, dominio, puerto de salida y adaptador de salida.
 
