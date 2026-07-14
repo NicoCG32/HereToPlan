@@ -209,14 +209,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                                       |
-| --------------- | --------------------------------------------------------------------------------------------------- |
-| Dominio         | Implementado parcialmente y cubierto por pruebas de invariantes                                     |
-| Presentación    | Adaptador mínimo que solo identifica la estructura                                                  |
-| Aplicación      | Contrato de creación y puertos de agenda, tiempo e identificadores; caso de uso aún no implementado |
-| Infraestructura | Marcador; todavía no existen adaptadores de salida                                                  |
-| Composición     | Ensambla únicamente la demostración actual                                                          |
-| Persistencia    | No implementada                                                                                     |
+| Elemento        | Estado actual                                                                 |
+| --------------- | ----------------------------------------------------------------------------- |
+| Dominio         | Implementado parcialmente y cubierto por pruebas de invariantes               |
+| Presentación    | Adaptador mínimo que solo identifica la estructura                            |
+| Aplicación      | Caso de uso para crear agendas borrador mediante puertos                      |
+| Infraestructura | Adaptador de repositorio en memoria; persistencia durable aún no implementada |
+| Composición     | Ensambla únicamente la demostración actual                                    |
+| Persistencia    | No implementada                                                               |
 
 Por tanto, HereToPlan posee actualmente un **núcleo de dominio con arquitectura hexagonal definida como objetivo y contrato**. Se considerará una implementación hexagonal efectiva cuando al menos un corte vertical atraviese adaptador de entrada, puerto de entrada, caso de uso, dominio, puerto de salida y adaptador de salida.
 

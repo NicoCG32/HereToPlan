@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { RepositorioAgendasEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioAgendasEnMemoria";
 import {
   GeneradorIdentificadoresPredefinidos,
   RelojFijo,
-  RepositorioAgendasEnMemoriaParaPruebas,
 } from "./doblesAplicacion";
 import { verificarContratoRepositorioAgendas } from "./contratoRepositorioAgendas";
 
@@ -35,6 +35,6 @@ describe("dobles controlables de los puertos de aplicación", () => {
 });
 
 verificarContratoRepositorioAgendas(
-  "doble en memoria",
-  () => new RepositorioAgendasEnMemoriaParaPruebas(),
+  "adaptador en memoria",
+  () => new RepositorioAgendasEnMemoria(),
 );

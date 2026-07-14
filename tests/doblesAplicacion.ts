@@ -1,10 +1,5 @@
-import type {
-  GeneradorIdentificadores,
-  Reloj,
-  RepositorioAgendas,
-} from "../src/aplicacion";
-import { ErrorAgendaDuplicada } from "../src/aplicacion";
-import type { Agenda, Identificador } from "../src/dominio";
+import type { GeneradorIdentificadores, Reloj } from "../src/aplicacion";
+import type { Identificador } from "../src/dominio";
 
 export class RelojFijo implements Reloj {
   private instante: Date;
@@ -35,21 +30,5 @@ export class GeneradorIdentificadoresPredefinidos implements GeneradorIdentifica
       throw new Error("No quedan identificadores predefinidos.");
     }
     return identificador;
-  }
-}
-
-export class RepositorioAgendasEnMemoriaParaPruebas implements RepositorioAgendas {
-  private readonly agendas = new Map<Identificador, Agenda>();
-
-  public guardar(agenda: Agenda): Promise<void> {
-    if (this.agendas.has(agenda.id)) {
-      return Promise.reject(new ErrorAgendaDuplicada(agenda.id));
-    }
-    this.agendas.set(agenda.id, agenda);
-    return Promise.resolve();
-  }
-
-  public obtenerPorId(id: Identificador): Promise<Agenda | undefined> {
-    return Promise.resolve(this.agendas.get(id));
   }
 }

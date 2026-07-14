@@ -5,11 +5,19 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "json-summary"],
-      include: ["src/dominio/**/*.ts"],
+      include: [
+        "src/dominio/**/*.ts",
+        "src/aplicacion/**/*.ts",
+        "src/infraestructura/persistencia/memoria/**/*.ts",
+      ],
       exclude: [
         "src/dominio/index.ts",
         "src/dominio/**/tipos.ts",
         "src/dominio/descripcionCapaDominio.ts",
+        "src/aplicacion/index.ts",
+        "src/aplicacion/descripcionCapaAplicacion.ts",
+        "src/aplicacion/puertos/GeneradorIdentificadores.ts",
+        "src/aplicacion/puertos/Reloj.ts",
       ],
       thresholds: {
         statements: 85,
