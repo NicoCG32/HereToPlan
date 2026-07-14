@@ -8,7 +8,7 @@ export default defineConfig({
       include: [
         "src/dominio/**/*.ts",
         "src/aplicacion/**/*.ts",
-        "src/infraestructura/persistencia/memoria/**/*.ts",
+        "src/infraestructura/persistencia/**/*.ts",
       ],
       exclude: [
         "src/dominio/index.ts",
@@ -18,6 +18,7 @@ export default defineConfig({
         "src/aplicacion/descripcionCapaAplicacion.ts",
         "src/aplicacion/puertos/GeneradorIdentificadores.ts",
         "src/aplicacion/puertos/Reloj.ts",
+        "src/infraestructura/persistencia/registros/**/*.ts",
       ],
       thresholds: {
         statements: 85,

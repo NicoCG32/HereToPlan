@@ -181,6 +181,29 @@ Todo adaptador, inicialmente memoria y posteriormente IndexedDB, debe ejecutar l
 misma suite. Los fallos técnicos se propagan como errores; la ausencia de una
 agenda no se considera un fallo.
 
+### 6.3. Registro persistido `AgendaV1`
+
+La persistencia utiliza una representación distinta del agregado. `AgendaV1` es
+un registro plano, serializable y con `versionEsquema: 1`; no contiene instancias
+de clases del dominio.
+
+- Las fechas civiles se almacenan como `YYYY-MM-DD` y nunca se convierten en
+  instantes.
+- Los eventos históricos se almacenan como cadenas ISO UTC normalizadas.
+- Los bloques conservan actividad, duración, política, estado y resolución.
+- Los ajustes conservan su canje de origen y el instante de aplicación.
+- Confirmación y finalización son opcionales según el estado de la agenda.
+
+`convertirAgendaEnV1` produce el registro sin exponer referencias mutables del
+agregado. `rehidratarAgendaDesdeV1` convierte los valores y utiliza las fábricas
+de rehidratación del dominio. No reproduce operaciones históricas como
+`confirmar`, `completarBloque` o `aplicarAjustes`.
+
+La rehidratación valida nuevamente la coherencia interna: estados y timestamps,
+rangos de bloques, duplicados y la correspondencia entre cada bloque excusado y
+su ajuste. Una versión desconocida o un registro incoherente se rechaza sin
+producir una agenda parcial.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 `Agenda` y `BilleteraPuntos` son agregados diferentes. El dominio puede evaluar reglas y preparar una decisión, pero no debe simular una transacción técnica entre agregados.
@@ -209,14 +232,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                 |
-| --------------- | ----------------------------------------------------------------------------- |
-| Dominio         | Implementado parcialmente y cubierto por pruebas de invariantes               |
-| Presentación    | Adaptador mínimo que solo identifica la estructura                            |
-| Aplicación      | Caso de uso para crear agendas borrador mediante puertos                      |
-| Infraestructura | Adaptador de repositorio en memoria; persistencia durable aún no implementada |
-| Composición     | Ensambla únicamente la demostración actual                                    |
-| Persistencia    | No implementada                                                               |
+| Elemento        | Estado actual                                                                |
+| --------------- | ---------------------------------------------------------------------------- |
+| Dominio         | Implementado parcialmente y cubierto por pruebas de invariantes              |
+| Presentación    | Adaptador mínimo que solo identifica la estructura                           |
+| Aplicación      | Caso de uso para crear agendas borrador mediante puertos                     |
+| Infraestructura | Adaptador en memoria, `AgendaV1` y mapeadores; IndexedDB aún no implementado |
+| Composición     | Ensambla únicamente la demostración actual                                   |
+| Persistencia    | No implementada                                                              |
 
 Por tanto, HereToPlan posee actualmente un **núcleo de dominio con arquitectura hexagonal definida como objetivo y contrato**. Se considerará una implementación hexagonal efectiva cuando al menos un corte vertical atraviese adaptador de entrada, puerto de entrada, caso de uso, dominio, puerto de salida y adaptador de salida.
 

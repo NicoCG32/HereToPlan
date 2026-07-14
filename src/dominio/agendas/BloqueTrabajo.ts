@@ -23,6 +23,11 @@ export interface DatosNuevoBloqueTrabajo {
   politica: PoliticaCompromiso;
 }
 
+export interface DatosRehidratacionBloqueTrabajo extends DatosNuevoBloqueTrabajo {
+  estado: EstadoBloqueTrabajo;
+  resueltoEn?: Date;
+}
+
 export interface VistaBloqueTrabajo {
   id: Identificador;
   actividadId: Identificador;
@@ -62,6 +67,40 @@ export class BloqueTrabajo {
       "Los minutos planificados deben ser un entero positivo.",
     );
     this.politica = datos.politica;
+  }
+
+  public static rehidratar(
+    datos: DatosRehidratacionBloqueTrabajo,
+  ): BloqueTrabajo {
+    const bloque = new BloqueTrabajo(datos);
+    const estadosValidos: readonly EstadoBloqueTrabajo[] = [
+      "PENDIENTE",
+      "COMPLETADO",
+      "INCUMPLIDO",
+      "EXCUSADO",
+    ];
+    if (!estadosValidos.includes(datos.estado)) {
+      throw new ErrorDominio(
+        "ESTADO_BLOQUE_REHIDRATADO_INVALIDO",
+        "El estado del bloque rehidratado no es reconocido.",
+      );
+    }
+    const estaPendiente = datos.estado === "PENDIENTE";
+    const tieneResolucion = datos.resueltoEn !== undefined;
+
+    if (estaPendiente === tieneResolucion) {
+      throw new ErrorDominio(
+        "ESTADO_BLOQUE_REHIDRATADO_INVALIDO",
+        "Un bloque pendiente no tiene resolución y un bloque resuelto debe tenerla.",
+      );
+    }
+
+    bloque._estado = datos.estado;
+    bloque._resueltoEn = datos.resueltoEn
+      ? copiarFecha(datos.resueltoEn, "fecha de resolución")
+      : undefined;
+
+    return bloque;
   }
 
   public get estado(): EstadoBloqueTrabajo {
