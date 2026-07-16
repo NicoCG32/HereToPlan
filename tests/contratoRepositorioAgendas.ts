@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { RepositorioAgendas } from "../src/aplicacion";
-import { ErrorAgendaDuplicada } from "../src/aplicacion";
+import {
+  ErrorAgendaDuplicada,
+  ErrorAgendaNoEncontrada,
+} from "../src/aplicacion";
 import { Agenda, FechaLocal } from "../src/dominio";
 
 type FabricaRepositorioAgendas = () =>
@@ -66,6 +69,38 @@ export function verificarContratoRepositorioAgendas(
           nombre: "Agenda original",
         },
       );
+    });
+
+    it("lista las agendas almacenadas", async () => {
+      await repositorio.guardar(crearAgenda("agenda-1", "Primera"));
+      await repositorio.guardar(crearAgenda("agenda-2", "Segunda"));
+
+      const agendas = await repositorio.listar();
+
+      expect(agendas).toHaveLength(2);
+      expect(agendas.map((agenda) => agenda.nombre)).toEqual([
+        "Primera",
+        "Segunda",
+      ]);
+    });
+
+    it("actualiza una agenda existente", async () => {
+      await repositorio.guardar(crearAgenda("agenda-1", "Original"));
+
+      await repositorio.actualizar(crearAgenda("agenda-1", "Actualizada"));
+
+      await expect(repositorio.obtenerPorId("agenda-1")).resolves.toMatchObject(
+        { nombre: "Actualizada" },
+      );
+    });
+
+    it("rechaza la actualización de una agenda ausente", async () => {
+      await expect(
+        repositorio.actualizar(crearAgenda("agenda-ausente")),
+      ).rejects.toMatchObject({
+        name: "ErrorAgendaNoEncontrada",
+        codigo: "AGENDA_NO_ENCONTRADA",
+      } satisfies Partial<ErrorAgendaNoEncontrada>);
     });
   });
 }

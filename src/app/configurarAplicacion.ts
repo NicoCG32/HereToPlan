@@ -1,25 +1,34 @@
-import { descripcionCapaAplicacion } from "../aplicacion/descripcionCapaAplicacion";
-import { descripcionCapaDominio } from "../dominio/descripcionCapaDominio";
-import { descripcionCapaInfraestructura } from "../infraestructura/descripcionCapaInfraestructura";
-import type { CapaDemostracion } from "../presentacion/componentes/PanelCapas";
+import {
+  CasoDeUsoCrearAgendaBorrador,
+  CasoDeUsoGuardarBloquesAgendaBorrador,
+  CasoDeUsoListarAgendasBorrador,
+} from "../aplicacion";
+import { RepositorioAgendasIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioAgendasIndexedDB";
+import { GeneradorIdentificadoresUUID } from "../infraestructura/sistema/GeneradorIdentificadoresUUID";
+import { RelojSistema } from "../infraestructura/sistema/RelojSistema";
+import type { ServiciosAgendaBorrador } from "../presentacion/agendas/ServiciosAgendaBorrador";
 
-export function obtenerCapasDemostracion(): readonly CapaDemostracion[] {
-  return [
-    {
-      nombre: "Presentación",
-      mensaje: "Esta es la capa de presentación.",
-    },
-    {
-      nombre: "Aplicación",
-      mensaje: descripcionCapaAplicacion,
-    },
-    {
-      nombre: "Dominio",
-      mensaje: descripcionCapaDominio,
-    },
-    {
-      nombre: "Infraestructura",
-      mensaje: descripcionCapaInfraestructura,
-    },
-  ];
+let servicios: ServiciosAgendaBorrador | undefined;
+
+export function obtenerServiciosAplicacion(): ServiciosAgendaBorrador {
+  servicios ??= crearServiciosAplicacion();
+  return servicios;
+}
+
+function crearServiciosAplicacion(): ServiciosAgendaBorrador {
+  const repositorio = new RepositorioAgendasIndexedDB();
+  const generadorIdentificadores = new GeneradorIdentificadoresUUID();
+
+  return Object.freeze({
+    crearAgenda: new CasoDeUsoCrearAgendaBorrador(
+      repositorio,
+      new RelojSistema(),
+      generadorIdentificadores,
+    ),
+    guardarBloques: new CasoDeUsoGuardarBloquesAgendaBorrador(
+      repositorio,
+      generadorIdentificadores,
+    ),
+    listarAgendas: new CasoDeUsoListarAgendasBorrador(repositorio),
+  });
 }

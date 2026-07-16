@@ -1,8 +1,16 @@
-import { PanelCapas } from "../presentacion/componentes/PanelCapas";
+import { PantallaAgendaBorrador } from "../presentacion/agendas/PantallaAgendaBorrador";
+import type { ServiciosAgendaBorrador } from "../presentacion/agendas/ServiciosAgendaBorrador";
+import { useGradienteGlobal } from "../presentacion/hooks/useGradienteGlobal";
 import logoHereToPlan from "../presentacion/recursos/logos/HereToPlanLogo.svg";
-import { obtenerCapasDemostracion } from "./configurarAplicacion";
+import { obtenerServiciosAplicacion } from "./configurarAplicacion";
 
-export function App() {
+interface AppProps {
+  readonly servicios?: ServiciosAgendaBorrador;
+}
+
+export function App({ servicios }: AppProps) {
+  useGradienteGlobal();
+
   return (
     <main className="contenedor-principal">
       <header className="encabezado">
@@ -21,7 +29,9 @@ export function App() {
         </p>
       </header>
 
-      <PanelCapas capas={obtenerCapasDemostracion()} />
+      <PantallaAgendaBorrador
+        servicios={servicios ?? obtenerServiciosAplicacion()}
+      />
     </main>
   );
 }

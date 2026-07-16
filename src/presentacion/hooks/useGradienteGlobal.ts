@@ -4,16 +4,13 @@ const CONSULTA_MOVIMIENTO_REDUCIDO = "(prefers-reduced-motion: reduce)";
 
 export function useGradienteGlobal(): boolean {
   const [movimientoReducido, setMovimientoReducido] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia(CONSULTA_MOVIMIENTO_REDUCIDO).matches,
+    () => obtenerPreferenciaMovimiento()?.matches ?? false,
   );
 
   useEffect(() => {
     const raiz = document.documentElement;
-    const preferenciaMovimiento = window.matchMedia(
-      CONSULTA_MOVIMIENTO_REDUCIDO,
-    );
+    const preferenciaMovimiento = obtenerPreferenciaMovimiento();
+    if (!preferenciaMovimiento) return;
     let cuadroPendiente: number | undefined;
     let posicionX = 78;
     let posicionY = 16;
@@ -77,4 +74,15 @@ export function useGradienteGlobal(): boolean {
   }, []);
 
   return movimientoReducido;
+}
+
+function obtenerPreferenciaMovimiento(): MediaQueryList | undefined {
+  if (
+    typeof window === "undefined" ||
+    typeof window.matchMedia !== "function"
+  ) {
+    return undefined;
+  }
+
+  return window.matchMedia(CONSULTA_MOVIMIENTO_REDUCIDO);
 }

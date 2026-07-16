@@ -10,7 +10,7 @@ El proyecto apunta a publicarse como aplicación web estática mediante GitHub P
 
 ## Estado del proyecto
 
-HereToPlan está en construcción. El repositorio contiene la base del dominio, sus invariantes principales y las decisiones arquitectónicas que orientan el desarrollo del producto. La interfaz funcional, la integración de la persistencia y varios casos de uso todavía están pendientes de implementación.
+HereToPlan está en construcción. El repositorio contiene la base del dominio, sus invariantes principales y las decisiones arquitectónicas que orientan el desarrollo del producto. Actualmente permite crear una agenda borrador, organizar sus bloques y recuperarla desde el almacenamiento local después de recargar la aplicación.
 
 La configuración de Vite utiliza la ruta base `/HereToPlan/`, correspondiente a
 la subruta asignada al repositorio por GitHub Pages.
@@ -136,4 +136,10 @@ existentes bajo `/HereToPlan/`; debe ejecutarse después del build.
 
 ## Capacidades implementadas
 
-El núcleo disponible incluye actividades, agendas, bloques de trabajo, políticas de compromiso, una billetera de puntos y la preparación del reward `Día libre`.
+El núcleo disponible incluye actividades, agendas, bloques de trabajo, políticas de compromiso, una billetera de puntos y la preparación del reward `Día libre`. El primer recorrido funcional permite:
+
+- crear una agenda borrador con nombre y rango de fechas;
+- agregar, modificar y quitar bloques de trabajo;
+- definir duración, rigidez y autoridad del plazo;
+- guardar el borrador mediante IndexedDB;
+- recuperar la agenda y sus bloques después de recargar.

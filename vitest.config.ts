@@ -2,6 +2,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
+    environment: "jsdom",
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "json-summary"],
@@ -13,9 +14,7 @@ export default defineConfig({
       exclude: [
         "src/dominio/index.ts",
         "src/dominio/**/tipos.ts",
-        "src/dominio/descripcionCapaDominio.ts",
         "src/aplicacion/index.ts",
-        "src/aplicacion/descripcionCapaAplicacion.ts",
         "src/aplicacion/puertos/GeneradorIdentificadores.ts",
         "src/aplicacion/puertos/Reloj.ts",
         "src/infraestructura/persistencia/registros/**/*.ts",

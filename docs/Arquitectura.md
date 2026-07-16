@@ -136,8 +136,9 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 
 ### Puertos de entrada
 
-- crear o modificar una agenda en borrador;
-- confirmar una agenda;
+- crear o modificar un contexto de planificación nombrado;
+- asignar actividades a bloques dentro de `Libre` o de un contexto nombrado;
+- preparar y confirmar un corte de planificación;
 - completar o incumplir un bloque;
 - consultar agenda e historial;
 - preparar y confirmar un canje de recompensa.
@@ -204,6 +205,35 @@ rangos de bloques, duplicados y la correspondencia entre cada bloque excusado y
 su ajuste. Una versión desconocida o un registro incoherente se rechaza sin
 producir una agenda parcial.
 
+#### Evolución desde `AgendaV1`
+
+`AgendaV1` es el esquema persistido vigente y refleja la frontera inicial, en la
+que una agenda reúne contexto, bloques y ciclo de confirmación. No debe
+reinterpretarse silenciosamente ni recibir campos con semántica incompatible.
+La separación futura requiere registros versionados para contexto y corte
+confirmable, además de una migración explícita.
+
+La migración seguirá estas reglas:
+
+1. se crea una única instancia de `Libre`, administrada por el sistema y no
+   derivada de cada registro anterior;
+2. cada `AgendaV1` produce un contexto nombrado cuyo nombre y rango provienen de
+   `nombre`, `fechaInicio` y `fechaFin`;
+3. sus bloques conservan identificador, actividad, fecha, duración, política,
+   estado y contexto de origen;
+4. una agenda `BORRADOR` produce planificación editable; una `CONFIRMADA` o
+   `FINALIZADA` produce además un corte histórico con el estado equivalente;
+5. confirmación, finalización y ajustes conservan sus instantes e
+   identificadores sin reconstruir operaciones históricas;
+6. día, semana y mes no se persisten como horizontes: son proyecciones del mismo
+   calendario;
+7. la actualización de versión es atómica y conserva el registro anterior si
+   cualquier dato no satisface el nuevo contrato.
+
+Hasta implementar y probar esa migración, el adaptador continúa leyendo y
+escribiendo exclusivamente `AgendaV1`. Esta decisión evita mezclar en una misma
+versión dos significados distintos de agenda.
+
 ### 6.4. Adaptador IndexedDB
 
 `RepositorioAgendasIndexedDB` implementa el puerto de aplicación sin exponer
@@ -251,16 +281,20 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                   |
-| --------------- | --------------------------------------------------------------- |
-| Dominio         | Implementado parcialmente y cubierto por pruebas de invariantes |
-| Presentación    | Adaptador mínimo que solo identifica la estructura              |
-| Aplicación      | Caso de uso para crear agendas borrador mediante puertos        |
-| Infraestructura | Adaptadores en memoria e IndexedDB, `AgendaV1` y mapeadores     |
-| Composición     | Ensambla únicamente la demostración actual                      |
-| Persistencia    | Implementada como adaptador; aún no integrada con la interfaz   |
+| Elemento        | Estado actual                                                               |
+| --------------- | --------------------------------------------------------------------------- |
+| Dominio         | Agendas y bloques borrador protegidos mediante invariantes                  |
+| Presentación    | Formularios React para crear agendas y editar bloques                       |
+| Aplicación      | Creación, consulta y actualización mediante DTO y puertos de entrada        |
+| Infraestructura | Adaptadores en memoria e IndexedDB, `AgendaV1` y mapeadores                 |
+| Composición     | Ensambla React, casos de uso, reloj, UUID e IndexedDB                       |
+| Persistencia    | Integrada en el recorrido visible y verificada mediante una prueba de carga |
 
-Por tanto, HereToPlan posee actualmente un **núcleo de dominio con arquitectura hexagonal definida como objetivo y contrato**. Se considerará una implementación hexagonal efectiva cuando al menos un corte vertical atraviese adaptador de entrada, puerto de entrada, caso de uso, dominio, puerto de salida y adaptador de salida.
+HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
+originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes
+del dominio, el puerto `RepositorioAgendas` y el adaptador IndexedDB. Los DTO
+impiden que la presentación reciba referencias mutables de los agregados y la
+suite contractual mantiene equivalencia entre memoria e IndexedDB.
 
 ## 10. Criterios de conformidad
 

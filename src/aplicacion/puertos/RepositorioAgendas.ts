@@ -9,7 +9,18 @@ export class ErrorAgendaDuplicada extends Error {
   }
 }
 
+export class ErrorAgendaNoEncontrada extends Error {
+  public readonly codigo = "AGENDA_NO_ENCONTRADA";
+
+  constructor(public readonly id: Identificador) {
+    super(`No existe una agenda con el identificador ${id}.`);
+    this.name = "ErrorAgendaNoEncontrada";
+  }
+}
+
 export interface RepositorioAgendas {
   guardar(agenda: Agenda): Promise<void>;
+  actualizar(agenda: Agenda): Promise<void>;
   obtenerPorId(id: Identificador): Promise<Agenda | undefined>;
+  listar(): Promise<readonly Agenda[]>;
 }

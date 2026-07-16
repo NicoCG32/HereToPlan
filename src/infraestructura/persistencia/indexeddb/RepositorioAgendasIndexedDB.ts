@@ -1,5 +1,6 @@
 import {
   ErrorAgendaDuplicada,
+  ErrorAgendaNoEncontrada,
   type RepositorioAgendas,
 } from "../../../aplicacion";
 import type { Agenda, Identificador } from "../../../dominio";
@@ -111,6 +112,79 @@ export class RepositorioAgendasIndexedDB implements RepositorioAgendas {
           new ErrorRepositorioAgendasIndexedDB(
             "LECTURA_INDEXEDDB_FALLIDA",
             `No fue posible recuperar la agenda ${id}.`,
+            transaccion.error ?? solicitud.error,
+          ),
+        );
+      };
+    });
+  }
+
+  public async actualizar(agenda: Agenda): Promise<void> {
+    const baseDatos = await this.abrirBaseDatos();
+    const registro = convertirAgendaEnV1(agenda);
+
+    return new Promise<void>((resolve, reject) => {
+      const transaccion = baseDatos.transaction(ALMACEN_AGENDAS, "readwrite");
+      const almacen = transaccion.objectStore(ALMACEN_AGENDAS);
+      const solicitudLectura = almacen.get(agenda.id);
+      let agendaAusente = false;
+
+      solicitudLectura.onsuccess = () => {
+        if (solicitudLectura.result === undefined) {
+          agendaAusente = true;
+          transaccion.abort();
+          return;
+        }
+
+        almacen.put(registro);
+      };
+      transaccion.oncomplete = () => resolve();
+      transaccion.onabort = () => {
+        if (agendaAusente) {
+          reject(new ErrorAgendaNoEncontrada(agenda.id));
+          return;
+        }
+
+        reject(
+          new ErrorRepositorioAgendasIndexedDB(
+            "ESCRITURA_INDEXEDDB_FALLIDA",
+            `No fue posible actualizar la agenda ${agenda.id}.`,
+            transaccion.error,
+          ),
+        );
+      };
+    });
+  }
+
+  public async listar(): Promise<readonly Agenda[]> {
+    const baseDatos = await this.abrirBaseDatos();
+
+    return new Promise<readonly Agenda[]>((resolve, reject) => {
+      const transaccion = baseDatos.transaction(ALMACEN_AGENDAS, "readonly");
+      const solicitud = transaccion.objectStore(ALMACEN_AGENDAS).getAll();
+      let registros: readonly AgendaV1[] = [];
+
+      solicitud.onsuccess = () => {
+        registros = solicitud.result as readonly AgendaV1[];
+      };
+      transaccion.oncomplete = () => {
+        try {
+          resolve(registros.map(rehidratarAgendaDesdeV1));
+        } catch (error: unknown) {
+          reject(
+            error instanceof Error
+              ? error
+              : new Error("La rehidratación de las agendas falló.", {
+                  cause: error,
+                }),
+          );
+        }
+      };
+      transaccion.onabort = () => {
+        reject(
+          new ErrorRepositorioAgendasIndexedDB(
+            "LECTURA_INDEXEDDB_FALLIDA",
+            "No fue posible recuperar las agendas.",
             transaccion.error ?? solicitud.error,
           ),
         );

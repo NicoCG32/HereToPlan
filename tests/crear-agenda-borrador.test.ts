@@ -143,7 +143,9 @@ describe("CrearAgendaBorrador", () => {
   it("traduce una colisión detectada atómicamente al guardar", async () => {
     const repositorio: RepositorioAgendas = {
       obtenerPorId: () => Promise.resolve(undefined),
+      listar: () => Promise.resolve([]),
       guardar: (agenda) => Promise.reject(new ErrorAgendaDuplicada(agenda.id)),
+      actualizar: () => Promise.resolve(),
     };
     const { casoDeUso } = prepararCasoDeUso(repositorio);
 

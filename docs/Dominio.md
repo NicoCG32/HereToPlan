@@ -8,7 +8,7 @@ El siguiente modelo ofrece una vista resumida de las entidades y relaciones impl
 
 El modelo parte de una regla central del producto:
 
-> Un bloque de trabajo dentro de una agenda confirmada es un compromiso. No puede borrarse ni alterarse libremente. Solo puede completarse, incumplirse o recibir un ajuste autorizado por una recompensa si fue declarado flexible desde el principio.
+> Un bloque de trabajo incluido en un corte de planificación confirmado es un compromiso. No puede borrarse ni alterarse libremente. Solo puede completarse, incumplirse o recibir un ajuste autorizado por una recompensa si fue declarado flexible desde el principio.
 
 Este contrato define cómo deben coexistir los compromisos, los puntos y las recompensas. Su alcance crecerá junto con el producto sin debilitar la trazabilidad ni las invariantes aquí establecidas.
 
@@ -32,12 +32,14 @@ La actividad no se completa directamente. Sus ejecuciones concretas se represent
 
 ### `agendas`
 
-Contiene `Agenda` y `BloqueTrabajo`.
+La implementación disponible contiene `Agenda` y `BloqueTrabajo`.
 
 - `Agenda` es la raíz del agregado: crea y conserva los bloques, confirma la planificación y controla sus cambios.
 - `BloqueTrabajo` es el compromiso concreto y puntuable.
 
 La agenda solo permite agregar o quitar bloques mientras está en `BORRADOR`. Al confirmarse, queda bloqueada. Los bloques internos no se exponen; `listarBloques()` devuelve vistas independientes para impedir modificaciones externas.
+
+Esta forma todavía concentra dos responsabilidades en `Agenda`: organizar un rango visible y controlar la confirmación de sus bloques. La frontera objetivo, definida para la evolución del calendario, las separa en `ContextoPlanificacion` y `CortePlanificacion`. La implementación actual se conserva hasta introducir una migración explícita; no debe ampliarse suponiendo que una agenda nombrada completa es siempre la unidad confirmable.
 
 Estados de la agenda:
 
@@ -52,6 +54,24 @@ PENDIENTE → COMPLETADO
           → INCUMPLIDO
           → EXCUSADO mediante ajuste autorizado
 ```
+
+#### Frontera objetivo de planificación
+
+| Concepto                | Datos propios                                                                                                  | Responsabilidad                                                                 |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `ContextoPlanificacion` | identificador, clase `LIBRE` o `NOMBRADO`, nombre, propósito, rango personalizado opcional y fecha de creación | Organizar y filtrar el calendario sin constituir por sí mismo una promesa       |
+| `BloqueTrabajo`         | identificador, actividad, contexto de origen, fecha local, minutos, política efectiva y estado                 | Situar una actividad en una fecha concreta y conservar el compromiso individual |
+| `CortePlanificacion`    | identificador, bloques seleccionados, estado de revisión, inicio y fin de gracia, confirmación y cierre        | Definir qué conjunto atraviesa revisión, gracia y confirmación como una unidad  |
+| Vista de calendario     | rango visible, filtros y proyecciones diaria, semanal o mensual                                                | Presentar datos; no introduce estados ni horizontes nuevos en el dominio        |
+
+Reglas de la frontera:
+
+1. `Libre` existe por decisión del sistema, no posee un final natural y no puede eliminarse.
+2. Una agenda nombrada es un contexto opcional y admite rangos como un semestre o un proyecto.
+3. Día, semana y mes son proyecciones de lectura; no son tipos obligatorios de agenda.
+4. Un bloque pertenece a un contexto, pero solo se vuelve inmutable al incorporarse a un corte confirmado.
+5. Un contexto puede continuar recibiendo planificación futura aunque contenga bloques históricos confirmados.
+6. Eliminar un contexto nombrado nunca elimina historial confirmado; la planificación no confirmada se traslada a `Libre` o se elimina mediante una decisión destructiva independiente.
 
 ### `compromisos`
 
@@ -108,7 +128,7 @@ La recompensa `DIA_LIBRE`:
 
 ## 4. Invariantes fundamentales
 
-1. Una agenda confirmada no vuelve a ser editable.
+1. Un corte de planificación confirmado no vuelve a ser editable.
 2. Un bloque confirmado nunca se elimina del historial.
 3. La flexibilidad se decide antes de confirmar la agenda.
 4. Un bloque resuelto no puede resolverse nuevamente.
@@ -142,6 +162,7 @@ Estas capacidades forman parte de la evolución prevista. Su diseño definitivo 
 La base permite crecer sin romper la regla central:
 
 - nuevos tipos de actividad pueden añadirse sin cambiar el bloque;
+- contexto de calendario y corte confirmable evolucionarán como conceptos separados;
 - nuevos ajustes pueden implementarse dentro de `BloqueTrabajo.validarAjuste`;
 - nuevas recompensas pueden producir otros tipos de ajuste;
 - la capa de aplicación puede incorporar transacciones atómicas;
