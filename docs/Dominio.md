@@ -26,9 +26,15 @@ dominio/
 
 ### `actividades`
 
-Contiene `Actividad`, una definición de aquello que el usuario desea realizar. La implementación disponible distingue entre `TAREA` y `HABITO`.
+Contiene `Actividad`, la definición común de aquello que el usuario desea realizar. El contrato distingue `TAREA_SIMPLE`, `TAREA_COMPUESTA`, `PROYECTO` y `HABITO`; las reglas particulares de composición y recurrencia se incorporan sobre esta clasificación sin mezclar la actividad con su programación.
 
-La actividad no se completa directamente. Sus ejecuciones concretas se representan mediante bloques de trabajo, permitiendo que un hábito o una tarea produzcan varios compromisos temporales en el futuro.
+La actividad no se calendariza directamente. Sus ejecuciones concretas se representan mediante bloques de trabajo, permitiendo que un hábito o una tarea produzcan varios compromisos temporales. Una tarea conserva además su propio estado de resultado; resolver un bloque no completa silenciosamente la tarea contenedora.
+
+El catálogo de actividades posee persistencia independiente de las agendas. Crear una actividad no crea un bloque ni le asigna una fecha. La consulta `Sin programar` es una proyección de aplicación: devuelve las actividades cuyo identificador no aparece en ningún bloque existente.
+
+`Tarea` especializa `Actividad` con estimación necesaria, fecha límite opcional, estado y composición. Una tarea simple no admite subtareas; las tareas compuestas y los proyectos forman un grafo dirigido acíclico. Terminar sus subtareas no completa automáticamente la tarea contenedora: su resolución requiere una decisión explícita y queda fechada.
+
+`Habito` especializa `Actividad` con frecuencia `DIARIA`, `SEMANAL` o `PERSONALIZADA`. Los días utilizan numeración ISO de 1 —lunes— a 7 —domingo—. Una frecuencia semanal declara exactamente un día y una personalizada al menos uno. `correspondeA(fecha)` calcula determinísticamente si debe proponerse una ocurrencia, pero cada ocurrencia real continúa siendo un bloque independiente.
 
 ### `agendas`
 
@@ -84,6 +90,8 @@ Contiene `PoliticaCompromiso` y `AjusteCompromiso`.
 - ajustes permitidos.
 
 Un compromiso estricto no admite ajustes. Un plazo externo no puede declarar `EXTENDER_PLAZO` como ajuste permitido.
+
+Agenda y actividad pueden proponer políticas predeterminadas. La política efectiva se resuelve con precedencia explícita del bloque, actividad y agenda. El bloque recibe una copia independiente antes de confirmarse; su vista incluye `versionEsquema: 1` y se persiste como instantánea histórica. Cambiar posteriormente una propuesta no modifica bloques existentes.
 
 `AjusteCompromiso` registra la autorización histórica que modifica un bloque. Actualmente está implementado `EXCUSAR`, utilizado por el día libre. Los tipos `REPROGRAMAR`, `EXTENDER_PLAZO` y `REDUCIR_CARGA` forman parte del modelo de extensión, pero todavía no poseen comportamiento.
 
@@ -143,7 +151,7 @@ La recompensa `DIA_LIBRE`:
 
 El modelo y sus adaptadores aún deben incorporar:
 
-- tareas compuestas o proyectos;
+- reglas internas de tareas compuestas y proyectos;
 - recurrencia completa de hábitos;
 - período de gracia para confirmar;
 - plantillas de agenda;
@@ -151,9 +159,9 @@ El modelo y sus adaptadores aún deben incorporar:
 - banco de recuperación;
 - extensión de plazos;
 - reducción de carga;
-- persistencia;
+- persistencia de puntos, recompensas y cortes confirmables separados;
 - fórmula de puntuación;
-- interfaz funcional.
+- calendario funcional definitivo.
 
 Estas capacidades forman parte de la evolución prevista. Su diseño definitivo puede ajustarse a partir de la evidencia obtenida durante el uso del producto.
 

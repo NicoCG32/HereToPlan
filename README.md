@@ -143,3 +143,5 @@ El núcleo disponible incluye actividades, agendas, bloques de trabajo, polític
 - definir duración, rigidez y autoridad del plazo;
 - guardar el borrador mediante IndexedDB;
 - recuperar la agenda y sus bloques después de recargar.
+
+El catálogo persistente de actividades distingue tareas simples, tareas compuestas, proyectos y hábitos. Las actividades existen independientemente del calendario: solo aparecen en una fecha después de asignarlas mediante un bloque de trabajo.

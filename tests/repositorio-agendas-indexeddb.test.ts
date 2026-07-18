@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { Agenda, FechaLocal } from "../src/dominio";
 import { ErrorMapeoAgendaV1 } from "../src/infraestructura/persistencia/mapeadores/MapeadorAgendaV1";
 import { RepositorioAgendasIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioAgendasIndexedDB";
+import { VERSION_BASE_DATOS } from "../src/infraestructura/persistencia/indexeddb/esquemaBaseDatos";
 import { verificarContratoRepositorioAgendas } from "./contratoRepositorioAgendas";
 
 const NOMBRE_BASE_DATOS = "here-to-plan-pruebas";
@@ -128,7 +129,10 @@ async function reemplazarVersionEsquema(
 
 function abrirBaseDatos(fabricaIndexedDB: IDBFactory): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const solicitud = fabricaIndexedDB.open(NOMBRE_BASE_DATOS, 1);
+    const solicitud = fabricaIndexedDB.open(
+      NOMBRE_BASE_DATOS,
+      VERSION_BASE_DATOS,
+    );
     solicitud.onsuccess = () => resolve(solicitud.result);
     solicitud.onerror = () =>
       reject(

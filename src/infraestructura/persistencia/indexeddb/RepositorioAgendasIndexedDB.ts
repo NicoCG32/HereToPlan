@@ -9,10 +9,13 @@ import {
   rehidratarAgendaDesdeV1,
 } from "../mapeadores/MapeadorAgendaV1";
 import type { AgendaV1 } from "../registros/AgendaV1";
+import {
+  ALMACEN_AGENDAS,
+  asegurarAlmacenes,
+  VERSION_BASE_DATOS,
+} from "./esquemaBaseDatos";
 
 const NOMBRE_BASE_DATOS_PREDETERMINADO = "here-to-plan";
-const VERSION_BASE_DATOS = 1;
-const ALMACEN_AGENDAS = "agendas";
 
 export type CodigoErrorRepositorioAgendasIndexedDB =
   | "INDEXEDDB_NO_DISPONIBLE"
@@ -206,10 +209,7 @@ export class RepositorioAgendasIndexedDB implements RepositorioAgendas {
       );
 
       solicitud.onupgradeneeded = () => {
-        const baseDatos = solicitud.result;
-        if (!baseDatos.objectStoreNames.contains(ALMACEN_AGENDAS)) {
-          baseDatos.createObjectStore(ALMACEN_AGENDAS, { keyPath: "id" });
-        }
+        asegurarAlmacenes(solicitud.result);
       };
       solicitud.onsuccess = () => resolve(solicitud.result);
       solicitud.onerror = () => {

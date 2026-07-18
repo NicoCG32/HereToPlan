@@ -11,6 +11,7 @@ export type TipoAjusteCompromisoV1 =
   "EXCUSAR" | "REPROGRAMAR" | "EXTENDER_PLAZO" | "REDUCIR_CARGA";
 
 export interface PoliticaCompromisoV1 {
+  readonly versionEsquema: 1;
   readonly rigidez: RigidezCompromisoV1;
   readonly autoridadPlazo: AutoridadPlazoV1;
   readonly ajustesPermitidos: readonly TipoAjusteCompromisoV1[];
@@ -42,6 +43,7 @@ export interface AgendaV1 {
   readonly fechaInicio: string;
   readonly fechaFin: string;
   readonly creadaEn: string;
+  readonly politicaPredeterminada?: PoliticaCompromisoV1;
   readonly estado: EstadoAgendaV1;
   readonly confirmadaEn?: string;
   readonly finalizadaEn?: string;

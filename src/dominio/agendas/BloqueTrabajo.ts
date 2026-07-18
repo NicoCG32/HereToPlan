@@ -12,6 +12,7 @@ import type {
   PoliticaCompromiso,
   VistaPoliticaCompromiso,
 } from "../compromisos/PoliticaCompromiso";
+import { resolverPoliticaEfectiva } from "../compromisos/ResolverPoliticaEfectiva";
 import type { EstadoBloqueTrabajo } from "./tipos";
 
 export interface DatosNuevoBloqueTrabajo {
@@ -66,7 +67,7 @@ export class BloqueTrabajo {
       "MINUTOS_BLOQUE_INVALIDOS",
       "Los minutos planificados deben ser un entero positivo.",
     );
-    this.politica = datos.politica;
+    this.politica = resolverPoliticaEfectiva({ explicita: datos.politica });
   }
 
   public static rehidratar(

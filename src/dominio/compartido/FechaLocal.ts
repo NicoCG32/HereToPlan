@@ -48,6 +48,16 @@ export class FechaLocal {
     return this.valor === otra.valor;
   }
 
+  public obtenerDiaSemanaIso(): number {
+    const [anio, mes, dia] = this.valor.split("-").map(Number) as [
+      number,
+      number,
+      number,
+    ];
+    const diaUtc = new Date(Date.UTC(anio, mes - 1, dia)).getUTCDay();
+    return diaUtc === 0 ? 7 : diaUtc;
+  }
+
   public toString(): string {
     return this.valor;
   }

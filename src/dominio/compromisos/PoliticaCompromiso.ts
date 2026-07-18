@@ -12,12 +12,14 @@ interface DatosPoliticaCompromiso {
 }
 
 export interface VistaPoliticaCompromiso {
+  versionEsquema: 1;
   rigidez: RigidezCompromiso;
   autoridadPlazo: AutoridadPlazo;
   ajustesPermitidos: readonly TipoAjusteCompromiso[];
 }
 
 export class PoliticaCompromiso {
+  public readonly versionEsquema = 1 as const;
   public readonly rigidez: RigidezCompromiso;
   public readonly autoridadPlazo: AutoridadPlazo;
   private readonly ajustesPermitidos: ReadonlySet<TipoAjusteCompromiso>;
@@ -50,10 +52,11 @@ export class PoliticaCompromiso {
   }
 
   public obtenerVista(): VistaPoliticaCompromiso {
-    return {
+    return Object.freeze({
+      versionEsquema: this.versionEsquema,
       rigidez: this.rigidez,
       autoridadPlazo: this.autoridadPlazo,
-      ajustesPermitidos: [...this.ajustesPermitidos],
-    };
+      ajustesPermitidos: Object.freeze([...this.ajustesPermitidos]),
+    });
   }
 }

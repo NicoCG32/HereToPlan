@@ -2,7 +2,6 @@ import {
   Agenda,
   AjusteCompromiso,
   FechaLocal,
-  PoliticaCompromiso,
   type VistaBloqueTrabajo,
 } from "../../../dominio";
 import type {
@@ -10,6 +9,10 @@ import type {
   AjusteCompromisoV1,
   BloqueTrabajoV1,
 } from "../registros/AgendaV1";
+import {
+  convertirPoliticaEnV1,
+  rehidratarPoliticaDesdeV1,
+} from "./MapeadorPoliticaCompromisoV1";
 
 export type CodigoErrorMapeoAgendaV1 =
   "VERSION_AGENDA_NO_SOPORTADA" | "REGISTRO_AGENDA_INVALIDO";
@@ -33,7 +36,7 @@ export function convertirAgendaEnV1(agenda: Agenda): AgendaV1 {
     agenda.listarAjustes().map(convertirAjusteEnV1),
   );
   const base = {
-    versionEsquema: 1,
+    versionEsquema: 1 as const,
     id: agenda.id,
     nombre: agenda.nombre,
     fechaInicio: agenda.fechaInicio.toString(),
@@ -42,15 +45,21 @@ export function convertirAgendaEnV1(agenda: Agenda): AgendaV1 {
     estado: agenda.estado,
     bloques,
     ajustes,
-  } satisfies AgendaV1;
+  };
   const confirmadaEn = agenda.confirmadaEn;
   const finalizadaEn = agenda.finalizadaEn;
+  const politicaPredeterminada = agenda.obtenerPoliticaPredeterminada();
 
   return Object.freeze({
     ...base,
+    ...(politicaPredeterminada
+      ? {
+          politicaPredeterminada: convertirPoliticaEnV1(politicaPredeterminada),
+        }
+      : {}),
     ...(confirmadaEn ? { confirmadaEn: confirmadaEn.toISOString() } : {}),
     ...(finalizadaEn ? { finalizadaEn: finalizadaEn.toISOString() } : {}),
-  });
+  } satisfies AgendaV1);
 }
 
 export function rehidratarAgendaDesdeV1(registro: AgendaV1): Agenda {
@@ -68,6 +77,13 @@ export function rehidratarAgendaDesdeV1(registro: AgendaV1): Agenda {
       fechaInicio: FechaLocal.crear(registro.fechaInicio),
       fechaFin: FechaLocal.crear(registro.fechaFin),
       creadaEn: convertirInstante(registro.creadaEn, "creadaEn"),
+      ...(registro.politicaPredeterminada
+        ? {
+            politicaPredeterminada: rehidratarPoliticaDesdeV1(
+              registro.politicaPredeterminada,
+            ),
+          }
+        : {}),
       estado: registro.estado,
       bloques: registro.bloques.map((bloque) => ({
         id: bloque.id,
@@ -75,11 +91,7 @@ export function rehidratarAgendaDesdeV1(registro: AgendaV1): Agenda {
         titulo: bloque.titulo,
         fecha: FechaLocal.crear(bloque.fecha),
         minutosPlanificados: bloque.minutosPlanificados,
-        politica: new PoliticaCompromiso({
-          rigidez: bloque.politica.rigidez,
-          autoridadPlazo: bloque.politica.autoridadPlazo,
-          ajustesPermitidos: bloque.politica.ajustesPermitidos,
-        }),
+        politica: rehidratarPoliticaDesdeV1(bloque.politica),
         estado: bloque.estado,
         ...(bloque.resueltoEn
           ? {
@@ -135,19 +147,13 @@ export function rehidratarAgendaDesdeV1(registro: AgendaV1): Agenda {
 }
 
 function convertirBloqueEnV1(bloque: VistaBloqueTrabajo): BloqueTrabajoV1 {
-  const politica = Object.freeze({
-    rigidez: bloque.politica.rigidez,
-    autoridadPlazo: bloque.politica.autoridadPlazo,
-    ajustesPermitidos: Object.freeze([...bloque.politica.ajustesPermitidos]),
-  });
-
   return Object.freeze({
     id: bloque.id,
     actividadId: bloque.actividadId,
     titulo: bloque.titulo,
     fecha: bloque.fecha.toString(),
     minutosPlanificados: bloque.minutosPlanificados,
-    politica,
+    politica: convertirPoliticaEnV1(bloque.politica),
     estado: bloque.estado,
     ...(bloque.resueltoEn
       ? { resueltoEn: bloque.resueltoEn.toISOString() }

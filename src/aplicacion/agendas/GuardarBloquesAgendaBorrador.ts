@@ -69,12 +69,22 @@ export class CasoDeUsoGuardarBloquesAgendaBorrador implements GuardarBloquesAgen
       );
     }
 
+    const politicaPredeterminada = existente.obtenerPoliticaPredeterminada();
     const reemplazo = new Agenda({
       id: existente.id,
       nombre: existente.nombre,
       fechaInicio: existente.fechaInicio,
       fechaFin: existente.fechaFin,
       creadaEn: existente.creadaEn,
+      ...(politicaPredeterminada
+        ? {
+            politicaPredeterminada: new PoliticaCompromiso({
+              rigidez: politicaPredeterminada.rigidez,
+              autoridadPlazo: politicaPredeterminada.autoridadPlazo,
+              ajustesPermitidos: politicaPredeterminada.ajustesPermitidos,
+            }),
+          }
+        : {}),
     });
 
     for (const [indice, bloque] of comando.bloques.entries()) {

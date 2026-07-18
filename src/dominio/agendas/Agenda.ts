@@ -15,6 +15,10 @@ import {
   type VistaBloqueTrabajo,
 } from "./BloqueTrabajo";
 import type { EstadoAgenda } from "./tipos";
+import type {
+  PoliticaCompromiso,
+  VistaPoliticaCompromiso,
+} from "../compromisos/PoliticaCompromiso";
 
 interface DatosAgenda {
   id: Identificador;
@@ -22,6 +26,7 @@ interface DatosAgenda {
   fechaInicio: FechaLocal;
   fechaFin: FechaLocal;
   creadaEn: Date;
+  politicaPredeterminada?: PoliticaCompromiso;
 }
 
 export interface DatosRehidratacionAgenda extends DatosAgenda {
@@ -38,6 +43,7 @@ export class Agenda {
   public readonly fechaInicio: FechaLocal;
   public readonly fechaFin: FechaLocal;
   private readonly _creadaEn: Date;
+  private readonly politicaPredeterminada: PoliticaCompromiso | undefined;
   private _estado: EstadoAgenda = "BORRADOR";
   private _confirmadaEn: Date | undefined;
   private _finalizadaEn: Date | undefined;
@@ -61,6 +67,7 @@ export class Agenda {
     this.fechaInicio = datos.fechaInicio;
     this.fechaFin = datos.fechaFin;
     this._creadaEn = copiarFecha(datos.creadaEn, "fecha de creación");
+    this.politicaPredeterminada = datos.politicaPredeterminada;
   }
 
   public static rehidratar(datos: DatosRehidratacionAgenda): Agenda {
@@ -105,6 +112,10 @@ export class Agenda {
 
   public get finalizadaEn(): Date | undefined {
     return this._finalizadaEn ? new Date(this._finalizadaEn) : undefined;
+  }
+
+  public obtenerPoliticaPredeterminada(): VistaPoliticaCompromiso | undefined {
+    return this.politicaPredeterminada?.obtenerVista();
   }
 
   public agregarBloque(datos: DatosNuevoBloqueTrabajo): void {

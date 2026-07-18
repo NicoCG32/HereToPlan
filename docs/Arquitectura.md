@@ -145,6 +145,7 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 
 ### Puertos de salida
 
+- repositorio de actividades;
 - repositorio de agendas;
 - repositorio de billetera y transacciones;
 - repositorio de canjes;
@@ -252,6 +253,31 @@ navegador se usa la implementación nativa; las pruebas inyectan una
 implementación aislada y ejecutan el mismo código de producción. Crear una nueva
 instancia del repositorio sobre la misma base simula la recarga y demuestra que
 el estado no depende de referencias conservadas en memoria.
+
+### 6.5. Catálogo persistente de actividades
+
+`RepositorioActividades` define `guardar`, `obtenerPorId` y `listar`. Sus
+adaptadores en memoria e IndexedDB cumplen una misma suite contractual: ausencia
+como `undefined`, rechazo de identificadores duplicados y conservación del
+registro original.
+
+`ActividadV1` es un contrato discriminado. Las tareas persisten estimación,
+fecha límite, composición, estado y resolución; los hábitos persisten duración,
+frecuencia y días ISO. Ambos conservan metadatos comunes y una política
+predeterminada opcional. No contienen fecha de ejecución, agenda ni bloque; esta
+ausencia expresa la separación del dominio, no una limitación del adaptador. Los
+casos de uso convierten las entidades a `ActividadDto`, por lo que presentación
+no recibe agregados ni registros de infraestructura.
+
+Cada política efectiva incluida en un bloque se escribe con
+`versionEsquema: 1`. El lector admite registros históricos de `AgendaV1` que no
+declaraban esa versión y los normaliza como versión 1; una versión futura
+desconocida se rechaza sin rehidratar parcialmente la agenda.
+
+La base IndexedDB utiliza la versión 2 para añadir el almacén `actividades`. La
+actualización crea el nuevo almacén sin reemplazar `agendas`; una prueba de
+migración abre una base versión 1, incorpora el catálogo y comprueba que la
+agenda anterior continúa siendo rehidratable.
 
 ## 7. Operaciones entre agregados y atomicidad
 
