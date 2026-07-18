@@ -20,6 +20,7 @@ dominio/
 ├── agendas/
 ├── contextos/
 ├── compromisos/
+├── planificacion/
 ├── puntos/
 ├── recompensas/
 └── compartido/
@@ -46,6 +47,58 @@ El catálogo de actividades posee persistencia independiente de las agendas. Cre
 
 El contexto no contiene bloques, estados de confirmación ni horizontes de visualización. Día, semana y mes pertenecen a las proyecciones de lectura. Un contexto nombrado puede representar un semestre, un proyecto con fechas o un período abierto sin modificar la semántica de los compromisos.
 
+<<<<<<< Updated upstream
+=======
+El propósito se normaliza eliminando espacios exteriores; un valor vacío equivale a no declararlo y su extensión máxima es de 240 caracteres. `Libre` no admite propósito editable porque su significado es estable y pertenece al sistema.
+
+### `planificacion`
+
+`BloquePlanificacion` representa una asignación temporal todavía editable. Une
+explícitamente una actividad y un contexto con una fecha civil, minutos
+planificados y una política efectiva versionada. Crear una actividad no crea un
+bloque; por ello una tarea, proyecto o hábito puede existir en `Sin programar`
+sin ocupar una fecha del calendario.
+
+El bloque editable conserva el título utilizado al asignarlo y la política
+efectiva, pero no posee estados de resolución ni confirmación.
+`CortePlanificacion` selecciona explícitamente uno o más bloques, copia sus datos
+y gobierna la revisión, la gracia y la confirmación sin convertir el contexto
+visible completo en una promesa. Esa instantánea queda aislada de cambios
+posteriores en el bloque editable.
+
+Reglas del bloque editable:
+
+1. referencia una actividad y un contexto existentes;
+2. si el contexto posee rango, su fecha debe pertenecer a él;
+3. los minutos son un entero positivo;
+4. su política efectiva es estricta o flexible y conserva autoridad y ajustes;
+5. agregar, editar o quitar el bloque no modifica la definición de la actividad;
+6. quitar el último bloque devuelve la actividad a la proyección `Sin programar`.
+
+Estados del corte confirmable:
+
+```text
+BORRADOR → EN_REVISION → EN_GRACIA → CONFIRMADA
+    ↑           │             │
+    └───────────┘             └── corregir antes del vencimiento
+```
+
+`BORRADOR` es el único estado que admite reemplazar la selección. Iniciar la
+revisión exige al menos un bloque; volver desde revisión no crea instantes
+temporales. `asignar(instante)` inicia una gracia de diez minutos y fija
+`confirmarAutomaticamenteEn = asignadaEn + 10 minutos`. La cuenta regresiva no
+es autoridad: `actualizarSegunReloj(instante)` confirma al alcanzar el límite
+exacto y registra como confirmación el vencimiento previsto, aunque la
+materialización ocurra después de una recarga.
+
+La corrección solo es válida antes del vencimiento. Devuelve el corte a
+`BORRADOR`, cancela los instantes de asignación y confirmación prevista y obliga
+a revisar nuevamente. Al alcanzar `CONFIRMADA`, la selección y sus instantáneas
+son inmutables. La rehidratación rechaza estados sin los instantes requeridos,
+gracias distintas de diez minutos y confirmaciones que no coincidan con el
+vencimiento previsto.
+
+>>>>>>> Stashed changes
 ### `agendas`
 
 La implementación disponible contiene `Agenda` y `BloqueTrabajo`.
@@ -55,7 +108,7 @@ La implementación disponible contiene `Agenda` y `BloqueTrabajo`.
 
 La agenda solo permite agregar o quitar bloques mientras está en `BORRADOR`. Al confirmarse, queda bloqueada. Los bloques internos no se exponen; `listarBloques()` devuelve vistas independientes para impedir modificaciones externas.
 
-Esta forma todavía concentra dos responsabilidades en `Agenda`: organizar un rango visible y controlar la confirmación de sus bloques. La frontera objetivo, definida para la evolución del calendario, las separa en `ContextoPlanificacion` y `CortePlanificacion`. La implementación actual se conserva hasta introducir una migración explícita; no debe ampliarse suponiendo que una agenda nombrada completa es siempre la unidad confirmable.
+Esta forma todavía concentra dos responsabilidades en `Agenda`: organizar un rango visible y controlar la confirmación de sus bloques. La nueva frontera de dominio las separa en `ContextoPlanificacion` y `CortePlanificacion`; la persistencia y los casos de uso de la `Agenda` legada se conservan hasta introducir una migración explícita. El tipo legado no debe ampliarse suponiendo que una agenda nombrada completa es siempre la unidad confirmable.
 
 Estados de la agenda:
 
@@ -71,14 +124,24 @@ PENDIENTE → COMPLETADO
           → EXCUSADO mediante ajuste autorizado
 ```
 
-#### Frontera objetivo de planificación
+#### Frontera de planificación
 
+<<<<<<< Updated upstream
 | Concepto                | Datos propios                                                                                                  | Responsabilidad                                                                 |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | `ContextoPlanificacion` | identificador, clase `LIBRE` o `NOMBRADO`, nombre, propósito, rango personalizado opcional y fecha de creación | Organizar y filtrar el calendario sin constituir por sí mismo una promesa       |
 | `BloqueTrabajo`         | identificador, actividad, contexto de origen, fecha local, minutos, política efectiva y estado                 | Situar una actividad en una fecha concreta y conservar el compromiso individual |
 | `CortePlanificacion`    | identificador, bloques seleccionados, estado de revisión, inicio y fin de gracia, confirmación y cierre        | Definir qué conjunto atraviesa revisión, gracia y confirmación como una unidad  |
 | Vista de calendario     | rango visible, filtros y proyecciones diaria, semanal o mensual                                                | Presentar datos; no introduce estados ni horizontes nuevos en el dominio        |
+=======
+| Concepto                | Datos propios                                                                                                  | Responsabilidad                                                                  |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `ContextoPlanificacion` | identificador, clase `LIBRE` o `NOMBRADO`, nombre, propósito, rango personalizado opcional y fecha de creación | Organizar y filtrar el calendario sin constituir por sí mismo una promesa        |
+| `BloquePlanificacion`   | identificador, actividad, contexto de origen, fecha local, minutos y política efectiva                         | Situar de manera editable una actividad en una fecha concreta                    |
+| `BloqueTrabajo`         | identificador, actividad, fecha local, minutos, política efectiva y estado                                     | Conservar el compromiso individual dentro de una planificación confirmable       |
+| `CortePlanificacion`    | identificador, instantáneas seleccionadas, estado, creación, asignación, vencimiento y confirmación            | Controlar qué conjunto atraviesa revisión, gracia y confirmación como una unidad |
+| Vista de calendario     | rango visible, filtros y proyecciones diaria, semanal o mensual                                                | Presentar datos; no introduce estados ni horizontes nuevos en el dominio         |
+>>>>>>> Stashed changes
 
 Reglas de la frontera:
 
@@ -163,7 +226,7 @@ El modelo y sus adaptadores aún deben incorporar:
 
 - reglas internas de tareas compuestas y proyectos;
 - recurrencia completa de hábitos;
-- período de gracia para confirmar;
+- persistencia y casos de uso del corte confirmable y su gracia;
 - plantillas de agenda;
 - cronómetro;
 - banco de recuperación;
