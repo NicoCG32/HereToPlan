@@ -145,3 +145,11 @@ El núcleo disponible incluye actividades, agendas, bloques de trabajo, polític
 - recuperar la agenda y sus bloques después de recargar.
 
 El catálogo persistente de actividades distingue tareas simples, tareas compuestas, proyectos y hábitos. Las actividades existen independientemente del calendario: solo aparecen en una fecha después de asignarlas mediante un bloque de trabajo.
+
+El dominio distingue además los contextos organizativos de la planificación: `Libre` está siempre disponible y las agendas nombradas pueden representar períodos personalizados sin convertirse por sí mismas en compromisos confirmados.
+Los contextos poseen persistencia propia en IndexedDB; al iniciar la aplicación
+se garantiza de forma idempotente la existencia de `Libre`, que es administrado
+por el sistema y no puede eliminarse.
+Las agendas almacenadas con el contrato anterior proyectan sus metadatos a
+contextos nombrados mediante una migración atómica e idempotente; sus bloques,
+estados e historial permanecen intactos en el registro original.

@@ -3,7 +3,7 @@ import {
   CasoDeUsoConsultarCatalogoActividades,
   CasoDeUsoCrearActividad,
 } from "../src/aplicacion";
-import { Agenda, FechaLocal, PoliticaCompromiso } from "../src/dominio";
+import { Agenda, FechaLocal, PoliticaCompromiso, Tarea } from "../src/dominio";
 import { RepositorioActividadesEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioActividadesEnMemoria";
 import { RepositorioAgendasEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioAgendasEnMemoria";
 import { verificarContratoRepositorioActividades } from "./contratoRepositorioActividades";
@@ -49,6 +49,109 @@ describe("catálogo de actividades", () => {
     });
     await expect(agendas.listar()).resolves.toEqual([]);
   });
+
+  it("crea un proyecto compuesto con plazo y política predeterminada", async () => {
+    const actividades = new RepositorioActividadesEnMemoria();
+    await actividades.guardar(
+      new Tarea({
+        id: "tarea-base",
+        titulo: "Preparar borrador",
+        tipo: "TAREA_SIMPLE",
+        tiempoNecesarioMinutos: 60,
+        creadaEn: new Date("2026-07-20T09:00:00.000Z"),
+      }),
+    );
+    const crear = new CasoDeUsoCrearActividad(
+      actividades,
+      new RelojFijo(new Date("2026-07-20T10:00:00.000Z")),
+      new GeneradorIdentificadoresPredefinidos(["proyecto-1"]),
+    );
+
+    const resultado = await crear.ejecutar({
+      titulo: "Publicar informe",
+      descripcion: "Coordinar la entrega",
+      tipo: "PROYECTO",
+      tiempoNecesarioMinutos: 240,
+      fechaLimite: "2026-08-15",
+      subtareasIds: ["tarea-base"],
+      politicaPredeterminada: {
+        rigidez: "FLEXIBLE",
+        autoridadPlazo: "PERSONAL",
+        ajustesPermitidos: ["EXCUSAR", "EXTENDER_PLAZO"],
+      },
+    });
+
+    expect(resultado).toEqual({
+      exito: true,
+      actividad: {
+        id: "proyecto-1",
+        titulo: "Publicar informe",
+        descripcion: "Coordinar la entrega",
+        tipo: "PROYECTO",
+        tiempoNecesarioMinutos: 240,
+        fechaLimite: "2026-08-15",
+        subtareasIds: ["tarea-base"],
+        estado: "PENDIENTE",
+        creadaEn: "2026-07-20T10:00:00.000Z",
+        politicaPredeterminada: {
+          versionEsquema: 1,
+          rigidez: "FLEXIBLE",
+          autoridadPlazo: "PERSONAL",
+          ajustesPermitidos: ["EXCUSAR", "EXTENDER_PLAZO"],
+        },
+      },
+    });
+    if (resultado.exito) {
+      expect(Object.isFrozen(resultado.actividad)).toBe(true);
+      expect(Object.isFrozen(resultado.actividad.politicaPredeterminada)).toBe(
+        true,
+      );
+    }
+  });
+
+  it.each([
+    {
+      comando: {
+        titulo: "Fecha inválida",
+        tipo: "TAREA_SIMPLE" as const,
+        tiempoNecesarioMinutos: 30,
+        fechaLimite: "15-08-2026",
+      },
+      codigo: "FECHA_LOCAL_INVALIDA",
+      campo: "fechaLimite",
+    },
+    {
+      comando: {
+        titulo: "Política inválida",
+        tipo: "HABITO" as const,
+        tiempoNecesarioMinutos: 30,
+        frecuencia: "DIARIA" as const,
+        politicaPredeterminada: {
+          rigidez: "ESTRICTO" as const,
+          autoridadPlazo: "PERSONAL" as const,
+          ajustesPermitidos: ["EXCUSAR" as const],
+        },
+      },
+      codigo: "COMPROMISO_ESTRICTO_CON_AJUSTES",
+      campo: "politicaPredeterminada",
+    },
+  ])(
+    "traduce $codigo al campo de entrada",
+    async ({ comando, codigo, campo }) => {
+      const actividades = new RepositorioActividadesEnMemoria();
+      const crear = new CasoDeUsoCrearActividad(
+        actividades,
+        new RelojFijo(new Date("2026-07-20T10:00:00.000Z")),
+        new GeneradorIdentificadoresPredefinidos(["actividad-invalida"]),
+      );
+
+      await expect(crear.ejecutar(comando)).resolves.toMatchObject({
+        exito: false,
+        error: { codigo, campo },
+      });
+      await expect(actividades.listar()).resolves.toEqual([]);
+    },
+  );
 
   it("considera sin programar solo actividades que no tienen bloques", async () => {
     const actividades = new RepositorioActividadesEnMemoria();

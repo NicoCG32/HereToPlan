@@ -147,6 +147,7 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 
 - repositorio de actividades;
 - repositorio de agendas;
+- repositorio de contextos de planificación;
 - repositorio de billetera y transacciones;
 - repositorio de canjes;
 - unidad de trabajo para confirmación atómica;
@@ -208,32 +209,35 @@ producir una agenda parcial.
 
 #### Evolución desde `AgendaV1`
 
-`AgendaV1` es el esquema persistido vigente y refleja la frontera inicial, en la
-que una agenda reúne contexto, bloques y ciclo de confirmación. No debe
-reinterpretarse silenciosamente ni recibir campos con semántica incompatible.
-La separación futura requiere registros versionados para contexto y corte
-confirmable, además de una migración explícita.
+`AgendaV1` refleja la frontera inicial, en la que una agenda reúne contexto,
+bloques y ciclo de confirmación. La evolución no reinterpreta ese registro ni le
+añade campos con otra semántica: incorpora `ContextoPlanificacionV1` como un
+contrato persistido independiente.
 
-La migración seguirá estas reglas:
+La migración implementada es incremental. En una transacción sobre `agendas` y
+`contextos-planificacion`, valida primero todos los registros y luego:
 
-1. se crea una única instancia de `Libre`, administrada por el sistema y no
-   derivada de cada registro anterior;
-2. cada `AgendaV1` produce un contexto nombrado cuyo nombre y rango provienen de
-   `nombre`, `fechaInicio` y `fechaFin`;
-3. sus bloques conservan identificador, actividad, fecha, duración, política,
-   estado y contexto de origen;
-4. una agenda `BORRADOR` produce planificación editable; una `CONFIRMADA` o
-   `FINALIZADA` produce además un corte histórico con el estado equivalente;
-5. confirmación, finalización y ajustes conservan sus instantes e
-   identificadores sin reconstruir operaciones históricas;
-6. día, semana y mes no se persisten como horizontes: son proyecciones del mismo
-   calendario;
-7. la actualización de versión es atómica y conserva el registro anterior si
-   cualquier dato no satisface el nuevo contrato.
+1. crea una única instancia de `Libre`, administrada por el sistema;
+2. proyecta cada `AgendaV1` válida como máximo una vez a un contexto nombrado
+   con el mismo identificador, nombre, rango e instante de creación;
+3. conserva íntegro cada `AgendaV1`, incluidos bloques, política, estado,
+   confirmación, finalización y ajustes;
+4. omite un contexto equivalente ya existente y rechaza un identificador cuyos
+   metadatos sean divergentes;
+5. aborta sin escrituras parciales cuando cualquier agenda, contexto o conflicto
+   incumple el contrato vigente.
 
-Hasta implementar y probar esa migración, el adaptador continúa leyendo y
-escribiendo exclusivamente `AgendaV1`. Esta decisión evita mezclar en una misma
-versión dos significados distintos de agenda.
+Por tanto, `ContextoPlanificacionV1` es la fuente de verdad para los metadatos
+organizativos migrados, mientras `AgendaV1` continúa siendo la fuente de verdad
+para bloques y el ciclo histórico. Esta convivencia es temporal pero explícita:
+ningún dato se sincroniza en ambas direcciones ni se reconstruyen operaciones
+de dominio a partir del historial.
+
+La separación posterior de planificación editable y corte confirmable queda
+fuera de esta migración. Deberá conservar identificadores, políticas, estados e
+instantes mediante nuevos registros versionados y otra transacción explícita.
+Día, semana y mes tampoco se persistirán como horizontes: son proyecciones del
+mismo calendario.
 
 ### 6.4. Adaptador IndexedDB
 
@@ -279,6 +283,38 @@ actualización crea el nuevo almacén sin reemplazar `agendas`; una prueba de
 migración abre una base versión 1, incorpora el catálogo y comprueba que la
 agenda anterior continúa siendo rehidratable.
 
+### 6.6. Contextos de planificación persistentes
+
+`RepositorioContextosPlanificacion` expresa el contrato de almacenamiento del
+agregado `ContextoPlanificacion`: guardar sin reemplazar duplicados, recuperar,
+listar y eliminar únicamente contextos nombrados. La prohibición de eliminar
+`Libre` pertenece al dominio y ambos adaptadores —memoria e IndexedDB— propagan
+la misma semántica asíncrona.
+
+`ContextoPlanificacionV1` es un registro plano y versionado. Conserva identidad,
+nombre, tipo, rango civil opcional e instante de creación; deliberadamente no
+contiene bloques, estados de confirmación ni una vista temporal. Día, semana y
+mes siguen siendo proyecciones del calendario y no clases de contexto.
+
+La versión 3 de la base añade el almacén `contextos-planificacion`. La
+actualización de esquema solo crea el almacén ausente: no transforma ni elimina
+los registros de `agendas` o `actividades`. La prueba de actualización parte de
+una base versión 2 y comprueba explícitamente la conservación de ambos
+almacenes.
+
+`InicializarContextosPlanificacion` garantiza una sola instancia de `Libre` de
+forma idempotente. La raíz de composición ejecuta este caso de uso antes de
+montar React, por lo que la interfaz nunca comienza sobre una base inicializada
+sin su contexto obligatorio. Una colisión concurrente se resuelve recuperando
+el registro ganador, sin reemplazarlo ni alterar su instante de creación.
+
+Antes de esa comprobación, `MigradorContextosDesdeAgendasIndexedDB` valida y
+proyecta los metadatos legados. El migrador también prepara `Libre` dentro de la
+misma transacción para que una agenda incompatible no deje una migración
+parcial; la inicialización posterior funciona como garantía idempotente para
+bases nuevas o ya migradas. Repetir el arranque no duplica registros ni cambia
+el instante original de `Libre`.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 `Agenda` y `BilleteraPuntos` son agregados diferentes. El dominio puede evaluar reglas y preparar una decisión, pero no debe simular una transacción técnica entre agregados.
@@ -307,14 +343,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                               |
-| --------------- | --------------------------------------------------------------------------- |
-| Dominio         | Agendas y bloques borrador protegidos mediante invariantes                  |
-| Presentación    | Formularios React para crear agendas y editar bloques                       |
-| Aplicación      | Creación, consulta y actualización mediante DTO y puertos de entrada        |
-| Infraestructura | Adaptadores en memoria e IndexedDB, `AgendaV1` y mapeadores                 |
-| Composición     | Ensambla React, casos de uso, reloj, UUID e IndexedDB                       |
-| Persistencia    | Integrada en el recorrido visible y verificada mediante una prueba de carga |
+| Elemento        | Estado actual                                                            |
+| --------------- | ------------------------------------------------------------------------ |
+| Dominio         | Actividades, contextos, agendas y compromisos protegidos por invariantes |
+| Presentación    | Formularios React para crear agendas y editar bloques                    |
+| Aplicación      | Casos de uso y DTO para actividades, contextos y agendas                 |
+| Infraestructura | Repositorios en memoria e IndexedDB y registros persistidos versionados  |
+| Composición     | Ensambla casos de uso e inicializa `Libre` antes de montar React         |
+| Persistencia    | IndexedDB v3 conserva agendas y actividades al incorporar contextos      |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

@@ -18,6 +18,7 @@ Este contrato define cómo deben coexistir los compromisos, los puntos y las rec
 dominio/
 ├── actividades/
 ├── agendas/
+├── contextos/
 ├── compromisos/
 ├── puntos/
 ├── recompensas/
@@ -35,6 +36,15 @@ El catálogo de actividades posee persistencia independiente de las agendas. Cre
 `Tarea` especializa `Actividad` con estimación necesaria, fecha límite opcional, estado y composición. Una tarea simple no admite subtareas; las tareas compuestas y los proyectos forman un grafo dirigido acíclico. Terminar sus subtareas no completa automáticamente la tarea contenedora: su resolución requiere una decisión explícita y queda fechada.
 
 `Habito` especializa `Actividad` con frecuencia `DIARIA`, `SEMANAL` o `PERSONALIZADA`. Los días utilizan numeración ISO de 1 —lunes— a 7 —domingo—. Una frecuencia semanal declara exactamente un día y una personalizada al menos uno. `correspondeA(fecha)` calcula determinísticamente si debe proponerse una ocurrencia, pero cada ocurrencia real continúa siendo un bloque independiente.
+
+### `contextos`
+
+`ContextoPlanificacion` organiza el calendario sin constituir una promesa. Existen dos clases:
+
+- `LIBRE`, con identidad estable administrada por el sistema, sin rango cerrado y no eliminable;
+- `NOMBRADO`, creado por el usuario con nombre y rango completo opcional.
+
+El contexto no contiene bloques, estados de confirmación ni horizontes de visualización. Día, semana y mes pertenecen a las proyecciones de lectura. Un contexto nombrado puede representar un semestre, un proyecto con fechas o un período abierto sin modificar la semántica de los compromisos.
 
 ### `agendas`
 

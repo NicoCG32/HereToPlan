@@ -9,6 +9,9 @@ export * from "./actividades/Habito";
 export * from "./actividades/EstructuraTareas";
 export * from "./actividades/tipos";
 
+export * from "./contextos/ContextoPlanificacion";
+export * from "./contextos/tipos";
+
 export * from "./compromisos/AjusteCompromiso";
 export * from "./compromisos/PoliticaCompromiso";
 export * from "./compromisos/ResolverPoliticaEfectiva";
