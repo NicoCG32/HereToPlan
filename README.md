@@ -136,13 +136,17 @@ existentes bajo `/HereToPlan/`; debe ejecutarse después del build.
 
 ## Capacidades implementadas
 
-El núcleo disponible incluye actividades, agendas, bloques de trabajo, políticas de compromiso, una billetera de puntos y la preparación del reward `Día libre`. El primer recorrido funcional permite:
+El núcleo disponible incluye actividades, contextos de planificación, agendas,
+bloques de trabajo, políticas de compromiso, una billetera de puntos y la
+preparación del reward `Día libre`. El recorrido principal permite:
 
-- crear una agenda borrador con nombre y rango de fechas;
-- agregar, modificar y quitar bloques de trabajo;
-- definir duración, rigidez y autoridad del plazo;
-- guardar el borrador mediante IndexedDB;
-- recuperar la agenda y sus bloques después de recargar.
+- comenzar directamente en `Libre` o crear una agenda nombrada opcional;
+- crear y reutilizar actividades de distintos tipos;
+- asignar, editar y quitar bloques estrictos o flexibles en fechas concretas;
+- consultar conjuntamente toda la planificación o filtrarla por agenda;
+- navegar por día, semana y mes y revisar los siete días próximos;
+- recuperar contextos, actividades y bloques desde IndexedDB después de
+  recargar.
 
 El catálogo persistente de actividades distingue tareas simples, tareas compuestas, proyectos y hábitos. Las actividades existen independientemente del calendario: solo aparecen en una fecha después de asignarlas mediante un bloque de trabajo.
 
