@@ -40,6 +40,7 @@ export interface BloqueCalendarioDto {
   readonly estado: "PENDIENTE" | "COMPLETADO" | "INCUMPLIDO" | "EXCUSADO";
   readonly origen: OrigenBloqueCalendarioDto;
   readonly politica: PoliticaBloqueCalendarioDto;
+  readonly editable: boolean;
 }
 
 export interface DiaProximoCalendarioDto {
@@ -62,6 +63,7 @@ export interface CalendarioDto {
   readonly hoy: string;
   readonly contextos: readonly ContextoPlanificacionDto[];
   readonly actividadesAsignables: readonly ActividadDto[];
+  readonly actividadesSinProgramar: readonly ActividadDto[];
   readonly bloquesVisibles: readonly BloqueCalendarioDto[];
   readonly proximosSieteDias: readonly DiaProximoCalendarioDto[];
   readonly listaEquivalente: readonly BloqueCalendarioDto[];

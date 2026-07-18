@@ -28,6 +28,7 @@ describe("contextos de planificación", () => {
     const proyecto = ContextoPlanificacion.crearNombrado({
       id: "contexto-proyecto",
       nombre: "Proyecto editorial",
+      proposito: "  Publicar el primer número  ",
       creadaEn: CREADA_EN,
     });
     const semestre = ContextoPlanificacion.crearNombrado({
@@ -39,11 +40,31 @@ describe("contextos de planificación", () => {
     });
 
     expect(proyecto.obtenerRango()).toBeUndefined();
+    expect(proyecto.proposito).toBe("Publicar el primer número");
     expect(semestre.obtenerRango()).toMatchObject({
       fechaInicio: { valor: "2026-08-01" },
       fechaFin: { valor: "2026-12-20" },
     });
     expect(semestre.tipo).toBe("NOMBRADO");
+  });
+
+  it("normaliza el propósito opcional y limita su extensión", () => {
+    const sinProposito = ContextoPlanificacion.crearNombrado({
+      id: "contexto-sin-proposito",
+      nombre: "Proyecto abierto",
+      proposito: "   ",
+      creadaEn: CREADA_EN,
+    });
+
+    expect(sinProposito.proposito).toBeUndefined();
+    esperarErrorDominio("PROPOSITO_CONTEXTO_DEMASIADO_LARGO", () =>
+      ContextoPlanificacion.crearNombrado({
+        id: "contexto-extenso",
+        nombre: "Proyecto extenso",
+        proposito: "a".repeat(241),
+        creadaEn: CREADA_EN,
+      }),
+    );
   });
 
   it("rechaza nombres vacíos, rangos incompletos e invertidos", () => {
@@ -85,6 +106,15 @@ describe("contextos de planificación", () => {
       ContextoPlanificacion.rehidratar({
         id: "libre-alternativo",
         nombre: "Libre",
+        tipo: "LIBRE",
+        creadaEn: CREADA_EN,
+      }),
+    );
+    esperarErrorDominio("CONTEXTO_LIBRE_CON_PROPOSITO", () =>
+      ContextoPlanificacion.rehidratar({
+        id: IDENTIFICADOR_CONTEXTO_LIBRE,
+        nombre: "Libre",
+        proposito: "No editable",
         tipo: "LIBRE",
         creadaEn: CREADA_EN,
       }),

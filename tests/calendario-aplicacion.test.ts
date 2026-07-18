@@ -7,6 +7,7 @@ import {
 } from "../src/aplicacion";
 import {
   Agenda,
+  BloquePlanificacion,
   ContextoPlanificacion,
   FechaLocal,
   Habito,
@@ -15,6 +16,7 @@ import {
 } from "../src/dominio";
 import { RepositorioActividadesEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioActividadesEnMemoria";
 import { RepositorioAgendasEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioAgendasEnMemoria";
+import { RepositorioBloquesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioBloquesPlanificacionEnMemoria";
 import { RepositorioContextosPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioContextosPlanificacionEnMemoria";
 
 const CREADA_EN = new Date("2026-07-18T10:00:00.000Z");
@@ -158,6 +160,73 @@ describe("consulta del calendario general", () => {
     );
   });
 
+  it("integra bloques editables y separa actividades sin programar", async () => {
+    const contextos = new RepositorioContextosPlanificacionEnMemoria();
+    const actividades = new RepositorioActividadesEnMemoria();
+    const agendas = new RepositorioAgendasEnMemoria();
+    const bloques = new RepositorioBloquesPlanificacionEnMemoria();
+    await contextos.guardar(ContextoPlanificacion.crearLibre(CREADA_EN));
+    await actividades.guardar(
+      new Tarea({
+        id: "actividad-programada",
+        titulo: "Programada",
+        tipo: "TAREA_SIMPLE",
+        tiempoNecesarioMinutos: 30,
+        creadaEn: CREADA_EN,
+      }),
+    );
+    await actividades.guardar(
+      new Tarea({
+        id: "actividad-libre",
+        titulo: "Sin programar",
+        tipo: "PROYECTO",
+        tiempoNecesarioMinutos: 120,
+        creadaEn: CREADA_EN,
+      }),
+    );
+    await bloques.guardar(
+      new BloquePlanificacion({
+        id: "bloque-editable",
+        contextoId: "contexto-libre",
+        actividadId: "actividad-programada",
+        titulo: "Programada",
+        fecha: FechaLocal.crear("2026-07-20"),
+        minutosPlanificados: 30,
+        politica: new PoliticaCompromiso({
+          rigidez: "ESTRICTO",
+          autoridadPlazo: "PERSONAL",
+        }),
+        creadoEn: CREADA_EN,
+      }),
+    );
+    const casoDeUso = new CasoDeUsoConsultarCalendario(
+      contextos,
+      actividades,
+      agendas,
+      bloques,
+      new CalendarioLocalFijo("2026-07-20"),
+    );
+
+    const calendario = await casoDeUso.ejecutar({
+      seleccion: { tipo: "TODAS" },
+      vistaTemporal: "DIA",
+      fechaAncla: "2026-07-20",
+    });
+
+    expect(calendario.bloquesVisibles).toMatchObject([
+      {
+        id: "bloque-editable",
+        editable: true,
+        origen: { contextoId: "contexto-libre", nombreContexto: "Libre" },
+      },
+    ]);
+    expect(calendario.proximosSieteDias[0]?.bloques).toHaveLength(1);
+    expect(calendario.listaEquivalente).toBe(calendario.bloquesVisibles);
+    expect(calendario.actividadesSinProgramar.map(({ id }) => id)).toEqual([
+      "actividad-libre",
+    ]);
+  });
+
   it("rechaza una selección inexistente", async () => {
     const casoDeUso = await prepararCalendario();
 
@@ -183,6 +252,7 @@ describe("consulta del calendario general", () => {
       contextos,
       actividades,
       agendas,
+      new RepositorioBloquesPlanificacionEnMemoria(),
       new CalendarioLocalFijo("2026-07-20"),
     );
 
@@ -283,6 +353,7 @@ async function prepararCalendario(): Promise<CasoDeUsoConsultarCalendario> {
     contextos,
     actividades,
     agendas,
+    new RepositorioBloquesPlanificacionEnMemoria(),
     new CalendarioLocalFijo("2026-07-20"),
   );
 }

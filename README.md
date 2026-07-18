@@ -150,6 +150,15 @@ El dominio distingue además los contextos organizativos de la planificación: `
 Los contextos poseen persistencia propia en IndexedDB; al iniciar la aplicación
 se garantiza de forma idempotente la existencia de `Libre`, que es administrado
 por el sistema y no puede eliminarse.
+La aplicación abre el calendario general en la selección `Todas`; desde allí se
+puede crear opcionalmente una agenda nombrada con propósito y rango temporal, o
+continuar planificando en `Libre` sin completar un formulario previo.
+El calendario permite navegar por día, semana y mes, seleccionar fechas
+concretas y consultar siempre hoy más los seis días siguientes. Desde una fecha
+se puede crear o elegir una tarea simple, tarea compuesta, proyecto o hábito y
+asignarle un bloque editable con minutos y política estricta o flexible. Las
+actividades que todavía no poseen bloques permanecen visibles en `Sin
+programar`.
 Las agendas almacenadas con el contrato anterior proyectan sus metadatos a
 contextos nombrados mediante una migración atómica e idempotente; sus bloques,
 estados e historial permanecen intactos en el registro original.

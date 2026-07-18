@@ -42,9 +42,34 @@ El catálogo de actividades posee persistencia independiente de las agendas. Cre
 `ContextoPlanificacion` organiza el calendario sin constituir una promesa. Existen dos clases:
 
 - `LIBRE`, con identidad estable administrada por el sistema, sin rango cerrado y no eliminable;
-- `NOMBRADO`, creado por el usuario con nombre y rango completo opcional.
+- `NOMBRADO`, creado por el usuario con nombre, propósito textual opcional y rango completo opcional.
 
 El contexto no contiene bloques, estados de confirmación ni horizontes de visualización. Día, semana y mes pertenecen a las proyecciones de lectura. Un contexto nombrado puede representar un semestre, un proyecto con fechas o un período abierto sin modificar la semántica de los compromisos.
+
+El propósito se normaliza eliminando espacios exteriores; un valor vacío equivale a no declararlo y su extensión máxima es de 240 caracteres. `Libre` no admite propósito editable porque su significado es estable y pertenece al sistema.
+
+### `planificacion`
+
+`BloquePlanificacion` representa una asignación temporal todavía editable. Une
+explícitamente una actividad y un contexto con una fecha civil, minutos
+planificados y una política efectiva versionada. Crear una actividad no crea un
+bloque; por ello una tarea, proyecto o hábito puede existir en `Sin programar`
+sin ocupar una fecha del calendario.
+
+El bloque editable conserva el título utilizado al asignarlo y la política
+efectiva, pero no posee estados de resolución ni confirmación. La planificación
+confirmable futura deberá incorporar sus datos a un corte transaccional antes de
+volverlos inmutables. `BloqueTrabajo`, contenido actualmente por la `Agenda`
+legada, sigue representando el compromiso confirmable e histórico.
+
+Reglas del bloque editable:
+
+1. referencia una actividad y un contexto existentes;
+2. si el contexto posee rango, su fecha debe pertenecer a él;
+3. los minutos son un entero positivo;
+4. su política efectiva es estricta o flexible y conserva autoridad y ajustes;
+5. agregar, editar o quitar el bloque no modifica la definición de la actividad;
+6. quitar el último bloque devuelve la actividad a la proyección `Sin programar`.
 
 ### `agendas`
 
@@ -73,12 +98,13 @@ PENDIENTE → COMPLETADO
 
 #### Frontera objetivo de planificación
 
-| Concepto                | Datos propios                                                                                                  | Responsabilidad                                                                 |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `ContextoPlanificacion` | identificador, clase `LIBRE` o `NOMBRADO`, nombre, propósito, rango personalizado opcional y fecha de creación | Organizar y filtrar el calendario sin constituir por sí mismo una promesa       |
-| `BloqueTrabajo`         | identificador, actividad, contexto de origen, fecha local, minutos, política efectiva y estado                 | Situar una actividad en una fecha concreta y conservar el compromiso individual |
-| `CortePlanificacion`    | identificador, bloques seleccionados, estado de revisión, inicio y fin de gracia, confirmación y cierre        | Definir qué conjunto atraviesa revisión, gracia y confirmación como una unidad  |
-| Vista de calendario     | rango visible, filtros y proyecciones diaria, semanal o mensual                                                | Presentar datos; no introduce estados ni horizontes nuevos en el dominio        |
+| Concepto                | Datos propios                                                                                                  | Responsabilidad                                                                |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `ContextoPlanificacion` | identificador, clase `LIBRE` o `NOMBRADO`, nombre, propósito, rango personalizado opcional y fecha de creación | Organizar y filtrar el calendario sin constituir por sí mismo una promesa      |
+| `BloquePlanificacion`   | identificador, actividad, contexto de origen, fecha local, minutos y política efectiva                         | Situar de manera editable una actividad en una fecha concreta                  |
+| `BloqueTrabajo`         | identificador, actividad, fecha local, minutos, política efectiva y estado                                     | Conservar el compromiso individual dentro de una planificación confirmable     |
+| `CortePlanificacion`    | identificador, bloques seleccionados, estado de revisión, inicio y fin de gracia, confirmación y cierre        | Definir qué conjunto atraviesa revisión, gracia y confirmación como una unidad |
+| Vista de calendario     | rango visible, filtros y proyecciones diaria, semanal o mensual                                                | Presentar datos; no introduce estados ni horizontes nuevos en el dominio       |
 
 Reglas de la frontera:
 

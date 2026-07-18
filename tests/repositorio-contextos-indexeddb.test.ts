@@ -24,6 +24,7 @@ describe("RepositorioContextosPlanificacionIndexedDB", () => {
       ContextoPlanificacion.crearNombrado({
         id: "contexto-recargado",
         nombre: "Proyecto persistente",
+        proposito: "Conservar decisiones editoriales",
         creadaEn: new Date("2026-07-20T10:00:00.000Z"),
       }),
     );
@@ -36,6 +37,7 @@ describe("RepositorioContextosPlanificacionIndexedDB", () => {
     ).resolves.toMatchObject({
       id: "contexto-recargado",
       nombre: "Proyecto persistente",
+      proposito: "Conservar decisiones editoriales",
       tipo: "NOMBRADO",
     });
   });
@@ -50,7 +52,7 @@ describe("RepositorioContextosPlanificacionIndexedDB", () => {
     );
     await repositorio.cerrar();
 
-    const baseDatos = await abrirBase(fabricaIndexedDB, 3);
+    const baseDatos = await abrirBase(fabricaIndexedDB, 4);
     await expect(
       leerRegistro(baseDatos, "agendas", "agenda-legada"),
     ).resolves.toMatchObject({
@@ -60,6 +62,9 @@ describe("RepositorioContextosPlanificacionIndexedDB", () => {
       leerRegistro(baseDatos, "actividades", "actividad-legada"),
     ).resolves.toMatchObject({ titulo: "Actividad legada" });
     expect(baseDatos.objectStoreNames.contains("contextos-planificacion")).toBe(
+      true,
+    );
+    expect(baseDatos.objectStoreNames.contains("bloques-planificacion")).toBe(
       true,
     );
     baseDatos.close();
@@ -72,7 +77,7 @@ describe("RepositorioContextosPlanificacionIndexedDB", () => {
       ContextoPlanificacion.crearLibre(new Date("2026-07-20T10:00:00.000Z")),
     );
     await repositorio.cerrar();
-    const baseDatos = await abrirBase(fabricaIndexedDB, 3);
+    const baseDatos = await abrirBase(fabricaIndexedDB, 4);
     await reemplazarVersion(baseDatos, "contexto-libre", 2);
     baseDatos.close();
 

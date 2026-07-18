@@ -1,6 +1,7 @@
 import {
   FechaLocal,
   type Agenda,
+  type BloquePlanificacion,
   type ContextoPlanificacion,
 } from "../../dominio";
 import { convertirActividadADto } from "../actividades/ActividadDto";
@@ -8,6 +9,7 @@ import { convertirContextoADto } from "../contextos/ContextoPlanificacionDto";
 import type { CalendarioLocal } from "../puertos/CalendarioLocal";
 import type { RepositorioActividades } from "../puertos/RepositorioActividades";
 import type { RepositorioAgendas } from "../puertos/RepositorioAgendas";
+import type { RepositorioBloquesPlanificacion } from "../puertos/RepositorioBloquesPlanificacion";
 import type { RepositorioContextosPlanificacion } from "../puertos/RepositorioContextosPlanificacion";
 import type {
   BloqueCalendarioDto,
@@ -46,6 +48,7 @@ export class CasoDeUsoConsultarCalendario {
     private readonly repositorioContextos: RepositorioContextosPlanificacion,
     private readonly repositorioActividades: RepositorioActividades,
     private readonly repositorioAgendas: RepositorioAgendas,
+    private readonly repositorioBloques: RepositorioBloquesPlanificacion,
     private readonly calendarioLocal: CalendarioLocal,
   ) {}
 
@@ -54,21 +57,34 @@ export class CasoDeUsoConsultarCalendario {
     const diaSeleccionado = consulta.diaSeleccionado
       ? FechaLocal.crear(consulta.diaSeleccionado)
       : undefined;
-    const [contextos, actividades, agendas] = await Promise.all([
-      this.repositorioContextos.listar(),
-      this.repositorioActividades.listar(),
-      this.repositorioAgendas.listar(),
-    ]);
+    const [contextos, actividades, agendas, bloquesPlanificacion] =
+      await Promise.all([
+        this.repositorioContextos.listar(),
+        this.repositorioActividades.listar(),
+        this.repositorioAgendas.listar(),
+        this.repositorioBloques.listar(),
+      ]);
     const hoy = this.calendarioLocal.hoy();
     const contextosOrdenados = this.ordenarContextos(contextos);
     const seleccion = this.resolverSeleccion(
       consulta.seleccion,
       contextosOrdenados,
     );
-    const bloquesSeleccionados = this.proyectarBloques(
-      agendas,
-      contextosOrdenados,
-      consulta.seleccion,
+    const bloquesSeleccionados = Object.freeze(
+      [
+        ...this.proyectarBloques(
+          agendas,
+          contextosOrdenados,
+          consulta.seleccion,
+        ),
+        ...this.proyectarBloquesPlanificacion(
+          bloquesPlanificacion,
+          contextosOrdenados,
+          consulta.seleccion,
+        ),
+      ].sort(
+        (a, b) => a.fecha.localeCompare(b.fecha) || a.id.localeCompare(b.id),
+      ),
     );
     const rangoVisible = calcularRangoVisible(
       consulta.vistaTemporal,
@@ -84,6 +100,16 @@ export class CasoDeUsoConsultarCalendario {
       bloquesSeleccionados,
     );
 
+    const actividadesOrdenadas = [...actividades]
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .map(convertirActividadADto);
+    const actividadesProgramadas = new Set([
+      ...agendas.flatMap((agenda) =>
+        agenda.listarBloques().map((bloque) => bloque.actividadId),
+      ),
+      ...bloquesPlanificacion.map((bloque) => bloque.actividadId),
+    ]);
+
     return Object.freeze({
       seleccion,
       vistaTemporal: consulta.vistaTemporal,
@@ -93,10 +119,11 @@ export class CasoDeUsoConsultarCalendario {
         : {}),
       hoy: hoy.toString(),
       contextos: Object.freeze(contextosOrdenados.map(convertirContextoADto)),
-      actividadesAsignables: Object.freeze(
-        [...actividades]
-          .sort((a, b) => a.id.localeCompare(b.id))
-          .map(convertirActividadADto),
+      actividadesAsignables: Object.freeze(actividadesOrdenadas),
+      actividadesSinProgramar: Object.freeze(
+        actividadesOrdenadas.filter(
+          (actividad) => !actividadesProgramadas.has(actividad.id),
+        ),
       ),
       bloquesVisibles,
       listaEquivalente: bloquesVisibles,
@@ -187,6 +214,7 @@ export class CasoDeUsoConsultarCalendario {
               ...bloque.politica.ajustesPermitidos,
             ]),
           }),
+          editable: false,
         }),
       );
     });
@@ -194,6 +222,56 @@ export class CasoDeUsoConsultarCalendario {
       bloques.sort(
         (a, b) => a.fecha.localeCompare(b.fecha) || a.id.localeCompare(b.id),
       ),
+    );
+  }
+
+  private proyectarBloquesPlanificacion(
+    bloques: readonly BloquePlanificacion[],
+    contextos: readonly ContextoPlanificacion[],
+    seleccion: SeleccionContextoCalendario,
+  ): readonly BloqueCalendarioDto[] {
+    const contextosPorId = new Map(
+      contextos.map((contexto) => [contexto.id, contexto] as const),
+    );
+    return Object.freeze(
+      bloques.flatMap((bloque) => {
+        const contexto = contextosPorId.get(bloque.contextoId);
+        if (!contexto) {
+          throw new ErrorConsultaCalendario(
+            "CONTEXTO_DE_AGENDA_NO_ENCONTRADO",
+            `El bloque ${bloque.id} no posee un contexto de planificación.`,
+          );
+        }
+        if (
+          seleccion.tipo === "CONTEXTO" &&
+          seleccion.contextoId !== contexto.id
+        ) {
+          return [];
+        }
+        return [
+          Object.freeze({
+            id: bloque.id,
+            actividadId: bloque.actividadId,
+            titulo: bloque.titulo,
+            fecha: bloque.fecha.toString(),
+            minutosPlanificados: bloque.minutosPlanificados,
+            estado: "PENDIENTE" as const,
+            origen: Object.freeze({
+              contextoId: contexto.id,
+              nombreContexto: contexto.nombre,
+              tipoContexto: contexto.tipo,
+            }),
+            politica: Object.freeze({
+              rigidez: bloque.politica.rigidez,
+              autoridadPlazo: bloque.politica.autoridadPlazo,
+              ajustesPermitidos: Object.freeze([
+                ...bloque.politica.ajustesPermitidos,
+              ]),
+            }),
+            editable: true,
+          }),
+        ];
+      }),
     );
   }
 

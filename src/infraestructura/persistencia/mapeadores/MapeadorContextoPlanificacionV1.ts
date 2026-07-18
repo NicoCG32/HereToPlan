@@ -20,6 +20,7 @@ export function convertirContextoEnV1(
     versionEsquema: 1,
     id: contexto.id,
     nombre: contexto.nombre,
+    ...(contexto.proposito ? { proposito: contexto.proposito } : {}),
     tipo: contexto.tipo,
     ...(contexto.fechaInicio
       ? { fechaInicio: contexto.fechaInicio.toString() }
@@ -42,6 +43,9 @@ export function rehidratarContextoDesdeV1(
     return ContextoPlanificacion.rehidratar({
       id: registro.id,
       nombre: registro.nombre,
+      ...(registro.proposito !== undefined
+        ? { proposito: registro.proposito }
+        : {}),
       tipo: registro.tipo,
       ...(registro.fechaInicio
         ? { fechaInicio: FechaLocal.crear(registro.fechaInicio) }

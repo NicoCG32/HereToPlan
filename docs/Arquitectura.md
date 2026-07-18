@@ -292,15 +292,25 @@ listar y eliminar únicamente contextos nombrados. La prohibición de eliminar
 la misma semántica asíncrona.
 
 `ContextoPlanificacionV1` es un registro plano y versionado. Conserva identidad,
-nombre, tipo, rango civil opcional e instante de creación; deliberadamente no
-contiene bloques, estados de confirmación ni una vista temporal. Día, semana y
-mes siguen siendo proyecciones del calendario y no clases de contexto.
+nombre, propósito opcional, tipo, rango civil opcional e instante de creación;
+deliberadamente no contiene bloques, estados de confirmación ni una vista
+temporal. Día, semana y mes siguen siendo proyecciones del calendario y no
+clases de contexto. El propósito es una ampliación compatible del esquema V1:
+los registros anteriores que no lo incluyen continúan siendo válidos y los
+nuevos lo persisten sin requerir una migración de IndexedDB.
 
 La versión 3 de la base añade el almacén `contextos-planificacion`. La
 actualización de esquema solo crea el almacén ausente: no transforma ni elimina
 los registros de `agendas` o `actividades`. La prueba de actualización parte de
 una base versión 2 y comprueba explícitamente la conservación de ambos
 almacenes.
+
+La versión 4 añade `bloques-planificacion` para persistir asignaciones editables
+sin forzar que `Libre` o un contexto abierto se conviertan en una `Agenda`
+legada con rango artificial. `BloquePlanificacionV1` conserva referencias a
+contexto y actividad, fecha civil, minutos, título, política efectiva e instante
+de creación. La actualización es aditiva y mantiene intactos los tres almacenes
+anteriores.
 
 `InicializarContextosPlanificacion` garantiza una sola instancia de `Libre` de
 forma idempotente. La raíz de composición ejecuta este caso de uso antes de
@@ -317,9 +327,9 @@ el instante original de `Libre`.
 
 ### 6.7. Modelo de lectura del calendario
 
-`ConsultarCalendario` compone los puertos de contextos, actividades y agendas
-sin modificar sus agregados. Su resultado es un `CalendarioDto` inmutable que
-contiene cinco proyecciones coordinadas:
+`ConsultarCalendario` compone los puertos de contextos, actividades, agendas
+legadas y bloques editables sin modificar sus agregados. Su resultado es un
+`CalendarioDto` inmutable que contiene proyecciones coordinadas:
 
 1. la selección global `Todas`, `Libre` o un contexto nombrado;
 2. el rango visible derivado de una fecha ancla y la vista día, semana o mes;
@@ -327,7 +337,9 @@ contiene cinco proyecciones coordinadas:
    origen;
 4. exactamente hoy y los seis días civiles siguientes;
 5. una lista con los mismos bloques que la proyección visual, destinada a móvil
-   y accesibilidad.
+   y accesibilidad;
+6. el catálogo asignable y la proyección `Sin programar`, calculada por ausencia
+   de bloques explícitos.
 
 Las vistas temporales no son agregados ni tipos de contexto. Son funciones de
 proyección sobre los mismos bloques; cambiar de vista o filtro no escribe ni
@@ -344,6 +356,21 @@ Presentación distingue estados `cargando`, `vacío`, `lista` y `error`, además
 la persistencia `sin_cambios`, `guardando`, `guardado` o `error`. Estos estados
 envuelven el DTO; no introducen reglas de calendario ni referencias a entidades
 del dominio.
+
+La entrada principal abre el calendario en la selección `Todas`. El selector
+permite delimitar la lectura a `Libre` o a un contexto nombrado, mientras las
+asignaciones que no declaran contexto conservan `Libre` como destino. El panel
+de creación es opcional: invoca `CrearContextoNombrado`, muestra los errores del
+caso de uso junto a sus campos y, al guardar, actualiza la lista sin acceder al
+repositorio desde React. Al cancelar no se ejecuta ningún caso de uso de
+escritura.
+
+Seleccionar una fecha habilita dos recorridos. El primero asigna una actividad
+existente mediante `AsignarActividad`; el segundo invoca `CrearActividad` y
+continúa con la asignación solo cuando la persona lo solicita. Editar y quitar
+usan casos de uso independientes. React nunca escribe en IndexedDB ni modifica
+entidades directamente: tras cada operación vuelve a ejecutar la consulta y las
+vistas de calendario, siete días y lista se derivan del mismo DTO.
 
 ## 7. Operaciones entre agregados y atomicidad
 
@@ -373,14 +400,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                            |
-| --------------- | ------------------------------------------------------------------------ |
-| Dominio         | Actividades, contextos, agendas y compromisos protegidos por invariantes |
-| Presentación    | Formularios React para crear agendas y editar bloques                    |
-| Aplicación      | Casos de uso y DTO para actividades, contextos y agendas                 |
-| Infraestructura | Repositorios en memoria e IndexedDB y registros persistidos versionados  |
-| Composición     | Ensambla casos de uso e inicializa `Libre` antes de montar React         |
-| Persistencia    | IndexedDB v3 conserva agendas y actividades al incorporar contextos      |
+| Elemento        | Estado actual                                                             |
+| --------------- | ------------------------------------------------------------------------- |
+| Dominio         | Actividades, contextos, agendas y compromisos protegidos por invariantes  |
+| Presentación    | Calendario general y formularios React para contextos, agendas y bloques  |
+| Aplicación      | Casos de uso y DTO para actividades, contextos y agendas                  |
+| Infraestructura | Repositorios en memoria e IndexedDB y registros persistidos versionados   |
+| Composición     | Ensambla casos de uso e inicializa `Libre` antes de montar React          |
+| Persistencia    | IndexedDB v4 añade bloques editables sin alterar los almacenes anteriores |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes
