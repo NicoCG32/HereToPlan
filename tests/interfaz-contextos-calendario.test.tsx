@@ -1,23 +1,38 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   CasoDeUsoAsignarActividad,
   CasoDeUsoConsultarCalendario,
+  CasoDeUsoConsultarImpactoEliminacionContexto,
   CasoDeUsoCrearActividad,
   CasoDeUsoCrearContextoNombrado,
   CasoDeUsoEditarBloquePlanificacion,
+  CasoDeUsoEliminarContextoPlanificacion,
   CasoDeUsoEliminarBloquePlanificacion,
   CasoDeUsoInicializarContextosPlanificacion,
   CasoDeUsoListarContextosPlanificacion,
   type CalendarioLocal,
 } from "../src/aplicacion";
 import { App } from "../src/app/App";
-import { FechaLocal } from "../src/dominio";
+import {
+  BloquePlanificacion,
+  ContextoPlanificacion,
+  FechaLocal,
+  PoliticaCompromiso,
+} from "../src/dominio";
 import { RepositorioActividadesEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioActividadesEnMemoria";
 import { RepositorioAgendasEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioAgendasEnMemoria";
 import { RepositorioBloquesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioBloquesPlanificacionEnMemoria";
 import { RepositorioContextosPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioContextosPlanificacionEnMemoria";
+import { TransaccionEliminacionContextoPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/TransaccionEliminacionContextoPlanificacionEnMemoria";
 import type { ServiciosCalendario } from "../src/presentacion/calendario/ServiciosCalendario";
 import {
   GeneradorIdentificadoresPredefinidos,
@@ -223,6 +238,103 @@ describe("interfaz de contextos del calendario", () => {
       screen.getByRole("button", { name: "Agendar Proyecto editorial" }),
     ).toBeTruthy();
   });
+
+  it("cancela el diálogo y luego elimina trasladando los bloques a Libre", async () => {
+    const usuario = userEvent.setup();
+    const entorno = await crearEntorno();
+    await prepararAgendaEliminable(entorno);
+    render(<App serviciosCalendario={entorno.servicios} />);
+    await screen.findByRole("heading", { name: "Calendario general" });
+    expect(
+      screen.queryByRole("button", { name: /Eliminar agenda/ }),
+    ).toBeNull();
+    await usuario.selectOptions(
+      screen.getByLabelText("Contexto visible"),
+      "contexto-eliminable",
+    );
+    const botonEliminar = await screen.findByRole("button", {
+      name: "Eliminar agenda Proyecto temporal",
+    });
+
+    await usuario.click(botonEliminar);
+    const dialogo = await screen.findByRole("dialog", {
+      name: "Eliminar agenda Proyecto temporal",
+    });
+    expect(dialogo.textContent).toContain("Bloques editables1");
+    expect(document.activeElement).toBe(
+      within(dialogo).getByRole("button", { name: "Cancelar" }),
+    );
+    await usuario.click(
+      within(dialogo).getByRole("button", { name: "Cancelar" }),
+    );
+    await waitFor(() => expect(document.activeElement).toBe(botonEliminar));
+
+    await usuario.click(botonEliminar);
+    await usuario.click(
+      await screen.findByRole("button", {
+        name: "Trasladar a Libre y eliminar agenda",
+      }),
+    );
+
+    expect(
+      await screen.findByText(
+        /fue eliminada y sus 1 bloques editables quedaron en Libre/,
+      ),
+    ).toBeTruthy();
+    expect(screen.getByLabelText("Contexto visible")).toHaveProperty(
+      "value",
+      "contexto-libre",
+    );
+    await expect(
+      entorno.repositorio.obtenerPorId("contexto-eliminable"),
+    ).resolves.toBeUndefined();
+    await expect(
+      entorno.bloques.obtenerPorId("bloque-eliminable"),
+    ).resolves.toMatchObject({ contextoId: "contexto-libre" });
+  }, 15_000);
+
+  it("requiere escribir el nombre antes de eliminar también los borradores", async () => {
+    const usuario = userEvent.setup();
+    const entorno = await crearEntorno();
+    await prepararAgendaEliminable(entorno);
+    render(<App serviciosCalendario={entorno.servicios} />);
+    await screen.findByRole("heading", { name: "Calendario general" });
+    await usuario.selectOptions(
+      screen.getByLabelText("Contexto visible"),
+      "contexto-eliminable",
+    );
+    await usuario.click(
+      await screen.findByRole("button", {
+        name: "Eliminar agenda Proyecto temporal",
+      }),
+    );
+    await usuario.click(
+      await screen.findByRole("button", {
+        name: "Eliminar también los borradores",
+      }),
+    );
+    const confirmacion = screen.getByLabelText(
+      /Escribe Proyecto temporal para confirmar/,
+    );
+    const botonDestructivo = screen.getByRole("button", {
+      name: "Eliminar agenda y sus borradores",
+    });
+    expect(document.activeElement).toBe(confirmacion);
+    expect(botonDestructivo).toHaveProperty("disabled", true);
+    await usuario.type(confirmacion, "Proyecto temporal");
+    expect(botonDestructivo).toHaveProperty("disabled", false);
+    await usuario.click(botonDestructivo);
+
+    expect(
+      await screen.findByText(/y sus 1 bloques editables fueron eliminados/),
+    ).toBeTruthy();
+    await expect(
+      entorno.bloques.obtenerPorId("bloque-eliminable"),
+    ).resolves.toBeUndefined();
+    await expect(
+      entorno.repositorio.obtenerPorId("contexto-eliminable"),
+    ).resolves.toBeUndefined();
+  }, 15_000);
 });
 
 async function crearServicios(): Promise<ServiciosCalendario> {
@@ -239,6 +351,12 @@ async function crearEntorno() {
     repositorio,
     reloj,
   ).ejecutar();
+  const transaccionEliminacion =
+    new TransaccionEliminacionContextoPlanificacionEnMemoria(
+      repositorio,
+      bloques,
+      agendas,
+    );
   const servicios: ServiciosCalendario = {
     crearContexto: new CasoDeUsoCrearContextoNombrado(
       repositorio,
@@ -279,9 +397,48 @@ async function crearEntorno() {
     ),
     editarBloque: new CasoDeUsoEditarBloquePlanificacion(bloques, repositorio),
     eliminarBloque: new CasoDeUsoEliminarBloquePlanificacion(bloques),
+    consultarImpactoEliminacion:
+      new CasoDeUsoConsultarImpactoEliminacionContexto(
+        repositorio,
+        transaccionEliminacion,
+      ),
+    eliminarContexto: new CasoDeUsoEliminarContextoPlanificacion(
+      repositorio,
+      transaccionEliminacion,
+    ),
   };
 
   return { repositorio, bloques, servicios };
+}
+
+async function prepararAgendaEliminable(
+  entorno: Awaited<ReturnType<typeof crearEntorno>>,
+): Promise<void> {
+  await entorno.repositorio.guardar(
+    ContextoPlanificacion.crearNombrado({
+      id: "contexto-eliminable",
+      nombre: "Proyecto temporal",
+      fechaInicio: FechaLocal.crear("2026-07-01"),
+      fechaFin: FechaLocal.crear("2026-08-31"),
+      creadaEn: new Date("2026-07-20T10:00:00.000Z"),
+    }),
+  );
+  await entorno.bloques.guardar(
+    new BloquePlanificacion({
+      id: "bloque-eliminable",
+      contextoId: "contexto-eliminable",
+      actividadId: "actividad-eliminable",
+      titulo: "Preparar entrega",
+      fecha: FechaLocal.crear("2026-07-22"),
+      minutosPlanificados: 45,
+      politica: new PoliticaCompromiso({
+        rigidez: "FLEXIBLE",
+        autoridadPlazo: "PERSONAL",
+        ajustesPermitidos: ["REPROGRAMAR"],
+      }),
+      creadoEn: new Date("2026-07-20T10:00:00.000Z"),
+    }),
+  );
 }
 
 class CalendarioLocalFijo implements CalendarioLocal {

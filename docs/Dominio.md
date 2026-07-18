@@ -115,6 +115,18 @@ Reglas de la frontera:
 5. Un contexto puede continuar recibiendo planificación futura aunque contenga bloques históricos confirmados.
 6. Eliminar un contexto nombrado nunca elimina historial confirmado; la planificación no confirmada se traslada a `Libre` o se elimina mediante una decisión destructiva independiente.
 
+La eliminación se decide sobre una fotografía explícita del impacto: cantidad
+de actividades, bloques editables y registros confirmados vinculados. Esa
+fotografía posee una huella de concurrencia; si el estado cambia antes de
+confirmar, la operación se rechaza completa y debe consultarse nuevamente. La
+identidad `Libre` permanece protegida incluso cuando la solicitud no procede de
+la interfaz.
+
+Los registros históricos de una agenda eliminada conservan su identidad y sus
+metadatos en el almacén legado. La proyección de calendario puede mostrarlos
+como procedentes de una agenda eliminada, pero no los reasigna ni reescribe su
+origen para aparentar que pertenecían a `Libre`.
+
 ### `compromisos`
 
 Contiene `PoliticaCompromiso` y `AjusteCompromiso`.

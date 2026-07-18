@@ -242,12 +242,22 @@ describe("consulta del calendario general", () => {
     } satisfies Partial<ErrorConsultaCalendario>);
   });
 
-  it("rechaza una agenda cuyo contexto no fue migrado", async () => {
+  it("proyecta el historial de una agenda cuyo contexto fue eliminado", async () => {
     const contextos = new RepositorioContextosPlanificacionEnMemoria();
     const actividades = new RepositorioActividadesEnMemoria();
     const agendas = new RepositorioAgendasEnMemoria();
     await contextos.guardar(ContextoPlanificacion.crearLibre(CREADA_EN));
-    await agendas.guardar(crearAgenda("agenda-sin-contexto", "Inconsistente"));
+    const historica = crearAgenda("agenda-sin-contexto", "Semestre anterior");
+    agregarBloque(
+      historica,
+      "bloque-historico",
+      "actividad-historica",
+      "2026-07-20",
+      60,
+      "ESTRICTO",
+    );
+    historica.confirmar(new Date("2026-07-18T11:00:00.000Z"));
+    await agendas.guardar(historica);
     const casoDeUso = new CasoDeUsoConsultarCalendario(
       contextos,
       actividades,
@@ -256,16 +266,23 @@ describe("consulta del calendario general", () => {
       new CalendarioLocalFijo("2026-07-20"),
     );
 
-    await expect(
-      casoDeUso.ejecutar({
-        seleccion: { tipo: "TODAS" },
-        vistaTemporal: "MES",
-        fechaAncla: "2026-07-20",
+    const calendario = await casoDeUso.ejecutar({
+      seleccion: { tipo: "TODAS" },
+      vistaTemporal: "MES",
+      fechaAncla: "2026-07-20",
+    });
+
+    expect(calendario.bloquesVisibles).toEqual([
+      expect.objectContaining({
+        id: "bloque-historico",
+        editable: false,
+        origen: {
+          contextoId: "agenda-sin-contexto",
+          nombreContexto: "Semestre anterior (agenda eliminada)",
+          tipoContexto: "NOMBRADO",
+        },
       }),
-    ).rejects.toMatchObject({
-      name: "ErrorConsultaCalendario",
-      codigo: "CONTEXTO_DE_AGENDA_NO_ENCONTRADO",
-    } satisfies Partial<ErrorConsultaCalendario>);
+    ]);
   });
 });
 

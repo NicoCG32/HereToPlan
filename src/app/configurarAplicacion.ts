@@ -1,10 +1,12 @@
 import {
   CasoDeUsoAsignarActividad,
   CasoDeUsoConsultarCalendario,
+  CasoDeUsoConsultarImpactoEliminacionContexto,
   CasoDeUsoCrearActividad,
   CasoDeUsoCrearAgendaBorrador,
   CasoDeUsoCrearContextoNombrado,
   CasoDeUsoEditarBloquePlanificacion,
+  CasoDeUsoEliminarContextoPlanificacion,
   CasoDeUsoEliminarBloquePlanificacion,
   CasoDeUsoGuardarBloquesAgendaBorrador,
   CasoDeUsoInicializarContextosPlanificacion,
@@ -16,6 +18,7 @@ import { RepositorioAgendasIndexedDB } from "../infraestructura/persistencia/ind
 import { RepositorioBloquesPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioBloquesPlanificacionIndexedDB";
 import { RepositorioContextosPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioContextosPlanificacionIndexedDB";
 import { MigradorContextosDesdeAgendasIndexedDB } from "../infraestructura/persistencia/indexeddb/MigradorContextosDesdeAgendasIndexedDB";
+import { TransaccionEliminacionContextoPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionEliminacionContextoPlanificacionIndexedDB";
 import { CalendarioLocalSistema } from "../infraestructura/sistema/CalendarioLocalSistema";
 import { GeneradorIdentificadoresUUID } from "../infraestructura/sistema/GeneradorIdentificadoresUUID";
 import { RelojSistema } from "../infraestructura/sistema/RelojSistema";
@@ -30,6 +33,8 @@ let repositorioContextos:
 let repositorioActividades: RepositorioActividadesIndexedDB | undefined;
 let repositorioAgendas: RepositorioAgendasIndexedDB | undefined;
 let repositorioBloques: RepositorioBloquesPlanificacionIndexedDB | undefined;
+let transaccionEliminacion:
+  TransaccionEliminacionContextoPlanificacionIndexedDB | undefined;
 
 export function inicializarAplicacion(): Promise<void> {
   if (!inicializacionPendiente) {
@@ -83,6 +88,7 @@ function crearServiciosCalendario(): ServiciosCalendario {
   const bloques = obtenerRepositorioBloques();
   const reloj = new RelojSistema();
   const generador = new GeneradorIdentificadoresUUID();
+  const eliminacion = obtenerTransaccionEliminacion();
   return Object.freeze({
     crearContexto: new CasoDeUsoCrearContextoNombrado(
       contextos,
@@ -107,6 +113,12 @@ function crearServiciosCalendario(): ServiciosCalendario {
     ),
     editarBloque: new CasoDeUsoEditarBloquePlanificacion(bloques, contextos),
     eliminarBloque: new CasoDeUsoEliminarBloquePlanificacion(bloques),
+    consultarImpactoEliminacion:
+      new CasoDeUsoConsultarImpactoEliminacionContexto(contextos, eliminacion),
+    eliminarContexto: new CasoDeUsoEliminarContextoPlanificacion(
+      contextos,
+      eliminacion,
+    ),
   });
 }
 
@@ -128,4 +140,10 @@ function obtenerRepositorioAgendas(): RepositorioAgendasIndexedDB {
 function obtenerRepositorioBloques(): RepositorioBloquesPlanificacionIndexedDB {
   repositorioBloques ??= new RepositorioBloquesPlanificacionIndexedDB();
   return repositorioBloques;
+}
+
+function obtenerTransaccionEliminacion(): TransaccionEliminacionContextoPlanificacionIndexedDB {
+  transaccionEliminacion ??=
+    new TransaccionEliminacionContextoPlanificacionIndexedDB();
+  return transaccionEliminacion;
 }

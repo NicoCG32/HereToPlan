@@ -4,8 +4,10 @@ import type {
   BloqueCalendarioDto,
   CalendarioDto,
   ContextoPlanificacionDto,
+  ImpactoEliminacionContextoDto,
   VistaTemporalCalendario,
 } from "../../aplicacion";
+import { DialogoEliminarContexto } from "./DialogoEliminarContexto";
 import { FormularioActividadCalendario } from "./FormularioActividadCalendario";
 import { FormularioBloqueCalendario } from "./FormularioBloqueCalendario";
 import { FormularioContextoNombrado } from "./FormularioContextoNombrado";
@@ -25,6 +27,8 @@ const ID_CONTEXTO_LIBRE = "contexto-libre";
 
 export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
   const botonCrearContextoRef = useRef<HTMLButtonElement>(null);
+  const botonEliminarContextoRef = useRef<HTMLButtonElement>(null);
+  const selectorContextoRef = useRef<HTMLSelectElement>(null);
   const fechaInicialSincronizadaRef = useRef(false);
   const [estado, setEstado] = useState<EstadoCalendario>({ tipo: "cargando" });
   const [seleccion, setSeleccion] = useState(SELECCION_TODAS);
@@ -41,6 +45,11 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
   const [bloqueEditado, setBloqueEditado] = useState<BloqueCalendarioDto>();
   const [mensaje, setMensaje] = useState<string>();
   const [errorAccion, setErrorAccion] = useState<string>();
+  const [impactoEliminacion, setImpactoEliminacion] =
+    useState<ImpactoEliminacionContextoDto>();
+  const [consultandoImpacto, setConsultandoImpacto] = useState(false);
+  const [procesandoEliminacion, setProcesandoEliminacion] = useState(false);
+  const [errorEliminacion, setErrorEliminacion] = useState<string>();
   const [revision, setRevision] = useState(0);
 
   useEffect(() => {
@@ -134,6 +143,76 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
     }
   };
 
+  const abrirEliminacion = async (contextoId: string) => {
+    setConsultandoImpacto(true);
+    setErrorAccion(undefined);
+    setErrorEliminacion(undefined);
+    try {
+      const resultado =
+        await servicios.consultarImpactoEliminacion.ejecutar(contextoId);
+      if (resultado.exito) {
+        setImpactoEliminacion(resultado.impacto);
+        return;
+      }
+      setErrorAccion(resultado.error.mensaje);
+    } catch (error: unknown) {
+      setErrorAccion(
+        error instanceof Error
+          ? error.message
+          : "No fue posible calcular el impacto de eliminar la agenda.",
+      );
+    } finally {
+      setConsultandoImpacto(false);
+    }
+  };
+
+  const cancelarEliminacion = () => {
+    setImpactoEliminacion(undefined);
+    setErrorEliminacion(undefined);
+    requestAnimationFrame(() => botonEliminarContextoRef.current?.focus());
+  };
+
+  const ejecutarEliminacion = async (
+    estrategia: "TRASLADAR_A_LIBRE" | "ELIMINAR_BORRADORES",
+    confirmacionReforzada?: string,
+  ) => {
+    if (!impactoEliminacion) return;
+    setProcesandoEliminacion(true);
+    setErrorEliminacion(undefined);
+    try {
+      const resultado = await servicios.eliminarContexto.ejecutar({
+        contextoId: impactoEliminacion.contextoId,
+        estrategia,
+        huellaImpacto: impactoEliminacion.huella,
+        ...(confirmacionReforzada ? { confirmacionReforzada } : {}),
+      });
+      if (!resultado.exito) {
+        setErrorEliminacion(resultado.error.mensaje);
+        return;
+      }
+      setImpactoEliminacion(undefined);
+      setSeleccion(ID_CONTEXTO_LIBRE);
+      setDiaSeleccionado(undefined);
+      setBloqueEditado(undefined);
+      setActividadPreseleccionadaId(undefined);
+      setMensaje(
+        estrategia === "TRASLADAR_A_LIBRE"
+          ? `La agenda ${resultado.resultado.nombre} fue eliminada y sus ${resultado.resultado.cantidadBloquesTrasladados} bloques editables quedaron en Libre.`
+          : `La agenda ${resultado.resultado.nombre} y sus ${resultado.resultado.cantidadBloquesEliminados} bloques editables fueron eliminados. El historial confirmado se conservó.`,
+      );
+      setRevision((actual) => actual + 1);
+      requestAnimationFrame(() => selectorContextoRef.current?.focus());
+    } catch (error: unknown) {
+      setErrorEliminacion(
+        error instanceof Error
+          ? error.message
+          : "No fue posible eliminar la agenda sin comprometer sus datos.",
+      );
+    } finally {
+      setProcesandoEliminacion(false);
+    }
+  };
+
   if (estado.tipo === "cargando") {
     return (
       <section className="panel-agenda estado-carga" aria-live="polite">
@@ -164,6 +243,10 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
   const contextoAsignacion = calendario.contextos.find(
     (contexto) => contexto.id === contextoAsignacionId,
   );
+  const contextoEliminable =
+    seleccion !== SELECCION_TODAS && contextoAsignacion?.tipo === "NOMBRADO"
+      ? contextoAsignacion
+      : undefined;
   const editorVisible = diaSeleccionado || bloqueEditado;
 
   return (
@@ -201,6 +284,7 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
         <div className="campo selector-contexto">
           <label htmlFor="selector-contexto">Contexto visible</label>
           <select
+            ref={selectorContextoRef}
             id="selector-contexto"
             value={seleccion}
             onChange={(evento) => {
@@ -222,6 +306,19 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
           Las nuevas asignaciones se incorporarán en{" "}
           <strong>{contextoAsignacion?.nombre ?? "Libre"}</strong>.
         </p>
+        {contextoEliminable && (
+          <button
+            ref={botonEliminarContextoRef}
+            className="boton-texto boton-peligro"
+            type="button"
+            onClick={() => void abrirEliminacion(contextoEliminable.id)}
+            disabled={consultandoImpacto}
+          >
+            {consultandoImpacto
+              ? "Calculando impacto…"
+              : `Eliminar agenda ${contextoEliminable.nombre}`}
+          </button>
+        )}
       </div>
 
       <BarraNavegacionCalendario
@@ -375,6 +472,21 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
         }}
         onQuitar={(bloque) => void quitarBloque(bloque)}
       />
+
+      {impactoEliminacion && (
+        <DialogoEliminarContexto
+          impacto={impactoEliminacion}
+          procesando={procesandoEliminacion}
+          {...(errorEliminacion ? { error: errorEliminacion } : {})}
+          onCancelar={cancelarEliminacion}
+          onTrasladarALibre={() =>
+            void ejecutarEliminacion("TRASLADAR_A_LIBRE")
+          }
+          onEliminarBorradores={(confirmacion) =>
+            void ejecutarEliminacion("ELIMINAR_BORRADORES", confirmacion)
+          }
+        />
+      )}
     </section>
   );
 }

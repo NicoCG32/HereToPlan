@@ -182,18 +182,20 @@ export class CasoDeUsoConsultarCalendario {
     );
     const bloques = agendas.flatMap((agenda) => {
       const contexto = contextosPorId.get(agenda.id);
-      if (!contexto) {
-        throw new ErrorConsultaCalendario(
-          "CONTEXTO_DE_AGENDA_NO_ENCONTRADO",
-          `La agenda ${agenda.id} no posee un contexto de planificación.`,
-        );
-      }
-      if (
-        seleccion.tipo === "CONTEXTO" &&
-        seleccion.contextoId !== contexto.id
-      ) {
+      if (seleccion.tipo === "CONTEXTO" && seleccion.contextoId !== agenda.id) {
         return [];
       }
+      const origen = contexto
+        ? Object.freeze({
+            contextoId: contexto.id,
+            nombreContexto: contexto.nombre,
+            tipoContexto: contexto.tipo,
+          })
+        : Object.freeze({
+            contextoId: agenda.id,
+            nombreContexto: `${agenda.nombre} (agenda eliminada)`,
+            tipoContexto: "NOMBRADO" as const,
+          });
       return agenda.listarBloques().map((bloque) =>
         Object.freeze({
           id: bloque.id,
@@ -202,11 +204,7 @@ export class CasoDeUsoConsultarCalendario {
           fecha: bloque.fecha.toString(),
           minutosPlanificados: bloque.minutosPlanificados,
           estado: bloque.estado,
-          origen: Object.freeze({
-            contextoId: contexto.id,
-            nombreContexto: contexto.nombre,
-            tipoContexto: contexto.tipo,
-          }),
+          origen,
           politica: Object.freeze({
             rigidez: bloque.politica.rigidez,
             autoridadPlazo: bloque.politica.autoridadPlazo,

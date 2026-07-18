@@ -372,6 +372,30 @@ usan casos de uso independientes. React nunca escribe en IndexedDB ni modifica
 entidades directamente: tras cada operación vuelve a ejecutar la consulta y las
 vistas de calendario, siete días y lista se derivan del mismo DTO.
 
+### 6.8. Eliminación transaccional de contextos
+
+La eliminación de un contexto nombrado atraviesa dos casos de uso. El primero
+consulta el impacto y devuelve cantidades de actividades, bloques editables y
+registros confirmados, junto con una huella del estado observado. El segundo
+recibe esa huella y una estrategia explícita: trasladar los borradores a
+`Libre`, o eliminarlos después de una confirmación reforzada. Ambos casos
+rechazan `Libre` y no dependen de que la interfaz oculte la acción.
+
+La operación de escritura se expresa mediante el puerto
+`TransaccionEliminacionContextoPlanificacion`. Su adaptador IndexedDB abre una
+única transacción de lectura y escritura sobre contextos, bloques editables y
+agendas legadas. Dentro de ella vuelve a calcular la huella, aplica la estrategia
+y elimina el contexto; cualquier divergencia o fallo aborta todas las
+escrituras. El almacén de agendas participa para validar el impacto, pero nunca
+se modifica: los compromisos confirmados, sus resoluciones y sus movimientos
+históricos permanecen intactos.
+
+El adaptador en memoria conserva el mismo contrato observable y restaura sus
+colecciones ante un error. Esta compensación permite probar la atomicidad sin
+confundirla con el mecanismo transaccional específico de IndexedDB. Después de
+una eliminación válida, presentación selecciona `Libre`, actualiza el calendario
+y comunica el resultado; estas reacciones no forman parte de la transacción.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 `Agenda` y `BilleteraPuntos` son agregados diferentes. El dominio puede evaluar reglas y preparar una decisión, pero no debe simular una transacción técnica entre agregados.
@@ -404,8 +428,8 @@ La arquitectura es un contrato de evolución; no debe confundirse con el grado a
 | --------------- | ------------------------------------------------------------------------- |
 | Dominio         | Actividades, contextos, agendas y compromisos protegidos por invariantes  |
 | Presentación    | Calendario general y formularios React para contextos, agendas y bloques  |
-| Aplicación      | Casos de uso y DTO para actividades, contextos y agendas                  |
-| Infraestructura | Repositorios en memoria e IndexedDB y registros persistidos versionados   |
+| Aplicación      | Casos de uso y DTO para actividades, contextos, agendas y su eliminación  |
+| Infraestructura | Repositorios y transacciones en memoria e IndexedDB con registros V1      |
 | Composición     | Ensambla casos de uso e inicializa `Libre` antes de montar React          |
 | Persistencia    | IndexedDB v4 añade bloques editables sin alterar los almacenes anteriores |
 

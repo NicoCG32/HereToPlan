@@ -4,7 +4,9 @@ import type {
   CasoDeUsoCrearActividad,
   CasoDeUsoCrearContextoNombrado,
   CasoDeUsoEditarBloquePlanificacion,
+  CasoDeUsoEliminarContextoPlanificacion,
   CasoDeUsoEliminarBloquePlanificacion,
+  CasoDeUsoConsultarImpactoEliminacionContexto,
   CasoDeUsoListarContextosPlanificacion,
 } from "../../aplicacion";
 
@@ -20,6 +22,14 @@ export interface ServiciosCalendario {
   readonly editarBloque: Pick<CasoDeUsoEditarBloquePlanificacion, "ejecutar">;
   readonly eliminarBloque: Pick<
     CasoDeUsoEliminarBloquePlanificacion,
+    "ejecutar"
+  >;
+  readonly consultarImpactoEliminacion: Pick<
+    CasoDeUsoConsultarImpactoEliminacionContexto,
+    "ejecutar"
+  >;
+  readonly eliminarContexto: Pick<
+    CasoDeUsoEliminarContextoPlanificacion,
     "ejecutar"
   >;
 }
