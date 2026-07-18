@@ -315,6 +315,36 @@ parcial; la inicialización posterior funciona como garantía idempotente para
 bases nuevas o ya migradas. Repetir el arranque no duplica registros ni cambia
 el instante original de `Libre`.
 
+### 6.7. Modelo de lectura del calendario
+
+`ConsultarCalendario` compone los puertos de contextos, actividades y agendas
+sin modificar sus agregados. Su resultado es un `CalendarioDto` inmutable que
+contiene cinco proyecciones coordinadas:
+
+1. la selección global `Todas`, `Libre` o un contexto nombrado;
+2. el rango visible derivado de una fecha ancla y la vista día, semana o mes;
+3. los bloques visibles, cada uno con la identidad y el nombre de su contexto de
+   origen;
+4. exactamente hoy y los seis días civiles siguientes;
+5. una lista con los mismos bloques que la proyección visual, destinada a móvil
+   y accesibilidad.
+
+Las vistas temporales no son agregados ni tipos de contexto. Son funciones de
+proyección sobre los mismos bloques; cambiar de vista o filtro no escribe ni
+duplica información. El resumen de la selección se calcula sobre todos sus
+bloques, aunque algunos queden fuera del rango visible.
+
+El puerto `CalendarioLocal` proporciona la fecha civil vigente. Así, aplicación
+puede construir los siete días próximos de forma determinista, mientras el
+adaptador del entorno conserva la responsabilidad de interpretar el instante y
+la zona horaria de la persona usuaria. Las pruebas sustituyen ese puerto por una
+fecha controlada y no dependen de la zona horaria del proceso de CI.
+
+Presentación distingue estados `cargando`, `vacío`, `lista` y `error`, además de
+la persistencia `sin_cambios`, `guardando`, `guardado` o `error`. Estos estados
+envuelven el DTO; no introducen reglas de calendario ni referencias a entidades
+del dominio.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 `Agenda` y `BilleteraPuntos` son agregados diferentes. El dominio puede evaluar reglas y preparar una decisión, pero no debe simular una transacción técnica entre agregados.
