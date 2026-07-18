@@ -435,9 +435,17 @@ La arquitectura es un contrato de evolución; no debe confundirse con el grado a
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes
-del dominio, el puerto `RepositorioAgendas` y el adaptador IndexedDB. Los DTO
-impiden que la presentación reciba referencias mutables de los agregados y la
-suite contractual mantiene equivalencia entre memoria e IndexedDB.
+del dominio y los puertos de persistencia antes de alcanzar IndexedDB. Contextos,
+actividades y bloques editables poseen almacenes independientes; las agendas
+legadas se consultan como fuente histórica. Los DTO impiden que presentación
+reciba referencias mutables de los agregados y las suites contractuales mantienen
+equivalencia entre memoria e IndexedDB.
+
+La prueba vertical del calendario crea planificación mediante los casos de uso,
+descarta toda la composición en memoria y construye otra sobre la misma base de
+datos. La segunda composición debe recuperar contextos, actividades programadas
+y sin programar, bloques y origen; además, las vistas global, filtrada, semanal y
+de lista deben derivarse nuevamente sin conservar estado accidental de React.
 
 ## 10. Criterios de conformidad
 
@@ -451,6 +459,7 @@ Un incremento respeta esta arquitectura cuando:
 - prueba las reglas del dominio sin navegador ni almacenamiento;
 - prueba los casos de uso con adaptadores de prueba;
 - prueba cada adaptador contra el contrato que implementa;
+- prueba la recuperación del recorrido vertical desde una composición nueva;
 - mantiene el build estático independiente de servicios locales.
 
 Como frontera mínima, deben conservarse las pruebas de inmutabilidad de agendas confirmadas, separación entre compromisos estrictos y flexibles, encapsulación de bloques, preparación no mutante de canjes e imposibilidad de saldo negativo.
