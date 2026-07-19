@@ -1,0 +1,275 @@
+import { useRef, useState, type FormEvent } from "react";
+import type {
+  ActividadDto,
+  CampoCrearActividad,
+  ComandoCrearActividad,
+  ResultadoCrearActividad,
+} from "../../aplicacion";
+import type { ServiciosCalendario } from "./ServiciosCalendario";
+
+interface FormularioActividadCalendarioProps {
+  readonly crearActividad: ServiciosCalendario["crearActividad"];
+  readonly fechaDestino?: string;
+  readonly onCancelar: () => void;
+  readonly onCreada: (actividad: ActividadDto, asignar: boolean) => void;
+}
+
+const DIAS = [
+  [1, "Lunes"],
+  [2, "Martes"],
+  [3, "Miércoles"],
+  [4, "Jueves"],
+  [5, "Viernes"],
+  [6, "Sábado"],
+  [7, "Domingo"],
+] as const;
+
+export function FormularioActividadCalendario({
+  crearActividad,
+  fechaDestino,
+  onCancelar,
+  onCreada,
+}: FormularioActividadCalendarioProps) {
+  const [tipo, setTipo] = useState<ActividadDto["tipo"]>("TAREA_SIMPLE");
+  const [titulo, setTitulo] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [minutos, setMinutos] = useState("30");
+  const [fechaLimite, setFechaLimite] = useState("");
+  const [frecuencia, setFrecuencia] = useState<
+    "DIARIA" | "SEMANAL" | "PERSONALIZADA"
+  >("DIARIA");
+  const [diasSemana, setDiasSemana] = useState<number[]>([1]);
+  const [errores, setErrores] = useState<
+    Partial<Record<CampoCrearActividad | "general", string>>
+  >({});
+  const [guardando, setGuardando] = useState(false);
+  const intencionAsignar = useRef(false);
+
+  const enviar = async (evento: FormEvent<HTMLFormElement>) => {
+    evento.preventDefault();
+    setGuardando(true);
+    setErrores({});
+    try {
+      const resultado = await crearActividad.ejecutar(crearComando());
+      procesarResultado(resultado);
+    } catch (error: unknown) {
+      setErrores({
+        general:
+          error instanceof Error
+            ? error.message
+            : "No fue posible crear la actividad.",
+      });
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const crearComando = (): ComandoCrearActividad => {
+    const base = {
+      titulo,
+      ...(descripcion ? { descripcion } : {}),
+      tiempoNecesarioMinutos: Number(minutos),
+    };
+    if (tipo === "HABITO") {
+      return {
+        ...base,
+        tipo,
+        frecuencia,
+        ...(frecuencia === "DIARIA"
+          ? {}
+          : {
+              diasSemana:
+                frecuencia === "SEMANAL" ? [diasSemana[0] ?? 1] : diasSemana,
+            }),
+      };
+    }
+    return {
+      ...base,
+      tipo,
+      ...(fechaLimite ? { fechaLimite } : {}),
+    };
+  };
+
+  const procesarResultado = (resultado: ResultadoCrearActividad) => {
+    if (resultado.exito) {
+      onCreada(resultado.actividad, intencionAsignar.current);
+      return;
+    }
+    setErrores({
+      [resultado.error.campo ?? "general"]: resultado.error.mensaje,
+    });
+  };
+
+  const alternarDia = (dia: number) => {
+    setDiasSemana((actuales) =>
+      actuales.includes(dia)
+        ? actuales.filter((actual) => actual !== dia)
+        : [...actuales, dia].sort((a, b) => a - b),
+    );
+  };
+
+  return (
+    <section className="panel-contexto" aria-labelledby="titulo-actividad">
+      <p className="sobrelinea">Catálogo de actividades</p>
+      <h3 id="titulo-actividad">Nueva actividad</h3>
+      <p className="descripcion-panel-contexto">
+        La actividad define qué quieres realizar. Solo ocupará una fecha cuando
+        guardes además un bloque explícito.
+      </p>
+      <form
+        className="formulario-contexto"
+        onSubmit={(evento) => void enviar(evento)}
+        noValidate
+      >
+        <div className="campo">
+          <label htmlFor="tipo-actividad">Tipo</label>
+          <select
+            id="tipo-actividad"
+            value={tipo}
+            onChange={(evento) =>
+              setTipo(evento.target.value as ActividadDto["tipo"])
+            }
+            disabled={guardando}
+          >
+            <option value="TAREA_SIMPLE">Tarea simple</option>
+            <option value="TAREA_COMPUESTA">Tarea compuesta</option>
+            <option value="PROYECTO">Proyecto</option>
+            <option value="HABITO">Hábito</option>
+          </select>
+        </div>
+        <div className="campo">
+          <label htmlFor="titulo-actividad-campo">Título</label>
+          <input
+            id="titulo-actividad-campo"
+            value={titulo}
+            onChange={(evento) => setTitulo(evento.target.value)}
+            aria-invalid={Boolean(errores.titulo)}
+            disabled={guardando}
+          />
+          {errores.titulo && <p className="mensaje-error">{errores.titulo}</p>}
+        </div>
+        <div className="campo campo-ancho">
+          <label htmlFor="descripcion-actividad">Descripción (opcional)</label>
+          <textarea
+            id="descripcion-actividad"
+            value={descripcion}
+            onChange={(evento) => setDescripcion(evento.target.value)}
+            disabled={guardando}
+          />
+        </div>
+        <div className="campo">
+          <label htmlFor="minutos-necesarios">Tiempo necesario (minutos)</label>
+          <input
+            id="minutos-necesarios"
+            type="number"
+            min="1"
+            value={minutos}
+            onChange={(evento) => setMinutos(evento.target.value)}
+            aria-invalid={Boolean(errores.tiempoNecesarioMinutos)}
+            disabled={guardando}
+          />
+          {errores.tiempoNecesarioMinutos && (
+            <p className="mensaje-error">{errores.tiempoNecesarioMinutos}</p>
+          )}
+        </div>
+        {tipo !== "HABITO" && (
+          <div className="campo">
+            <label htmlFor="fecha-limite">Fecha límite (opcional)</label>
+            <input
+              id="fecha-limite"
+              type="date"
+              value={fechaLimite}
+              onChange={(evento) => setFechaLimite(evento.target.value)}
+              aria-invalid={Boolean(errores.fechaLimite)}
+              disabled={guardando}
+            />
+            {errores.fechaLimite && (
+              <p className="mensaje-error">{errores.fechaLimite}</p>
+            )}
+          </div>
+        )}
+        {tipo === "HABITO" && (
+          <>
+            <div className="campo">
+              <label htmlFor="frecuencia-habito">Frecuencia</label>
+              <select
+                id="frecuencia-habito"
+                value={frecuencia}
+                onChange={(evento) =>
+                  setFrecuencia(evento.target.value as typeof frecuencia)
+                }
+                aria-invalid={Boolean(errores.frecuencia)}
+                disabled={guardando}
+              >
+                <option value="DIARIA">Diaria</option>
+                <option value="SEMANAL">Semanal</option>
+                <option value="PERSONALIZADA">Personalizada</option>
+              </select>
+            </div>
+            {frecuencia !== "DIARIA" && (
+              <fieldset className="selector-dias campo-ancho">
+                <legend>Días de la semana</legend>
+                {DIAS.map(([dia, nombre]) => (
+                  <label key={dia}>
+                    <input
+                      type={frecuencia === "SEMANAL" ? "radio" : "checkbox"}
+                      name="dias-habito"
+                      checked={diasSemana.includes(dia)}
+                      onChange={() =>
+                        frecuencia === "SEMANAL"
+                          ? setDiasSemana([dia])
+                          : alternarDia(dia)
+                      }
+                      disabled={guardando}
+                    />
+                    {nombre}
+                  </label>
+                ))}
+                {errores.diasSemana && (
+                  <p className="mensaje-error">{errores.diasSemana}</p>
+                )}
+              </fieldset>
+            )}
+          </>
+        )}
+        {errores.general && (
+          <p className="mensaje-error mensaje-formulario" role="alert">
+            {errores.general}
+          </p>
+        )}
+        <div className="acciones-formulario campo-ancho">
+          <button
+            className="boton-secundario"
+            type="button"
+            onClick={onCancelar}
+            disabled={guardando}
+          >
+            Cancelar
+          </button>
+          <button
+            className="boton-secundario"
+            type="submit"
+            onClick={() => {
+              intencionAsignar.current = false;
+            }}
+            disabled={guardando}
+          >
+            Guardar sin programar
+          </button>
+          {fechaDestino && (
+            <button
+              className="boton-primario"
+              type="submit"
+              onClick={() => {
+                intencionAsignar.current = true;
+              }}
+              disabled={guardando}
+            >
+              Guardar y asignar a {fechaDestino}
+            </button>
+          )}
+        </div>
+      </form>
+    </section>
+  );
+}

@@ -3,6 +3,7 @@ import type { ContextoPlanificacion } from "../../dominio";
 export interface ContextoPlanificacionDto {
   readonly id: string;
   readonly nombre: string;
+  readonly proposito?: string;
   readonly tipo: "LIBRE" | "NOMBRADO";
   readonly fechaInicio?: string;
   readonly fechaFin?: string;
@@ -16,6 +17,7 @@ export function convertirContextoADto(
   return Object.freeze({
     id: contexto.id,
     nombre: contexto.nombre,
+    ...(contexto.proposito ? { proposito: contexto.proposito } : {}),
     tipo: contexto.tipo,
     ...(contexto.fechaInicio
       ? { fechaInicio: contexto.fechaInicio.toString() }

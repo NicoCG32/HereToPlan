@@ -12,6 +12,7 @@ import {
 
 export interface ComandoCrearContextoNombrado {
   readonly nombre: string;
+  readonly proposito?: string;
   readonly fechaInicio?: string;
   readonly fechaFin?: string;
 }
@@ -23,7 +24,7 @@ export type ResultadoCrearContextoNombrado =
       error: Readonly<{
         codigo: string;
         mensaje: string;
-        campo?: "nombre" | "fechaInicio" | "fechaFin";
+        campo?: "nombre" | "proposito" | "fechaInicio" | "fechaFin";
       }>;
     }>;
 
@@ -54,6 +55,9 @@ export class CasoDeUsoCrearContextoNombrado {
       const contexto = ContextoPlanificacion.crearNombrado({
         id,
         nombre: comando.nombre,
+        ...(comando.proposito !== undefined
+          ? { proposito: comando.proposito }
+          : {}),
         creadaEn: this.reloj.ahora(),
         ...(fechaInicio ? { fechaInicio } : {}),
         ...(fechaFin ? { fechaFin } : {}),
@@ -80,8 +84,9 @@ export class CasoDeUsoCrearContextoNombrado {
 
   private resolverCampo(
     codigo: string,
-  ): "nombre" | "fechaInicio" | "fechaFin" | undefined {
+  ): "nombre" | "proposito" | "fechaInicio" | "fechaFin" | undefined {
     if (codigo === "NOMBRE_CONTEXTO_VACIO") return "nombre";
+    if (codigo === "PROPOSITO_CONTEXTO_DEMASIADO_LARGO") return "proposito";
     if (codigo.startsWith("RANGO_CONTEXTO")) return "fechaFin";
     return undefined;
   }
@@ -89,7 +94,7 @@ export class CasoDeUsoCrearContextoNombrado {
   private rechazar(
     codigo: string,
     mensaje: string,
-    campo?: "nombre" | "fechaInicio" | "fechaFin",
+    campo?: "nombre" | "proposito" | "fechaInicio" | "fechaFin",
   ): ResultadoCrearContextoNombrado {
     return Object.freeze({
       exito: false,

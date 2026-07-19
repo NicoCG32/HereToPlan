@@ -15,6 +15,7 @@ import {
 interface DatosContextoBase {
   id: Identificador;
   nombre: string;
+  proposito?: string;
   tipo: TipoContextoPlanificacion;
   creadaEn: Date;
   fechaInicio?: FechaLocal;
@@ -24,6 +25,7 @@ interface DatosContextoBase {
 export interface DatosContextoNombrado {
   id: Identificador;
   nombre: string;
+  proposito?: string;
   creadaEn: Date;
   fechaInicio?: FechaLocal;
   fechaFin?: FechaLocal;
@@ -39,6 +41,7 @@ export interface RangoContextoPlanificacion {
 export class ContextoPlanificacion {
   public readonly id: Identificador;
   public readonly nombre: string;
+  public readonly proposito: string | undefined;
   public readonly tipo: TipoContextoPlanificacion;
   public readonly fechaInicio: FechaLocal | undefined;
   public readonly fechaFin: FechaLocal | undefined;
@@ -51,6 +54,7 @@ export class ContextoPlanificacion {
       "NOMBRE_CONTEXTO_VACIO",
       "El contexto de planificación debe tener un nombre.",
     );
+    this.proposito = this.normalizarProposito(datos.proposito);
     this.tipo = datos.tipo;
     this._creadaEn = copiarFecha(datos.creadaEn, "fecha de creación");
     this.validarIdentidadReservada();
@@ -131,6 +135,25 @@ export class ContextoPlanificacion {
         "El identificador del contexto Libre está reservado por el sistema.",
       );
     }
+    if (this.tipo === "LIBRE" && this.proposito !== undefined) {
+      throw new ErrorDominio(
+        "CONTEXTO_LIBRE_CON_PROPOSITO",
+        "Libre no declara un propósito editable por la persona usuaria.",
+      );
+    }
+  }
+
+  private normalizarProposito(
+    proposito: string | undefined,
+  ): string | undefined {
+    const normalizado = proposito?.trim() || undefined;
+    if (normalizado && normalizado.length > 240) {
+      throw new ErrorDominio(
+        "PROPOSITO_CONTEXTO_DEMASIADO_LARGO",
+        "El propósito del contexto no puede superar 240 caracteres.",
+      );
+    }
+    return normalizado;
   }
 
   private validarRango(

@@ -1,14 +1,17 @@
 import { PantallaAgendaBorrador } from "../presentacion/agendas/PantallaAgendaBorrador";
 import type { ServiciosAgendaBorrador } from "../presentacion/agendas/ServiciosAgendaBorrador";
+import { PantallaCalendario } from "../presentacion/calendario/PantallaCalendario";
+import type { ServiciosCalendario } from "../presentacion/calendario/ServiciosCalendario";
 import { useGradienteGlobal } from "../presentacion/hooks/useGradienteGlobal";
 import logoHereToPlan from "../presentacion/recursos/logos/HereToPlanLogo.svg";
-import { obtenerServiciosAplicacion } from "./configurarAplicacion";
+import { obtenerServiciosCalendario } from "./configurarAplicacion";
 
 interface AppProps {
   readonly servicios?: ServiciosAgendaBorrador;
+  readonly serviciosCalendario?: ServiciosCalendario;
 }
 
-export function App({ servicios }: AppProps) {
+export function App({ servicios, serviciosCalendario }: AppProps) {
   useGradienteGlobal();
 
   return (
@@ -29,9 +32,13 @@ export function App({ servicios }: AppProps) {
         </p>
       </header>
 
-      <PantallaAgendaBorrador
-        servicios={servicios ?? obtenerServiciosAplicacion()}
-      />
+      {servicios ? (
+        <PantallaAgendaBorrador servicios={servicios} />
+      ) : (
+        <PantallaCalendario
+          servicios={serviciosCalendario ?? obtenerServiciosCalendario()}
+        />
+      )}
     </main>
   );
 }

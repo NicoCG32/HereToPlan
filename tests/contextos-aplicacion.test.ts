@@ -47,6 +47,7 @@ describe("casos de uso de contextos de planificación", () => {
 
     const resultado = await crear.ejecutar({
       nombre: "  Semestre académico  ",
+      proposito: "  Organizar la carga del segundo semestre  ",
       fechaInicio: "2026-08-01",
       fechaFin: "2026-12-20",
     });
@@ -56,6 +57,7 @@ describe("casos de uso de contextos de planificación", () => {
       contexto: {
         id: "contexto-semestre",
         nombre: "Semestre académico",
+        proposito: "Organizar la carga del segundo semestre",
         tipo: "NOMBRADO",
         fechaInicio: "2026-08-01",
         fechaFin: "2026-12-20",
@@ -70,6 +72,14 @@ describe("casos de uso de contextos de planificación", () => {
   });
 
   it.each([
+    {
+      comando: {
+        nombre: "Proyecto",
+        proposito: "a".repeat(241),
+      },
+      codigo: "PROPOSITO_CONTEXTO_DEMASIADO_LARGO",
+      campo: "proposito",
+    },
     {
       comando: {
         nombre: "",

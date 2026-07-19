@@ -12,12 +12,9 @@ export * from "./actividades/tipos";
 export * from "./contextos/ContextoPlanificacion";
 export * from "./contextos/tipos";
 
-<<<<<<< Updated upstream
-=======
 export * from "./planificacion/BloquePlanificacion";
 export * from "./planificacion/CortePlanificacion";
 
->>>>>>> Stashed changes
 export * from "./compromisos/AjusteCompromiso";
 export * from "./compromisos/PoliticaCompromiso";
 export * from "./compromisos/ResolverPoliticaEfectiva";

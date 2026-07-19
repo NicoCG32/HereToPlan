@@ -10,7 +10,7 @@ El proyecto apunta a publicarse como aplicación web estática mediante GitHub P
 
 ## Estado del proyecto
 
-HereToPlan está en construcción. El repositorio contiene la base del dominio, sus invariantes principales y las decisiones arquitectónicas que orientan el desarrollo del producto. Actualmente permite crear una agenda borrador, organizar sus bloques y recuperarla desde el almacenamiento local después de recargar la aplicación.
+HereToPlan está en construcción. El repositorio contiene la base del dominio, sus invariantes principales y las decisiones arquitectónicas que orientan el desarrollo del producto. Actualmente ofrece un calendario persistente con planificación libre o agrupada en agendas nombradas, actividades reutilizables y bloques editables por fecha.
 
 La configuración de Vite utiliza la ruta base `/HereToPlan/`, correspondiente a
 la subruta asignada al repositorio por GitHub Pages.
@@ -136,13 +136,17 @@ existentes bajo `/HereToPlan/`; debe ejecutarse después del build.
 
 ## Capacidades implementadas
 
-El núcleo disponible incluye actividades, agendas, bloques de trabajo, políticas de compromiso, una billetera de puntos y la preparación del reward `Día libre`. El primer recorrido funcional permite:
+El núcleo disponible incluye actividades, contextos de planificación, agendas,
+bloques de trabajo, políticas de compromiso, una billetera de puntos y la
+preparación del reward `Día libre`. El recorrido principal permite:
 
-- crear una agenda borrador con nombre y rango de fechas;
-- agregar, modificar y quitar bloques de trabajo;
-- definir duración, rigidez y autoridad del plazo;
-- guardar el borrador mediante IndexedDB;
-- recuperar la agenda y sus bloques después de recargar.
+- comenzar directamente en `Libre` o crear una agenda nombrada opcional;
+- crear y reutilizar actividades de distintos tipos;
+- asignar, editar y quitar bloques estrictos o flexibles en fechas concretas;
+- consultar conjuntamente toda la planificación o filtrarla por agenda;
+- navegar por día, semana y mes y revisar los siete días próximos;
+- recuperar contextos, actividades y bloques desde IndexedDB después de
+  recargar.
 
 El catálogo persistente de actividades distingue tareas simples, tareas compuestas, proyectos y hábitos. Las actividades existen independientemente del calendario: solo aparecen en una fecha después de asignarlas mediante un bloque de trabajo.
 
@@ -150,6 +154,19 @@ El dominio distingue además los contextos organizativos de la planificación: `
 Los contextos poseen persistencia propia en IndexedDB; al iniciar la aplicación
 se garantiza de forma idempotente la existencia de `Libre`, que es administrado
 por el sistema y no puede eliminarse.
+La aplicación abre el calendario general en la selección `Todas`; desde allí se
+puede crear opcionalmente una agenda nombrada con propósito y rango temporal, o
+continuar planificando en `Libre` sin completar un formulario previo.
+El calendario permite navegar por día, semana y mes, seleccionar fechas
+concretas y consultar siempre hoy más los seis días siguientes. Desde una fecha
+se puede crear o elegir una tarea simple, tarea compuesta, proyecto o hábito y
+asignarle un bloque editable con minutos y política estricta o flexible. Las
+actividades que todavía no poseen bloques permanecen visibles en `Sin
+programar`.
 Las agendas almacenadas con el contrato anterior proyectan sus metadatos a
 contextos nombrados mediante una migración atómica e idempotente; sus bloques,
 estados e historial permanecen intactos en el registro original.
+Una agenda nombrada puede eliminarse desde un diálogo que informa previamente
+su impacto. La opción recomendada traslada sus bloques editables a `Libre`; la
+alternativa destructiva exige escribir el nombre exacto. Ninguna opción elimina
+compromisos confirmados ni su historial.

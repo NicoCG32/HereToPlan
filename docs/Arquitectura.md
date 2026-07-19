@@ -292,15 +292,25 @@ listar y eliminar únicamente contextos nombrados. La prohibición de eliminar
 la misma semántica asíncrona.
 
 `ContextoPlanificacionV1` es un registro plano y versionado. Conserva identidad,
-nombre, tipo, rango civil opcional e instante de creación; deliberadamente no
-contiene bloques, estados de confirmación ni una vista temporal. Día, semana y
-mes siguen siendo proyecciones del calendario y no clases de contexto.
+nombre, propósito opcional, tipo, rango civil opcional e instante de creación;
+deliberadamente no contiene bloques, estados de confirmación ni una vista
+temporal. Día, semana y mes siguen siendo proyecciones del calendario y no
+clases de contexto. El propósito es una ampliación compatible del esquema V1:
+los registros anteriores que no lo incluyen continúan siendo válidos y los
+nuevos lo persisten sin requerir una migración de IndexedDB.
 
 La versión 3 de la base añade el almacén `contextos-planificacion`. La
 actualización de esquema solo crea el almacén ausente: no transforma ni elimina
 los registros de `agendas` o `actividades`. La prueba de actualización parte de
 una base versión 2 y comprueba explícitamente la conservación de ambos
 almacenes.
+
+La versión 4 añade `bloques-planificacion` para persistir asignaciones editables
+sin forzar que `Libre` o un contexto abierto se conviertan en una `Agenda`
+legada con rango artificial. `BloquePlanificacionV1` conserva referencias a
+contexto y actividad, fecha civil, minutos, título, política efectiva e instante
+de creación. La actualización es aditiva y mantiene intactos los tres almacenes
+anteriores.
 
 `InicializarContextosPlanificacion` garantiza una sola instancia de `Libre` de
 forma idempotente. La raíz de composición ejecuta este caso de uso antes de
@@ -315,8 +325,6 @@ parcial; la inicialización posterior funciona como garantía idempotente para
 bases nuevas o ya migradas. Repetir el arranque no duplica registros ni cambia
 el instante original de `Libre`.
 
-<<<<<<< Updated upstream
-=======
 ### 6.7. Modelo de lectura del calendario
 
 `ConsultarCalendario` compone los puertos de contextos, actividades, agendas
@@ -388,29 +396,6 @@ confundirla con el mecanismo transaccional específico de IndexedDB. Después de
 una eliminación válida, presentación selecciona `Libre`, actualiza el calendario
 y comunica el resultado; estas reacciones no forman parte de la transacción.
 
-### 6.9. Contrato temporal de la planificación confirmable
-
-`CortePlanificacion` es una raíz de agregado del dominio distinta de
-`ContextoPlanificacion`. El contexto responde dónde se organiza un bloque; el
-corte determina qué selección explícita atraviesa revisión, gracia y
-confirmación. En consecuencia, confirmar un corte no bloquea `Libre`, un
-semestre ni un proyecto completo, y esos contextos pueden seguir recibiendo
-planificación futura.
-
-El dominio recibe instantes como argumentos y no importa temporizadores,
-almacenamiento ni APIs del navegador. Al asignar, deriva un vencimiento único a
-diez minutos; al sincronizarse con el reloj, materializa `CONFIRMADA` cuando el
-instante observado alcanza ese límite. La fecha registrada de confirmación es
-el vencimiento previsto, no el momento accidental en que se reabre la página.
-
-La persistencia de este agregado corresponde al siguiente incremento. Su
-registro deberá conservar conjuntamente estado, asignación, vencimiento,
-confirmación e instantáneas de bloques. El caso de uso que lo recupere deberá
-sincronizarlo con el puerto `Reloj` antes de exponer acciones editables y
-persistir cualquier transición materializada. La cuenta regresiva de React será
-una proyección derivada del vencimiento; nunca una segunda fuente de verdad.
-
->>>>>>> Stashed changes
 ## 7. Operaciones entre agregados y atomicidad
 
 `Agenda` y `BilleteraPuntos` son agregados diferentes. El dominio puede evaluar reglas y preparar una decisión, pero no debe simular una transacción técnica entre agregados.
@@ -429,7 +414,6 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 ## 8. Límites del dominio
 
 - `Agenda` controla el ciclo de vida de sus bloques y ajustes.
-- `CortePlanificacion` controla revisión, gracia y confirmación de una selección explícita de bloques sin absorber el contexto visible.
 - Un bloque confirmado no se modifica mediante referencias externas.
 - `BilleteraPuntos` deriva su saldo de transacciones y protege la unicidad semántica.
 - Los servicios de dominio calculan decisiones; no acceden a almacenamiento ni controlan transacciones técnicas.
@@ -440,31 +424,28 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-<<<<<<< Updated upstream
-| Elemento        | Estado actual                                                            |
-| --------------- | ------------------------------------------------------------------------ |
-| Dominio         | Actividades, contextos, agendas y compromisos protegidos por invariantes |
-| Presentación    | Formularios React para crear agendas y editar bloques                    |
-| Aplicación      | Casos de uso y DTO para actividades, contextos y agendas                 |
-| Infraestructura | Repositorios en memoria e IndexedDB y registros persistidos versionados  |
-| Composición     | Ensambla casos de uso e inicializa `Libre` antes de montar React         |
-| Persistencia    | IndexedDB v3 conserva agendas y actividades al incorporar contextos      |
-=======
-| Elemento        | Estado actual                                                                               |
-| --------------- | ------------------------------------------------------------------------------------------- |
-| Dominio         | Actividades, contextos, cortes temporales, agendas y compromisos protegidos por invariantes |
-| Presentación    | Calendario general y formularios React para contextos, agendas y bloques                    |
-| Aplicación      | Casos de uso y DTO para actividades, contextos, agendas y su eliminación                    |
-| Infraestructura | Repositorios y transacciones en memoria e IndexedDB con registros V1                        |
-| Composición     | Ensambla casos de uso e inicializa `Libre` antes de montar React                            |
-| Persistencia    | IndexedDB v4 añade bloques editables sin alterar los almacenes anteriores                   |
->>>>>>> Stashed changes
+| Elemento        | Estado actual                                                             |
+| --------------- | ------------------------------------------------------------------------- |
+| Dominio         | Actividades, contextos, agendas y compromisos protegidos por invariantes  |
+| Presentación    | Calendario general y formularios React para contextos, agendas y bloques  |
+| Aplicación      | Casos de uso y DTO para actividades, contextos, agendas y su eliminación  |
+| Infraestructura | Repositorios y transacciones en memoria e IndexedDB con registros V1      |
+| Composición     | Ensambla casos de uso e inicializa `Libre` antes de montar React          |
+| Persistencia    | IndexedDB v4 añade bloques editables sin alterar los almacenes anteriores |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes
-del dominio, el puerto `RepositorioAgendas` y el adaptador IndexedDB. Los DTO
-impiden que la presentación reciba referencias mutables de los agregados y la
-suite contractual mantiene equivalencia entre memoria e IndexedDB.
+del dominio y los puertos de persistencia antes de alcanzar IndexedDB. Contextos,
+actividades y bloques editables poseen almacenes independientes; las agendas
+legadas se consultan como fuente histórica. Los DTO impiden que presentación
+reciba referencias mutables de los agregados y las suites contractuales mantienen
+equivalencia entre memoria e IndexedDB.
+
+La prueba vertical del calendario crea planificación mediante los casos de uso,
+descarta toda la composición en memoria y construye otra sobre la misma base de
+datos. La segunda composición debe recuperar contextos, actividades programadas
+y sin programar, bloques y origen; además, las vistas global, filtrada, semanal y
+de lista deben derivarse nuevamente sin conservar estado accidental de React.
 
 ## 10. Criterios de conformidad
 
@@ -478,6 +459,7 @@ Un incremento respeta esta arquitectura cuando:
 - prueba las reglas del dominio sin navegador ni almacenamiento;
 - prueba los casos de uso con adaptadores de prueba;
 - prueba cada adaptador contra el contrato que implementa;
+- prueba la recuperación del recorrido vertical desde una composición nueva;
 - mantiene el build estático independiente de servicios locales.
 
 Como frontera mínima, deben conservarse las pruebas de inmutabilidad de agendas confirmadas, separación entre compromisos estrictos y flexibles, encapsulación de bloques, preparación no mutante de canjes e imposibilidad de saldo negativo.
