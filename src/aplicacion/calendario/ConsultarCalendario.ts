@@ -2,6 +2,7 @@ import {
   FechaLocal,
   type Agenda,
   type BloquePlanificacion,
+  type CortePlanificacion,
   type ContextoPlanificacion,
 } from "../../dominio";
 import { convertirActividadADto } from "../actividades/ActividadDto";
@@ -11,6 +12,7 @@ import type { RepositorioActividades } from "../puertos/RepositorioActividades";
 import type { RepositorioAgendas } from "../puertos/RepositorioAgendas";
 import type { RepositorioBloquesPlanificacion } from "../puertos/RepositorioBloquesPlanificacion";
 import type { RepositorioContextosPlanificacion } from "../puertos/RepositorioContextosPlanificacion";
+import type { RepositorioCortesPlanificacion } from "../puertos/RepositorioCortesPlanificacion";
 import type {
   BloqueCalendarioDto,
   CalendarioDto,
@@ -49,6 +51,7 @@ export class CasoDeUsoConsultarCalendario {
     private readonly repositorioActividades: RepositorioActividades,
     private readonly repositorioAgendas: RepositorioAgendas,
     private readonly repositorioBloques: RepositorioBloquesPlanificacion,
+    private readonly repositorioCortes: RepositorioCortesPlanificacion,
     private readonly calendarioLocal: CalendarioLocal,
   ) {}
 
@@ -57,13 +60,15 @@ export class CasoDeUsoConsultarCalendario {
     const diaSeleccionado = consulta.diaSeleccionado
       ? FechaLocal.crear(consulta.diaSeleccionado)
       : undefined;
-    const [contextos, actividades, agendas, bloquesPlanificacion] =
+    const [contextos, actividades, agendas, bloquesPlanificacion, cortes] =
       await Promise.all([
         this.repositorioContextos.listar(),
         this.repositorioActividades.listar(),
         this.repositorioAgendas.listar(),
         this.repositorioBloques.listar(),
+        this.repositorioCortes.listar(),
       ]);
+    const protecciones = construirProtecciones(cortes);
     const hoy = this.calendarioLocal.hoy();
     const contextosOrdenados = this.ordenarContextos(contextos);
     const seleccion = this.resolverSeleccion(
@@ -81,6 +86,7 @@ export class CasoDeUsoConsultarCalendario {
           bloquesPlanificacion,
           contextosOrdenados,
           consulta.seleccion,
+          protecciones,
         ),
       ].sort(
         (a, b) => a.fecha.localeCompare(b.fecha) || a.id.localeCompare(b.id),
@@ -227,6 +233,10 @@ export class CasoDeUsoConsultarCalendario {
     bloques: readonly BloquePlanificacion[],
     contextos: readonly ContextoPlanificacion[],
     seleccion: SeleccionContextoCalendario,
+    protecciones: ReadonlyMap<
+      string,
+      Readonly<{ corteId: string; estado: "EN_GRACIA" | "CONFIRMADA" }>
+    >,
   ): readonly BloqueCalendarioDto[] {
     const contextosPorId = new Map(
       contextos.map((contexto) => [contexto.id, contexto] as const),
@@ -246,6 +256,7 @@ export class CasoDeUsoConsultarCalendario {
         ) {
           return [];
         }
+        const proteccion = protecciones.get(bloque.id);
         return [
           Object.freeze({
             id: bloque.id,
@@ -266,7 +277,8 @@ export class CasoDeUsoConsultarCalendario {
                 ...bloque.politica.ajustesPermitidos,
               ]),
             }),
-            editable: true,
+            editable: proteccion === undefined,
+            ...(proteccion ? { proteccion } : {}),
           }),
         ];
       }),
@@ -295,6 +307,30 @@ export class CasoDeUsoConsultarCalendario {
       }),
     );
   }
+}
+
+function construirProtecciones(
+  cortes: readonly CortePlanificacion[],
+): ReadonlyMap<
+  string,
+  Readonly<{ corteId: string; estado: "EN_GRACIA" | "CONFIRMADA" }>
+> {
+  const protecciones = new Map<
+    string,
+    Readonly<{ corteId: string; estado: "EN_GRACIA" | "CONFIRMADA" }>
+  >();
+  for (const corte of cortes) {
+    if (corte.estado !== "EN_GRACIA" && corte.estado !== "CONFIRMADA") {
+      continue;
+    }
+    for (const bloque of corte.listarBloques()) {
+      protecciones.set(
+        bloque.id,
+        Object.freeze({ corteId: corte.id, estado: corte.estado }),
+      );
+    }
+  }
+  return protecciones;
 }
 
 export function calcularRangoVisible(

@@ -998,6 +998,89 @@ button:focus-visible {
   gap: 0.8rem;
 }
 
+.panel-gracia-planificacion {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid rgb(var(--dorado-profundo) / 42%);
+  border-left: 4px solid rgb(var(--dorado));
+  background:
+    radial-gradient(
+      circle 18rem at 100% 0%,
+      rgb(var(--dorado-claro) / 24%),
+      transparent 66%
+    ),
+    linear-gradient(125deg, rgb(255 255 255 / 76%), rgb(var(--dorado) / 7%));
+  box-shadow:
+    7px 8px 0 rgb(var(--dorado-profundo) / 7%),
+    0 18px 36px rgb(var(--dorado) / 7%);
+}
+
+.panel-gracia-planificacion .titulo-region > p {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--texto-secundario);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.lista-cortes-gracia {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-cortes-gracia li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgb(var(--dorado-profundo) / 24%);
+  background: rgb(255 255 255 / 68%);
+  box-shadow: 4px 5px 0 rgb(var(--dorado-profundo) / 5%);
+}
+
+.lista-cortes-gracia li > div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.lista-cortes-gracia strong {
+  color: var(--texto);
+  font-size: 0.9rem;
+}
+
+.lista-cortes-gracia span:not(.cuenta-regresiva) {
+  color: var(--texto-secundario);
+  font-size: 0.76rem;
+}
+
+.cuenta-regresiva {
+  flex: 0 0 auto;
+  min-width: 5.5rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgb(var(--dorado-profundo) / 35%);
+  background: linear-gradient(
+    135deg,
+    rgb(var(--dorado-claro) / 34%),
+    rgb(255 255 255 / 82%)
+  );
+  color: rgb(var(--dorado-profundo));
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 1.15rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.mensaje-confirmacion-corte {
+  margin: 0 0 1.5rem;
+}
+
 .barra-contextos {
   display: grid;
   grid-template-columns: minmax(13rem, 0.7fr) minmax(18rem, 1.3fr);
@@ -1447,6 +1530,34 @@ button:focus-visible {
   color: rgb(var(--azul-diamante));
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
+
+.seleccion-bloque-corte {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  color: rgb(var(--verde-esmeralda));
+  font-size: 0.74rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.seleccion-bloque-corte input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: rgb(var(--verde-esmeralda));
+}
+
+.estado-proteccion-bloque {
+  width: fit-content;
+  margin-top: 0.35rem;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid rgb(var(--dorado-profundo) / 28%);
+  background: rgb(var(--dorado-claro) / 20%);
+  color: rgb(var(--dorado-profundo)) !important;
+  font-weight: 750;
+}
 .resumen-agenda {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1858,6 +1969,77 @@ button:focus-visible {
   letter-spacing: -0.04em;
 }
 
+.dialogo-revision-corte {
+  border-top-color: rgb(var(--dorado));
+  background:
+    radial-gradient(
+      circle 20rem at 100% 0%,
+      rgb(var(--dorado-claro) / 18%),
+      transparent 66%
+    ),
+    linear-gradient(145deg, rgb(255 255 255 / 98%), rgb(var(--cuarzo-claro)));
+}
+
+.resumen-revision-corte {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 1.5rem 0;
+  border: 1px solid var(--linea);
+  background: rgb(255 255 255 / 62%);
+}
+
+.resumen-revision-corte div {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem;
+  border-right: 1px solid var(--linea);
+}
+
+.resumen-revision-corte div:last-child {
+  border-right: 0;
+}
+
+.resumen-revision-corte dt,
+.rango-revision-corte,
+.lista-revision-corte span {
+  color: var(--texto-secundario);
+  font-size: 0.74rem;
+}
+
+.resumen-revision-corte dd {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.rango-revision-corte {
+  margin: 0 0 1rem;
+}
+
+.lista-revision-corte {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-revision-corte li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem;
+  border-left: 3px solid rgb(var(--dorado));
+  background: rgb(255 255 255 / 64%);
+}
+
+.lista-revision-corte li > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
 .dialogo-confirmacion > p:not(.sobrelinea, .mensaje-error) {
   color: var(--texto-secundario);
   line-height: 1.65;
@@ -2101,6 +2283,8 @@ button:focus-visible {
   .cabecera-panel-agenda,
   .barra-acciones-agenda,
   .tarjeta-bloque,
+  .panel-gracia-planificacion .titulo-region,
+  .lista-cortes-gracia li,
   .encabezado-superficie-calendario,
   .lista-actividades-sin-programar li,
   .vista-lista-calendario li {
@@ -2142,6 +2326,18 @@ button:focus-visible {
 
   .resumen-impacto-eliminacion {
     grid-template-columns: 1fr;
+  }
+
+  .resumen-revision-corte {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .resumen-revision-corte div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .resumen-revision-corte div:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--linea);
   }
 
   .resumen-impacto-eliminacion div,
@@ -2197,5 +2393,923 @@ button:focus-visible {
   .lista-actividades-sin-programar li:hover,
   .vista-lista-calendario li:hover {
     transform: none;
+  }
+}
+
+/* ========================================================================== */
+/* ACTUALIZACIÓN VISUAL — METAL, PIEDRAS PRECIOSAS Y VERDE PLANTA            */
+/* ========================================================================== */
+
+/*
+ * Esta sección preserva la estructura y los selectores existentes.
+ * Refuerza la identidad de HereToPlan mediante:
+ *
+ * - plata mineral como base estructural;
+ * - celeste diamante para precisión, selección y enfoque;
+ * - bronce y dorado para advertencias, cortes y acciones de peso;
+ * - verde planta y esmeralda para creación, progreso y confirmación;
+ * - reflejos brillantes controlados, sin redondear los paneles.
+ */
+
+:root {
+  /* Plata metálica */
+  --plata-blanca: 250 252 255;
+  --plata-brillante: 226 231 237;
+  --plata-media: 184 191 200;
+  --plata-profunda: 111 120 132;
+
+  /* Diamante */
+  --diamante-blanco: 235 250 255;
+  --diamante-hielo: 154 222 241;
+  --diamante-azul: 57 151 201;
+  --diamante-profundo: 35 103 151;
+
+  /* Bronce metálico */
+  --bronce-luz: 231 174 119;
+  --bronce-metal: 181 112 65;
+  --bronce-sombra: 111 63 38;
+
+  /* Verde planta tecnológico */
+  --planta-luz: 169 219 145;
+  --planta-metal: 77 169 95;
+  --planta-profundo: 32 116 79;
+
+  /* Reflejos */
+  --reflejo-blanco: rgb(255 255 255 / 78%);
+  --reflejo-diamante: rgb(var(--diamante-hielo) / 24%);
+  --reflejo-plata: rgb(var(--plata-brillante) / 34%);
+  --borde-metalico: rgb(var(--plata-profunda) / 54%);
+}
+
+/* Fondo: doble reflejo reservado para el lienzo global */
+
+body {
+  background:
+    radial-gradient(
+      circle 40rem at var(--mouse-x) var(--mouse-y),
+      rgb(var(--diamante-blanco) / 78%),
+      transparent 61%
+    ),
+    radial-gradient(
+      circle 35rem at calc(100% - var(--mouse-x)) calc(100% - var(--mouse-y)),
+      rgb(var(--plata-media) / 28%),
+      transparent 67%
+    ),
+    radial-gradient(
+      circle 31rem at 8% 14%,
+      rgb(var(--planta-metal) / 17%),
+      transparent 64%
+    ),
+    radial-gradient(
+      circle 30rem at 92% 12%,
+      rgb(var(--diamante-hielo) / 21%),
+      transparent 65%
+    ),
+    radial-gradient(
+      circle 27rem at 84% 88%,
+      rgb(var(--dorado) / 14%),
+      transparent 66%
+    ),
+    radial-gradient(
+      circle 25rem at 14% 86%,
+      rgb(var(--bronce-metal) / 13%),
+      transparent 67%
+    ),
+    linear-gradient(
+      118deg,
+      transparent 0 18%,
+      rgb(255 255 255 / 42%) 18% 28%,
+      transparent 28% 57%,
+      rgb(var(--diamante-blanco) / 18%) 57% 64%,
+      transparent 64% 100%
+    ),
+    linear-gradient(
+      135deg,
+      var(--fondo-1),
+      var(--fondo-2) 38%,
+      var(--fondo-3) 72%,
+      var(--fondo-4)
+    );
+}
+
+/* Las superficies estructurales permanecen rectas */
+
+.panel-agenda,
+.panel-contexto,
+.superficie-calendario,
+.editor-dia,
+.panel-siete-dias,
+.bandeja-actividades,
+.vista-lista-calendario,
+.formulario-bloque,
+.panel-gracia-planificacion,
+.barra-contextos,
+.resumen-agenda,
+.tarjeta-bloque,
+.dialogo-confirmacion,
+.lista-cortes-gracia li,
+.lista-actividades-sin-programar li,
+.vista-lista-calendario li,
+.dia-calendario,
+.dia-proximo {
+  border-radius: 0;
+}
+
+/* Panel principal: plata, diamante, bronce y verde en equilibrio */
+
+.panel-agenda {
+  border-color: rgb(var(--plata-profunda) / 58%);
+
+  background:
+    linear-gradient(
+      118deg,
+      rgb(var(--diamante-blanco) / 42%) 0%,
+      transparent 21%,
+      transparent 69%,
+      rgb(var(--plata-brillante) / 28%) 100%
+    ),
+    linear-gradient(
+      145deg,
+      rgb(var(--planta-metal) / 10%),
+      transparent 32%,
+      rgb(var(--diamante-hielo) / 11%) 68%,
+      rgb(var(--bronce-luz) / 8%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 96%),
+      rgb(var(--plata-brillante) / 82%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 95%) inset,
+    0 -1px 0 rgb(var(--plata-profunda) / 10%) inset,
+    12px 14px 0 rgb(var(--plata-profunda) / 8%),
+    0 28px 76px rgb(var(--cuarzo-grafito) / 15%),
+    0 0 32px rgb(var(--diamante-hielo) / 8%);
+}
+
+.panel-agenda::before {
+  height: 6px;
+
+  background: linear-gradient(
+    90deg,
+    rgb(var(--planta-profundo)) 0%,
+    rgb(var(--planta-metal)) 18%,
+    rgb(var(--diamante-hielo)) 42%,
+    rgb(var(--plata-blanca)) 53%,
+    rgb(var(--dorado)) 70%,
+    rgb(var(--bronce-metal)) 87%,
+    transparent 100%
+  );
+
+  background-size: 190% 100%;
+
+  box-shadow:
+    0 0 18px rgb(var(--diamante-hielo) / 24%),
+    0 4px 18px rgb(var(--planta-metal) / 12%),
+    0 5px 20px rgb(var(--dorado) / 10%);
+}
+
+/* Cabeceras y etiquetas técnicas */
+
+.cabecera-panel-agenda {
+  border-bottom-color: rgb(var(--plata-profunda) / 35%);
+}
+
+.cabecera-panel-agenda::after {
+  height: 3px;
+
+  background: linear-gradient(
+    90deg,
+    rgb(var(--planta-profundo)),
+    rgb(var(--planta-metal)) 35%,
+    rgb(var(--diamante-hielo)) 72%,
+    transparent
+  );
+
+  box-shadow: 0 0 13px rgb(var(--diamante-hielo) / 18%);
+}
+
+.sobrelinea {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--planta-profundo)),
+    rgb(var(--planta-metal)),
+    rgb(var(--dorado-profundo))
+  );
+
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.sobrelinea::before {
+  height: 3px;
+
+  background: linear-gradient(
+    90deg,
+    rgb(var(--planta-profundo)),
+    rgb(var(--planta-luz)),
+    rgb(var(--dorado))
+  );
+
+  box-shadow: 0 0 10px rgb(var(--planta-metal) / 18%);
+}
+
+.insignia-estado {
+  border-color: rgb(var(--planta-profundo) / 58%);
+
+  background:
+    linear-gradient(
+      120deg,
+      rgb(var(--planta-luz) / 35%),
+      rgb(var(--diamante-blanco) / 46%) 45%,
+      rgb(var(--planta-metal) / 18%)
+    ),
+    rgb(var(--plata-blanca) / 80%);
+
+  color: rgb(var(--planta-profundo));
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 92%) inset,
+    4px 4px 0 rgb(var(--planta-profundo) / 12%),
+    0 0 20px rgb(var(--planta-metal) / 10%);
+}
+
+/* Campos: plata en reposo y diamante al enfocar */
+
+.campo input,
+.campo select,
+.campo textarea {
+  border-color: rgb(var(--plata-profunda) / 58%);
+
+  background:
+    linear-gradient(
+      110deg,
+      rgb(var(--diamante-blanco) / 25%),
+      transparent 30%,
+      rgb(var(--plata-brillante) / 28%) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 94%),
+      rgb(var(--plata-brillante) / 70%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 92%) inset,
+    0 -1px 0 rgb(var(--plata-profunda) / 12%) inset;
+}
+
+.campo input:hover,
+.campo select:hover,
+.campo textarea:hover {
+  border-color: rgb(var(--diamante-azul) / 62%);
+
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--diamante-blanco) / 72%),
+    4px 5px 0 rgb(var(--plata-profunda) / 7%),
+    0 10px 26px rgb(var(--diamante-hielo) / 7%);
+}
+
+.campo input:focus-visible,
+.campo select:focus-visible,
+.campo textarea:focus-visible {
+  border-color: rgb(var(--diamante-azul));
+
+  background:
+    linear-gradient(
+      120deg,
+      rgb(var(--diamante-blanco) / 72%),
+      rgb(var(--diamante-hielo) / 16%) 46%,
+      rgb(var(--plata-blanca) / 92%)
+    );
+
+  box-shadow:
+    inset 5px 0 0 rgb(var(--diamante-azul)),
+    inset 0 1px 0 rgb(255 255 255 / 95%),
+    0 13px 30px rgb(var(--diamante-azul) / 12%),
+    0 0 20px rgb(var(--diamante-hielo) / 12%);
+}
+
+/* Botón principal: verde planta metálico con reflejo diamante */
+
+.boton-primario {
+  isolation: isolate;
+
+  border-color: rgb(var(--planta-profundo));
+
+  background: linear-gradient(
+    112deg,
+    rgb(var(--planta-profundo)) 0%,
+    rgb(var(--planta-metal)) 34%,
+    rgb(var(--planta-luz)) 50%,
+    rgb(var(--diamante-hielo)) 76%,
+    rgb(var(--diamante-azul)) 100%
+  );
+
+  background-size: 210% 100%;
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 46%) inset,
+    0 -2px 0 rgb(var(--planta-profundo) / 36%) inset,
+    5px 6px 0 rgb(var(--planta-profundo) / 22%),
+    0 16px 30px rgb(var(--planta-metal) / 16%),
+    0 0 22px rgb(var(--diamante-hielo) / 10%);
+}
+
+.boton-primario::before {
+  content: "";
+
+  position: absolute;
+  inset: -35% auto -35% -45%;
+
+  width: 34%;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 72%),
+    transparent
+  );
+
+  transform: skewX(-19deg);
+  transition: left 420ms ease;
+  pointer-events: none;
+}
+
+.boton-primario:hover:not(:disabled)::before,
+.boton-primario:focus-visible::before {
+  left: 118%;
+}
+
+.boton-primario:hover:not(:disabled) {
+  background-position: 100% 0;
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 56%) inset,
+    7px 8px 0 rgb(var(--diamante-azul) / 14%),
+    0 20px 38px rgb(var(--planta-metal) / 20%),
+    0 0 28px rgb(var(--diamante-hielo) / 16%);
+
+  filter: saturate(1.12) contrast(1.03);
+}
+
+/* Botón secundario: plata pulida */
+
+.boton-secundario {
+  border-color: rgb(var(--plata-profunda) / 70%);
+
+  background:
+    linear-gradient(
+      112deg,
+      rgb(var(--diamante-blanco) / 45%),
+      transparent 34%,
+      rgb(var(--plata-brillante) / 34%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 96%),
+      rgb(var(--plata-media) / 72%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 96%) inset,
+    0 -1px 0 rgb(var(--plata-profunda) / 18%) inset,
+    4px 5px 0 rgb(var(--plata-profunda) / 9%);
+}
+
+.boton-secundario:hover:not(:disabled) {
+  border-color: rgb(var(--diamante-azul) / 74%);
+
+  background:
+    linear-gradient(
+      112deg,
+      rgb(var(--diamante-blanco) / 72%),
+      rgb(var(--diamante-hielo) / 20%) 50%,
+      rgb(var(--plata-blanca) / 92%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 96%) inset,
+    6px 7px 0 rgb(var(--diamante-azul) / 10%),
+    0 14px 27px rgb(var(--diamante-hielo) / 12%);
+}
+
+/* Acción destructiva: bronce metálico */
+
+.boton-destructivo {
+  border-color: rgb(var(--bronce-sombra));
+
+  background: linear-gradient(
+    112deg,
+    rgb(var(--bronce-sombra)) 0%,
+    rgb(var(--bronce-metal)) 34%,
+    rgb(var(--bronce-luz)) 51%,
+    rgb(var(--dorado-claro)) 69%,
+    rgb(var(--bronce-sombra)) 100%
+  );
+
+  background-size: 210% 100%;
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 36%) inset,
+    0 -2px 0 rgb(var(--bronce-sombra) / 45%) inset,
+    5px 6px 0 rgb(var(--bronce-sombra) / 22%),
+    0 16px 30px rgb(var(--bronce-metal) / 17%);
+}
+
+.boton-destructivo:hover:not(:disabled) {
+  background-position: 100% 0;
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 44%) inset,
+    7px 8px 0 rgb(var(--bronce-sombra) / 18%),
+    0 20px 38px rgb(var(--bronce-metal) / 22%),
+    0 0 23px rgb(var(--dorado) / 12%);
+}
+
+/* Barra de contextos: verde y diamante sobre plata */
+
+.barra-contextos {
+  border-color: rgb(var(--plata-profunda) / 42%);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(var(--planta-metal) / 13%),
+      rgb(var(--plata-blanca) / 66%) 38%,
+      rgb(var(--diamante-hielo) / 13%) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 90%),
+      rgb(var(--plata-brillante) / 66%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 94%) inset,
+    7px 8px 0 rgb(var(--plata-profunda) / 7%),
+    0 15px 34px rgb(var(--diamante-hielo) / 6%);
+}
+
+/* Familias uniformes para subpaneles: el gradiente fuerte aparece al interactuar */
+
+.panel-contexto,
+.superficie-calendario,
+.editor-dia {
+  --metal-a: var(--celeste-diamante);
+  --metal-b: var(--diamante-azul);
+  --metal-c: var(--diamante-blanco);
+
+  border-color: rgb(var(--diamante-azul) / 42%);
+
+  background:
+    linear-gradient(
+      rgb(var(--metal-a) / 12%),
+      rgb(var(--metal-a) / 12%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 92%),
+      rgb(var(--plata-brillante) / 76%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 94%) inset,
+    7px 8px 0 rgb(var(--diamante-azul) / 8%),
+    0 18px 42px rgb(var(--diamante-hielo) / 7%);
+
+  transition:
+    background 260ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
+}
+
+.panel-contexto:hover,
+.panel-contexto:focus-within,
+.superficie-calendario:hover,
+.superficie-calendario:focus-within,
+.editor-dia:hover,
+.editor-dia:focus-within {
+  border-color: rgb(var(--diamante-azul) / 68%);
+
+  background:
+    linear-gradient(
+      125deg,
+      rgb(var(--diamante-blanco) / 66%),
+      rgb(var(--celeste-diamante) / 18%) 46%,
+      rgb(var(--diamante-azul) / 14%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 94%),
+      rgb(var(--plata-brillante) / 74%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 96%) inset,
+    9px 10px 0 rgb(var(--diamante-azul) / 10%),
+    0 22px 48px rgb(var(--diamante-hielo) / 11%);
+}
+
+/* Verde planta */
+
+.panel-siete-dias,
+.resumen-agenda {
+  border-color: rgb(var(--planta-profundo) / 34%);
+
+  background:
+    linear-gradient(
+      rgb(var(--planta-metal) / 11%),
+      rgb(var(--planta-metal) / 11%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 92%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 92%) inset,
+    7px 8px 0 rgb(var(--planta-profundo) / 7%);
+}
+
+.panel-siete-dias:hover,
+.panel-siete-dias:focus-within,
+.resumen-agenda:hover {
+  background:
+    linear-gradient(
+      125deg,
+      rgb(var(--planta-luz) / 26%),
+      rgb(var(--plata-blanca) / 72%) 48%,
+      rgb(var(--planta-metal) / 15%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 94%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 95%) inset,
+    9px 10px 0 rgb(var(--planta-profundo) / 9%),
+    0 20px 42px rgb(var(--planta-metal) / 9%);
+}
+
+/* Dorado */
+
+.bandeja-actividades,
+.formulario-bloque,
+.panel-gracia-planificacion {
+  border-color: rgb(var(--dorado-profundo) / 42%);
+
+  background:
+    linear-gradient(
+      rgb(var(--dorado) / 11%),
+      rgb(var(--dorado) / 11%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 92%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 92%) inset,
+    7px 8px 0 rgb(var(--dorado-profundo) / 8%);
+}
+
+.bandeja-actividades:hover,
+.bandeja-actividades:focus-within,
+.formulario-bloque:hover,
+.formulario-bloque:focus-within,
+.panel-gracia-planificacion:hover,
+.panel-gracia-planificacion:focus-within {
+  background:
+    linear-gradient(
+      125deg,
+      rgb(var(--dorado-claro) / 28%),
+      rgb(var(--plata-blanca) / 72%) 48%,
+      rgb(var(--bronce-metal) / 14%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 94%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 95%) inset,
+    9px 10px 0 rgb(var(--dorado-profundo) / 10%),
+    0 20px 42px rgb(var(--dorado) / 10%);
+}
+
+/* Bronce */
+
+.vista-lista-calendario,
+.dialogo-confirmacion {
+  border-color: rgb(var(--bronce-sombra) / 43%);
+
+  background:
+    linear-gradient(
+      rgb(var(--bronce-metal) / 10%),
+      rgb(var(--bronce-metal) / 10%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 94%),
+      rgb(var(--plata-brillante) / 73%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 92%) inset,
+    8px 9px 0 rgb(var(--bronce-sombra) / 8%),
+    0 23px 58px rgb(var(--bronce-metal) / 9%);
+}
+
+/* Calendario: plata en reposo, diamante en selección */
+
+.dia-calendario,
+.dia-proximo {
+  border-color: rgb(var(--plata-profunda) / 30%);
+
+  background:
+    linear-gradient(
+      rgb(var(--plata-brillante) / 21%),
+      rgb(var(--plata-brillante) / 21%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 93%),
+      rgb(var(--plata-brillante) / 68%)
+    );
+}
+
+.dia-calendario:hover {
+  border-color: rgb(var(--diamante-azul) / 45%);
+
+  background:
+    linear-gradient(
+      130deg,
+      rgb(var(--diamante-blanco) / 78%),
+      rgb(var(--diamante-hielo) / 18%) 54%,
+      rgb(var(--plata-blanca) / 88%)
+    );
+
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--diamante-hielo) / 38%),
+    5px 6px 0 rgb(var(--diamante-azul) / 8%),
+    0 12px 26px rgb(var(--diamante-hielo) / 8%);
+}
+
+.dia-calendario.seleccionado {
+  border-color: rgb(var(--diamante-azul) / 78%);
+
+  background:
+    linear-gradient(
+      125deg,
+      rgb(var(--diamante-blanco) / 92%),
+      rgb(var(--diamante-hielo) / 32%) 45%,
+      rgb(var(--planta-metal) / 11%)
+    ),
+    rgb(var(--plata-blanca) / 92%);
+
+  box-shadow:
+    inset 0 0 0 2px rgb(var(--diamante-hielo) / 66%),
+    inset 5px 0 0 rgb(var(--diamante-azul)),
+    6px 7px 0 rgb(var(--diamante-azul) / 12%),
+    0 0 24px rgb(var(--diamante-hielo) / 12%);
+}
+
+/* Tarjetas de tarea: tinte uniforme y brillo al interactuar */
+
+.tarjeta-bloque {
+  background:
+    linear-gradient(
+      rgb(var(--acento-a) / 13%),
+      rgb(var(--acento-a) / 13%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 93%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 92%) inset,
+    5px 6px 0 rgb(var(--acento-b) / 8%),
+    0 12px 26px rgb(var(--cuarzo-grafito) / 5%);
+}
+
+.tarjeta-bloque:hover,
+.tarjeta-bloque:focus-within {
+  background:
+    linear-gradient(
+      125deg,
+      rgb(var(--acento-c) / 34%),
+      rgb(var(--plata-blanca) / 74%) 48%,
+      rgb(var(--acento-a) / 17%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 95%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 95%) inset,
+    7px 8px 0 rgb(var(--acento-b) / 11%),
+    0 18px 34px rgb(var(--acento-b) / 12%),
+    0 0 24px rgb(var(--acento-a) / 10%);
+}
+
+/* Bloques compactos: verde planta con acabado mineral */
+
+.bloques-compactos li {
+  border-left-color: rgb(var(--planta-profundo));
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(var(--planta-luz) / 26%),
+      rgb(var(--diamante-blanco) / 42%) 58%,
+      rgb(var(--planta-metal) / 10%)
+    ),
+    rgb(var(--plata-blanca) / 72%);
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 84%) inset,
+    3px 3px 0 rgb(var(--planta-profundo) / 8%);
+}
+
+/* Mensajes */
+
+.mensaje-exito {
+  border-color: rgb(var(--planta-profundo) / 34%);
+  border-left-color: rgb(var(--planta-profundo));
+
+  background:
+    linear-gradient(
+      100deg,
+      rgb(var(--planta-luz) / 30%),
+      rgb(var(--diamante-blanco) / 48%) 58%,
+      rgb(var(--planta-metal) / 11%)
+    ),
+    rgb(var(--plata-blanca) / 72%);
+
+  color: rgb(var(--planta-profundo));
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 92%) inset,
+    5px 6px 0 rgb(var(--planta-profundo) / 8%);
+}
+
+.mensaje-formulario {
+  border-color: rgb(var(--bronce-sombra) / 28%);
+  border-left-color: rgb(var(--bronce-metal));
+
+  background:
+    linear-gradient(
+      100deg,
+      rgb(var(--bronce-luz) / 23%),
+      rgb(var(--diamante-blanco) / 38%) 58%,
+      rgb(var(--dorado) / 9%)
+    ),
+    rgb(var(--plata-blanca) / 72%);
+}
+
+/* Modales */
+
+.fondo-dialogo {
+  background:
+    radial-gradient(
+      circle 34rem at 50% 10%,
+      rgb(var(--diamante-hielo) / 12%),
+      transparent 64%
+    ),
+    rgb(var(--cuarzo-grafito) / 54%);
+}
+
+.dialogo-confirmacion {
+  border-top-color: rgb(var(--bronce-metal));
+
+  background:
+    linear-gradient(
+      120deg,
+      rgb(var(--diamante-blanco) / 44%),
+      transparent 31%,
+      rgb(var(--bronce-luz) / 13%) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 98%),
+      rgb(var(--plata-brillante) / 85%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 96%) inset,
+    12px 14px 0 rgb(var(--bronce-sombra) / 12%),
+    0 34px 90px rgb(var(--cuarzo-grafito) / 34%),
+    0 0 28px rgb(var(--bronce-luz) / 10%);
+}
+
+.dialogo-revision-corte {
+  border-top-color: rgb(var(--dorado));
+
+  background:
+    linear-gradient(
+      120deg,
+      rgb(var(--dorado-claro) / 26%),
+      rgb(var(--diamante-blanco) / 52%) 48%,
+      rgb(var(--bronce-luz) / 12%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 98%),
+      rgb(var(--plata-brillante) / 84%)
+    );
+}
+
+/* Resúmenes numéricos */
+
+.resumen-revision-corte,
+.resumen-impacto-eliminacion {
+  border-color: rgb(var(--plata-profunda) / 38%);
+
+  background:
+    linear-gradient(
+      110deg,
+      rgb(var(--diamante-blanco) / 55%),
+      transparent 48%,
+      rgb(var(--bronce-luz) / 10%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 88%),
+      rgb(var(--plata-brillante) / 68%)
+    );
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 94%) inset,
+    6px 7px 0 rgb(var(--plata-profunda) / 7%);
+}
+
+.resumen-revision-corte dd,
+.resumen-impacto-eliminacion dd,
+.resumen-agenda strong,
+.cuenta-regresiva {
+  text-shadow: 0 1px 0 rgb(255 255 255 / 82%);
+}
+
+.cuenta-regresiva {
+  border-color: rgb(var(--dorado-profundo) / 45%);
+
+  background:
+    linear-gradient(
+      118deg,
+      rgb(var(--dorado-claro) / 48%),
+      rgb(var(--diamante-blanco) / 72%) 50%,
+      rgb(var(--bronce-luz) / 24%)
+    ),
+    rgb(var(--plata-blanca) / 78%);
+
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 92%) inset,
+    4px 5px 0 rgb(var(--dorado-profundo) / 8%),
+    0 0 18px rgb(var(--dorado) / 10%);
+}
+
+/* Línea y texto de acciones */
+
+.barra-acciones-agenda {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--planta-metal) / 7%),
+    transparent 35%,
+    rgb(var(--diamante-hielo) / 6%) 67%,
+    rgb(var(--bronce-metal) / 6%)
+  );
+}
+
+/* Compatibilidad con movimiento reducido */
+
+@media (prefers-reduced-motion: reduce) {
+  .boton-primario::before {
+    display: none;
+  }
+
+  .panel-contexto,
+  .superficie-calendario,
+  .editor-dia,
+  .panel-siete-dias,
+  .resumen-agenda,
+  .bandeja-actividades,
+  .formulario-bloque,
+  .panel-gracia-planificacion,
+  .tarjeta-bloque {
+    transition: none;
   }
 }

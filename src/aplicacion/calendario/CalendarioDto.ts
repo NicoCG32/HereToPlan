@@ -41,6 +41,10 @@ export interface BloqueCalendarioDto {
   readonly origen: OrigenBloqueCalendarioDto;
   readonly politica: PoliticaBloqueCalendarioDto;
   readonly editable: boolean;
+  readonly proteccion?: Readonly<{
+    corteId: string;
+    estado: "EN_GRACIA" | "CONFIRMADA";
+  }>;
 }
 
 export interface DiaProximoCalendarioDto {

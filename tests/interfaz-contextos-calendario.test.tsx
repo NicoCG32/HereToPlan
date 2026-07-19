@@ -10,6 +10,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   CasoDeUsoAsignarActividad,
+  CasoDeUsoAsignarCortePlanificacion,
   CasoDeUsoConsultarCalendario,
   CasoDeUsoConsultarImpactoEliminacionContexto,
   CasoDeUsoCrearActividad,
@@ -19,6 +20,8 @@ import {
   CasoDeUsoEliminarBloquePlanificacion,
   CasoDeUsoInicializarContextosPlanificacion,
   CasoDeUsoListarContextosPlanificacion,
+  CasoDeUsoRevisarCortePlanificacion,
+  CasoDeUsoSincronizarCortesPlanificacion,
   type CalendarioLocal,
 } from "../src/aplicacion";
 import { App } from "../src/app/App";
@@ -32,6 +35,7 @@ import { RepositorioActividadesEnMemoria } from "../src/infraestructura/persiste
 import { RepositorioAgendasEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioAgendasEnMemoria";
 import { RepositorioBloquesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioBloquesPlanificacionEnMemoria";
 import { RepositorioContextosPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioContextosPlanificacionEnMemoria";
+import { RepositorioCortesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioCortesPlanificacionEnMemoria";
 import { TransaccionEliminacionContextoPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/TransaccionEliminacionContextoPlanificacionEnMemoria";
 import type { ServiciosCalendario } from "../src/presentacion/calendario/ServiciosCalendario";
 import {
@@ -97,7 +101,7 @@ describe("interfaz de contextos del calendario", () => {
       fechaInicio: { valor: "2026-08-01" },
       fechaFin: { valor: "2026-12-20" },
     });
-  });
+  }, 15_000);
 
   it("muestra las validaciones junto a los campos corregibles", async () => {
     const usuario = userEvent.setup();
@@ -239,6 +243,81 @@ describe("interfaz de contextos del calendario", () => {
     ).toBeTruthy();
   });
 
+  it("selecciona, revisa y asigna bloques antes de mostrar la gracia", async () => {
+    const usuario = userEvent.setup();
+    const entorno = await crearEntorno();
+    await entorno.bloques.guardar(
+      new BloquePlanificacion({
+        id: "bloque-revision",
+        contextoId: "contexto-libre",
+        actividadId: "actividad-revision",
+        titulo: "Preparar informe",
+        fecha: FechaLocal.crear("2026-07-22"),
+        minutosPlanificados: 45,
+        politica: new PoliticaCompromiso({
+          rigidez: "FLEXIBLE",
+          autoridadPlazo: "PERSONAL",
+          ajustesPermitidos: ["REPROGRAMAR"],
+        }),
+        creadoEn: new Date("2026-07-20T10:00:00.000Z"),
+      }),
+    );
+    render(<App serviciosCalendario={entorno.servicios} />);
+    await screen.findByRole("heading", { name: "Calendario general" });
+
+    await usuario.click(
+      screen.getByRole("checkbox", {
+        name: "Seleccionar Preparar informe para revisión",
+      }),
+    );
+    await usuario.click(
+      screen.getByRole("button", { name: "Revisar selección (1)" }),
+    );
+    let dialogo = await screen.findByRole("dialog", {
+      name: "Revisar planificación",
+    });
+    expect(dialogo.textContent).toContain("45 min");
+    expect(dialogo.textContent).toContain("Flexibles1");
+    expect(document.activeElement).toBe(
+      within(dialogo).getByRole("button", { name: "Volver al calendario" }),
+    );
+
+    await usuario.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).toBeNull();
+    await expect(entorno.cortes.listar()).resolves.toHaveLength(0);
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByRole("button", { name: "Revisar selección (1)" }),
+      ),
+    );
+
+    await usuario.click(
+      screen.getByRole("button", { name: "Revisar selección (1)" }),
+    );
+    dialogo = await screen.findByRole("dialog", {
+      name: "Revisar planificación",
+    });
+
+    await usuario.click(
+      within(dialogo).getByRole("button", {
+        name: "Asignar planificación",
+      }),
+    );
+
+    expect(
+      await screen.findByText(/La planificación entró en gracia/),
+    ).toBeTruthy();
+    expect(
+      await screen.findByRole("heading", { name: "Período de gracia" }),
+    ).toBeTruthy();
+    expect(screen.getByText("10:00").getAttribute("aria-hidden")).toBe("true");
+    expect(
+      screen.queryByRole("button", { name: "Editar Preparar informe" }),
+    ).toBeNull();
+    expect(screen.getByText("En período de gracia")).toBeTruthy();
+    await expect(entorno.cortes.listar()).resolves.toHaveLength(1);
+  }, 15_000);
+
   it("cancela el diálogo y luego elimina trasladando los bloques a Libre", async () => {
     const usuario = userEvent.setup();
     const entorno = await crearEntorno();
@@ -346,6 +425,7 @@ async function crearEntorno() {
   const actividades = new RepositorioActividadesEnMemoria();
   const agendas = new RepositorioAgendasEnMemoria();
   const bloques = new RepositorioBloquesPlanificacionEnMemoria();
+  const cortes = new RepositorioCortesPlanificacionEnMemoria();
   const reloj = new RelojFijo(new Date("2026-07-20T10:00:00.000Z"));
   await new CasoDeUsoInicializarContextosPlanificacion(
     repositorio,
@@ -373,7 +453,23 @@ async function crearEntorno() {
       actividades,
       agendas,
       bloques,
+      cortes,
       new CalendarioLocalFijo("2026-07-20"),
+    ),
+    revisarCorte: new CasoDeUsoRevisarCortePlanificacion(bloques, cortes),
+    asignarCorte: new CasoDeUsoAsignarCortePlanificacion(
+      bloques,
+      cortes,
+      reloj,
+      new GeneradorIdentificadoresPredefinidos([
+        "corte-1",
+        "corte-2",
+        "corte-3",
+      ]),
+    ),
+    sincronizarCortes: new CasoDeUsoSincronizarCortesPlanificacion(
+      cortes,
+      reloj,
     ),
     crearActividad: new CasoDeUsoCrearActividad(
       actividades,
@@ -395,8 +491,12 @@ async function crearEntorno() {
         "bloque-3",
       ]),
     ),
-    editarBloque: new CasoDeUsoEditarBloquePlanificacion(bloques, repositorio),
-    eliminarBloque: new CasoDeUsoEliminarBloquePlanificacion(bloques),
+    editarBloque: new CasoDeUsoEditarBloquePlanificacion(
+      bloques,
+      repositorio,
+      cortes,
+    ),
+    eliminarBloque: new CasoDeUsoEliminarBloquePlanificacion(bloques, cortes),
     consultarImpactoEliminacion:
       new CasoDeUsoConsultarImpactoEliminacionContexto(
         repositorio,
@@ -408,7 +508,7 @@ async function crearEntorno() {
     ),
   };
 
-  return { repositorio, bloques, servicios };
+  return { repositorio, bloques, cortes, servicios };
 }
 
 async function prepararAgendaEliminable(

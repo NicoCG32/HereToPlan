@@ -64,6 +64,12 @@ y gobierna la revisión, la gracia y la confirmación sin convertir el contexto
 visible completo en una promesa. Esa instantánea queda aislada de cambios
 posteriores en el bloque editable.
 
+La revisión de una selección es una consulta sin efectos: valida su vigencia y
+produce el resumen que decide la persona. Solo la asignación aceptada crea y
+persiste el corte. Desde ese instante, los bloques incluidos no admiten edición
+ni eliminación individual durante la gracia; cualquier corrección debe operar
+sobre el corte completo y volver a someter su nueva selección a revisión.
+
 Reglas del bloque editable:
 
 1. referencia una actividad y un contexto existentes;
@@ -226,7 +232,6 @@ El modelo y sus adaptadores aún deben incorporar:
 
 - reglas internas de tareas compuestas y proyectos;
 - recurrencia completa de hábitos;
-- casos de uso de asignación y sincronización automática del corte confirmable;
 - plantillas de agenda;
 - cronómetro;
 - banco de recuperación;

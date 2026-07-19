@@ -1,16 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import type {
   ActividadDto,
   BloqueCalendarioDto,
   CalendarioDto,
   ContextoPlanificacionDto,
   ImpactoEliminacionContextoDto,
+  RevisionCortePlanificacionDto,
   VistaTemporalCalendario,
 } from "../../aplicacion";
 import { DialogoEliminarContexto } from "./DialogoEliminarContexto";
+import { DialogoRevisarCorte } from "./DialogoRevisarCorte";
 import { FormularioActividadCalendario } from "./FormularioActividadCalendario";
 import { FormularioBloqueCalendario } from "./FormularioBloqueCalendario";
 import { FormularioContextoNombrado } from "./FormularioContextoNombrado";
+import { PanelGraciaPlanificacion } from "./PanelGraciaPlanificacion";
 import type { ServiciosCalendario } from "./ServiciosCalendario";
 
 interface PantallaCalendarioProps {
@@ -28,6 +31,7 @@ const ID_CONTEXTO_LIBRE = "contexto-libre";
 export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
   const botonCrearContextoRef = useRef<HTMLButtonElement>(null);
   const botonEliminarContextoRef = useRef<HTMLButtonElement>(null);
+  const botonRevisarCorteRef = useRef<HTMLButtonElement>(null);
   const selectorContextoRef = useRef<HTMLSelectElement>(null);
   const fechaInicialSincronizadaRef = useRef(false);
   const [estado, setEstado] = useState<EstadoCalendario>({ tipo: "cargando" });
@@ -50,6 +54,14 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
   const [consultandoImpacto, setConsultandoImpacto] = useState(false);
   const [procesandoEliminacion, setProcesandoEliminacion] = useState(false);
   const [errorEliminacion, setErrorEliminacion] = useState<string>();
+  const [bloquesSeleccionados, setBloquesSeleccionados] = useState<
+    readonly string[]
+  >([]);
+  const [revisionCorte, setRevisionCorte] =
+    useState<RevisionCortePlanificacionDto>();
+  const [revisandoCorte, setRevisandoCorte] = useState(false);
+  const [asignandoCorte, setAsignandoCorte] = useState(false);
+  const [errorCorte, setErrorCorte] = useState<string>();
   const [revision, setRevision] = useState(0);
 
   useEffect(() => {
@@ -213,6 +225,74 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
     }
   };
 
+  const alternarBloqueSeleccionado = (bloqueId: string) => {
+    setBloquesSeleccionados((actuales) =>
+      actuales.includes(bloqueId)
+        ? actuales.filter((id) => id !== bloqueId)
+        : [...actuales, bloqueId],
+    );
+    setErrorAccion(undefined);
+  };
+
+  const revisarSeleccion = async () => {
+    setRevisandoCorte(true);
+    setErrorAccion(undefined);
+    try {
+      const resultado = await servicios.revisarCorte.ejecutar({
+        bloqueIds: bloquesSeleccionados,
+      });
+      if (!resultado.exito) {
+        setErrorAccion(resultado.error.mensaje);
+        return;
+      }
+      setRevisionCorte(resultado.revision);
+      setErrorCorte(undefined);
+    } catch (error: unknown) {
+      setErrorAccion(
+        error instanceof Error
+          ? error.message
+          : "No fue posible preparar la revisión de la planificación.",
+      );
+    } finally {
+      setRevisandoCorte(false);
+    }
+  };
+
+  const cancelarRevisionCorte = () => {
+    setRevisionCorte(undefined);
+    setErrorCorte(undefined);
+    requestAnimationFrame(() => botonRevisarCorteRef.current?.focus());
+  };
+
+  const asignarCorte = async () => {
+    if (!revisionCorte) return;
+    setAsignandoCorte(true);
+    setErrorCorte(undefined);
+    try {
+      const resultado = await servicios.asignarCorte.ejecutar({
+        bloqueIds: bloquesSeleccionados,
+      });
+      if (!resultado.exito) {
+        setErrorCorte(resultado.error.mensaje);
+        return;
+      }
+      setRevisionCorte(undefined);
+      setBloquesSeleccionados([]);
+      actualizar(
+        `La planificación entró en gracia y se confirmará automáticamente a las ${formatearHora(resultado.corte.confirmarAutomaticamenteEn!)}.`,
+      );
+      requestAnimationFrame(() => selectorContextoRef.current?.focus());
+    } catch (error: unknown) {
+      setErrorCorte(
+        error instanceof Error
+          ? error.message
+          : "No fue posible asignar la planificación.",
+      );
+    } finally {
+      setAsignandoCorte(false);
+    }
+  };
+
   if (estado.tipo === "cargando") {
     return (
       <section className="panel-agenda estado-carga" aria-live="polite">
@@ -279,6 +359,11 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
           Nueva agenda
         </button>
       </header>
+
+      <PanelGraciaPlanificacion
+        sincronizarCortes={servicios.sincronizarCortes}
+        revision={revision}
+      />
 
       <div className="barra-contextos">
         <div className="campo selector-contexto">
@@ -465,6 +550,11 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
 
       <VistaListaBloques
         bloques={calendario.listaEquivalente}
+        bloquesSeleccionados={bloquesSeleccionados}
+        botonRevisarRef={botonRevisarCorteRef}
+        revisando={revisandoCorte}
+        onAlternarSeleccion={alternarBloqueSeleccionado}
+        onRevisar={() => void revisarSeleccion()}
         onEditar={(bloque) => {
           setBloqueEditado(bloque);
           setDiaSeleccionado(bloque.fecha);
@@ -485,6 +575,16 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
           onEliminarBorradores={(confirmacion) =>
             void ejecutarEliminacion("ELIMINAR_BORRADORES", confirmacion)
           }
+        />
+      )}
+
+      {revisionCorte && (
+        <DialogoRevisarCorte
+          revision={revisionCorte}
+          procesando={asignandoCorte}
+          {...(errorCorte ? { error: errorCorte } : {})}
+          onCancelar={cancelarRevisionCorte}
+          onAsignar={() => void asignarCorte()}
         />
       )}
     </section>
@@ -680,10 +780,20 @@ function ListaCompactaBloques({
 
 function VistaListaBloques({
   bloques,
+  bloquesSeleccionados,
+  botonRevisarRef,
+  revisando,
+  onAlternarSeleccion,
+  onRevisar,
   onEditar,
   onQuitar,
 }: {
   readonly bloques: readonly BloqueCalendarioDto[];
+  readonly bloquesSeleccionados: readonly string[];
+  readonly botonRevisarRef: RefObject<HTMLButtonElement | null>;
+  readonly revisando: boolean;
+  readonly onAlternarSeleccion: (bloqueId: string) => void;
+  readonly onRevisar: () => void;
   readonly onEditar: (bloque: BloqueCalendarioDto) => void;
   readonly onQuitar: (bloque: BloqueCalendarioDto) => void;
 }) {
@@ -697,6 +807,17 @@ function VistaListaBloques({
           <p className="sobrelinea">Alternativa accesible</p>
           <h3 id="lista-equivalente">Vista de lista equivalente</h3>
         </div>
+        <button
+          ref={botonRevisarRef}
+          className="boton-primario"
+          type="button"
+          onClick={onRevisar}
+          disabled={bloquesSeleccionados.length === 0 || revisando}
+        >
+          {revisando
+            ? "Preparando revisión…"
+            : `Revisar selección (${bloquesSeleccionados.length})`}
+        </button>
       </div>
       {bloques.length === 0 ? (
         <p className="estado-vacio-lineal">
@@ -716,6 +837,25 @@ function VistaListaBloques({
                     ? "Estricta"
                     : "Flexible"}
                 </span>
+                {bloque.editable ? (
+                  <label className="seleccion-bloque-corte">
+                    <input
+                      type="checkbox"
+                      checked={bloquesSeleccionados.includes(bloque.id)}
+                      onChange={() => onAlternarSeleccion(bloque.id)}
+                      aria-label={`Seleccionar ${bloque.titulo} para revisión`}
+                    />
+                    Incluir en la próxima revisión
+                  </label>
+                ) : (
+                  bloque.proteccion && (
+                    <span className="estado-proteccion-bloque">
+                      {bloque.proteccion.estado === "EN_GRACIA"
+                        ? "En período de gracia"
+                        : "Planificación confirmada"}
+                    </span>
+                  )
+                )}
               </div>
               {bloque.editable && (
                 <div className="acciones-bloque">
@@ -803,4 +943,11 @@ function etiquetaTipoActividad(tipo: ActividadDto["tipo"]): string {
     PROYECTO: "Proyecto",
     HABITO: "Hábito",
   }[tipo];
+}
+
+function formatearHora(instante: string): string {
+  return new Intl.DateTimeFormat("es-CL", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(instante));
 }

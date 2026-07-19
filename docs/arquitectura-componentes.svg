@@ -70,7 +70,7 @@
     <path class="cabecera-composicion" d="M12 0 H388 A12 12 0 0 1 400 12 V48 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«COMPOSITION ROOT»</text>
     <text class="nombre" x="18" y="40">configurarAplicacion</text>
-    <text class="detalle" x="18" y="74">Inicializa Libre y migra metadatos legados.</text>
+    <text class="detalle" x="18" y="74">Inicializa Libre, sincroniza cortes y migra legado.</text>
     <text class="detalle" x="18" y="96">Construye casos de uso y selecciona adaptadores.</text>
     <text class="codigo" x="18" y="117">src/app</text>
   </g>
@@ -82,8 +82,8 @@
     <text class="nombre" x="18" y="42">Presentación React</text>
     <text class="detalle" x="18" y="82">• calendario general: día, semana y mes</text>
     <text class="detalle" x="18" y="106">• panel de siete días y lista equivalente</text>
-    <text class="detalle" x="18" y="130">• formularios de agenda, actividad y bloque</text>
-    <text class="detalle" x="18" y="154">• diálogo accesible de eliminación segura</text>
+    <text class="detalle" x="18" y="130">• selección, revisión y asignación de bloques</text>
+    <text class="detalle" x="18" y="154">• cuenta regresiva y eliminación accesibles</text>
     <text class="detalle" x="18" y="181">Sólo conoce DTO y puertos de entrada.</text>
     <text class="codigo" x="18" y="212">src/presentacion</text>
   </g>
@@ -105,8 +105,8 @@
     <text class="nombre" x="18" y="42">Casos de uso</text>
     <text class="detalle" x="18" y="82">• crear/listar contextos y actividades</text>
     <text class="detalle" x="18" y="106">• asignar, editar y quitar bloques</text>
-    <text class="detalle" x="18" y="130">• consultar y proyectar el calendario</text>
-    <text class="detalle" x="18" y="154">• consultar impacto y eliminar contexto</text>
+    <text class="detalle" x="18" y="130">• revisar, asignar y sincronizar cortes</text>
+    <text class="detalle" x="18" y="154">• proyectar calendario; eliminar contexto</text>
     <text class="detalle" x="18" y="181">Orquestan reglas y límites transaccionales.</text>
     <text class="codigo" x="18" y="212">src/aplicacion</text>
   </g>

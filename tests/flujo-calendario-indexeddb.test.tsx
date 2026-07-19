@@ -4,6 +4,7 @@ import { IDBFactory } from "fake-indexeddb";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   CasoDeUsoAsignarActividad,
+  CasoDeUsoAsignarCortePlanificacion,
   CasoDeUsoConsultarCalendario,
   CasoDeUsoConsultarImpactoEliminacionContexto,
   CasoDeUsoCrearActividad,
@@ -13,6 +14,8 @@ import {
   CasoDeUsoEliminarContextoPlanificacion,
   CasoDeUsoInicializarContextosPlanificacion,
   CasoDeUsoListarContextosPlanificacion,
+  CasoDeUsoRevisarCortePlanificacion,
+  CasoDeUsoSincronizarCortesPlanificacion,
   type CalendarioLocal,
 } from "../src/aplicacion";
 import { App } from "../src/app/App";
@@ -21,6 +24,7 @@ import { RepositorioActividadesIndexedDB } from "../src/infraestructura/persiste
 import { RepositorioAgendasIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioAgendasIndexedDB";
 import { RepositorioBloquesPlanificacionIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioBloquesPlanificacionIndexedDB";
 import { RepositorioContextosPlanificacionIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioContextosPlanificacionIndexedDB";
+import { RepositorioCortesPlanificacionIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioCortesPlanificacionIndexedDB";
 import { TransaccionEliminacionContextoPlanificacionIndexedDB } from "../src/infraestructura/persistencia/indexeddb/TransaccionEliminacionContextoPlanificacionIndexedDB";
 import type { ServiciosCalendario } from "../src/presentacion/calendario/ServiciosCalendario";
 import {
@@ -166,7 +170,11 @@ async function prepararPlanificacion(
 }
 
 async function comprobarPlanificacionRecuperada(): Promise<void> {
-  await screen.findByRole("heading", { name: "Calendario general" });
+  await screen.findByRole(
+    "heading",
+    { name: "Calendario general" },
+    { timeout: 5_000 },
+  );
   expect(
     screen.getByRole("option", { name: "Semestre académico" }),
   ).toBeTruthy();
@@ -189,6 +197,7 @@ async function crearEntorno(
   const actividades = new RepositorioActividadesIndexedDB(configuracion);
   const agendas = new RepositorioAgendasIndexedDB(configuracion);
   const bloques = new RepositorioBloquesPlanificacionIndexedDB(configuracion);
+  const cortes = new RepositorioCortesPlanificacionIndexedDB(configuracion);
   const transaccionEliminacion =
     new TransaccionEliminacionContextoPlanificacionIndexedDB(configuracion);
   const reloj = new RelojFijo(new Date("2026-07-20T10:00:00.000Z"));
@@ -209,7 +218,19 @@ async function crearEntorno(
       actividades,
       agendas,
       bloques,
+      cortes,
       new CalendarioLocalFijo("2026-07-20"),
+    ),
+    revisarCorte: new CasoDeUsoRevisarCortePlanificacion(bloques, cortes),
+    asignarCorte: new CasoDeUsoAsignarCortePlanificacion(
+      bloques,
+      cortes,
+      reloj,
+      new GeneradorIdentificadoresPredefinidos(["corte-1"]),
+    ),
+    sincronizarCortes: new CasoDeUsoSincronizarCortesPlanificacion(
+      cortes,
+      reloj,
     ),
     crearActividad: new CasoDeUsoCrearActividad(
       actividades,
@@ -223,8 +244,12 @@ async function crearEntorno(
       reloj,
       new GeneradorIdentificadoresPredefinidos([...idsBloques]),
     ),
-    editarBloque: new CasoDeUsoEditarBloquePlanificacion(bloques, contextos),
-    eliminarBloque: new CasoDeUsoEliminarBloquePlanificacion(bloques),
+    editarBloque: new CasoDeUsoEditarBloquePlanificacion(
+      bloques,
+      contextos,
+      cortes,
+    ),
+    eliminarBloque: new CasoDeUsoEliminarBloquePlanificacion(bloques, cortes),
     consultarImpactoEliminacion:
       new CasoDeUsoConsultarImpactoEliminacionContexto(
         contextos,

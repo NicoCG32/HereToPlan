@@ -9,6 +9,7 @@ import {
   Agenda,
   BloquePlanificacion,
   ContextoPlanificacion,
+  CortePlanificacion,
   FechaLocal,
   Habito,
   PoliticaCompromiso,
@@ -18,6 +19,7 @@ import { RepositorioActividadesEnMemoria } from "../src/infraestructura/persiste
 import { RepositorioAgendasEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioAgendasEnMemoria";
 import { RepositorioBloquesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioBloquesPlanificacionEnMemoria";
 import { RepositorioContextosPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioContextosPlanificacionEnMemoria";
+import { RepositorioCortesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioCortesPlanificacionEnMemoria";
 
 const CREADA_EN = new Date("2026-07-18T10:00:00.000Z");
 
@@ -165,6 +167,7 @@ describe("consulta del calendario general", () => {
     const actividades = new RepositorioActividadesEnMemoria();
     const agendas = new RepositorioAgendasEnMemoria();
     const bloques = new RepositorioBloquesPlanificacionEnMemoria();
+    const cortes = new RepositorioCortesPlanificacionEnMemoria();
     await contextos.guardar(ContextoPlanificacion.crearLibre(CREADA_EN));
     await actividades.guardar(
       new Tarea({
@@ -204,6 +207,7 @@ describe("consulta del calendario general", () => {
       actividades,
       agendas,
       bloques,
+      cortes,
       new CalendarioLocalFijo("2026-07-20"),
     );
 
@@ -224,6 +228,28 @@ describe("consulta del calendario general", () => {
     expect(calendario.listaEquivalente).toBe(calendario.bloquesVisibles);
     expect(calendario.actividadesSinProgramar.map(({ id }) => id)).toEqual([
       "actividad-libre",
+    ]);
+
+    const bloque = await bloques.obtenerPorId("bloque-editable");
+    const corte = CortePlanificacion.crear({
+      id: "corte-activo",
+      bloques: [bloque!],
+      creadoEn: CREADA_EN,
+    });
+    corte.iniciarRevision();
+    corte.asignar(CREADA_EN);
+    await cortes.guardar(corte);
+    const calendarioProtegido = await casoDeUso.ejecutar({
+      seleccion: { tipo: "TODAS" },
+      vistaTemporal: "DIA",
+      fechaAncla: "2026-07-20",
+    });
+    expect(calendarioProtegido.bloquesVisibles).toMatchObject([
+      {
+        id: "bloque-editable",
+        editable: false,
+        proteccion: { corteId: "corte-activo", estado: "EN_GRACIA" },
+      },
     ]);
   });
 
@@ -263,6 +289,7 @@ describe("consulta del calendario general", () => {
       actividades,
       agendas,
       new RepositorioBloquesPlanificacionEnMemoria(),
+      new RepositorioCortesPlanificacionEnMemoria(),
       new CalendarioLocalFijo("2026-07-20"),
     );
 
@@ -371,6 +398,7 @@ async function prepararCalendario(): Promise<CasoDeUsoConsultarCalendario> {
     actividades,
     agendas,
     new RepositorioBloquesPlanificacionEnMemoria(),
+    new RepositorioCortesPlanificacionEnMemoria(),
     new CalendarioLocalFijo("2026-07-20"),
   );
 }

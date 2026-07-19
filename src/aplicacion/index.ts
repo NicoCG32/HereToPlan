@@ -14,6 +14,8 @@ export * from "./calendario/CalendarioDto";
 export * from "./calendario/ConsultarCalendario";
 export * from "./planificacion/BloquePlanificacionDto";
 export * from "./planificacion/GestionarBloquesPlanificacion";
+export * from "./planificacion/GestionarCortesPlanificacion";
+export * from "./planificacion/SincronizarCortesPlanificacion";
 export * from "./puertos/CalendarioLocal";
 export * from "./puertos/GeneradorIdentificadores";
 export * from "./puertos/Reloj";

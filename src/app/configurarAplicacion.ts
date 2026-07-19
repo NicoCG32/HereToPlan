@@ -1,4 +1,5 @@
 import {
+  CasoDeUsoAsignarCortePlanificacion,
   CasoDeUsoAsignarActividad,
   CasoDeUsoConsultarCalendario,
   CasoDeUsoConsultarImpactoEliminacionContexto,
@@ -12,11 +13,14 @@ import {
   CasoDeUsoInicializarContextosPlanificacion,
   CasoDeUsoListarAgendasBorrador,
   CasoDeUsoListarContextosPlanificacion,
+  CasoDeUsoRevisarCortePlanificacion,
+  CasoDeUsoSincronizarCortesPlanificacion,
 } from "../aplicacion";
 import { RepositorioActividadesIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioActividadesIndexedDB";
 import { RepositorioAgendasIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioAgendasIndexedDB";
 import { RepositorioBloquesPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioBloquesPlanificacionIndexedDB";
 import { RepositorioContextosPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioContextosPlanificacionIndexedDB";
+import { RepositorioCortesPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioCortesPlanificacionIndexedDB";
 import { MigradorContextosDesdeAgendasIndexedDB } from "../infraestructura/persistencia/indexeddb/MigradorContextosDesdeAgendasIndexedDB";
 import { TransaccionEliminacionContextoPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionEliminacionContextoPlanificacionIndexedDB";
 import { CalendarioLocalSistema } from "../infraestructura/sistema/CalendarioLocalSistema";
@@ -33,6 +37,7 @@ let repositorioContextos:
 let repositorioActividades: RepositorioActividadesIndexedDB | undefined;
 let repositorioAgendas: RepositorioAgendasIndexedDB | undefined;
 let repositorioBloques: RepositorioBloquesPlanificacionIndexedDB | undefined;
+let repositorioCortes: RepositorioCortesPlanificacionIndexedDB | undefined;
 let transaccionEliminacion:
   TransaccionEliminacionContextoPlanificacionIndexedDB | undefined;
 
@@ -45,6 +50,12 @@ export function inicializarAplicacion(): Promise<void> {
       .then(() =>
         new CasoDeUsoInicializarContextosPlanificacion(
           repositorio,
+          reloj,
+        ).ejecutar(),
+      )
+      .then(() =>
+        new CasoDeUsoSincronizarCortesPlanificacion(
+          obtenerRepositorioCortes(),
           reloj,
         ).ejecutar(),
       )
@@ -86,6 +97,7 @@ function crearServiciosCalendario(): ServiciosCalendario {
   const actividades = obtenerRepositorioActividades();
   const agendas = obtenerRepositorioAgendas();
   const bloques = obtenerRepositorioBloques();
+  const cortes = obtenerRepositorioCortes();
   const reloj = new RelojSistema();
   const generador = new GeneradorIdentificadoresUUID();
   const eliminacion = obtenerTransaccionEliminacion();
@@ -101,7 +113,19 @@ function crearServiciosCalendario(): ServiciosCalendario {
       actividades,
       agendas,
       bloques,
+      cortes,
       new CalendarioLocalSistema(),
+    ),
+    revisarCorte: new CasoDeUsoRevisarCortePlanificacion(bloques, cortes),
+    asignarCorte: new CasoDeUsoAsignarCortePlanificacion(
+      bloques,
+      cortes,
+      reloj,
+      generador,
+    ),
+    sincronizarCortes: new CasoDeUsoSincronizarCortesPlanificacion(
+      cortes,
+      reloj,
     ),
     crearActividad: new CasoDeUsoCrearActividad(actividades, reloj, generador),
     asignarActividad: new CasoDeUsoAsignarActividad(
@@ -111,8 +135,12 @@ function crearServiciosCalendario(): ServiciosCalendario {
       reloj,
       generador,
     ),
-    editarBloque: new CasoDeUsoEditarBloquePlanificacion(bloques, contextos),
-    eliminarBloque: new CasoDeUsoEliminarBloquePlanificacion(bloques),
+    editarBloque: new CasoDeUsoEditarBloquePlanificacion(
+      bloques,
+      contextos,
+      cortes,
+    ),
+    eliminarBloque: new CasoDeUsoEliminarBloquePlanificacion(bloques, cortes),
     consultarImpactoEliminacion:
       new CasoDeUsoConsultarImpactoEliminacionContexto(contextos, eliminacion),
     eliminarContexto: new CasoDeUsoEliminarContextoPlanificacion(
@@ -140,6 +168,11 @@ function obtenerRepositorioAgendas(): RepositorioAgendasIndexedDB {
 function obtenerRepositorioBloques(): RepositorioBloquesPlanificacionIndexedDB {
   repositorioBloques ??= new RepositorioBloquesPlanificacionIndexedDB();
   return repositorioBloques;
+}
+
+function obtenerRepositorioCortes(): RepositorioCortesPlanificacionIndexedDB {
+  repositorioCortes ??= new RepositorioCortesPlanificacionIndexedDB();
+  return repositorioCortes;
 }
 
 function obtenerTransaccionEliminacion(): TransaccionEliminacionContextoPlanificacionIndexedDB {

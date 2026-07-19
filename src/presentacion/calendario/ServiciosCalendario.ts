@@ -1,4 +1,5 @@
 import type {
+  CasoDeUsoAsignarCortePlanificacion,
   CasoDeUsoAsignarActividad,
   CasoDeUsoConsultarCalendario,
   CasoDeUsoCrearActividad,
@@ -8,6 +9,8 @@ import type {
   CasoDeUsoEliminarBloquePlanificacion,
   CasoDeUsoConsultarImpactoEliminacionContexto,
   CasoDeUsoListarContextosPlanificacion,
+  CasoDeUsoRevisarCortePlanificacion,
+  CasoDeUsoSincronizarCortesPlanificacion,
 } from "../../aplicacion";
 
 export interface ServiciosCalendario {
@@ -17,6 +20,12 @@ export interface ServiciosCalendario {
     "ejecutar"
   >;
   readonly consultarCalendario: Pick<CasoDeUsoConsultarCalendario, "ejecutar">;
+  readonly revisarCorte: Pick<CasoDeUsoRevisarCortePlanificacion, "ejecutar">;
+  readonly asignarCorte: Pick<CasoDeUsoAsignarCortePlanificacion, "ejecutar">;
+  readonly sincronizarCortes: Pick<
+    CasoDeUsoSincronizarCortesPlanificacion,
+    "ejecutar"
+  >;
   readonly crearActividad: Pick<CasoDeUsoCrearActividad, "ejecutar">;
   readonly asignarActividad: Pick<CasoDeUsoAsignarActividad, "ejecutar">;
   readonly editarBloque: Pick<CasoDeUsoEditarBloquePlanificacion, "ejecutar">;

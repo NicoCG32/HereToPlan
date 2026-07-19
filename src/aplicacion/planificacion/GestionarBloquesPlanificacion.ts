@@ -15,6 +15,7 @@ import {
 } from "../puertos/RepositorioBloquesPlanificacion";
 import type { RepositorioActividades } from "../puertos/RepositorioActividades";
 import type { RepositorioContextosPlanificacion } from "../puertos/RepositorioContextosPlanificacion";
+import type { RepositorioCortesPlanificacion } from "../puertos/RepositorioCortesPlanificacion";
 import type { Reloj } from "../puertos/Reloj";
 import {
   convertirBloquePlanificacionADto,
@@ -128,6 +129,7 @@ export class CasoDeUsoEditarBloquePlanificacion {
   constructor(
     private readonly repositorioBloques: RepositorioBloquesPlanificacion,
     private readonly repositorioContextos: RepositorioContextosPlanificacion,
+    private readonly repositorioCortes: RepositorioCortesPlanificacion,
   ) {}
 
   public async ejecutar(
@@ -140,6 +142,13 @@ export class CasoDeUsoEditarBloquePlanificacion {
       return rechazar(
         "BLOQUE_PLANIFICACION_NO_ENCONTRADO",
         "El bloque que intentas editar ya no está disponible.",
+        "bloqueId",
+      );
+    }
+    if (await bloqueEstaProtegido(existente.id, this.repositorioCortes)) {
+      return rechazar(
+        "BLOQUE_PROTEGIDO_POR_CORTE",
+        "Un bloque asignado no puede editarse durante la gracia ni después de confirmarse.",
         "bloqueId",
       );
     }
@@ -181,9 +190,21 @@ export class CasoDeUsoEditarBloquePlanificacion {
 export class CasoDeUsoEliminarBloquePlanificacion {
   constructor(
     private readonly repositorioBloques: RepositorioBloquesPlanificacion,
+    private readonly repositorioCortes: RepositorioCortesPlanificacion,
   ) {}
 
   public async ejecutar(bloqueId: string): Promise<ResultadoEliminarBloque> {
+    if (await bloqueEstaProtegido(bloqueId, this.repositorioCortes)) {
+      return Object.freeze({
+        exito: false,
+        error: Object.freeze({
+          codigo: "BLOQUE_PROTEGIDO_POR_CORTE",
+          mensaje:
+            "Un bloque asignado no puede quitarse durante la gracia ni después de confirmarse.",
+          campo: "bloqueId",
+        }),
+      });
+    }
     try {
       await this.repositorioBloques.eliminar(bloqueId);
       return Object.freeze({ exito: true, bloqueId });
@@ -201,6 +222,18 @@ export class CasoDeUsoEliminarBloquePlanificacion {
       throw error;
     }
   }
+}
+
+async function bloqueEstaProtegido(
+  bloqueId: string,
+  repositorioCortes: RepositorioCortesPlanificacion,
+): Promise<boolean> {
+  const cortes = await repositorioCortes.listar();
+  return cortes.some(
+    (corte) =>
+      (corte.estado === "EN_GRACIA" || corte.estado === "CONFIRMADA") &&
+      corte.listarBloques().some((bloque) => bloque.id === bloqueId),
+  );
 }
 
 function crearPolitica(

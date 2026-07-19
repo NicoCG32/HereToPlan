@@ -7,6 +7,7 @@ import {
 import {
   BloquePlanificacion,
   ContextoPlanificacion,
+  CortePlanificacion,
   FechaLocal,
   PoliticaCompromiso,
   Tarea,
@@ -14,6 +15,7 @@ import {
 import { RepositorioActividadesEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioActividadesEnMemoria";
 import { RepositorioBloquesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioBloquesPlanificacionEnMemoria";
 import { RepositorioContextosPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioContextosPlanificacionEnMemoria";
+import { RepositorioCortesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioCortesPlanificacionEnMemoria";
 import {
   GeneradorIdentificadoresPredefinidos,
   RelojFijo,
@@ -151,6 +153,37 @@ describe("bloques editables de planificación", () => {
       error: { campo: "bloqueId" },
     });
   });
+
+  it("impide editar o quitar un bloque incorporado a un corte asignado", async () => {
+    const entorno = await crearEntorno();
+    const bloque = crearBloque();
+    await entorno.bloques.guardar(bloque);
+    const corte = CortePlanificacion.crear({
+      id: "corte-protegido",
+      bloques: [bloque],
+      creadoEn: INSTANTE,
+    });
+    corte.iniciarRevision();
+    corte.asignar(INSTANTE);
+    await entorno.cortes.guardar(corte);
+
+    await expect(
+      entorno.editar.ejecutar({
+        bloqueId: bloque.id,
+        fecha: "2026-07-21",
+        minutosPlanificados: 60,
+        politica: { rigidez: "ESTRICTO", autoridadPlazo: "EXTERNA" },
+      }),
+    ).resolves.toMatchObject({
+      exito: false,
+      error: { codigo: "BLOQUE_PROTEGIDO_POR_CORTE" },
+    });
+    await expect(entorno.eliminar.ejecutar(bloque.id)).resolves.toMatchObject({
+      exito: false,
+      error: { codigo: "BLOQUE_PROTEGIDO_POR_CORTE" },
+    });
+    await expect(entorno.bloques.obtenerPorId(bloque.id)).resolves.toBeTruthy();
+  });
 });
 
 function crearBloque(): BloquePlanificacion {
@@ -174,6 +207,7 @@ async function crearEntorno() {
   const bloques = new RepositorioBloquesPlanificacionEnMemoria();
   const actividades = new RepositorioActividadesEnMemoria();
   const contextos = new RepositorioContextosPlanificacionEnMemoria();
+  const cortes = new RepositorioCortesPlanificacionEnMemoria();
   await contextos.guardar(ContextoPlanificacion.crearLibre(INSTANTE));
   await actividades.guardar(
     new Tarea({
@@ -188,6 +222,7 @@ async function crearEntorno() {
     bloques,
     actividades,
     contextos,
+    cortes,
     asignar: new CasoDeUsoAsignarActividad(
       bloques,
       actividades,
@@ -198,7 +233,7 @@ async function crearEntorno() {
         "bloque-segundo",
       ]),
     ),
-    editar: new CasoDeUsoEditarBloquePlanificacion(bloques, contextos),
-    eliminar: new CasoDeUsoEliminarBloquePlanificacion(bloques),
+    editar: new CasoDeUsoEditarBloquePlanificacion(bloques, contextos, cortes),
+    eliminar: new CasoDeUsoEliminarBloquePlanificacion(bloques, cortes),
   };
 }

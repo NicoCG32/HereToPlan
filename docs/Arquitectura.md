@@ -417,6 +417,23 @@ diez minutos; al sincronizarse con el reloj, materializa `CONFIRMADA` cuando el
 instante observado alcanza ese límite. La fecha registrada de confirmación es
 el vencimiento previsto, no el momento accidental en que se reabre la página.
 
+La entrada al ciclo se divide deliberadamente en dos casos de uso. La revisión
+recupera la selección explícita, comprueba que sus identificadores sean únicos,
+que los bloques todavía existan y que ninguno pertenezca a otro corte protegido;
+después devuelve un resumen inmutable sin persistir un agregado transitorio. La
+asignación repite esas comprobaciones para rechazar una revisión que haya quedado
+obsoleta, crea el corte, inicia su revisión, lo asigna con una única lectura del
+reloj y recién entonces lo guarda en `EN_GRACIA`. Por tanto, cancelar el diálogo
+no deja cortes abandonados en `EN_REVISION`. Una futura coordinación entre
+pestañas deberá reforzar la exclusión concurrente en la frontera transaccional.
+
+Desde `EN_GRACIA`, los bloques seleccionados quedan protegidos contra edición y
+eliminación tanto en la proyección del calendario como en los casos de uso de
+escritura. La presentación oculta las acciones incompatibles, pero la regla no
+depende de ese detalle visual: una invocación directa también recibe
+`BLOQUE_PROTEGIDO_POR_CORTE`. La corrección integral del corte constituye una
+operación posterior y explícita; no se simula mediante modificaciones parciales.
+
 `RepositorioCortesPlanificacion` define guardado, actualización, recuperación y
 listado sin exponer registros técnicos. Sus adaptadores en memoria e IndexedDB
 cumplen la misma suite contractual y devuelven agregados rehidratados
@@ -429,10 +446,20 @@ UTC normalizados y la rehidratación vuelve a validar la duración exacta de la
 gracia y la coherencia del estado. Una versión desconocida o una ventana
 inconsistente se rechazan antes de entregar un agregado parcial.
 
-El caso de uso del siguiente incremento sincronizará el corte recuperado con el
-puerto `Reloj` antes de exponer acciones editables y persistirá cualquier
-transición materializada. La cuenta regresiva de React será una proyección
-derivada del vencimiento; nunca una segunda fuente de verdad.
+`CasoDeUsoSincronizarCortesPlanificacion` toma una sola lectura del puerto
+`Reloj`, recupera los cortes y solicita al agregado que materialice el estado
+correspondiente. El repositorio se actualiza únicamente cuando el dominio
+informa una transición real; volver a ejecutar el caso de uso sobre un corte ya
+confirmado no produce otra escritura. La raíz de composición ejecuta esta
+sincronización antes de montar React.
+
+El DTO resultante calcula `milisegundosRestantes` desde el reloj observado y el
+vencimiento persistido. React vuelve a consultar mientras exista algún corte en
+gracia y detiene la cuenta al confirmarse. El valor `MM:SS` es una proyección
+visual con `aria-hidden`; la hora absoluta permanece disponible semánticamente y
+la región `status` se actualiza una sola vez cuando se materializa la
+confirmación. El temporizador de presentación nunca escribe estado ni sustituye
+al reloj de aplicación.
 
 ## 7. Operaciones entre agregados y atomicidad
 
@@ -466,10 +493,10 @@ La arquitectura es un contrato de evolución; no debe confundirse con el grado a
 | Elemento        | Estado actual                                                                               |
 | --------------- | ------------------------------------------------------------------------------------------- |
 | Dominio         | Actividades, contextos, cortes temporales, agendas y compromisos protegidos por invariantes |
-| Presentación    | Calendario general y formularios React para contextos, agendas y bloques                    |
-| Aplicación      | Casos de uso, DTO y puertos para actividades, contextos, cortes y agendas                   |
+| Presentación    | Calendario, selección, revisión y cuenta regresiva accesible de cortes                      |
+| Aplicación      | Casos de uso para consultar, revisar, asignar y sincronizar planificación                   |
 | Infraestructura | Repositorios y transacciones en memoria e IndexedDB con registros V1                        |
-| Composición     | Ensambla casos de uso e inicializa `Libre` antes de montar React                            |
+| Composición     | Inicializa `Libre` y sincroniza cortes vencidos antes de montar React                       |
 | Persistencia    | IndexedDB v5 añade cortes confirmables sin alterar los almacenes anteriores                 |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
