@@ -20,6 +20,7 @@ import { RepositorioAgendasEnMemoria } from "../src/infraestructura/persistencia
 import { RepositorioBloquesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioBloquesPlanificacionEnMemoria";
 import { RepositorioContextosPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioContextosPlanificacionEnMemoria";
 import { RepositorioCortesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioCortesPlanificacionEnMemoria";
+import { RepositorioResolucionesBloquesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioResolucionesBloquesPlanificacionEnMemoria";
 
 const CREADA_EN = new Date("2026-07-18T10:00:00.000Z");
 
@@ -208,6 +209,7 @@ describe("consulta del calendario general", () => {
       agendas,
       bloques,
       cortes,
+      new RepositorioResolucionesBloquesPlanificacionEnMemoria(),
       new CalendarioLocalFijo("2026-07-20"),
     );
 
@@ -290,6 +292,7 @@ describe("consulta del calendario general", () => {
       agendas,
       new RepositorioBloquesPlanificacionEnMemoria(),
       new RepositorioCortesPlanificacionEnMemoria(),
+      new RepositorioResolucionesBloquesPlanificacionEnMemoria(),
       new CalendarioLocalFijo("2026-07-20"),
     );
 
@@ -399,6 +402,7 @@ async function prepararCalendario(): Promise<CasoDeUsoConsultarCalendario> {
     agendas,
     new RepositorioBloquesPlanificacionEnMemoria(),
     new RepositorioCortesPlanificacionEnMemoria(),
+    new RepositorioResolucionesBloquesPlanificacionEnMemoria(),
     new CalendarioLocalFijo("2026-07-20"),
   );
 }

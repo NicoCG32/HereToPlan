@@ -117,6 +117,12 @@ usar otra operación sobre el bloque resuelto, o reutilizar la operación para
 otro bloque o resultado, produce un conflicto explícito. El reloj sólo se
 consulta al crear el hecho por primera vez.
 
+Completar produce además un ingreso de puntos cuya fuente semántica es el
+identificador del bloque. Resolución e ingreso se confirman como una sola
+operación: no existe un cumplimiento acreditado sin su movimiento ni un
+movimiento atribuible a un bloque que haya quedado pendiente. Marcar incumplido
+solo registra la resolución; no crea gasto, saldo negativo ni deuda.
+
 ### `agendas`
 
 La implementación disponible contiene `Agenda` y `BloqueTrabajo`.
@@ -194,12 +200,25 @@ Agenda y actividad pueden proponer políticas predeterminadas. La política efec
 
 `BilleteraPuntos` deriva su saldo desde `TransaccionPuntos`.
 
+`FormulaPuntosBloque` calcula el ingreso inicial exclusivamente desde los
+minutos planificados conservados en la instantánea confirmada:
+
+```text
+puntos = min(4, ceil(minutos planificados / 30 minutos))
+```
+
+La unidad resultante es un punto entero. Los parámetros `30 minutos/punto` y
+`4 puntos/bloque` son configuración explícita, no constantes dispersas. Ejemplos
+de frontera: 1–30 minutos producen 1 punto; 31–60, 2; 91–120, 4; una duración
+mayor continúa limitada a 4. Solo `COMPLETADO` invoca la fórmula.
+
 Reglas:
 
 - el saldo nunca puede ser negativo;
 - una transacción no puede repetirse;
 - una misma fuente semántica no puede otorgar o consumir puntos dos veces;
-- el dominio todavía no fija la fórmula para ganar puntos.
+- completar e ingresar puntos se confirman juntos o no se confirma ninguno;
+- incumplir produce cero movimientos y nunca genera deuda.
 
 ### `recompensas`
 
@@ -253,8 +272,8 @@ El modelo y sus adaptadores aún deben incorporar:
 - banco de recuperación;
 - extensión de plazos;
 - reducción de carga;
-- persistencia de puntos y recompensas;
-- fórmula de puntuación;
+- consulta y rehidratación de la billetera y sus transacciones;
+- calibración de la fórmula con observaciones de uso;
 - calendario funcional definitivo.
 
 Estas capacidades forman parte de la evolución prevista. Su diseño definitivo puede ajustarse a partir de la evidencia obtenida durante el uso del producto.

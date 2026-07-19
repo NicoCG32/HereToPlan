@@ -10,6 +10,8 @@ import type {
   CasoDeUsoEliminarBloquePlanificacion,
   CasoDeUsoConsultarImpactoEliminacionContexto,
   CasoDeUsoListarContextosPlanificacion,
+  CasoDeUsoCompletarBloqueConPuntos,
+  CasoDeUsoMarcarBloqueIncumplido,
   CasoDeUsoRevisarCortePlanificacion,
   CasoDeUsoSincronizarCortesPlanificacion,
 } from "../../aplicacion";
@@ -43,4 +45,10 @@ export interface ServiciosCalendario {
     CasoDeUsoEliminarContextoPlanificacion,
     "ejecutar"
   >;
+  readonly completarBloque: Pick<CasoDeUsoCompletarBloqueConPuntos, "ejecutar">;
+  readonly marcarBloqueIncumplido: Pick<
+    CasoDeUsoMarcarBloqueIncumplido,
+    "ejecutar"
+  >;
+  readonly generarOperacionId: () => string;
 }

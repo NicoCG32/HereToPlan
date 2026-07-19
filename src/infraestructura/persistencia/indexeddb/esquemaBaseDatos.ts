@@ -1,4 +1,4 @@
-export const VERSION_BASE_DATOS = 6;
+export const VERSION_BASE_DATOS = 7;
 export const ALMACEN_AGENDAS = "agendas";
 export const ALMACEN_ACTIVIDADES = "actividades";
 export const ALMACEN_CONTEXTOS = "contextos-planificacion";
@@ -7,6 +7,8 @@ export const ALMACEN_CORTES_PLANIFICACION = "cortes-planificacion";
 export const ALMACEN_RESOLUCIONES_BLOQUES_PLANIFICACION =
   "resoluciones-bloques-planificacion";
 export const INDICE_RESOLUCIONES_POR_OPERACION = "por-operacion-id";
+export const ALMACEN_TRANSACCIONES_PUNTOS = "transacciones-puntos";
+export const INDICE_TRANSACCIONES_POR_FUENTE = "por-fuente-semantica";
 
 export function asegurarAlmacenes(baseDatos: IDBDatabase): void {
   if (!baseDatos.objectStoreNames.contains(ALMACEN_AGENDAS)) {
@@ -40,5 +42,15 @@ export function asegurarAlmacenes(baseDatos: IDBDatabase): void {
     almacen.createIndex(INDICE_RESOLUCIONES_POR_OPERACION, "operacionId", {
       unique: true,
     });
+  }
+  if (!baseDatos.objectStoreNames.contains(ALMACEN_TRANSACCIONES_PUNTOS)) {
+    const almacen = baseDatos.createObjectStore(ALMACEN_TRANSACCIONES_PUNTOS, {
+      keyPath: "id",
+    });
+    almacen.createIndex(
+      INDICE_TRANSACCIONES_POR_FUENTE,
+      ["fuenteTipo", "fuenteId"],
+      { unique: true },
+    );
   }
 }

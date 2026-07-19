@@ -21,6 +21,8 @@ import {
   CasoDeUsoEliminarBloquePlanificacion,
   CasoDeUsoInicializarContextosPlanificacion,
   CasoDeUsoListarContextosPlanificacion,
+  CasoDeUsoCompletarBloqueConPuntos,
+  CasoDeUsoMarcarBloqueIncumplido,
   CasoDeUsoRevisarCortePlanificacion,
   CasoDeUsoSincronizarCortesPlanificacion,
   type CalendarioLocal,
@@ -29,7 +31,9 @@ import { App } from "../src/app/App";
 import {
   BloquePlanificacion,
   ContextoPlanificacion,
+  CortePlanificacion,
   FechaLocal,
+  FormulaPuntosBloque,
   PoliticaCompromiso,
 } from "../src/dominio";
 import { RepositorioActividadesEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioActividadesEnMemoria";
@@ -37,7 +41,9 @@ import { RepositorioAgendasEnMemoria } from "../src/infraestructura/persistencia
 import { RepositorioBloquesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioBloquesPlanificacionEnMemoria";
 import { RepositorioContextosPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioContextosPlanificacionEnMemoria";
 import { RepositorioCortesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioCortesPlanificacionEnMemoria";
+import { RepositorioResolucionesBloquesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioResolucionesBloquesPlanificacionEnMemoria";
 import { TransaccionEliminacionContextoPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/TransaccionEliminacionContextoPlanificacionEnMemoria";
+import { TransaccionCompletarBloqueConPuntosEnMemoria } from "../src/infraestructura/persistencia/memoria/TransaccionCompletarBloqueConPuntosEnMemoria";
 import type { ServiciosCalendario } from "../src/presentacion/calendario/ServiciosCalendario";
 import {
   GeneradorIdentificadoresPredefinidos,
@@ -363,6 +369,72 @@ describe("interfaz de contextos del calendario", () => {
     );
   }, 15_000);
 
+  it("confirma resultados diferenciados y muestra el historial sin cronómetro", async () => {
+    const usuario = userEvent.setup();
+    const entorno = await crearEntorno();
+    await prepararBloquesConfirmados(entorno);
+    render(<App serviciosCalendario={entorno.servicios} />);
+    await screen.findByRole("heading", { name: "Calendario general" });
+
+    const botonCompletar = screen.getByRole("button", {
+      name: "Completar Sesión terminada",
+    });
+    await usuario.click(botonCompletar);
+    let dialogo = screen.getByRole("dialog", {
+      name: "Completar Sesión terminada",
+    });
+    expect(dialogo.textContent).toContain("Confirmación de cumplimiento");
+    expect(dialogo.textContent).toContain("no podrá cambiarse");
+    expect(document.activeElement).toBe(
+      within(dialogo).getByRole("button", { name: "Cancelar" }),
+    );
+    await usuario.keyboard("{Escape}");
+    await waitFor(() => expect(document.activeElement).toBe(botonCompletar));
+
+    await usuario.click(botonCompletar);
+    dialogo = screen.getByRole("dialog", {
+      name: "Completar Sesión terminada",
+    });
+    await usuario.click(
+      within(dialogo).getByRole("button", {
+        name: "Confirmar cumplimiento",
+      }),
+    );
+    expect(
+      await screen.findByText(/quedó completado y registrado/),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("list", { name: "Historial de Sesión terminada" })
+        .textContent,
+    ).toContain("Completado");
+    expect(
+      screen.queryByRole("button", { name: "Completar Sesión terminada" }),
+    ).toBeNull();
+
+    await usuario.click(
+      screen.getByRole("button", {
+        name: "Marcar incumplido Sesión pendiente",
+      }),
+    );
+    dialogo = screen.getByRole("dialog", {
+      name: "Marcar incumplido Sesión pendiente",
+    });
+    expect(dialogo.textContent).toContain("No genera deuda ni resta puntos");
+    await usuario.click(
+      within(dialogo).getByRole("button", {
+        name: "Confirmar incumplimiento",
+      }),
+    );
+    expect(
+      await screen.findByText(/marcado como incumplido, sin deuda/),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("list", { name: "Historial de Sesión pendiente" })
+        .textContent,
+    ).toContain("Incumplido");
+    await expect(entorno.resoluciones.listar()).resolves.toHaveLength(2);
+  }, 15_000);
+
   it("cancela el diálogo y luego elimina trasladando los bloques a Libre", async () => {
     const usuario = userEvent.setup();
     const entorno = await crearEntorno();
@@ -495,6 +567,15 @@ async function crearEntorno() {
   const agendas = new RepositorioAgendasEnMemoria();
   const bloques = new RepositorioBloquesPlanificacionEnMemoria();
   const cortes = new RepositorioCortesPlanificacionEnMemoria();
+  const resoluciones =
+    new RepositorioResolucionesBloquesPlanificacionEnMemoria();
+  const generadorOperaciones = new GeneradorIdentificadoresPredefinidos([
+    "operacion-1",
+    "operacion-2",
+    "operacion-3",
+  ]);
+  const transaccionCumplimiento =
+    new TransaccionCompletarBloqueConPuntosEnMemoria(resoluciones);
   const reloj = new RelojFijo(new Date("2026-07-20T10:00:00.000Z"));
   await new CasoDeUsoInicializarContextosPlanificacion(
     repositorio,
@@ -523,6 +604,7 @@ async function crearEntorno() {
       agendas,
       bloques,
       cortes,
+      resoluciones,
       new CalendarioLocalFijo("2026-07-20"),
     ),
     revisarCorte: new CasoDeUsoRevisarCortePlanificacion(bloques, cortes),
@@ -576,9 +658,27 @@ async function crearEntorno() {
       repositorio,
       transaccionEliminacion,
     ),
+    completarBloque: new CasoDeUsoCompletarBloqueConPuntos(
+      cortes,
+      resoluciones,
+      transaccionCumplimiento,
+      reloj,
+      new GeneradorIdentificadoresPredefinidos([
+        "ingreso-1",
+        "ingreso-2",
+        "ingreso-3",
+      ]),
+      new FormulaPuntosBloque(),
+    ),
+    marcarBloqueIncumplido: new CasoDeUsoMarcarBloqueIncumplido(
+      cortes,
+      resoluciones,
+      reloj,
+    ),
+    generarOperacionId: () => generadorOperaciones.generar(),
   };
 
-  return { repositorio, bloques, cortes, servicios };
+  return { repositorio, bloques, cortes, resoluciones, servicios };
 }
 
 async function prepararAgendaEliminable(
@@ -609,6 +709,42 @@ async function prepararAgendaEliminable(
       creadoEn: new Date("2026-07-20T10:00:00.000Z"),
     }),
   );
+}
+
+async function prepararBloquesConfirmados(
+  entorno: Awaited<ReturnType<typeof crearEntorno>>,
+): Promise<void> {
+  const bloques = [
+    crearBloqueConfirmado("bloque-completo", "Sesión terminada", 45),
+    crearBloqueConfirmado("bloque-incumplido", "Sesión pendiente", 30),
+  ];
+  for (const bloque of bloques) await entorno.bloques.guardar(bloque);
+  const corte = CortePlanificacion.crear({
+    id: "corte-confirmado",
+    bloques,
+    creadoEn: new Date("2026-07-20T09:00:00.000Z"),
+  });
+  corte.iniciarRevision();
+  corte.asignar(new Date("2026-07-20T09:40:00.000Z"));
+  corte.actualizarSegunReloj(new Date("2026-07-20T09:50:00.000Z"));
+  await entorno.cortes.guardar(corte);
+}
+
+function crearBloqueConfirmado(id: string, titulo: string, minutos: number) {
+  return new BloquePlanificacion({
+    id,
+    contextoId: "contexto-libre",
+    actividadId: `actividad-${id}`,
+    titulo,
+    fecha: FechaLocal.crear("2026-07-20"),
+    minutosPlanificados: minutos,
+    politica: new PoliticaCompromiso({
+      rigidez: "FLEXIBLE",
+      autoridadPlazo: "PERSONAL",
+      ajustesPermitidos: ["REPROGRAMAR"],
+    }),
+    creadoEn: new Date("2026-07-20T09:00:00.000Z"),
+  });
 }
 
 class CalendarioLocalFijo implements CalendarioLocal {

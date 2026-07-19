@@ -83,7 +83,7 @@
     <text class="detalle" x="18" y="82">• calendario general: día, semana y mes</text>
     <text class="detalle" x="18" y="106">• panel de siete días y lista equivalente</text>
     <text class="detalle" x="18" y="130">• selección, revisión, asignación y corrección</text>
-    <text class="detalle" x="18" y="154">• cuenta regresiva y eliminación accesibles</text>
+    <text class="detalle" x="18" y="154">• resolución, historial y eliminación accesibles</text>
     <text class="detalle" x="18" y="181">Sólo conoce DTO y puertos de entrada.</text>
     <text class="codigo" x="18" y="212">src/presentacion</text>
   </g>
@@ -107,7 +107,7 @@
     <text class="detalle" x="18" y="106">• asignar, editar y quitar bloques</text>
     <text class="detalle" x="18" y="130">• revisar, asignar, corregir y sincronizar cortes</text>
     <text class="detalle" x="18" y="154">• proyectar calendario; eliminar contexto</text>
-    <text class="detalle" x="18" y="178">• completar o incumplir bloques confirmados</text>
+    <text class="detalle" x="18" y="178">• completar y acreditar; o registrar incumplimiento</text>
     <text class="detalle" x="18" y="198">Orquestan reglas y límites transaccionales.</text>
     <text class="codigo" x="18" y="220">src/aplicacion</text>
   </g>
@@ -134,7 +134,7 @@
     <text class="detalle" x="18" y="106">RepositorioBloques · RepositorioCortes</text>
     <text class="detalle" x="18" y="130">RepositorioResoluciones · RepositorioAgendas</text>
     <text class="detalle" x="18" y="154">TransaccionEliminacionContextoPlanificacion</text>
-    <text class="detalle" x="18" y="178">Reloj · CalendarioLocal · GeneradorIdentificadores</text>
+    <text class="detalle" x="18" y="178">TransaccionCompletarBloqueConPuntos · Reloj · UUID</text>
     <text class="codigo" x="18" y="226">src/aplicacion/puertos</text>
   </g>
 
@@ -145,7 +145,7 @@
     <text class="nombre" x="18" y="42">Infraestructura del navegador</text>
     <text class="detalle" x="18" y="82">• repositorios IndexedDB</text>
     <text class="detalle" x="18" y="106">• migrador de contextos legados</text>
-    <text class="detalle" x="18" y="130">• transacción atómica de eliminación</text>
+    <text class="detalle" x="18" y="130">• transacciones atómicas de eliminación y cumplimiento</text>
     <text class="detalle" x="18" y="154">• reloj del sistema y fecha local</text>
     <text class="detalle" x="18" y="178">• UUID del navegador</text>
     <text class="detalle" x="18" y="202">Implementan contratos; no dictan reglas.</text>
@@ -156,13 +156,13 @@
     <rect class="componente datos" width="400" height="238"/>
     <path class="cabecera-datos" d="M12 0 H388 A12 12 0 0 1 400 12 V52 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«ALMACENAMIENTO LOCAL»</text>
-    <text class="nombre" x="18" y="42">IndexedDB v6 · here-to-plan</text>
+    <text class="nombre" x="18" y="42">IndexedDB v7 · here-to-plan</text>
     <text class="detalle" x="18" y="82">contextos-planificacion · ContextoV1</text>
     <text class="detalle" x="18" y="106">actividades · ActividadV1</text>
     <text class="detalle" x="18" y="130">bloques-planificacion · BloqueV1</text>
     <text class="detalle" x="18" y="154">cortes-planificacion · CorteV1</text>
     <text class="detalle" x="18" y="178">resoluciones-bloques · ResolucionV1</text>
-    <text class="detalle" x="18" y="202">agendas · AgendaV1</text>
+    <text class="detalle" x="18" y="202">transacciones-puntos · TransaccionPuntosV1</text>
     <text class="detalle" x="18" y="226">Datos versionados rehidratables.</text>
   </g>
 
@@ -190,8 +190,8 @@
 
   <rect class="nota" x="300" y="958" width="1370" height="78"/>
   <text class="nota-titulo" x="322" y="985">Límite transaccional implementado</text>
-  <text class="nota-texto" x="322" y="1009">La eliminación segura valida una huella y escribe contextos y bloques en una sola transacción IndexedDB; el almacén de agendas sólo se lee para proteger historia confirmada.</text>
-  <text class="nota-texto" x="322" y="1029">Las resoluciones son hechos separados con unicidad durable por bloque y por operación.</text>
+  <text class="nota-texto" x="322" y="1009">Eliminar valida una huella y escribe contextos y bloques juntos; completar escribe resolución e ingreso de puntos juntos.</text>
+  <text class="nota-texto" x="322" y="1029">Bloque, operación y fuente semántica poseen unicidad durable; cualquier fallo revierte la operación completa.</text>
 
   <line x1="270" y1="1072" x2="325" y2="1072" class="flujo"/>
   <text class="leyenda" x="337" y="1077">flujo de ejecución / datos</text>

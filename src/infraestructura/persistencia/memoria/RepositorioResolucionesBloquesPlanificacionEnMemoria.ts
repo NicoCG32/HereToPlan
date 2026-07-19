@@ -54,7 +54,9 @@ export class RepositorioResolucionesBloquesPlanificacionEnMemoria implements Rep
     operacionId: Identificador,
   ): Promise<ResolucionBloquePlanificacion | undefined> {
     const bloqueId = this.porOperacion.get(operacionId);
-    return bloqueId ? this.obtenerPorBloqueId(bloqueId) : Promise.resolve();
+    return bloqueId
+      ? this.obtenerPorBloqueId(bloqueId)
+      : Promise.resolve(undefined);
   }
 
   public listar(): Promise<readonly ResolucionBloquePlanificacion[]> {

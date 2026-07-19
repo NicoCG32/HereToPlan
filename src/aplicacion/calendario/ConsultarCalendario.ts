@@ -4,6 +4,7 @@ import {
   type BloquePlanificacion,
   type CortePlanificacion,
   type ContextoPlanificacion,
+  type ResolucionBloquePlanificacion,
 } from "../../dominio";
 import { convertirActividadADto } from "../actividades/ActividadDto";
 import { convertirContextoADto } from "../contextos/ContextoPlanificacionDto";
@@ -13,6 +14,7 @@ import type { RepositorioAgendas } from "../puertos/RepositorioAgendas";
 import type { RepositorioBloquesPlanificacion } from "../puertos/RepositorioBloquesPlanificacion";
 import type { RepositorioContextosPlanificacion } from "../puertos/RepositorioContextosPlanificacion";
 import type { RepositorioCortesPlanificacion } from "../puertos/RepositorioCortesPlanificacion";
+import type { RepositorioResolucionesBloquesPlanificacion } from "../puertos/RepositorioResolucionesBloquesPlanificacion";
 import type {
   BloqueCalendarioDto,
   CalendarioDto,
@@ -52,6 +54,7 @@ export class CasoDeUsoConsultarCalendario {
     private readonly repositorioAgendas: RepositorioAgendas,
     private readonly repositorioBloques: RepositorioBloquesPlanificacion,
     private readonly repositorioCortes: RepositorioCortesPlanificacion,
+    private readonly repositorioResoluciones: RepositorioResolucionesBloquesPlanificacion,
     private readonly calendarioLocal: CalendarioLocal,
   ) {}
 
@@ -60,15 +63,23 @@ export class CasoDeUsoConsultarCalendario {
     const diaSeleccionado = consulta.diaSeleccionado
       ? FechaLocal.crear(consulta.diaSeleccionado)
       : undefined;
-    const [contextos, actividades, agendas, bloquesPlanificacion, cortes] =
-      await Promise.all([
-        this.repositorioContextos.listar(),
-        this.repositorioActividades.listar(),
-        this.repositorioAgendas.listar(),
-        this.repositorioBloques.listar(),
-        this.repositorioCortes.listar(),
-      ]);
+    const [
+      contextos,
+      actividades,
+      agendas,
+      bloquesPlanificacion,
+      cortes,
+      resoluciones,
+    ] = await Promise.all([
+      this.repositorioContextos.listar(),
+      this.repositorioActividades.listar(),
+      this.repositorioAgendas.listar(),
+      this.repositorioBloques.listar(),
+      this.repositorioCortes.listar(),
+      this.repositorioResoluciones.listar(),
+    ]);
     const protecciones = construirProtecciones(cortes);
+    const resolucionesPorBloque = construirResolucionesPorBloque(resoluciones);
     const hoy = this.calendarioLocal.hoy();
     const contextosOrdenados = this.ordenarContextos(contextos);
     const seleccion = this.resolverSeleccion(
@@ -87,6 +98,7 @@ export class CasoDeUsoConsultarCalendario {
           contextosOrdenados,
           consulta.seleccion,
           protecciones,
+          resolucionesPorBloque,
         ),
       ].sort(
         (a, b) => a.fecha.localeCompare(b.fecha) || a.id.localeCompare(b.id),
@@ -219,6 +231,18 @@ export class CasoDeUsoConsultarCalendario {
             ]),
           }),
           editable: false,
+          historial: Object.freeze(
+            bloque.resueltoEn
+              ? [
+                  Object.freeze({
+                    tipo: "RESOLUCION" as const,
+                    resultado: bloque.estado as
+                      "COMPLETADO" | "INCUMPLIDO" | "EXCUSADO",
+                    ocurridoEn: bloque.resueltoEn.toISOString(),
+                  }),
+                ]
+              : [],
+          ),
         }),
       );
     });
@@ -237,6 +261,7 @@ export class CasoDeUsoConsultarCalendario {
       string,
       Readonly<{ corteId: string; estado: "EN_GRACIA" | "CONFIRMADA" }>
     >,
+    resolucionesPorBloque: ReadonlyMap<string, ResolucionBloquePlanificacion>,
   ): readonly BloqueCalendarioDto[] {
     const contextosPorId = new Map(
       contextos.map((contexto) => [contexto.id, contexto] as const),
@@ -257,6 +282,7 @@ export class CasoDeUsoConsultarCalendario {
           return [];
         }
         const proteccion = protecciones.get(bloque.id);
+        const resolucion = resolucionesPorBloque.get(bloque.id);
         return [
           Object.freeze({
             id: bloque.id,
@@ -264,7 +290,7 @@ export class CasoDeUsoConsultarCalendario {
             titulo: bloque.titulo,
             fecha: bloque.fecha.toString(),
             minutosPlanificados: bloque.minutosPlanificados,
-            estado: "PENDIENTE" as const,
+            estado: resolucion?.resultado ?? ("PENDIENTE" as const),
             origen: Object.freeze({
               contextoId: contexto.id,
               nombreContexto: contexto.nombre,
@@ -277,7 +303,19 @@ export class CasoDeUsoConsultarCalendario {
                 ...bloque.politica.ajustesPermitidos,
               ]),
             }),
-            editable: proteccion === undefined,
+            editable: proteccion === undefined && resolucion === undefined,
+            historial: Object.freeze(
+              resolucion
+                ? [
+                    Object.freeze({
+                      tipo: "RESOLUCION" as const,
+                      resultado: resolucion.resultado,
+                      ocurridoEn: resolucion.resueltoEn.toISOString(),
+                      operacionId: resolucion.operacionId,
+                    }),
+                  ]
+                : [],
+            ),
             ...(proteccion ? { proteccion } : {}),
           }),
         ];
@@ -331,6 +369,14 @@ function construirProtecciones(
     }
   }
   return protecciones;
+}
+
+function construirResolucionesPorBloque(
+  resoluciones: readonly ResolucionBloquePlanificacion[],
+): ReadonlyMap<string, ResolucionBloquePlanificacion> {
+  return new Map(
+    resoluciones.map((resolucion) => [resolucion.bloqueId, resolucion]),
+  );
 }
 
 export function calcularRangoVisible(

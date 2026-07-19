@@ -9,6 +9,10 @@ import type {
   VistaTemporalCalendario,
 } from "../../aplicacion";
 import { DialogoEliminarContexto } from "./DialogoEliminarContexto";
+import {
+  DialogoResolverBloque,
+  type AccionResolucionBloque,
+} from "./DialogoResolverBloque";
 import { DialogoRevisarCorte } from "./DialogoRevisarCorte";
 import { FormularioActividadCalendario } from "./FormularioActividadCalendario";
 import { FormularioBloqueCalendario } from "./FormularioBloqueCalendario";
@@ -32,6 +36,7 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
   const botonCrearContextoRef = useRef<HTMLButtonElement>(null);
   const botonEliminarContextoRef = useRef<HTMLButtonElement>(null);
   const botonRevisarCorteRef = useRef<HTMLButtonElement>(null);
+  const botonResolucionOrigenRef = useRef<HTMLButtonElement | null>(null);
   const selectorContextoRef = useRef<HTMLSelectElement>(null);
   const fechaInicialSincronizadaRef = useRef(false);
   const [estado, setEstado] = useState<EstadoCalendario>({ tipo: "cargando" });
@@ -63,6 +68,15 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
   const [revisandoCorte, setRevisandoCorte] = useState(false);
   const [asignandoCorte, setAsignandoCorte] = useState(false);
   const [errorCorte, setErrorCorte] = useState<string>();
+  const [resolucionPendiente, setResolucionPendiente] = useState<
+    Readonly<{
+      bloque: BloqueCalendarioDto;
+      accion: AccionResolucionBloque;
+      operacionId: string;
+    }>
+  >();
+  const [procesandoResolucion, setProcesandoResolucion] = useState(false);
+  const [errorResolucion, setErrorResolucion] = useState<string>();
   const [revision, setRevision] = useState(0);
 
   useEffect(() => {
@@ -305,6 +319,70 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
       );
     } finally {
       setAsignandoCorte(false);
+    }
+  };
+
+  const abrirResolucion = (
+    bloque: BloqueCalendarioDto,
+    accion: AccionResolucionBloque,
+    origen: HTMLButtonElement,
+  ) => {
+    try {
+      botonResolucionOrigenRef.current = origen;
+      setErrorResolucion(undefined);
+      setResolucionPendiente({
+        bloque,
+        accion,
+        operacionId: servicios.generarOperacionId(),
+      });
+    } catch (error: unknown) {
+      setErrorAccion(
+        error instanceof Error
+          ? error.message
+          : "No fue posible preparar la resolución del bloque.",
+      );
+    }
+  };
+
+  const cancelarResolucion = () => {
+    setResolucionPendiente(undefined);
+    setErrorResolucion(undefined);
+    requestAnimationFrame(() => botonResolucionOrigenRef.current?.focus());
+  };
+
+  const resolverBloque = async () => {
+    if (!resolucionPendiente) return;
+    setProcesandoResolucion(true);
+    setErrorResolucion(undefined);
+    try {
+      const casoDeUso =
+        resolucionPendiente.accion === "COMPLETAR"
+          ? servicios.completarBloque
+          : servicios.marcarBloqueIncumplido;
+      const resultado = await casoDeUso.ejecutar({
+        bloqueId: resolucionPendiente.bloque.id,
+        operacionId: resolucionPendiente.operacionId,
+      });
+      if (!resultado.exito) {
+        setErrorResolucion(resultado.error.mensaje);
+        return;
+      }
+      const titulo = resolucionPendiente.bloque.titulo;
+      const completado = resolucionPendiente.accion === "COMPLETAR";
+      setResolucionPendiente(undefined);
+      actualizar(
+        completado
+          ? `${titulo} quedó completado y registrado en su historial.`
+          : `${titulo} quedó marcado como incumplido, sin deuda ni pérdida de puntos.`,
+      );
+    } catch (error: unknown) {
+      setErrorResolucion(
+        error instanceof Error
+          ? error.message
+          : "No fue posible registrar la resolución del bloque.",
+      );
+    } finally {
+      setProcesandoResolucion(false);
     }
   };
 
@@ -590,6 +668,7 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
           setFormularioActividadVisible(false);
         }}
         onQuitar={(bloque) => void quitarBloque(bloque)}
+        onResolver={abrirResolucion}
       />
 
       {impactoEliminacion && (
@@ -614,6 +693,17 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
           {...(errorCorte ? { error: errorCorte } : {})}
           onCancelar={cancelarRevisionCorte}
           onAsignar={() => void asignarCorte()}
+        />
+      )}
+
+      {resolucionPendiente && (
+        <DialogoResolverBloque
+          bloque={resolucionPendiente.bloque}
+          accion={resolucionPendiente.accion}
+          procesando={procesandoResolucion}
+          {...(errorResolucion ? { error: errorResolucion } : {})}
+          onCancelar={cancelarResolucion}
+          onConfirmar={() => void resolverBloque()}
         />
       )}
     </section>
@@ -793,13 +883,15 @@ function ListaCompactaBloques({
       {bloques.map((bloque) => (
         <li
           key={bloque.id}
-          aria-label={`${bloque.titulo}, ${bloque.origen.nombreContexto}, ${bloque.minutosPlanificados} minutos, ${bloque.politica.rigidez.toLowerCase()}`}
+          aria-label={`${bloque.titulo}, ${bloque.origen.nombreContexto}, ${bloque.minutosPlanificados} minutos, ${bloque.politica.rigidez.toLowerCase()}, ${etiquetaEstadoBloque(bloque.estado).toLowerCase()}`}
         >
           <strong>{bloque.titulo}</strong>
           <span>{bloque.origen.nombreContexto}</span>
           <small>
             {bloque.minutosPlanificados} min ·{" "}
             {bloque.politica.rigidez === "ESTRICTO" ? "Estricta" : "Flexible"}
+            {bloque.estado !== "PENDIENTE" &&
+              ` · ${etiquetaEstadoBloque(bloque.estado)}`}
           </small>
         </li>
       ))}
@@ -816,6 +908,7 @@ function VistaListaBloques({
   onRevisar,
   onEditar,
   onQuitar,
+  onResolver,
 }: {
   readonly bloques: readonly BloqueCalendarioDto[];
   readonly bloquesSeleccionados: readonly string[];
@@ -825,6 +918,11 @@ function VistaListaBloques({
   readonly onRevisar: () => void;
   readonly onEditar: (bloque: BloqueCalendarioDto) => void;
   readonly onQuitar: (bloque: BloqueCalendarioDto) => void;
+  readonly onResolver: (
+    bloque: BloqueCalendarioDto,
+    accion: AccionResolucionBloque,
+    origen: HTMLButtonElement,
+  ) => void;
 }) {
   return (
     <section
@@ -876,14 +974,31 @@ function VistaListaBloques({
                     />
                     Incluir en la próxima revisión
                   </label>
+                ) : bloque.estado === "PENDIENTE" && bloque.proteccion ? (
+                  <span className="estado-proteccion-bloque">
+                    {bloque.proteccion.estado === "EN_GRACIA"
+                      ? "En período de gracia"
+                      : "Planificación confirmada"}
+                  </span>
                 ) : (
-                  bloque.proteccion && (
-                    <span className="estado-proteccion-bloque">
-                      {bloque.proteccion.estado === "EN_GRACIA"
-                        ? "En período de gracia"
-                        : "Planificación confirmada"}
-                    </span>
-                  )
+                  <span className="estado-resolucion-bloque">
+                    {etiquetaEstadoBloque(bloque.estado)}
+                  </span>
+                )}
+                {bloque.historial.length > 0 && (
+                  <ol
+                    className="historial-bloque"
+                    aria-label={`Historial de ${bloque.titulo}`}
+                  >
+                    {bloque.historial.map((evento) => (
+                      <li key={`${evento.tipo}-${evento.ocurridoEn}`}>
+                        {etiquetaEstadoBloque(evento.resultado)} el{" "}
+                        <time dateTime={evento.ocurridoEn}>
+                          {formatearInstante(evento.ocurridoEn)}
+                        </time>
+                      </li>
+                    ))}
+                  </ol>
                 )}
               </div>
               {bloque.editable && (
@@ -904,6 +1019,30 @@ function VistaListaBloques({
                   </button>
                 </div>
               )}
+              {!bloque.editable &&
+                bloque.estado === "PENDIENTE" &&
+                bloque.proteccion?.estado === "CONFIRMADA" && (
+                  <div className="acciones-bloque acciones-resolucion-bloque">
+                    <button
+                      className="boton-texto"
+                      type="button"
+                      onClick={(evento) =>
+                        onResolver(bloque, "COMPLETAR", evento.currentTarget)
+                      }
+                    >
+                      Completar {bloque.titulo}
+                    </button>
+                    <button
+                      className="boton-texto boton-peligro"
+                      type="button"
+                      onClick={(evento) =>
+                        onResolver(bloque, "INCUMPLIR", evento.currentTarget)
+                      }
+                    >
+                      Marcar incumplido {bloque.titulo}
+                    </button>
+                  </div>
+                )}
             </li>
           ))}
         </ul>
@@ -972,6 +1111,22 @@ function etiquetaTipoActividad(tipo: ActividadDto["tipo"]): string {
     PROYECTO: "Proyecto",
     HABITO: "Hábito",
   }[tipo];
+}
+
+function etiquetaEstadoBloque(estado: BloqueCalendarioDto["estado"]): string {
+  return {
+    PENDIENTE: "Pendiente",
+    COMPLETADO: "Completado",
+    INCUMPLIDO: "Incumplido",
+    EXCUSADO: "Excusado",
+  }[estado];
+}
+
+function formatearInstante(instante: string): string {
+  return new Intl.DateTimeFormat("es-CL", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(instante));
 }
 
 function formatearHora(instante: string): string {

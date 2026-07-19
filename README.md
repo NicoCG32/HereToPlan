@@ -145,6 +145,11 @@ preparación del reward `Día libre`. El recorrido principal permite:
 - asignar, editar y quitar bloques estrictos o flexibles en fechas concretas;
 - consultar conjuntamente toda la planificación o filtrarla por agenda;
 - navegar por día, semana y mes y revisar los siete días próximos;
+- revisar una selección, confirmar sus instantáneas tras la gracia y declarar
+  cada bloque como completado o incumplido;
+- consultar el estado y el instante histórico de la resolución;
+- acreditar al completar entre uno y cuatro puntos mediante una fórmula
+  explícita, en la misma transacción que registra el cumplimiento;
 - recuperar contextos, actividades y bloques desde IndexedDB después de
   recargar.
 

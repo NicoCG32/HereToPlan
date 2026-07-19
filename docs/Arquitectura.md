@@ -325,6 +325,11 @@ la persistencia refuerza tanto la resolución única por compromiso como la
 unicidad semántica del comando. La actualización sólo crea este almacén y
 conserva sin transformación todos los registros de las versiones anteriores.
 
+La versión 7 añade `transacciones-puntos`. Usa `id` como clave primaria y un
+índice compuesto único por `fuenteTipo + fuenteId`. La actualización es aditiva;
+el caso de uso de cumplimiento puede abrir una transacción sobre este almacén y
+el de resoluciones sin reescribir datos anteriores.
+
 `InicializarContextosPlanificacion` garantiza una sola instancia de `Libre` de
 forma idempotente. La raíz de composición ejecuta este caso de uso antes de
 montar React, por lo que la interfaz nunca comienza sobre una base inicializada
@@ -480,7 +485,7 @@ al reloj de aplicación.
 
 ### 6.10. Resolución histórica e idempotencia
 
-`CompletarBloquePlanificacion` y `MarcarBloqueIncumplido` son puertos de entrada
+`CompletarBloqueConPuntos` y `MarcarBloqueIncumplido` son puertos de entrada
 distintos con el mismo comando: `bloqueId` y `operacionId`. Ambos verifican que
 el identificador pertenezca a la instantánea de un `CortePlanificacion`
 confirmado. No mutan `BloquePlanificacion`, porque éste continúa representando
@@ -495,9 +500,30 @@ reutilización de una operación para otro bloque o desenlace se rechazan como
 conflictos. El caso de uso reconcilia también una colisión concurrente leyendo
 el registro ganador, por lo que memoria e IndexedDB mantienen el mismo contrato.
 
-La raíz de composición construye ambos casos de uso con el repositorio de cortes,
-el repositorio de resoluciones y el reloj del sistema. La interfaz se incorpora
-en el incremento posterior; la regla y su persistencia no dependen de React.
+La proyección de calendario consulta las resoluciones junto con bloques y cortes.
+React muestra el estado, el instante histórico y dos confirmaciones accesibles
+diferenciadas; genera un identificador de operación antes de ejecutar, pero no
+decide reglas, puntos ni persistencia.
+
+### 6.11. Cumplimiento y acreditación atómicos
+
+`CompletarBloqueConPuntos` obtiene la instantánea desde un corte confirmado,
+aplica `FormulaPuntosBloque` a sus minutos planificados y prepara dos hechos:
+`ResolucionBloquePlanificacion(COMPLETADO)` y un
+`TransaccionPuntos(INGRESO)`. La fuente semántica del ingreso es `bloqueId`.
+
+El puerto de salida `TransaccionCompletarBloqueConPuntos` expresa una unidad de
+trabajo especializada. Su adaptador IndexedDB abre una sola transacción
+`readwrite` sobre `resoluciones-bloques-planificacion` y
+`transacciones-puntos`; ambos `add` se confirman juntos o el navegador revierte
+los dos. Índices únicos protegen bloque, operación, identificador de movimiento
+y pareja `fuenteTipo + fuenteId`. El adaptador en memoria serializa las
+operaciones y valida la billetera antes de publicar ambos hechos.
+
+Esta frontera no sustituye la unidad de trabajo futura del canje: cada operación
+multiagregado posee por ahora el contrato mínimo que necesita. La lectura y
+rehidratación completa de la billetera se incorporan por el puerto de repositorio
+del siguiente incremento.
 
 ## 7. Operaciones entre agregados y atomicidad
 
@@ -528,14 +554,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                                  |
-| --------------- | ---------------------------------------------------------------------------------------------- |
-| Dominio         | Actividades, contextos, cortes temporales y resoluciones históricas protegidos por invariantes |
-| Presentación    | Calendario, revisión, corrección y cuenta regresiva accesible de cortes                        |
-| Aplicación      | Casos de uso de planificación y resolución manual idempotente                                  |
-| Infraestructura | Repositorios y transacciones en memoria e IndexedDB con registros versionados                  |
-| Composición     | Inicializa `Libre`, sincroniza cortes y construye los casos de resolución                      |
-| Persistencia    | IndexedDB v6 añade resoluciones con unicidad por bloque y operación                            |
+| Elemento        | Estado actual                                                                             |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| Dominio         | Planificación, resoluciones y fórmula de puntos protegidas por invariantes                |
+| Presentación    | Calendario, controles de resultado e historial accesible por bloque                       |
+| Aplicación      | Resolución idempotente y cumplimiento con acreditación atómica                            |
+| Infraestructura | Repositorios y transacciones especializadas en memoria e IndexedDB                        |
+| Composición     | Ensambla consultas, resolución y cumplimiento puntuable                                   |
+| Persistencia    | IndexedDB v7 añade ingresos con unicidad de fuente y escritura conjunta con la resolución |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

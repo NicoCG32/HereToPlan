@@ -5,6 +5,7 @@ import {
   CanjeRecompensa,
   DefinicionRecompensa,
   FechaLocal,
+  FormulaPuntosBloque,
   PoliticaCompromiso,
   ServicioCanjeRecompensas,
   TransaccionPuntos,
@@ -75,6 +76,37 @@ function crearBilletera(saldo = 2000) {
 }
 
 describe("puntos y recompensas", () => {
+  it("calcula la puntuación inicial por tramos de treinta minutos y limita cada bloque", () => {
+    const formula = new FormulaPuntosBloque();
+
+    expect(formula.calcular(1)).toBe(1);
+    expect(formula.calcular(30)).toBe(1);
+    expect(formula.calcular(31)).toBe(2);
+    expect(formula.calcular(120)).toBe(4);
+    expect(formula.calcular(121)).toBe(4);
+    expect(formula.calcular(480)).toBe(4);
+  });
+
+  it("permite configurar las unidades y rechaza entradas no puntuables", () => {
+    const formula = new FormulaPuntosBloque({
+      minutosPorPunto: 15,
+      maximoPuntosPorBloque: 2,
+    });
+
+    expect(formula.calcular(16)).toBe(2);
+    esperarErrorDominio("MINUTOS_PUNTUABLES_INVALIDOS", () =>
+      formula.calcular(0),
+    );
+    esperarErrorDominio(
+      "MINUTOS_POR_PUNTO_INVALIDOS",
+      () =>
+        new FormulaPuntosBloque({
+          minutosPorPunto: 0,
+          maximoPuntosPorBloque: 4,
+        }),
+    );
+  });
+
   it("rechaza identificadores y fuentes semánticas duplicadas", () => {
     const billetera = crearBilletera();
     esperarErrorDominio("TRANSACCION_DUPLICADA", () =>

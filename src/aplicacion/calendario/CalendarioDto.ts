@@ -31,6 +31,13 @@ export interface PoliticaBloqueCalendarioDto {
   )[];
 }
 
+export interface EventoHistorialBloqueCalendarioDto {
+  readonly tipo: "RESOLUCION";
+  readonly resultado: "COMPLETADO" | "INCUMPLIDO" | "EXCUSADO";
+  readonly ocurridoEn: string;
+  readonly operacionId?: string;
+}
+
 export interface BloqueCalendarioDto {
   readonly id: string;
   readonly actividadId: string;
@@ -41,6 +48,7 @@ export interface BloqueCalendarioDto {
   readonly origen: OrigenBloqueCalendarioDto;
   readonly politica: PoliticaBloqueCalendarioDto;
   readonly editable: boolean;
+  readonly historial: readonly EventoHistorialBloqueCalendarioDto[];
   readonly proteccion?: Readonly<{
     corteId: string;
     estado: "EN_GRACIA" | "CONFIRMADA";

@@ -15,10 +15,12 @@ import {
   CasoDeUsoListarAgendasBorrador,
   CasoDeUsoListarContextosPlanificacion,
   CasoDeUsoCompletarBloquePlanificacion,
+  CasoDeUsoCompletarBloqueConPuntos,
   CasoDeUsoMarcarBloqueIncumplido,
   CasoDeUsoRevisarCortePlanificacion,
   CasoDeUsoSincronizarCortesPlanificacion,
 } from "../aplicacion";
+import { FormulaPuntosBloque } from "../dominio";
 import { RepositorioActividadesIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioActividadesIndexedDB";
 import { RepositorioAgendasIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioAgendasIndexedDB";
 import { RepositorioBloquesPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioBloquesPlanificacionIndexedDB";
@@ -27,6 +29,7 @@ import { RepositorioCortesPlanificacionIndexedDB } from "../infraestructura/pers
 import { RepositorioResolucionesBloquesPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioResolucionesBloquesPlanificacionIndexedDB";
 import { MigradorContextosDesdeAgendasIndexedDB } from "../infraestructura/persistencia/indexeddb/MigradorContextosDesdeAgendasIndexedDB";
 import { TransaccionEliminacionContextoPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionEliminacionContextoPlanificacionIndexedDB";
+import { TransaccionCompletarBloqueConPuntosIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionCompletarBloqueConPuntosIndexedDB";
 import { CalendarioLocalSistema } from "../infraestructura/sistema/CalendarioLocalSistema";
 import { GeneradorIdentificadoresUUID } from "../infraestructura/sistema/GeneradorIdentificadoresUUID";
 import { RelojSistema } from "../infraestructura/sistema/RelojSistema";
@@ -115,6 +118,7 @@ function crearServiciosCalendario(): ServiciosCalendario {
   const agendas = obtenerRepositorioAgendas();
   const bloques = obtenerRepositorioBloques();
   const cortes = obtenerRepositorioCortes();
+  const resoluciones = obtenerRepositorioResoluciones();
   const reloj = new RelojSistema();
   const generador = new GeneradorIdentificadoresUUID();
   const eliminacion = obtenerTransaccionEliminacion();
@@ -131,6 +135,7 @@ function crearServiciosCalendario(): ServiciosCalendario {
       agendas,
       bloques,
       cortes,
+      resoluciones,
       new CalendarioLocalSistema(),
     ),
     revisarCorte: new CasoDeUsoRevisarCortePlanificacion(bloques, cortes),
@@ -165,6 +170,20 @@ function crearServiciosCalendario(): ServiciosCalendario {
       contextos,
       eliminacion,
     ),
+    completarBloque: new CasoDeUsoCompletarBloqueConPuntos(
+      cortes,
+      resoluciones,
+      new TransaccionCompletarBloqueConPuntosIndexedDB(),
+      reloj,
+      generador,
+      new FormulaPuntosBloque(),
+    ),
+    marcarBloqueIncumplido: new CasoDeUsoMarcarBloqueIncumplido(
+      cortes,
+      resoluciones,
+      reloj,
+    ),
+    generarOperacionId: () => generador.generar(),
   });
 }
 

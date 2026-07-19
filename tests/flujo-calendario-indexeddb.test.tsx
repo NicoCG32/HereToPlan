@@ -15,18 +15,22 @@ import {
   CasoDeUsoEliminarContextoPlanificacion,
   CasoDeUsoInicializarContextosPlanificacion,
   CasoDeUsoListarContextosPlanificacion,
+  CasoDeUsoCompletarBloqueConPuntos,
+  CasoDeUsoMarcarBloqueIncumplido,
   CasoDeUsoRevisarCortePlanificacion,
   CasoDeUsoSincronizarCortesPlanificacion,
   type CalendarioLocal,
 } from "../src/aplicacion";
 import { App } from "../src/app/App";
-import { FechaLocal } from "../src/dominio";
+import { FechaLocal, FormulaPuntosBloque } from "../src/dominio";
 import { RepositorioActividadesIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioActividadesIndexedDB";
 import { RepositorioAgendasIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioAgendasIndexedDB";
 import { RepositorioBloquesPlanificacionIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioBloquesPlanificacionIndexedDB";
 import { RepositorioContextosPlanificacionIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioContextosPlanificacionIndexedDB";
 import { RepositorioCortesPlanificacionIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioCortesPlanificacionIndexedDB";
+import { RepositorioResolucionesBloquesPlanificacionIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioResolucionesBloquesPlanificacionIndexedDB";
 import { TransaccionEliminacionContextoPlanificacionIndexedDB } from "../src/infraestructura/persistencia/indexeddb/TransaccionEliminacionContextoPlanificacionIndexedDB";
+import { TransaccionCompletarBloqueConPuntosIndexedDB } from "../src/infraestructura/persistencia/indexeddb/TransaccionCompletarBloqueConPuntosIndexedDB";
 import type { ServiciosCalendario } from "../src/presentacion/calendario/ServiciosCalendario";
 import {
   GeneradorIdentificadoresPredefinidos,
@@ -199,6 +203,13 @@ async function crearEntorno(
   const agendas = new RepositorioAgendasIndexedDB(configuracion);
   const bloques = new RepositorioBloquesPlanificacionIndexedDB(configuracion);
   const cortes = new RepositorioCortesPlanificacionIndexedDB(configuracion);
+  const resoluciones = new RepositorioResolucionesBloquesPlanificacionIndexedDB(
+    configuracion,
+  );
+  const generadorOperaciones = new GeneradorIdentificadoresPredefinidos([
+    "operacion-1",
+    "operacion-2",
+  ]);
   const transaccionEliminacion =
     new TransaccionEliminacionContextoPlanificacionIndexedDB(configuracion);
   const reloj = new RelojFijo(new Date("2026-07-20T10:00:00.000Z"));
@@ -220,6 +231,7 @@ async function crearEntorno(
       agendas,
       bloques,
       cortes,
+      resoluciones,
       new CalendarioLocalFijo("2026-07-20"),
     ),
     revisarCorte: new CasoDeUsoRevisarCortePlanificacion(bloques, cortes),
@@ -261,6 +273,20 @@ async function crearEntorno(
       contextos,
       transaccionEliminacion,
     ),
+    completarBloque: new CasoDeUsoCompletarBloqueConPuntos(
+      cortes,
+      resoluciones,
+      new TransaccionCompletarBloqueConPuntosIndexedDB(configuracion),
+      reloj,
+      new GeneradorIdentificadoresPredefinidos(["ingreso-1", "ingreso-2"]),
+      new FormulaPuntosBloque(),
+    ),
+    marcarBloqueIncumplido: new CasoDeUsoMarcarBloqueIncumplido(
+      cortes,
+      resoluciones,
+      reloj,
+    ),
+    generarOperacionId: () => generadorOperaciones.generar(),
   };
 
   return { servicios };

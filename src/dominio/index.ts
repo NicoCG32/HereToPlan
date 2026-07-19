@@ -26,6 +26,7 @@ export * from "./agendas/BloqueTrabajo";
 export * from "./agendas/tipos";
 
 export * from "./puntos/BilleteraPuntos";
+export * from "./puntos/FormulaPuntosBloque";
 export * from "./puntos/TransaccionPuntos";
 export * from "./puntos/tipos";
 
