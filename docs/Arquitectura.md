@@ -396,6 +396,28 @@ confundirla con el mecanismo transaccional específico de IndexedDB. Después de
 una eliminación válida, presentación selecciona `Libre`, actualiza el calendario
 y comunica el resultado; estas reacciones no forman parte de la transacción.
 
+### 6.9. Contrato temporal de la planificación confirmable
+
+`CortePlanificacion` es una raíz de agregado del dominio distinta de
+`ContextoPlanificacion`. El contexto responde dónde se organiza un bloque; el
+corte determina qué selección explícita atraviesa revisión, gracia y
+confirmación. En consecuencia, confirmar un corte no bloquea `Libre`, un
+semestre ni un proyecto completo, y esos contextos pueden seguir recibiendo
+planificación futura.
+
+El dominio recibe instantes como argumentos y no importa temporizadores,
+almacenamiento ni APIs del navegador. Al asignar, deriva un vencimiento único a
+diez minutos; al sincronizarse con el reloj, materializa `CONFIRMADA` cuando el
+instante observado alcanza ese límite. La fecha registrada de confirmación es
+el vencimiento previsto, no el momento accidental en que se reabre la página.
+
+La persistencia de este agregado corresponde al siguiente incremento. Su
+registro deberá conservar conjuntamente estado, asignación, vencimiento,
+confirmación e instantáneas de bloques. El caso de uso que lo recupere deberá
+sincronizarlo con el puerto `Reloj` antes de exponer acciones editables y
+persistir cualquier transición materializada. La cuenta regresiva de React será
+una proyección derivada del vencimiento; nunca una segunda fuente de verdad.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 `Agenda` y `BilleteraPuntos` son agregados diferentes. El dominio puede evaluar reglas y preparar una decisión, pero no debe simular una transacción técnica entre agregados.
@@ -414,6 +436,7 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 ## 8. Límites del dominio
 
 - `Agenda` controla el ciclo de vida de sus bloques y ajustes.
+- `CortePlanificacion` controla revisión, gracia y confirmación de una selección explícita de bloques sin absorber el contexto visible.
 - Un bloque confirmado no se modifica mediante referencias externas.
 - `BilleteraPuntos` deriva su saldo de transacciones y protege la unicidad semántica.
 - Los servicios de dominio calculan decisiones; no acceden a almacenamiento ni controlan transacciones técnicas.
@@ -424,14 +447,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                             |
-| --------------- | ------------------------------------------------------------------------- |
-| Dominio         | Actividades, contextos, agendas y compromisos protegidos por invariantes  |
-| Presentación    | Calendario general y formularios React para contextos, agendas y bloques  |
-| Aplicación      | Casos de uso y DTO para actividades, contextos, agendas y su eliminación  |
-| Infraestructura | Repositorios y transacciones en memoria e IndexedDB con registros V1      |
-| Composición     | Ensambla casos de uso e inicializa `Libre` antes de montar React          |
-| Persistencia    | IndexedDB v4 añade bloques editables sin alterar los almacenes anteriores |
+| Elemento        | Estado actual                                                                               |
+| --------------- | ------------------------------------------------------------------------------------------- |
+| Dominio         | Actividades, contextos, cortes temporales, agendas y compromisos protegidos por invariantes |
+| Presentación    | Calendario general y formularios React para contextos, agendas y bloques                    |
+| Aplicación      | Casos de uso y DTO para actividades, contextos, agendas y su eliminación                    |
+| Infraestructura | Repositorios y transacciones en memoria e IndexedDB con registros V1                        |
+| Composición     | Ensambla casos de uso e inicializa `Libre` antes de montar React                            |
+| Persistencia    | IndexedDB v4 añade bloques editables sin alterar los almacenes anteriores                   |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

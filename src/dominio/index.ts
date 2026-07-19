@@ -13,6 +13,7 @@ export * from "./contextos/ContextoPlanificacion";
 export * from "./contextos/tipos";
 
 export * from "./planificacion/BloquePlanificacion";
+export * from "./planificacion/CortePlanificacion";
 
 export * from "./compromisos/AjusteCompromiso";
 export * from "./compromisos/PoliticaCompromiso";

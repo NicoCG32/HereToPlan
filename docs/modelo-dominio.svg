@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1180" viewBox="0 0 1600 1180" role="img" aria-labelledby="titulo descripcion">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1280" viewBox="0 0 1600 1280" role="img" aria-labelledby="titulo descripcion">
   <title id="titulo">HereToPlan — Modelo de dominio implementado</title>
-  <desc id="descripcion">Diagrama de entidades y relaciones entre actividades, contextos, planificación editable, compromisos históricos, puntos y recompensas.</desc>
+  <desc id="descripcion">Diagrama de entidades y relaciones entre actividades, contextos, bloques editables, cortes confirmables, compromisos históricos, puntos y recompensas.</desc>
   <defs>
     <filter id="sombra" x="-10%" y="-10%" width="120%" height="130%">
       <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.12"/>
@@ -45,11 +45,11 @@
     </style>
   </defs>
 
-  <rect class="fondo" width="1600" height="1180"/>
+  <rect class="fondo" width="1600" height="1280"/>
   <text class="titulo" x="54" y="54">HereToPlan — Modelo de dominio implementado</text>
-  <text class="subtitulo" x="54" y="82">Las agendas nombradas organizan; los bloques editables planifican; los compromisos confirmados conservan historia.</text>
+  <text class="subtitulo" x="54" y="82">Los contextos organizan; los bloques planifican; los cortes gobiernan revisión, gracia y confirmación.</text>
 
-  <rect class="grupo" x="40" y="112" width="455" height="620"/>
+  <rect class="grupo" x="40" y="112" width="455" height="720"/>
   <text class="grupo-titulo" x="64" y="143">Catálogo de actividades</text>
   <text class="grupo-subtitulo" x="64" y="164">Definiciones reutilizables, independientes del calendario</text>
 
@@ -99,9 +99,9 @@
   <text class="regla-texto" x="90" y="666">• Compuestas y proyectos forman un grafo acíclico.</text>
   <text class="regla-texto" x="90" y="688">• Resolver subtareas no completa el contenedor.</text>
 
-  <rect class="grupo" x="520" y="112" width="530" height="620"/>
-  <text class="grupo-titulo" x="544" y="143">Planificación editable</text>
-  <text class="grupo-subtitulo" x="544" y="164">Organización y asignaciones anteriores a la confirmación</text>
+  <rect class="grupo" x="520" y="112" width="530" height="720"/>
+  <text class="grupo-titulo" x="544" y="143">Planificación y confirmación</text>
+  <text class="grupo-subtitulo" x="544" y="164">Organización editable y corte temporal confirmable</text>
 
   <g transform="translate(555 190)">
     <rect class="clase planificacion" width="460" height="166"/>
@@ -129,27 +129,32 @@
   </g>
 
   <g transform="translate(555 630)">
-    <rect class="clase planificacion" width="460" height="74"/>
-    <path class="cabecera-planificacion" d="M10 0 H450 A10 10 0 0 1 460 10 V34 H0 V10 A10 10 0 0 1 10 0"/>
-    <text class="estereotipo" x="16" y="21">«OBJETO DE VALOR»</text>
-    <text class="nombre" x="16" y="56">PoliticaCompromiso · rigidez · autoridad · ajustes</text>
+    <rect class="clase planificacion" width="460" height="166"/>
+    <path class="cabecera-planificacion" d="M10 0 H450 A10 10 0 0 1 460 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
+    <text class="estereotipo" x="16" y="18">«RAÍZ DE AGREGADO»</text>
+    <text class="nombre" x="16" y="40">CortePlanificacion</text>
+    <text class="atributo" x="16" y="72">id · bloques: InstantaneaBloque[1..*]</text>
+    <text class="atributo" x="16" y="94">estado: BORRADOR | EN_REVISION</text>
+    <text class="atributo" x="16" y="116">| EN_GRACIA | CONFIRMADA</text>
+    <text class="atributo" x="16" y="138">asignadaEn / confirmarAutomaticamenteEn: Date?</text>
+    <text class="atributo" x="16" y="158">confirmadaEn: Date?</text>
   </g>
 
   <path class="relacion" d="M785 408 V358"/>
   <text class="relacion-etiqueta" x="800" y="389">pertenece a</text>
   <text class="multiplicidad" x="794" y="373">1</text>
   <text class="multiplicidad" x="794" y="405">0..*</text>
-  <path class="relacion" d="M785 598 V628"/>
-  <text class="relacion-etiqueta" x="800" y="619">aplica 1</text>
+  <path class="relacion" d="M785 628 V600"/>
+  <text class="relacion-etiqueta" x="800" y="620">selecciona 1..* instantáneas</text>
 
   <path class="relacion" d="M553 504 H520 V286 H464"/>
   <text class="relacion-etiqueta" x="470" y="483">referencia</text>
   <text class="multiplicidad" x="478" y="276">1</text>
   <text class="multiplicidad" x="530" y="496">0..*</text>
 
-  <rect class="grupo" x="1075" y="112" width="485" height="620"/>
+  <rect class="grupo" x="1075" y="112" width="485" height="720"/>
   <text class="grupo-titulo" x="1099" y="143">Compromisos e historia</text>
-  <text class="grupo-subtitulo" x="1099" y="164">Registro legado preservado hasta introducir CortePlanificacion</text>
+  <text class="grupo-subtitulo" x="1099" y="164">Registro legado preservado durante la migración de persistencia</text>
 
   <g transform="translate(1110 190)">
     <rect class="clase historia" width="415" height="148"/>
@@ -190,11 +195,11 @@
   <path class="relacion" d="M1317 560 V608"/>
   <text class="relacion-etiqueta" x="1332" y="591">registra 0..*</text>
 
-  <rect class="grupo" x="40" y="762" width="1520" height="340"/>
-  <text class="grupo-titulo" x="64" y="793">Puntos y recompensas</text>
-  <text class="grupo-subtitulo" x="64" y="814">Trazabilidad económica y flexibilidad ganada</text>
+  <rect class="grupo" x="40" y="862" width="1520" height="340"/>
+  <text class="grupo-titulo" x="64" y="893">Puntos y recompensas</text>
+  <text class="grupo-subtitulo" x="64" y="914">Trazabilidad económica y flexibilidad ganada</text>
 
-  <g transform="translate(72 846)">
+  <g transform="translate(72 946)">
     <rect class="clase economia" width="300" height="132"/>
     <path class="cabecera-economia" d="M10 0 H290 A10 10 0 0 1 300 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
     <text class="estereotipo" x="16" y="18">«AGREGADO»</text>
@@ -204,7 +209,7 @@
     <text class="atributo" x="16" y="121">movimientos semánticamente únicos</text>
   </g>
 
-  <g transform="translate(430 846)">
+  <g transform="translate(430 946)">
     <rect class="clase economia" width="320" height="132"/>
     <path class="cabecera-economia" d="M10 0 H310 A10 10 0 0 1 320 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
     <text class="estereotipo" x="16" y="18">«ENTIDAD HISTÓRICA»</text>
@@ -214,7 +219,7 @@
     <text class="atributo" x="16" y="121">ocurridaEn: Date</text>
   </g>
 
-  <g transform="translate(808 846)">
+  <g transform="translate(808 946)">
     <rect class="clase economia" width="320" height="132"/>
     <path class="cabecera-economia" d="M10 0 H310 A10 10 0 0 1 320 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
     <text class="estereotipo" x="16" y="18">«DEFINICIÓN»</text>
@@ -224,7 +229,7 @@
     <text class="atributo" x="16" y="121">tipoEfecto: TipoEfectoRecompensa</text>
   </g>
 
-  <g transform="translate(1186 846)">
+  <g transform="translate(1186 946)">
     <rect class="clase economia" width="340" height="132"/>
     <path class="cabecera-economia" d="M10 0 H330 A10 10 0 0 1 340 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
     <text class="estereotipo" x="16" y="18">«ENTIDAD HISTÓRICA»</text>
@@ -234,24 +239,24 @@
     <text class="atributo" x="16" y="121">canjeadoEn: Date</text>
   </g>
 
-  <path class="composicion" d="M374 912 H428"/>
-  <text class="relacion-etiqueta" x="380" y="899">deriva saldo de 0..*</text>
-  <path class="relacion" d="M1130 912 H1184"/>
-  <text class="relacion-etiqueta" x="1128" y="899">materializa</text>
-  <path class="relacion" d="M1186 956 V995 H590 V980"/>
-  <text class="relacion-etiqueta" x="848" y="991">genera gasto</text>
-  <path class="relacion" d="M1356 844 V730 H1318 V706"/>
-  <text class="relacion-etiqueta" x="1368" y="756">autoriza ajustes</text>
+  <path class="composicion" d="M374 1012 H428"/>
+  <text class="relacion-etiqueta" x="380" y="999">deriva saldo de 0..*</text>
+  <path class="relacion" d="M1130 1012 H1184"/>
+  <text class="relacion-etiqueta" x="1128" y="999">materializa</text>
+  <path class="relacion" d="M1186 1056 V1095 H590 V1080"/>
+  <text class="relacion-etiqueta" x="848" y="1091">genera gasto</text>
+  <path class="relacion" d="M1356 944 V830 H1318 V706"/>
+  <text class="relacion-etiqueta" x="1368" y="856">autoriza ajustes</text>
 
-  <rect class="regla" x="72" y="1012" width="1454" height="64"/>
-  <text class="regla-titulo" x="92" y="1038">Regla transversal de eliminación</text>
-  <text class="regla-texto" x="92" y="1062">Eliminar un ContextoPlanificacion nombrado traslada o elimina sólo BloquePlanificacion; nunca elimina Agenda, BloqueTrabajo, resoluciones, puntos ni historia confirmada.</text>
+  <rect class="regla" x="72" y="1112" width="1454" height="64"/>
+  <text class="regla-titulo" x="92" y="1138">Regla transversal de eliminación</text>
+  <text class="regla-texto" x="92" y="1162">Eliminar un ContextoPlanificacion nombrado traslada o elimina sólo BloquePlanificacion; nunca elimina CortePlanificacion, Agenda, resoluciones, puntos ni historia confirmada.</text>
 
-  <line x1="60" y1="1137" x2="105" y2="1137" class="composicion"/>
-  <text class="leyenda" x="116" y="1142">composición / control de ciclo</text>
-  <line x1="350" y1="1137" x2="395" y2="1137" class="herencia"/>
-  <text class="leyenda" x="406" y="1142">especialización</text>
-  <line x1="590" y1="1137" x2="635" y2="1137" class="relacion"/>
-  <text class="leyenda" x="646" y="1142">referencia o efecto</text>
-  <text class="leyenda" x="1518" y="1142" text-anchor="end">Estado implementado · julio de 2026</text>
+  <line x1="60" y1="1237" x2="105" y2="1237" class="composicion"/>
+  <text class="leyenda" x="116" y="1242">composición / control de ciclo</text>
+  <line x1="350" y1="1237" x2="395" y2="1237" class="herencia"/>
+  <text class="leyenda" x="406" y="1242">especialización</text>
+  <line x1="590" y1="1237" x2="635" y2="1237" class="relacion"/>
+  <text class="leyenda" x="646" y="1242">referencia o efecto</text>
+  <text class="leyenda" x="1518" y="1242" text-anchor="end">Estado implementado · julio de 2026</text>
 </svg>
