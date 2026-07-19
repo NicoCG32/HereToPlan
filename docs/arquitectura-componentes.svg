@@ -129,12 +129,11 @@
     <path class="cabecera-puerto" d="M12 0 H428 A12 12 0 0 1 440 12 V52 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«PUERTOS DE SALIDA»</text>
     <text class="nombre" x="18" y="42">Contratos requeridos</text>
-    <text class="detalle" x="18" y="82">RepositorioContextosPlanificacion</text>
-    <text class="detalle" x="18" y="106">RepositorioActividades</text>
-    <text class="detalle" x="18" y="130">RepositorioBloquesPlanificacion</text>
-    <text class="detalle" x="18" y="154">RepositorioAgendas «historia legada»</text>
-    <text class="detalle" x="18" y="178">TransaccionEliminacionContextoPlanificacion</text>
-    <text class="detalle" x="18" y="202">Reloj · CalendarioLocal · GeneradorIdentificadores</text>
+    <text class="detalle" x="18" y="82">RepositorioContextos · RepositorioActividades</text>
+    <text class="detalle" x="18" y="106">RepositorioBloques · RepositorioCortes</text>
+    <text class="detalle" x="18" y="130">RepositorioAgendas «historia legada»</text>
+    <text class="detalle" x="18" y="154">TransaccionEliminacionContextoPlanificacion</text>
+    <text class="detalle" x="18" y="178">Reloj · CalendarioLocal · GeneradorIdentificadores</text>
     <text class="codigo" x="18" y="226">src/aplicacion/puertos</text>
   </g>
 
@@ -156,13 +155,13 @@
     <rect class="componente datos" width="400" height="238"/>
     <path class="cabecera-datos" d="M12 0 H388 A12 12 0 0 1 400 12 V52 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«ALMACENAMIENTO LOCAL»</text>
-    <text class="nombre" x="18" y="42">IndexedDB v4 · here-to-plan</text>
+    <text class="nombre" x="18" y="42">IndexedDB v5 · here-to-plan</text>
     <text class="detalle" x="18" y="82">contextos-planificacion · ContextoV1</text>
     <text class="detalle" x="18" y="106">actividades · ActividadV1</text>
     <text class="detalle" x="18" y="130">bloques-planificacion · BloqueV1</text>
-    <text class="detalle" x="18" y="154">agendas · AgendaV1</text>
-    <text class="detalle" x="18" y="184">Datos privados, versionados y rehidratables.</text>
-    <text class="detalle" x="18" y="208">Persisten entre recargas del navegador.</text>
+    <text class="detalle" x="18" y="154">cortes-planificacion · CorteV1</text>
+    <text class="detalle" x="18" y="178">agendas · AgendaV1</text>
+    <text class="detalle" x="18" y="208">Datos V1 rehidratables entre recargas.</text>
   </g>
 
   <path class="flujo" d="M192 515 H298"/>

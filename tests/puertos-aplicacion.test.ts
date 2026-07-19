@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { RepositorioAgendasEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioAgendasEnMemoria";
 import { RepositorioContextosPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioContextosPlanificacionEnMemoria";
+import { RepositorioCortesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioCortesPlanificacionEnMemoria";
 import {
   GeneradorIdentificadoresPredefinidos,
   RelojFijo,
 } from "./doblesAplicacion";
 import { verificarContratoRepositorioAgendas } from "./contratoRepositorioAgendas";
 import { verificarContratoRepositorioContextosPlanificacion } from "./contratoRepositorioContextosPlanificacion";
+import { verificarContratoRepositorioCortesPlanificacion } from "./contratoRepositorioCortesPlanificacion";
 
 describe("dobles controlables de los puertos de aplicación", () => {
   it("entrega copias del instante configurado", () => {
@@ -44,4 +46,9 @@ verificarContratoRepositorioAgendas(
 verificarContratoRepositorioContextosPlanificacion(
   "adaptador en memoria",
   () => new RepositorioContextosPlanificacionEnMemoria(),
+);
+
+verificarContratoRepositorioCortesPlanificacion(
+  "adaptador en memoria",
+  () => new RepositorioCortesPlanificacionEnMemoria(),
 );

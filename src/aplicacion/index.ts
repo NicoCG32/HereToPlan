@@ -22,3 +22,4 @@ export * from "./puertos/RepositorioActividades";
 export * from "./puertos/RepositorioContextosPlanificacion";
 export * from "./puertos/TransaccionEliminacionContextoPlanificacion";
 export * from "./puertos/RepositorioBloquesPlanificacion";
+export * from "./puertos/RepositorioCortesPlanificacion";

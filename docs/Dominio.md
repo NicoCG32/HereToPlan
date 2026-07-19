@@ -226,13 +226,13 @@ El modelo y sus adaptadores aún deben incorporar:
 
 - reglas internas de tareas compuestas y proyectos;
 - recurrencia completa de hábitos;
-- persistencia y casos de uso del corte confirmable y su gracia;
+- casos de uso de asignación y sincronización automática del corte confirmable;
 - plantillas de agenda;
 - cronómetro;
 - banco de recuperación;
 - extensión de plazos;
 - reducción de carga;
-- persistencia de puntos, recompensas y cortes confirmables separados;
+- persistencia de puntos y recompensas;
 - fórmula de puntuación;
 - calendario funcional definitivo.
 

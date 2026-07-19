@@ -312,6 +312,12 @@ contexto y actividad, fecha civil, minutos, título, política efectiva e instan
 de creación. La actualización es aditiva y mantiene intactos los tres almacenes
 anteriores.
 
+La versión 5 añade `cortes-planificacion`. `CortePlanificacionV1` conserva como
+una única unidad el estado, las instantáneas de bloques y los instantes de
+creación, asignación, vencimiento previsto y confirmación. La migración desde la
+versión 4 solo crea el almacén ausente y comprueba que agendas, actividades,
+contextos y bloques editables conserven sus registros originales.
+
 `InicializarContextosPlanificacion` garantiza una sola instancia de `Libre` de
 forma idempotente. La raíz de composición ejecuta este caso de uso antes de
 montar React, por lo que la interfaz nunca comienza sobre una base inicializada
@@ -411,12 +417,22 @@ diez minutos; al sincronizarse con el reloj, materializa `CONFIRMADA` cuando el
 instante observado alcanza ese límite. La fecha registrada de confirmación es
 el vencimiento previsto, no el momento accidental en que se reabre la página.
 
-La persistencia de este agregado corresponde al siguiente incremento. Su
-registro deberá conservar conjuntamente estado, asignación, vencimiento,
-confirmación e instantáneas de bloques. El caso de uso que lo recupere deberá
-sincronizarlo con el puerto `Reloj` antes de exponer acciones editables y
-persistir cualquier transición materializada. La cuenta regresiva de React será
-una proyección derivada del vencimiento; nunca una segunda fuente de verdad.
+`RepositorioCortesPlanificacion` define guardado, actualización, recuperación y
+listado sin exponer registros técnicos. Sus adaptadores en memoria e IndexedDB
+cumplen la misma suite contractual y devuelven agregados rehidratados
+independientes: modificar una instancia recuperada no cambia el estado durable
+hasta ejecutar una actualización explícita.
+
+`CortePlanificacionV1` persiste conjuntamente estado, asignación, vencimiento,
+confirmación e instantáneas versionadas de bloques. Los instantes deben ser ISO
+UTC normalizados y la rehidratación vuelve a validar la duración exacta de la
+gracia y la coherencia del estado. Una versión desconocida o una ventana
+inconsistente se rechazan antes de entregar un agregado parcial.
+
+El caso de uso del siguiente incremento sincronizará el corte recuperado con el
+puerto `Reloj` antes de exponer acciones editables y persistirá cualquier
+transición materializada. La cuenta regresiva de React será una proyección
+derivada del vencimiento; nunca una segunda fuente de verdad.
 
 ## 7. Operaciones entre agregados y atomicidad
 
@@ -451,10 +467,10 @@ La arquitectura es un contrato de evolución; no debe confundirse con el grado a
 | --------------- | ------------------------------------------------------------------------------------------- |
 | Dominio         | Actividades, contextos, cortes temporales, agendas y compromisos protegidos por invariantes |
 | Presentación    | Calendario general y formularios React para contextos, agendas y bloques                    |
-| Aplicación      | Casos de uso y DTO para actividades, contextos, agendas y su eliminación                    |
+| Aplicación      | Casos de uso, DTO y puertos para actividades, contextos, cortes y agendas                   |
 | Infraestructura | Repositorios y transacciones en memoria e IndexedDB con registros V1                        |
 | Composición     | Ensambla casos de uso e inicializa `Libre` antes de montar React                            |
-| Persistencia    | IndexedDB v4 añade bloques editables sin alterar los almacenes anteriores                   |
+| Persistencia    | IndexedDB v5 añade cortes confirmables sin alterar los almacenes anteriores                 |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

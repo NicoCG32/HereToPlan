@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { ContextoPlanificacion } from "../src/dominio";
 import { RepositorioContextosPlanificacionIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioContextosPlanificacionIndexedDB";
 import { ErrorMapeoContextoPlanificacionV1 } from "../src/infraestructura/persistencia/mapeadores/MapeadorContextoPlanificacionV1";
+import { VERSION_BASE_DATOS } from "../src/infraestructura/persistencia/indexeddb/esquemaBaseDatos";
 import { verificarContratoRepositorioContextosPlanificacion } from "./contratoRepositorioContextosPlanificacion";
 
 const NOMBRE_BASE_DATOS = "here-to-plan-contextos-pruebas";
@@ -52,7 +53,7 @@ describe("RepositorioContextosPlanificacionIndexedDB", () => {
     );
     await repositorio.cerrar();
 
-    const baseDatos = await abrirBase(fabricaIndexedDB, 4);
+    const baseDatos = await abrirBase(fabricaIndexedDB, VERSION_BASE_DATOS);
     await expect(
       leerRegistro(baseDatos, "agendas", "agenda-legada"),
     ).resolves.toMatchObject({
@@ -77,7 +78,7 @@ describe("RepositorioContextosPlanificacionIndexedDB", () => {
       ContextoPlanificacion.crearLibre(new Date("2026-07-20T10:00:00.000Z")),
     );
     await repositorio.cerrar();
-    const baseDatos = await abrirBase(fabricaIndexedDB, 4);
+    const baseDatos = await abrirBase(fabricaIndexedDB, VERSION_BASE_DATOS);
     await reemplazarVersion(baseDatos, "contexto-libre", 2);
     baseDatos.close();
 
