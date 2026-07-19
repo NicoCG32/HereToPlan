@@ -104,6 +104,19 @@ inmutables. La rehidratación rechaza estados sin los instantes requeridos, grac
 distintas de diez minutos y confirmaciones que no coincidan con el vencimiento
 previsto.
 
+`ResolucionBloquePlanificacion` registra el desenlace humano de una instantánea
+incluida en un corte confirmado. Es un hecho histórico independiente del bloque
+editable: conserva `bloqueId`, `operacionId`, resultado `COMPLETADO` o
+`INCUMPLIDO` e instante de resolución. Esta separación permite eliminar el
+contexto organizativo sin perder el compromiso ni su resultado.
+
+Un bloque confirmado admite como máximo una resolución y un identificador de
+operación sólo puede designar un comando. Repetir exactamente el mismo comando
+devuelve la resolución original sin volver a escribir ni sustituir su instante;
+usar otra operación sobre el bloque resuelto, o reutilizar la operación para
+otro bloque o resultado, produce un conflicto explícito. El reloj sólo se
+consulta al crear el hecho por primera vez.
+
 ### `agendas`
 
 La implementación disponible contiene `Agenda` y `BloqueTrabajo`.
@@ -131,13 +144,14 @@ PENDIENTE → COMPLETADO
 
 #### Frontera de planificación
 
-| Concepto                | Datos propios                                                                                                  | Responsabilidad                                                                  |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `ContextoPlanificacion` | identificador, clase `LIBRE` o `NOMBRADO`, nombre, propósito, rango personalizado opcional y fecha de creación | Organizar y filtrar el calendario sin constituir por sí mismo una promesa        |
-| `BloquePlanificacion`   | identificador, actividad, contexto de origen, fecha local, minutos y política efectiva                         | Situar de manera editable una actividad en una fecha concreta                    |
-| `BloqueTrabajo`         | identificador, actividad, fecha local, minutos, política efectiva y estado                                     | Conservar el compromiso individual dentro de una planificación confirmable       |
-| `CortePlanificacion`    | identificador, instantáneas seleccionadas, estado, creación, asignación, vencimiento y confirmación            | Controlar qué conjunto atraviesa revisión, gracia y confirmación como una unidad |
-| Vista de calendario     | rango visible, filtros y proyecciones diaria, semanal o mensual                                                | Presentar datos; no introduce estados ni horizontes nuevos en el dominio         |
+| Concepto                        | Datos propios                                                                                                  | Responsabilidad                                                                  |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `ContextoPlanificacion`         | identificador, clase `LIBRE` o `NOMBRADO`, nombre, propósito, rango personalizado opcional y fecha de creación | Organizar y filtrar el calendario sin constituir por sí mismo una promesa        |
+| `BloquePlanificacion`           | identificador, actividad, contexto de origen, fecha local, minutos y política efectiva                         | Situar de manera editable una actividad en una fecha concreta                    |
+| `BloqueTrabajo`                 | identificador, actividad, fecha local, minutos, política efectiva y estado                                     | Conservar el compromiso individual dentro de una planificación confirmable       |
+| `CortePlanificacion`            | identificador, instantáneas seleccionadas, estado, creación, asignación, vencimiento y confirmación            | Controlar qué conjunto atraviesa revisión, gracia y confirmación como una unidad |
+| `ResolucionBloquePlanificacion` | bloque confirmado, operación, resultado e instante                                                             | Conservar el desenlace humano como hecho histórico idempotente                   |
+| Vista de calendario             | rango visible, filtros y proyecciones diaria, semanal o mensual                                                | Presentar datos; no introduce estados ni horizontes nuevos en el dominio         |
 
 Reglas de la frontera:
 
@@ -220,7 +234,7 @@ La recompensa `DIA_LIBRE`:
 1. Un corte de planificación confirmado no vuelve a ser editable.
 2. Un bloque confirmado nunca se elimina del historial.
 3. La flexibilidad se decide antes de confirmar la agenda.
-4. Un bloque resuelto no puede resolverse nuevamente.
+4. Un bloque resuelto no admite otra operación; repetir la operación original es idempotente.
 5. Un bloque estricto no puede excusarse.
 6. Todo bloque excusado debe tener un ajuste asociado a un canje.
 7. La agenda controla sus bloques internos y solo expone vistas.

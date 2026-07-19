@@ -148,6 +148,7 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 - repositorio de actividades;
 - repositorio de agendas;
 - repositorio de contextos de planificación;
+- repositorio de resoluciones de bloques;
 - repositorio de billetera y transacciones;
 - repositorio de canjes;
 - unidad de trabajo para confirmación atómica;
@@ -318,6 +319,12 @@ creación, asignación, vencimiento previsto y confirmación. La migración desd
 versión 4 solo crea el almacén ausente y comprueba que agendas, actividades,
 contextos y bloques editables conserven sus registros originales.
 
+La versión 6 añade `resoluciones-bloques-planificacion`. El almacén usa
+`bloqueId` como clave primaria y un índice único por `operacionId`; de esta forma
+la persistencia refuerza tanto la resolución única por compromiso como la
+unicidad semántica del comando. La actualización sólo crea este almacén y
+conserva sin transformación todos los registros de las versiones anteriores.
+
 `InicializarContextosPlanificacion` garantiza una sola instancia de `Libre` de
 forma idempotente. La raíz de composición ejecuta este caso de uso antes de
 montar React, por lo que la interfaz nunca comienza sobre una base inicializada
@@ -471,6 +478,27 @@ la región `status` se actualiza una sola vez cuando se materializa la
 confirmación. El temporizador de presentación nunca escribe estado ni sustituye
 al reloj de aplicación.
 
+### 6.10. Resolución histórica e idempotencia
+
+`CompletarBloquePlanificacion` y `MarcarBloqueIncumplido` son puertos de entrada
+distintos con el mismo comando: `bloqueId` y `operacionId`. Ambos verifican que
+el identificador pertenezca a la instantánea de un `CortePlanificacion`
+confirmado. No mutan `BloquePlanificacion`, porque éste continúa representando
+la asignación editable, ni exponen el agregado o el registro persistido.
+
+El hecho resultante es `ResolucionBloquePlanificacion`. El puerto
+`RepositorioResolucionesBloquesPlanificacion` permite consultarlo por bloque y
+por operación. Un primer comando obtiene su instante del puerto `Reloj` y crea
+un registro inmutable; un reintento idéntico devuelve ese mismo hecho con su
+instante original. Una operación diferente sobre el mismo bloque y la
+reutilización de una operación para otro bloque o desenlace se rechazan como
+conflictos. El caso de uso reconcilia también una colisión concurrente leyendo
+el registro ganador, por lo que memoria e IndexedDB mantienen el mismo contrato.
+
+La raíz de composición construye ambos casos de uso con el repositorio de cortes,
+el repositorio de resoluciones y el reloj del sistema. La interfaz se incorpora
+en el incremento posterior; la regla y su persistencia no dependen de React.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 `Agenda` y `BilleteraPuntos` son agregados diferentes. El dominio puede evaluar reglas y preparar una decisión, pero no debe simular una transacción técnica entre agregados.
@@ -500,14 +528,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                               |
-| --------------- | ------------------------------------------------------------------------------------------- |
-| Dominio         | Actividades, contextos, cortes temporales, agendas y compromisos protegidos por invariantes |
-| Presentación    | Calendario, revisión, corrección y cuenta regresiva accesible de cortes                     |
-| Aplicación      | Casos de uso para consultar, revisar, asignar, corregir y sincronizar planificación         |
-| Infraestructura | Repositorios y transacciones en memoria e IndexedDB con registros V1                        |
-| Composición     | Inicializa `Libre` y sincroniza cortes vencidos antes de montar React                       |
-| Persistencia    | IndexedDB v5 añade cortes confirmables sin alterar los almacenes anteriores                 |
+| Elemento        | Estado actual                                                                                  |
+| --------------- | ---------------------------------------------------------------------------------------------- |
+| Dominio         | Actividades, contextos, cortes temporales y resoluciones históricas protegidos por invariantes |
+| Presentación    | Calendario, revisión, corrección y cuenta regresiva accesible de cortes                        |
+| Aplicación      | Casos de uso de planificación y resolución manual idempotente                                  |
+| Infraestructura | Repositorios y transacciones en memoria e IndexedDB con registros versionados                  |
+| Composición     | Inicializa `Libre`, sincroniza cortes y construye los casos de resolución                      |
+| Persistencia    | IndexedDB v6 añade resoluciones con unicidad por bloque y operación                            |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

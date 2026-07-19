@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { RepositorioCortesPlanificacionIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioCortesPlanificacionIndexedDB";
 import {
   ALMACEN_CORTES_PLANIFICACION,
+  ALMACEN_RESOLUCIONES_BLOQUES_PLANIFICACION,
   VERSION_BASE_DATOS,
 } from "../src/infraestructura/persistencia/indexeddb/esquemaBaseDatos";
 import type { ErrorMapeoCortePlanificacionV1 } from "../src/infraestructura/persistencia/mapeadores/MapeadorCortePlanificacionV1";
@@ -75,6 +76,11 @@ describe("RepositorioCortesPlanificacionIndexedDB", () => {
     }
     expect(
       baseDatos.objectStoreNames.contains(ALMACEN_CORTES_PLANIFICACION),
+    ).toBe(true);
+    expect(
+      baseDatos.objectStoreNames.contains(
+        ALMACEN_RESOLUCIONES_BLOQUES_PLANIFICACION,
+      ),
     ).toBe(true);
     await expect(
       leerRegistro(baseDatos, ALMACEN_CORTES_PLANIFICACION, "corte-migrado"),

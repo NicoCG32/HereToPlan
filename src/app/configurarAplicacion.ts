@@ -14,6 +14,8 @@ import {
   CasoDeUsoInicializarContextosPlanificacion,
   CasoDeUsoListarAgendasBorrador,
   CasoDeUsoListarContextosPlanificacion,
+  CasoDeUsoCompletarBloquePlanificacion,
+  CasoDeUsoMarcarBloqueIncumplido,
   CasoDeUsoRevisarCortePlanificacion,
   CasoDeUsoSincronizarCortesPlanificacion,
 } from "../aplicacion";
@@ -22,6 +24,7 @@ import { RepositorioAgendasIndexedDB } from "../infraestructura/persistencia/ind
 import { RepositorioBloquesPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioBloquesPlanificacionIndexedDB";
 import { RepositorioContextosPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioContextosPlanificacionIndexedDB";
 import { RepositorioCortesPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioCortesPlanificacionIndexedDB";
+import { RepositorioResolucionesBloquesPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioResolucionesBloquesPlanificacionIndexedDB";
 import { MigradorContextosDesdeAgendasIndexedDB } from "../infraestructura/persistencia/indexeddb/MigradorContextosDesdeAgendasIndexedDB";
 import { TransaccionEliminacionContextoPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionEliminacionContextoPlanificacionIndexedDB";
 import { CalendarioLocalSistema } from "../infraestructura/sistema/CalendarioLocalSistema";
@@ -32,6 +35,7 @@ import type { ServiciosCalendario } from "../presentacion/calendario/ServiciosCa
 
 let servicios: ServiciosAgendaBorrador | undefined;
 let serviciosCalendario: ServiciosCalendario | undefined;
+let serviciosResolucionBloques: ServiciosResolucionBloques | undefined;
 let inicializacionPendiente: Promise<void> | undefined;
 let repositorioContextos:
   RepositorioContextosPlanificacionIndexedDB | undefined;
@@ -39,6 +43,8 @@ let repositorioActividades: RepositorioActividadesIndexedDB | undefined;
 let repositorioAgendas: RepositorioAgendasIndexedDB | undefined;
 let repositorioBloques: RepositorioBloquesPlanificacionIndexedDB | undefined;
 let repositorioCortes: RepositorioCortesPlanificacionIndexedDB | undefined;
+let repositorioResoluciones:
+  RepositorioResolucionesBloquesPlanificacionIndexedDB | undefined;
 let transaccionEliminacion:
   TransaccionEliminacionContextoPlanificacionIndexedDB | undefined;
 
@@ -68,6 +74,16 @@ export function inicializarAplicacion(): Promise<void> {
 export function obtenerServiciosCalendario(): ServiciosCalendario {
   serviciosCalendario ??= crearServiciosCalendario();
   return serviciosCalendario;
+}
+
+export interface ServiciosResolucionBloques {
+  readonly completarBloque: CasoDeUsoCompletarBloquePlanificacion;
+  readonly marcarBloqueIncumplido: CasoDeUsoMarcarBloqueIncumplido;
+}
+
+export function obtenerServiciosResolucionBloques(): ServiciosResolucionBloques {
+  serviciosResolucionBloques ??= crearServiciosResolucionBloques();
+  return serviciosResolucionBloques;
 }
 
 export function obtenerServiciosAplicacion(): ServiciosAgendaBorrador {
@@ -152,6 +168,24 @@ function crearServiciosCalendario(): ServiciosCalendario {
   });
 }
 
+function crearServiciosResolucionBloques(): ServiciosResolucionBloques {
+  const cortes = obtenerRepositorioCortes();
+  const resoluciones = obtenerRepositorioResoluciones();
+  const reloj = new RelojSistema();
+  return Object.freeze({
+    completarBloque: new CasoDeUsoCompletarBloquePlanificacion(
+      cortes,
+      resoluciones,
+      reloj,
+    ),
+    marcarBloqueIncumplido: new CasoDeUsoMarcarBloqueIncumplido(
+      cortes,
+      resoluciones,
+      reloj,
+    ),
+  });
+}
+
 function obtenerRepositorioContextos(): RepositorioContextosPlanificacionIndexedDB {
   repositorioContextos ??= new RepositorioContextosPlanificacionIndexedDB();
   return repositorioContextos;
@@ -175,6 +209,12 @@ function obtenerRepositorioBloques(): RepositorioBloquesPlanificacionIndexedDB {
 function obtenerRepositorioCortes(): RepositorioCortesPlanificacionIndexedDB {
   repositorioCortes ??= new RepositorioCortesPlanificacionIndexedDB();
   return repositorioCortes;
+}
+
+function obtenerRepositorioResoluciones(): RepositorioResolucionesBloquesPlanificacionIndexedDB {
+  repositorioResoluciones ??=
+    new RepositorioResolucionesBloquesPlanificacionIndexedDB();
+  return repositorioResoluciones;
 }
 
 function obtenerTransaccionEliminacion(): TransaccionEliminacionContextoPlanificacionIndexedDB {

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1280" viewBox="0 0 1600 1280" role="img" aria-labelledby="titulo descripcion">
   <title id="titulo">HereToPlan — Modelo de dominio implementado</title>
-  <desc id="descripcion">Diagrama de entidades y relaciones entre actividades, contextos, bloques editables, cortes confirmables, compromisos históricos, puntos y recompensas.</desc>
+  <desc id="descripcion">Diagrama de entidades y relaciones entre actividades, contextos, bloques editables, cortes confirmables, resoluciones históricas, puntos y recompensas.</desc>
   <defs>
     <filter id="sombra" x="-10%" y="-10%" width="120%" height="130%">
       <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.12"/>
@@ -154,7 +154,7 @@
 
   <rect class="grupo" x="1075" y="112" width="485" height="720"/>
   <text class="grupo-titulo" x="1099" y="143">Compromisos e historia</text>
-  <text class="grupo-subtitulo" x="1099" y="164">Registro legado preservado durante la migración de persistencia</text>
+  <text class="grupo-subtitulo" x="1099" y="164">Hechos confirmados y registro legado preservado</text>
 
   <g transform="translate(1110 190)">
     <rect class="clase historia" width="415" height="148"/>
@@ -194,6 +194,18 @@
   <text class="multiplicidad" x="1326" y="389">0..*</text>
   <path class="relacion" d="M1317 560 V608"/>
   <text class="relacion-etiqueta" x="1332" y="591">registra 0..*</text>
+
+  <g transform="translate(1110 720)">
+    <rect class="clase historia" width="415" height="96"/>
+    <path class="cabecera-historia" d="M10 0 H405 A10 10 0 0 1 415 10 V42 H0 V10 A10 10 0 0 1 10 0"/>
+    <text class="estereotipo" x="16" y="18">«HECHO HISTÓRICO»</text>
+    <text class="nombre" x="16" y="35">ResolucionBloquePlanificacion</text>
+    <text class="atributo" x="16" y="64">bloqueId · operacionId · resultado</text>
+    <text class="atributo" x="16" y="84">resueltoEn: Date</text>
+  </g>
+
+  <path class="relacion" d="M1017 746 H1060 V768 H1108"/>
+  <text class="relacion-etiqueta" x="1024" y="735">resuelve bloque confirmado</text>
 
   <rect class="grupo" x="40" y="862" width="1520" height="340"/>
   <text class="grupo-titulo" x="64" y="893">Puntos y recompensas</text>
