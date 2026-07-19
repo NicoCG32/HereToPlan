@@ -2678,13 +2678,12 @@ body {
 .campo textarea:focus-visible {
   border-color: rgb(var(--diamante-azul));
 
-  background:
-    linear-gradient(
-      120deg,
-      rgb(var(--diamante-blanco) / 72%),
-      rgb(var(--diamante-hielo) / 16%) 46%,
-      rgb(var(--plata-blanca) / 92%)
-    );
+  background: linear-gradient(
+    120deg,
+    rgb(var(--diamante-blanco) / 72%),
+    rgb(var(--diamante-hielo) / 16%) 46%,
+    rgb(var(--plata-blanca) / 92%)
+  );
 
   box-shadow:
     inset 5px 0 0 rgb(var(--diamante-azul)),
@@ -2783,13 +2782,12 @@ body {
 .boton-secundario:hover:not(:disabled) {
   border-color: rgb(var(--diamante-azul) / 74%);
 
-  background:
-    linear-gradient(
-      112deg,
-      rgb(var(--diamante-blanco) / 72%),
-      rgb(var(--diamante-hielo) / 20%) 50%,
-      rgb(var(--plata-blanca) / 92%)
-    );
+  background: linear-gradient(
+    112deg,
+    rgb(var(--diamante-blanco) / 72%),
+    rgb(var(--diamante-hielo) / 20%) 50%,
+    rgb(var(--plata-blanca) / 92%)
+  );
 
   box-shadow:
     0 1px 0 rgb(255 255 255 / 96%) inset,
@@ -2866,10 +2864,7 @@ body {
   border-color: rgb(var(--diamante-azul) / 42%);
 
   background:
-    linear-gradient(
-      rgb(var(--metal-a) / 12%),
-      rgb(var(--metal-a) / 12%)
-    ),
+    linear-gradient(rgb(var(--metal-a) / 12%), rgb(var(--metal-a) / 12%)),
     linear-gradient(
       180deg,
       rgb(var(--plata-blanca) / 92%),
@@ -2967,10 +2962,7 @@ body {
   border-color: rgb(var(--dorado-profundo) / 42%);
 
   background:
-    linear-gradient(
-      rgb(var(--dorado) / 11%),
-      rgb(var(--dorado) / 11%)
-    ),
+    linear-gradient(rgb(var(--dorado) / 11%), rgb(var(--dorado) / 11%)),
     linear-gradient(
       180deg,
       rgb(var(--plata-blanca) / 92%),
@@ -3051,13 +3043,12 @@ body {
 .dia-calendario:hover {
   border-color: rgb(var(--diamante-azul) / 45%);
 
-  background:
-    linear-gradient(
-      130deg,
-      rgb(var(--diamante-blanco) / 78%),
-      rgb(var(--diamante-hielo) / 18%) 54%,
-      rgb(var(--plata-blanca) / 88%)
-    );
+  background: linear-gradient(
+    130deg,
+    rgb(var(--diamante-blanco) / 78%),
+    rgb(var(--diamante-hielo) / 18%) 54%,
+    rgb(var(--plata-blanca) / 88%)
+  );
 
   box-shadow:
     inset 0 0 0 1px rgb(var(--diamante-hielo) / 38%),
@@ -3088,10 +3079,7 @@ body {
 
 .tarjeta-bloque {
   background:
-    linear-gradient(
-      rgb(var(--acento-a) / 13%),
-      rgb(var(--acento-a) / 13%)
-    ),
+    linear-gradient(rgb(var(--acento-a) / 13%), rgb(var(--acento-a) / 13%)),
     linear-gradient(
       180deg,
       rgb(var(--plata-blanca) / 93%),
