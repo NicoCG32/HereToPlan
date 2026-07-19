@@ -57,6 +57,7 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
   const [bloquesSeleccionados, setBloquesSeleccionados] = useState<
     readonly string[]
   >([]);
+  const [corteBorradorId, setCorteBorradorId] = useState<string>();
   const [revisionCorte, setRevisionCorte] =
     useState<RevisionCortePlanificacionDto>();
   const [revisandoCorte, setRevisandoCorte] = useState(false);
@@ -140,6 +141,9 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
     try {
       const resultado = await servicios.eliminarBloque.ejecutar(bloque.id);
       if (resultado.exito) {
+        setBloquesSeleccionados((actuales) =>
+          actuales.filter((id) => id !== bloque.id),
+        );
         actualizar(
           `El bloque ${bloque.titulo} fue quitado de la planificación.`,
         );
@@ -207,6 +211,14 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
       setDiaSeleccionado(undefined);
       setBloqueEditado(undefined);
       setActividadPreseleccionadaId(undefined);
+      if (estrategia === "ELIMINAR_BORRADORES") {
+        const bloquesEliminados = new Set(
+          impactoEliminacion.bloqueIdsEditables,
+        );
+        setBloquesSeleccionados((actuales) =>
+          actuales.filter((id) => !bloquesEliminados.has(id)),
+        );
+      }
       setMensaje(
         estrategia === "TRASLADAR_A_LIBRE"
           ? `La agenda ${resultado.resultado.nombre} fue eliminada y sus ${resultado.resultado.cantidadBloquesTrasladados} bloques editables quedaron en Libre.`
@@ -240,6 +252,7 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
     try {
       const resultado = await servicios.revisarCorte.ejecutar({
         bloqueIds: bloquesSeleccionados,
+        ...(corteBorradorId ? { corteId: corteBorradorId } : {}),
       });
       if (!resultado.exito) {
         setErrorAccion(resultado.error.mensaje);
@@ -271,6 +284,7 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
     try {
       const resultado = await servicios.asignarCorte.ejecutar({
         bloqueIds: bloquesSeleccionados,
+        ...(revisionCorte.corteId ? { corteId: revisionCorte.corteId } : {}),
       });
       if (!resultado.exito) {
         setErrorCorte(resultado.error.mensaje);
@@ -278,6 +292,7 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
       }
       setRevisionCorte(undefined);
       setBloquesSeleccionados([]);
+      setCorteBorradorId(undefined);
       actualizar(
         `La planificación entró en gracia y se confirmará automáticamente a las ${formatearHora(resultado.corte.confirmarAutomaticamenteEn!)}.`,
       );
@@ -362,6 +377,20 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
 
       <PanelGraciaPlanificacion
         sincronizarCortes={servicios.sincronizarCortes}
+        corregirCorte={servicios.corregirCorte}
+        onCorteCorregido={(corte) => {
+          setCorteBorradorId(corte.id);
+          setBloquesSeleccionados(corte.bloqueIds);
+          actualizar(
+            "La confirmación prevista fue cancelada. Los bloques vuelven a estar editables y permanecen seleccionados para una nueva revisión.",
+          );
+          requestAnimationFrame(() => selectorContextoRef.current?.focus());
+        }}
+        onCorreccionRechazada={(mensajeCorreccion) => {
+          setErrorAccion(mensajeCorreccion);
+          setRevision((actual) => actual + 1);
+          requestAnimationFrame(() => selectorContextoRef.current?.focus());
+        }}
         revision={revision}
       />
 

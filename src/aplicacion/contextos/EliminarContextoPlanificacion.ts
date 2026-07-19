@@ -16,6 +16,7 @@ export interface ImpactoEliminacionContextoDto {
   readonly fechaFin?: string;
   readonly cantidadActividades: number;
   readonly cantidadBloquesEditables: number;
+  readonly bloqueIdsEditables: readonly string[];
   readonly cantidadRegistrosConfirmados: number;
   readonly huella: string;
 }
@@ -81,6 +82,7 @@ export class CasoDeUsoConsultarImpactoEliminacionContexto {
             : {}),
           cantidadActividades: impacto.actividadIds.length,
           cantidadBloquesEditables: impacto.bloqueIdsEditables.length,
+          bloqueIdsEditables: Object.freeze([...impacto.bloqueIdsEditables]),
           cantidadRegistrosConfirmados: impacto.cantidadRegistrosConfirmados,
           huella: impacto.huella,
         }),

@@ -431,8 +431,18 @@ Desde `EN_GRACIA`, los bloques seleccionados quedan protegidos contra edición y
 eliminación tanto en la proyección del calendario como en los casos de uso de
 escritura. La presentación oculta las acciones incompatibles, pero la regla no
 depende de ese detalle visual: una invocación directa también recibe
-`BLOQUE_PROTEGIDO_POR_CORTE`. La corrección integral del corte constituye una
-operación posterior y explícita; no se simula mediante modificaciones parciales.
+`BLOQUE_PROTEGIDO_POR_CORTE`. La corrección integral requiere un diálogo de
+decisión explícita y atraviesa `CasoDeUsoCorregirCortePlanificacion`; no se
+simula mediante modificaciones parciales.
+
+El caso de uso de corrección toma una sola lectura del reloj. Si la ventana sigue
+abierta, solicita al agregado volver a `BORRADOR`, cancela los instantes de
+asignación y vencimiento y actualiza el mismo registro. La interfaz recupera los
+identificadores de sus bloques, vuelve a habilitarlos y conserva la selección
+para una revisión nueva. Al reasignar se reutiliza el mismo corte y se reemplazan
+sus instantáneas, evitando borradores persistidos sin continuidad. Si el reloj
+ya alcanzó el límite, el caso de uso materializa y persiste `CONFIRMADA` antes de
+rechazar la corrección; cerrar o recargar la página nunca extiende la gracia.
 
 `RepositorioCortesPlanificacion` define guardado, actualización, recuperación y
 listado sin exponer registros técnicos. Sus adaptadores en memoria e IndexedDB
@@ -493,8 +503,8 @@ La arquitectura es un contrato de evolución; no debe confundirse con el grado a
 | Elemento        | Estado actual                                                                               |
 | --------------- | ------------------------------------------------------------------------------------------- |
 | Dominio         | Actividades, contextos, cortes temporales, agendas y compromisos protegidos por invariantes |
-| Presentación    | Calendario, selección, revisión y cuenta regresiva accesible de cortes                      |
-| Aplicación      | Casos de uso para consultar, revisar, asignar y sincronizar planificación                   |
+| Presentación    | Calendario, revisión, corrección y cuenta regresiva accesible de cortes                     |
+| Aplicación      | Casos de uso para consultar, revisar, asignar, corregir y sincronizar planificación         |
 | Infraestructura | Repositorios y transacciones en memoria e IndexedDB con registros V1                        |
 | Composición     | Inicializa `Libre` y sincroniza cortes vencidos antes de montar React                       |
 | Persistencia    | IndexedDB v5 añade cortes confirmables sin alterar los almacenes anteriores                 |

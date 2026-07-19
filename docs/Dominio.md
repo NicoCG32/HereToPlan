@@ -97,10 +97,12 @@ materialización ocurra después de una recarga.
 
 La corrección solo es válida antes del vencimiento. Devuelve el corte a
 `BORRADOR`, cancela los instantes de asignación y confirmación prevista y obliga
-a revisar nuevamente. Al alcanzar `CONFIRMADA`, la selección y sus instantáneas
-son inmutables. La rehidratación rechaza estados sin los instantes requeridos,
-gracias distintas de diez minutos y confirmaciones que no coincidan con el
-vencimiento previsto.
+a revisar nuevamente. Los bloques quedan editables, pero una asignación posterior
+reutiliza la identidad del corte y reemplaza sus instantáneas con el estado
+revisado. Al alcanzar `CONFIRMADA`, la selección y sus instantáneas son
+inmutables. La rehidratación rechaza estados sin los instantes requeridos, gracias
+distintas de diez minutos y confirmaciones que no coincidan con el vencimiento
+previsto.
 
 ### `agendas`
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CasoDeUsoAsignarCortePlanificacion,
+  CasoDeUsoCorregirCortePlanificacion,
   CasoDeUsoRevisarCortePlanificacion,
 } from "../src/aplicacion";
 import {
@@ -116,23 +117,97 @@ describe("gestión de cortes de planificación", () => {
     });
     await expect(entorno.cortes.listar()).resolves.toHaveLength(1);
   });
+
+  it("corrige durante la gracia y reutiliza el mismo corte tras una nueva revisión", async () => {
+    const entorno = await crearEntorno();
+    await entorno.asignar.ejecutar({ bloqueIds: ["bloque-1"] });
+    entorno.reloj.establecer(new Date("2026-07-20T10:05:00.000Z"));
+
+    const correccion = await entorno.corregir.ejecutar({ corteId: "corte-1" });
+
+    expect(correccion).toMatchObject({
+      exito: true,
+      corte: {
+        id: "corte-1",
+        estado: "BORRADOR",
+        bloqueIds: ["bloque-1"],
+      },
+    });
+    if (correccion.exito) {
+      expect(correccion.corte.asignadaEn).toBeUndefined();
+      expect(correccion.corte.confirmarAutomaticamenteEn).toBeUndefined();
+    }
+
+    await expect(
+      entorno.revisar.ejecutar({
+        corteId: "corte-1",
+        bloqueIds: ["bloque-2"],
+      }),
+    ).resolves.toMatchObject({
+      exito: true,
+      revision: { corteId: "corte-1" },
+    });
+    entorno.reloj.establecer(new Date("2026-07-20T10:06:00.000Z"));
+    await expect(
+      entorno.asignar.ejecutar({
+        corteId: "corte-1",
+        bloqueIds: ["bloque-2"],
+      }),
+    ).resolves.toMatchObject({
+      exito: true,
+      corte: {
+        id: "corte-1",
+        estado: "EN_GRACIA",
+        bloqueIds: ["bloque-2"],
+        confirmarAutomaticamenteEn: "2026-07-20T10:16:00.000Z",
+      },
+    });
+    await expect(entorno.cortes.listar()).resolves.toHaveLength(1);
+  });
+
+  it("materializa y persiste el vencimiento antes de rechazar la corrección", async () => {
+    const entorno = await crearEntorno();
+    await entorno.asignar.ejecutar({ bloqueIds: ["bloque-1"] });
+    entorno.reloj.establecer(new Date("2026-07-20T10:10:00.000Z"));
+
+    await expect(
+      entorno.corregir.ejecutar({ corteId: "corte-1" }),
+    ).resolves.toEqual({
+      exito: false,
+      error: {
+        codigo: "CORTE_NO_CORREGIBLE",
+        mensaje:
+          "El período de gracia terminó y la planificación quedó confirmada.",
+        campo: "corteId",
+      },
+    });
+    await expect(entorno.cortes.obtenerPorId("corte-1")).resolves.toMatchObject(
+      {
+        estado: "CONFIRMADA",
+        confirmadaEn: new Date("2026-07-20T10:10:00.000Z"),
+      },
+    );
+  });
 });
 
 async function crearEntorno() {
   const bloques = new RepositorioBloquesPlanificacionEnMemoria();
   const cortes = new RepositorioCortesPlanificacionEnMemoria();
+  const reloj = new RelojFijo(AHORA);
   await bloques.guardar(crearBloque("bloque-1", "2026-07-20", 45, "FLEXIBLE"));
   await bloques.guardar(crearBloque("bloque-2", "2026-07-21", 60, "ESTRICTO"));
   return {
     bloques,
     cortes,
+    reloj,
     revisar: new CasoDeUsoRevisarCortePlanificacion(bloques, cortes),
     asignar: new CasoDeUsoAsignarCortePlanificacion(
       bloques,
       cortes,
-      new RelojFijo(AHORA),
+      reloj,
       new GeneradorIdentificadoresPredefinidos(["corte-1"]),
     ),
+    corregir: new CasoDeUsoCorregirCortePlanificacion(cortes, reloj),
   };
 }
 

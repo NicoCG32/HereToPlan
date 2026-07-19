@@ -36,6 +36,7 @@ describe("eliminación segura de contextos de planificación", () => {
       fechaFin: "2026-12-20",
       cantidadActividades: 3,
       cantidadBloquesEditables: 2,
+      bloqueIdsEditables: ["bloque-a", "bloque-b"],
       cantidadRegistrosConfirmados: 1,
     });
     expect(typeof resultado.impacto.huella).toBe("string");

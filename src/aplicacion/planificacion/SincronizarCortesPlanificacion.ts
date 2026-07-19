@@ -8,6 +8,7 @@ import type { RepositorioCortesPlanificacion } from "../puertos/RepositorioCorte
 export interface CortePlanificacionDto {
   readonly id: string;
   readonly estado: EstadoCortePlanificacion;
+  readonly bloqueIds: readonly string[];
   readonly titulosBloques: readonly string[];
   readonly cantidadBloques: number;
   readonly creadoEn: string;
@@ -68,6 +69,7 @@ export function convertirCortePlanificacionADto(
   return Object.freeze({
     id: corte.id,
     estado: corte.estado,
+    bloqueIds: Object.freeze(bloques.map((bloque) => bloque.id)),
     titulosBloques: Object.freeze(bloques.map((bloque) => bloque.titulo)),
     cantidadBloques: bloques.length,
     creadoEn: corte.creadoEn.toISOString(),

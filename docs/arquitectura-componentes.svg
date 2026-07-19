@@ -82,7 +82,7 @@
     <text class="nombre" x="18" y="42">Presentación React</text>
     <text class="detalle" x="18" y="82">• calendario general: día, semana y mes</text>
     <text class="detalle" x="18" y="106">• panel de siete días y lista equivalente</text>
-    <text class="detalle" x="18" y="130">• selección, revisión y asignación de bloques</text>
+    <text class="detalle" x="18" y="130">• selección, revisión, asignación y corrección</text>
     <text class="detalle" x="18" y="154">• cuenta regresiva y eliminación accesibles</text>
     <text class="detalle" x="18" y="181">Sólo conoce DTO y puertos de entrada.</text>
     <text class="codigo" x="18" y="212">src/presentacion</text>
@@ -105,7 +105,7 @@
     <text class="nombre" x="18" y="42">Casos de uso</text>
     <text class="detalle" x="18" y="82">• crear/listar contextos y actividades</text>
     <text class="detalle" x="18" y="106">• asignar, editar y quitar bloques</text>
-    <text class="detalle" x="18" y="130">• revisar, asignar y sincronizar cortes</text>
+    <text class="detalle" x="18" y="130">• revisar, asignar, corregir y sincronizar cortes</text>
     <text class="detalle" x="18" y="154">• proyectar calendario; eliminar contexto</text>
     <text class="detalle" x="18" y="181">Orquestan reglas y límites transaccionales.</text>
     <text class="codigo" x="18" y="212">src/aplicacion</text>

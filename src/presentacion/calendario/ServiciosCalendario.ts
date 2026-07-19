@@ -2,6 +2,7 @@ import type {
   CasoDeUsoAsignarCortePlanificacion,
   CasoDeUsoAsignarActividad,
   CasoDeUsoConsultarCalendario,
+  CasoDeUsoCorregirCortePlanificacion,
   CasoDeUsoCrearActividad,
   CasoDeUsoCrearContextoNombrado,
   CasoDeUsoEditarBloquePlanificacion,
@@ -22,6 +23,7 @@ export interface ServiciosCalendario {
   readonly consultarCalendario: Pick<CasoDeUsoConsultarCalendario, "ejecutar">;
   readonly revisarCorte: Pick<CasoDeUsoRevisarCortePlanificacion, "ejecutar">;
   readonly asignarCorte: Pick<CasoDeUsoAsignarCortePlanificacion, "ejecutar">;
+  readonly corregirCorte: Pick<CasoDeUsoCorregirCortePlanificacion, "ejecutar">;
   readonly sincronizarCortes: Pick<
     CasoDeUsoSincronizarCortesPlanificacion,
     "ejecutar"

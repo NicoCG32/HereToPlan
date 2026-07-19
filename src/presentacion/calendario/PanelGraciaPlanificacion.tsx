@@ -1,26 +1,39 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
+  CasoDeUsoCorregirCortePlanificacion,
   CasoDeUsoSincronizarCortesPlanificacion,
   CortePlanificacionDto,
 } from "../../aplicacion";
+import { DialogoCorregirCorte } from "./DialogoCorregirCorte";
 
 interface PanelGraciaPlanificacionProps {
   readonly sincronizarCortes: Pick<
     CasoDeUsoSincronizarCortesPlanificacion,
     "ejecutar"
   >;
+  readonly corregirCorte: Pick<CasoDeUsoCorregirCortePlanificacion, "ejecutar">;
+  readonly onCorteCorregido?: (corte: CortePlanificacionDto) => void;
+  readonly onCorreccionRechazada?: (mensaje: string) => void;
   readonly intervaloActualizacionMs?: number;
   readonly revision?: number;
 }
 
 export function PanelGraciaPlanificacion({
   sincronizarCortes,
+  corregirCorte,
+  onCorteCorregido,
+  onCorreccionRechazada,
   intervaloActualizacionMs = 1_000,
   revision = 0,
 }: PanelGraciaPlanificacionProps) {
   const [cortes, setCortes] = useState<readonly CortePlanificacionDto[]>([]);
   const [anuncio, setAnuncio] = useState<string>();
   const [error, setError] = useState<string>();
+  const [corteEnCorreccion, setCorteEnCorreccion] =
+    useState<CortePlanificacionDto>();
+  const [procesandoCorreccion, setProcesandoCorreccion] = useState(false);
+  const [errorCorreccion, setErrorCorreccion] = useState<string>();
+  const botonOrigenCorreccionRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     let activo = true;
@@ -63,6 +76,45 @@ export function PanelGraciaPlanificacion({
 
   const activos = cortes.filter((corte) => corte.estado === "EN_GRACIA");
 
+  const cancelarCorreccion = () => {
+    setCorteEnCorreccion(undefined);
+    setErrorCorreccion(undefined);
+    requestAnimationFrame(() => botonOrigenCorreccionRef.current?.focus());
+  };
+
+  const confirmarCorreccion = async () => {
+    if (!corteEnCorreccion) return;
+    setProcesandoCorreccion(true);
+    setErrorCorreccion(undefined);
+    try {
+      const resultado = await corregirCorte.ejecutar({
+        corteId: corteEnCorreccion.id,
+      });
+      if (!resultado.exito) {
+        if (resultado.error.codigo === "CORTE_NO_CORREGIBLE") {
+          setCorteEnCorreccion(undefined);
+          onCorreccionRechazada?.(resultado.error.mensaje);
+          return;
+        }
+        setErrorCorreccion(resultado.error.mensaje);
+        return;
+      }
+      setCortes((actuales) =>
+        actuales.filter((corte) => corte.id !== resultado.corte.id),
+      );
+      setCorteEnCorreccion(undefined);
+      onCorteCorregido?.(resultado.corte);
+    } catch (causa: unknown) {
+      setErrorCorreccion(
+        causa instanceof Error
+          ? causa.message
+          : "No fue posible volver a editar la planificación.",
+      );
+    } finally {
+      setProcesandoCorreccion(false);
+    }
+  };
+
   return (
     <>
       {anuncio && (
@@ -86,8 +138,8 @@ export function PanelGraciaPlanificacion({
               <h3 id="titulo-periodo-gracia">Período de gracia</h3>
             </div>
             <p>
-              Puedes revisar el resumen mientras el reloj autoritativo conserva
-              el vencimiento original.
+              Puedes volver a editar mediante una decisión explícita mientras el
+              reloj autoritativo conserve abierta la ventana.
             </p>
           </div>
           <ul className="lista-cortes-gracia">
@@ -102,13 +154,35 @@ export function PanelGraciaPlanificacion({
                     </time>
                   </span>
                 </div>
-                <span className="cuenta-regresiva" aria-hidden="true">
-                  {formatearDuracion(corte.milisegundosRestantes ?? 0)}
-                </span>
+                <div className="acciones-corte-gracia">
+                  <span className="cuenta-regresiva" aria-hidden="true">
+                    {formatearDuracion(corte.milisegundosRestantes ?? 0)}
+                  </span>
+                  <button
+                    className="boton-texto"
+                    type="button"
+                    onClick={(evento) => {
+                      botonOrigenCorreccionRef.current = evento.currentTarget;
+                      setErrorCorreccion(undefined);
+                      setCorteEnCorreccion(corte);
+                    }}
+                  >
+                    Corregir {resumirCorte(corte)}
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
         </section>
+      )}
+      {corteEnCorreccion && (
+        <DialogoCorregirCorte
+          corte={corteEnCorreccion}
+          procesando={procesandoCorreccion}
+          {...(errorCorreccion ? { error: errorCorreccion } : {})}
+          onCancelar={cancelarCorreccion}
+          onConfirmar={() => void confirmarCorreccion()}
+        />
       )}
     </>
   );

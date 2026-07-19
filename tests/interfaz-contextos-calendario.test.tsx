@@ -12,6 +12,7 @@ import {
   CasoDeUsoAsignarActividad,
   CasoDeUsoAsignarCortePlanificacion,
   CasoDeUsoConsultarCalendario,
+  CasoDeUsoCorregirCortePlanificacion,
   CasoDeUsoConsultarImpactoEliminacionContexto,
   CasoDeUsoCrearActividad,
   CasoDeUsoCrearContextoNombrado,
@@ -213,9 +214,20 @@ describe("interfaz de contextos del calendario", () => {
     expect(screen.getByText(/Libre · 60 min · Estricta/)).toBeTruthy();
 
     await usuario.click(
+      screen.getByRole("checkbox", {
+        name: "Seleccionar Preparar informe para revisión",
+      }),
+    );
+    expect(
+      screen.getByRole("button", { name: "Revisar selección (1)" }),
+    ).toHaveProperty("disabled", false);
+    await usuario.click(
       screen.getByRole("button", { name: "Quitar Preparar informe" }),
     );
     expect(await screen.findByText(/fue quitado/)).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Revisar selección (0)" }),
+    ).toHaveProperty("disabled", true);
     expect(
       screen.getByRole("button", { name: "Agendar Preparar informe" }),
     ).toBeTruthy();
@@ -316,6 +328,39 @@ describe("interfaz de contextos del calendario", () => {
     ).toBeNull();
     expect(screen.getByText("En período de gracia")).toBeTruthy();
     await expect(entorno.cortes.listar()).resolves.toHaveLength(1);
+
+    await usuario.click(
+      screen.getByRole("button", { name: "Corregir Preparar informe" }),
+    );
+    const dialogoCorreccion = screen.getByRole("dialog", {
+      name: "Volver a editar la planificación",
+    });
+    expect(dialogoCorreccion.textContent).toContain(
+      "Se cancelará el vencimiento actual",
+    );
+    await usuario.click(
+      within(dialogoCorreccion).getByRole("button", {
+        name: "Volver a editar",
+      }),
+    );
+
+    expect(
+      await screen.findByText(/La confirmación prevista fue cancelada/),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole("heading", { name: "Período de gracia" }),
+    ).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Editar Preparar informe" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("checkbox", {
+        name: "Seleccionar Preparar informe para revisión",
+      }),
+    ).toHaveProperty("checked", true);
+    await expect(entorno.cortes.obtenerPorId("corte-1")).resolves.toMatchObject(
+      { estado: "BORRADOR" },
+    );
   }, 15_000);
 
   it("cancela el diálogo y luego elimina trasladando los bloques a Libre", async () => {
@@ -330,6 +375,11 @@ describe("interfaz de contextos del calendario", () => {
     await usuario.selectOptions(
       screen.getByLabelText("Contexto visible"),
       "contexto-eliminable",
+    );
+    await usuario.click(
+      await screen.findByRole("checkbox", {
+        name: "Seleccionar Preparar entrega para revisión",
+      }),
     );
     const botonEliminar = await screen.findByRole("button", {
       name: "Eliminar agenda Proyecto temporal",
@@ -364,6 +414,14 @@ describe("interfaz de contextos del calendario", () => {
       "value",
       "contexto-libre",
     );
+    expect(
+      screen.getByRole("button", { name: "Revisar selección (1)" }),
+    ).toHaveProperty("disabled", false);
+    expect(
+      screen.getByRole("checkbox", {
+        name: "Seleccionar Preparar entrega para revisión",
+      }),
+    ).toHaveProperty("checked", true);
     await expect(
       entorno.repositorio.obtenerPorId("contexto-eliminable"),
     ).resolves.toBeUndefined();
@@ -382,6 +440,14 @@ describe("interfaz de contextos del calendario", () => {
       screen.getByLabelText("Contexto visible"),
       "contexto-eliminable",
     );
+    await usuario.click(
+      await screen.findByRole("checkbox", {
+        name: "Seleccionar Preparar entrega para revisión",
+      }),
+    );
+    expect(
+      screen.getByRole("button", { name: "Revisar selección (1)" }),
+    ).toHaveProperty("disabled", false);
     await usuario.click(
       await screen.findByRole("button", {
         name: "Eliminar agenda Proyecto temporal",
@@ -407,6 +473,9 @@ describe("interfaz de contextos del calendario", () => {
     expect(
       await screen.findByText(/y sus 1 bloques editables fueron eliminados/),
     ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Revisar selección (0)" }),
+    ).toHaveProperty("disabled", true);
     await expect(
       entorno.bloques.obtenerPorId("bloque-eliminable"),
     ).resolves.toBeUndefined();
@@ -467,6 +536,7 @@ async function crearEntorno() {
         "corte-3",
       ]),
     ),
+    corregirCorte: new CasoDeUsoCorregirCortePlanificacion(cortes, reloj),
     sincronizarCortes: new CasoDeUsoSincronizarCortesPlanificacion(
       cortes,
       reloj,

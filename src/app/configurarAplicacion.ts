@@ -2,6 +2,7 @@ import {
   CasoDeUsoAsignarCortePlanificacion,
   CasoDeUsoAsignarActividad,
   CasoDeUsoConsultarCalendario,
+  CasoDeUsoCorregirCortePlanificacion,
   CasoDeUsoConsultarImpactoEliminacionContexto,
   CasoDeUsoCrearActividad,
   CasoDeUsoCrearAgendaBorrador,
@@ -123,6 +124,7 @@ function crearServiciosCalendario(): ServiciosCalendario {
       reloj,
       generador,
     ),
+    corregirCorte: new CasoDeUsoCorregirCortePlanificacion(cortes, reloj),
     sincronizarCortes: new CasoDeUsoSincronizarCortesPlanificacion(
       cortes,
       reloj,

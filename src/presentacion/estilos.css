@@ -1077,6 +1077,15 @@ button:focus-visible {
   text-align: center;
 }
 
+.acciones-corte-gracia {
+  justify-items: end;
+}
+
+.acciones-corte-gracia .boton-texto {
+  color: rgb(var(--dorado-profundo));
+  font-size: 0.76rem;
+}
+
 .mensaje-confirmacion-corte {
   margin: 0 0 1.5rem;
 }
@@ -1970,6 +1979,17 @@ button:focus-visible {
 }
 
 .dialogo-revision-corte {
+  border-top-color: rgb(var(--dorado));
+  background:
+    radial-gradient(
+      circle 20rem at 100% 0%,
+      rgb(var(--dorado-claro) / 18%),
+      transparent 66%
+    ),
+    linear-gradient(145deg, rgb(255 255 255 / 98%), rgb(var(--cuarzo-claro)));
+}
+
+.dialogo-corregir-corte {
   border-top-color: rgb(var(--dorado));
   background:
     radial-gradient(

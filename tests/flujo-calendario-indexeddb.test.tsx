@@ -6,6 +6,7 @@ import {
   CasoDeUsoAsignarActividad,
   CasoDeUsoAsignarCortePlanificacion,
   CasoDeUsoConsultarCalendario,
+  CasoDeUsoCorregirCortePlanificacion,
   CasoDeUsoConsultarImpactoEliminacionContexto,
   CasoDeUsoCrearActividad,
   CasoDeUsoCrearContextoNombrado,
@@ -228,6 +229,7 @@ async function crearEntorno(
       reloj,
       new GeneradorIdentificadoresPredefinidos(["corte-1"]),
     ),
+    corregirCorte: new CasoDeUsoCorregirCortePlanificacion(cortes, reloj),
     sincronizarCortes: new CasoDeUsoSincronizarCortesPlanificacion(
       cortes,
       reloj,

@@ -17,6 +17,11 @@ import {
 
 export interface ComandoSeleccionCortePlanificacion {
   readonly bloqueIds: readonly string[];
+  readonly corteId?: string;
+}
+
+export interface ComandoCorregirCortePlanificacion {
+  readonly corteId: string;
 }
 
 export interface BloqueRevisionCortePlanificacionDto {
@@ -28,6 +33,7 @@ export interface BloqueRevisionCortePlanificacionDto {
 }
 
 export interface RevisionCortePlanificacionDto {
+  readonly corteId?: string;
   readonly bloques: readonly BloqueRevisionCortePlanificacionDto[];
   readonly cantidadBloques: number;
   readonly minutosPlanificados: number;
@@ -45,12 +51,25 @@ export type ResultadoAsignarCortePlanificacion =
   | Readonly<{ exito: true; corte: CortePlanificacionDto }>
   | ResultadoSeleccionCorteRechazada;
 
+export type ResultadoCorregirCortePlanificacion =
+  | Readonly<{ exito: true; corte: CortePlanificacionDto }>
+  | ResultadoCorreccionCorteRechazada;
+
 interface ResultadoSeleccionCorteRechazada {
   readonly exito: false;
   readonly error: Readonly<{
     codigo: string;
     mensaje: string;
     campo: "bloques";
+  }>;
+}
+
+interface ResultadoCorreccionCorteRechazada {
+  readonly exito: false;
+  readonly error: Readonly<{
+    codigo: string;
+    mensaje: string;
+    campo: "corteId";
   }>;
 }
 
@@ -67,6 +86,7 @@ export class CasoDeUsoRevisarCortePlanificacion {
       comando.bloqueIds,
       this.repositorioBloques,
       this.repositorioCortes,
+      comando.corteId,
     );
     if (!seleccion.exito) return seleccion;
 
@@ -78,6 +98,9 @@ export class CasoDeUsoRevisarCortePlanificacion {
     return Object.freeze({
       exito: true,
       revision: Object.freeze({
+        ...(seleccion.corteBorrador
+          ? { corteId: seleccion.corteBorrador.id }
+          : {}),
         bloques: Object.freeze(
           bloques.map((bloque) =>
             Object.freeze({
@@ -122,19 +145,29 @@ export class CasoDeUsoAsignarCortePlanificacion {
       comando.bloqueIds,
       this.repositorioBloques,
       this.repositorioCortes,
+      comando.corteId,
     );
     if (!seleccion.exito) return seleccion;
 
     try {
       const ahora = this.reloj.ahora();
-      const corte = CortePlanificacion.crear({
-        id: this.generadorIdentificadores.generar(),
-        bloques: seleccion.bloques,
-        creadoEn: ahora,
-      });
+      const corte =
+        seleccion.corteBorrador ??
+        CortePlanificacion.crear({
+          id: this.generadorIdentificadores.generar(),
+          bloques: seleccion.bloques,
+          creadoEn: ahora,
+        });
+      if (seleccion.corteBorrador) {
+        corte.reemplazarBloques(seleccion.bloques);
+      }
       corte.iniciarRevision();
       corte.asignar(ahora);
-      await this.repositorioCortes.guardar(corte);
+      if (seleccion.corteBorrador) {
+        await this.repositorioCortes.actualizar(corte);
+      } else {
+        await this.repositorioCortes.guardar(corte);
+      }
       return Object.freeze({
         exito: true,
         corte: convertirCortePlanificacionADto(corte, ahora),
@@ -151,14 +184,60 @@ export class CasoDeUsoAsignarCortePlanificacion {
   }
 }
 
+export class CasoDeUsoCorregirCortePlanificacion {
+  constructor(
+    private readonly repositorioCortes: RepositorioCortesPlanificacion,
+    private readonly reloj: Reloj,
+  ) {}
+
+  public async ejecutar(
+    comando: ComandoCorregirCortePlanificacion,
+  ): Promise<ResultadoCorregirCortePlanificacion> {
+    const corte = await this.repositorioCortes.obtenerPorId(comando.corteId);
+    if (!corte) {
+      return rechazarCorreccion(
+        "CORTE_PLANIFICACION_NO_ENCONTRADO",
+        "La planificación que intentas corregir ya no está disponible.",
+      );
+    }
+
+    const ahora = this.reloj.ahora();
+    try {
+      if (corte.actualizarSegunReloj(ahora)) {
+        await this.repositorioCortes.actualizar(corte);
+        return rechazarCorreccion(
+          "CORTE_NO_CORREGIBLE",
+          "El período de gracia terminó y la planificación quedó confirmada.",
+        );
+      }
+      corte.corregir(ahora);
+      await this.repositorioCortes.actualizar(corte);
+      return Object.freeze({
+        exito: true,
+        corte: convertirCortePlanificacionADto(corte, ahora),
+      });
+    } catch (error: unknown) {
+      if (error instanceof ErrorDominio) {
+        return rechazarCorreccion(error.codigo, error.message);
+      }
+      throw error;
+    }
+  }
+}
+
 type ResultadoCargaSeleccion =
-  | Readonly<{ exito: true; bloques: readonly BloquePlanificacion[] }>
+  | Readonly<{
+      exito: true;
+      bloques: readonly BloquePlanificacion[];
+      corteBorrador?: CortePlanificacion;
+    }>
   | ResultadoSeleccionCorteRechazada;
 
 async function cargarSeleccionDisponible(
   bloqueIds: readonly string[],
   repositorioBloques: RepositorioBloquesPlanificacion,
   repositorioCortes: RepositorioCortesPlanificacion,
+  corteId?: string,
 ): Promise<ResultadoCargaSeleccion> {
   if (bloqueIds.length === 0) {
     return rechazarSeleccion(
@@ -177,6 +256,8 @@ async function cargarSeleccionDisponible(
     repositorioBloques.listar(),
     repositorioCortes.listar(),
   ]);
+  const corteBorrador = cargarCorteBorrador(corteId, cortes);
+  if (!corteBorrador.exito) return corteBorrador;
   const bloquesPorId = new Map(
     bloquesDisponibles.map((bloque) => [bloque.id, bloque] as const),
   );
@@ -207,7 +288,31 @@ async function cargarSeleccionDisponible(
   return Object.freeze({
     exito: true,
     bloques: Object.freeze(bloqueIds.map((id) => bloquesPorId.get(id)!)),
+    ...(corteBorrador.corte ? { corteBorrador: corteBorrador.corte } : {}),
   });
+}
+
+function cargarCorteBorrador(
+  corteId: string | undefined,
+  cortes: readonly CortePlanificacion[],
+):
+  | Readonly<{ exito: true; corte?: CortePlanificacion }>
+  | ResultadoSeleccionCorteRechazada {
+  if (!corteId) return Object.freeze({ exito: true });
+  const corte = cortes.find((existente) => existente.id === corteId);
+  if (!corte) {
+    return rechazarSeleccion(
+      "La planificación corregida ya no está disponible.",
+      "CORTE_PLANIFICACION_NO_ENCONTRADO",
+    );
+  }
+  if (corte.estado !== "BORRADOR") {
+    return rechazarSeleccion(
+      "La planificación corregida ya no se encuentra en borrador.",
+      "CORTE_NO_EDITABLE",
+    );
+  }
+  return Object.freeze({ exito: true, corte });
 }
 
 function rechazarSeleccion(
@@ -217,5 +322,15 @@ function rechazarSeleccion(
   return Object.freeze({
     exito: false,
     error: Object.freeze({ codigo, mensaje, campo: "bloques" }),
+  });
+}
+
+function rechazarCorreccion(
+  codigo: string,
+  mensaje: string,
+): ResultadoCorreccionCorteRechazada {
+  return Object.freeze({
+    exito: false,
+    error: Object.freeze({ codigo, mensaje, campo: "corteId" }),
   });
 }
