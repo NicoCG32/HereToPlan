@@ -2,6 +2,7 @@ import {
   CasoDeUsoAsignarCortePlanificacion,
   CasoDeUsoAsignarActividad,
   CasoDeUsoConsultarCalendario,
+  CasoDeUsoConsultarBilletera,
   CasoDeUsoCorregirCortePlanificacion,
   CasoDeUsoConsultarImpactoEliminacionContexto,
   CasoDeUsoCrearActividad,
@@ -27,6 +28,7 @@ import { RepositorioBloquesPlanificacionIndexedDB } from "../infraestructura/per
 import { RepositorioContextosPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioContextosPlanificacionIndexedDB";
 import { RepositorioCortesPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioCortesPlanificacionIndexedDB";
 import { RepositorioResolucionesBloquesPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioResolucionesBloquesPlanificacionIndexedDB";
+import { RepositorioTransaccionesPuntosIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioTransaccionesPuntosIndexedDB";
 import { MigradorContextosDesdeAgendasIndexedDB } from "../infraestructura/persistencia/indexeddb/MigradorContextosDesdeAgendasIndexedDB";
 import { TransaccionEliminacionContextoPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionEliminacionContextoPlanificacionIndexedDB";
 import { TransaccionCompletarBloqueConPuntosIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionCompletarBloqueConPuntosIndexedDB";
@@ -35,10 +37,12 @@ import { GeneradorIdentificadoresUUID } from "../infraestructura/sistema/Generad
 import { RelojSistema } from "../infraestructura/sistema/RelojSistema";
 import type { ServiciosAgendaBorrador } from "../presentacion/agendas/ServiciosAgendaBorrador";
 import type { ServiciosCalendario } from "../presentacion/calendario/ServiciosCalendario";
+import type { ServiciosPuntos } from "../presentacion/puntos/ServiciosPuntos";
 
 let servicios: ServiciosAgendaBorrador | undefined;
 let serviciosCalendario: ServiciosCalendario | undefined;
 let serviciosResolucionBloques: ServiciosResolucionBloques | undefined;
+let serviciosPuntos: ServiciosPuntos | undefined;
 let inicializacionPendiente: Promise<void> | undefined;
 let repositorioContextos:
   RepositorioContextosPlanificacionIndexedDB | undefined;
@@ -48,6 +52,8 @@ let repositorioBloques: RepositorioBloquesPlanificacionIndexedDB | undefined;
 let repositorioCortes: RepositorioCortesPlanificacionIndexedDB | undefined;
 let repositorioResoluciones:
   RepositorioResolucionesBloquesPlanificacionIndexedDB | undefined;
+let repositorioTransaccionesPuntos:
+  RepositorioTransaccionesPuntosIndexedDB | undefined;
 let transaccionEliminacion:
   TransaccionEliminacionContextoPlanificacionIndexedDB | undefined;
 
@@ -77,6 +83,15 @@ export function inicializarAplicacion(): Promise<void> {
 export function obtenerServiciosCalendario(): ServiciosCalendario {
   serviciosCalendario ??= crearServiciosCalendario();
   return serviciosCalendario;
+}
+
+export function obtenerServiciosPuntos(): ServiciosPuntos {
+  serviciosPuntos ??= Object.freeze({
+    consultarBilletera: new CasoDeUsoConsultarBilletera(
+      obtenerRepositorioTransaccionesPuntos(),
+    ),
+  });
+  return serviciosPuntos;
 }
 
 export interface ServiciosResolucionBloques {
@@ -234,6 +249,12 @@ function obtenerRepositorioResoluciones(): RepositorioResolucionesBloquesPlanifi
   repositorioResoluciones ??=
     new RepositorioResolucionesBloquesPlanificacionIndexedDB();
   return repositorioResoluciones;
+}
+
+function obtenerRepositorioTransaccionesPuntos(): RepositorioTransaccionesPuntosIndexedDB {
+  repositorioTransaccionesPuntos ??=
+    new RepositorioTransaccionesPuntosIndexedDB();
+  return repositorioTransaccionesPuntos;
 }
 
 function obtenerTransaccionEliminacion(): TransaccionEliminacionContextoPlanificacionIndexedDB {

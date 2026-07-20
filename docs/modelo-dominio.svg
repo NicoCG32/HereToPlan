@@ -226,7 +226,7 @@
     <path class="cabecera-economia" d="M10 0 H310 A10 10 0 0 1 320 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
     <text class="estereotipo" x="16" y="18">«ENTIDAD HISTÓRICA»</text>
     <text class="nombre" x="16" y="40">TransaccionPuntos</text>
-    <text class="atributo" x="16" y="76">tipo · cantidad · fuenteId</text>
+    <text class="atributo" x="16" y="76">tipo · cantidad · fuenteTipo · fuenteId</text>
     <text class="atributo" x="16" y="99">descripcion: string</text>
     <text class="atributo" x="16" y="121">ocurridaEn: Date</text>
   </g>
@@ -271,9 +271,9 @@
   <text class="relacion-etiqueta" x="532" y="1134">calcula ingreso al completar</text>
 
   <rect class="regla" x="72" y="1200" width="1454" height="76"/>
-  <text class="regla-titulo" x="92" y="1226">Reglas transversales de historia y atomicidad</text>
-  <text class="regla-texto" x="92" y="1250">Eliminar un contexto nunca elimina historia confirmada. Completar confirma ResolucionBloquePlanificacion y TransaccionPuntos juntas;</text>
-  <text class="regla-texto" x="92" y="1268">incumplir sólo registra la resolución y no genera deuda.</text>
+  <text class="regla-titulo" x="92" y="1226">Reglas transversales de historia, puntos y flexibilidad</text>
+  <text class="regla-texto" x="92" y="1250">Completar confirma resolución e ingreso juntos; la billetera rehidrata sus movimientos y deriva el saldo sin persistirlo por separado.</text>
+  <text class="regla-texto" x="92" y="1268">Un día libre futuro excusa todos los bloques flexibles personales elegibles y protege compromisos estrictos o externos.</text>
 
   <line x1="60" y1="1347" x2="105" y2="1347" class="composicion"/>
   <text class="leyenda" x="116" y="1352">composición / control de ciclo</text>

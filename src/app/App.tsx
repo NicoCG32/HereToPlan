@@ -1,18 +1,34 @@
+import { useState } from "react";
+
 import { PantallaAgendaBorrador } from "../presentacion/agendas/PantallaAgendaBorrador";
 import type { ServiciosAgendaBorrador } from "../presentacion/agendas/ServiciosAgendaBorrador";
 import { PantallaCalendario } from "../presentacion/calendario/PantallaCalendario";
 import type { ServiciosCalendario } from "../presentacion/calendario/ServiciosCalendario";
 import { useGradienteGlobal } from "../presentacion/hooks/useGradienteGlobal";
+import { PanelBilletera } from "../presentacion/puntos/PanelBilletera";
+import type { ServiciosPuntos } from "../presentacion/puntos/ServiciosPuntos";
 import logoHereToPlan from "../presentacion/recursos/logos/HereToPlanLogo.svg";
-import { obtenerServiciosCalendario } from "./configurarAplicacion";
+import {
+  obtenerServiciosCalendario,
+  obtenerServiciosPuntos,
+} from "./configurarAplicacion";
 
 interface AppProps {
   readonly servicios?: ServiciosAgendaBorrador;
   readonly serviciosCalendario?: ServiciosCalendario;
+  readonly serviciosPuntos?: ServiciosPuntos;
 }
 
-export function App({ servicios, serviciosCalendario }: AppProps) {
+export function App({
+  servicios,
+  serviciosCalendario,
+  serviciosPuntos,
+}: AppProps) {
   useGradienteGlobal();
+  const [revisionPuntos, setRevisionPuntos] = useState(0);
+  const serviciosPuntosEfectivos =
+    serviciosPuntos ??
+    (!servicios && !serviciosCalendario ? obtenerServiciosPuntos() : undefined);
 
   return (
     <main className="contenedor-principal">
@@ -35,9 +51,20 @@ export function App({ servicios, serviciosCalendario }: AppProps) {
       {servicios ? (
         <PantallaAgendaBorrador servicios={servicios} />
       ) : (
-        <PantallaCalendario
-          servicios={serviciosCalendario ?? obtenerServiciosCalendario()}
-        />
+        <>
+          <PantallaCalendario
+            servicios={serviciosCalendario ?? obtenerServiciosCalendario()}
+            onPuntosCambiados={() =>
+              setRevisionPuntos((revision) => revision + 1)
+            }
+          />
+          {serviciosPuntosEfectivos && (
+            <PanelBilletera
+              servicios={serviciosPuntosEfectivos}
+              revision={revisionPuntos}
+            />
+          )}
+        </>
       )}
     </main>
   );

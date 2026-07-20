@@ -1,6 +1,9 @@
 import { IDBFactory } from "fake-indexeddb";
 import { describe, expect, it } from "vitest";
-import { CasoDeUsoCompletarBloqueConPuntos } from "../src/aplicacion";
+import {
+  CasoDeUsoCompletarBloqueConPuntos,
+  CasoDeUsoConsultarBilletera,
+} from "../src/aplicacion";
 import {
   BloquePlanificacion,
   CortePlanificacion,
@@ -15,6 +18,7 @@ import {
 } from "../src/infraestructura/persistencia/indexeddb/esquemaBaseDatos";
 import { RepositorioCortesPlanificacionEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioCortesPlanificacionEnMemoria";
 import { RepositorioResolucionesBloquesPlanificacionIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioResolucionesBloquesPlanificacionIndexedDB";
+import { RepositorioTransaccionesPuntosIndexedDB } from "../src/infraestructura/persistencia/indexeddb/RepositorioTransaccionesPuntosIndexedDB";
 import { TransaccionCompletarBloqueConPuntosIndexedDB } from "../src/infraestructura/persistencia/indexeddb/TransaccionCompletarBloqueConPuntosIndexedDB";
 import type { TransaccionPuntosV1 } from "../src/infraestructura/persistencia/registros/TransaccionPuntosV1";
 import {
@@ -59,6 +63,18 @@ describe("cumplimiento y acreditación atómicos", () => {
         fuenteId: "bloque-1",
       }),
     ]);
+    const repositorioPuntos = new RepositorioTransaccionesPuntosIndexedDB({
+      fabricaIndexedDB: entorno.fabrica,
+      nombreBaseDatos: entorno.nombre,
+    });
+    const billeteraRecargada = await new CasoDeUsoConsultarBilletera(
+      repositorioPuntos,
+    ).ejecutar();
+    expect(billeteraRecargada).toMatchObject({
+      saldo: 2,
+      movimientos: [{ fuente: { id: "bloque-1" } }],
+    });
+    await repositorioPuntos.cerrar();
   });
 
   it("reintenta de forma idempotente sin generar otro ingreso", async () => {

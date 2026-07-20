@@ -217,6 +217,8 @@ Reglas:
 - el saldo nunca puede ser negativo;
 - una transacción no puede repetirse;
 - una misma fuente semántica no puede otorgar o consumir puntos dos veces;
+- el saldo consultado se reconstruye desde el historial versionado y no se
+  persiste como un valor independiente;
 - completar e ingresar puntos se confirman juntos o no se confirma ninguno;
 - incumplir produce cero movimientos y nunca genera deuda.
 
@@ -241,12 +243,15 @@ La capa de aplicación deberá aplicar y persistir esos cambios como una operaci
 La recompensa `DIA_LIBRE`:
 
 - requiere saldo suficiente;
+- solo puede canjearse para una `FechaLocal` posterior al día local actual;
 - solo considera agendas confirmadas;
-- solo afecta bloques pendientes de la fecha seleccionada;
-- solo afecta bloques cuya política flexible permita `EXCUSAR`;
+- afecta todos los bloques pendientes de la fecha seleccionada cuya política
+  sea flexible, esté bajo autoridad `PERSONAL` y permita `EXCUSAR`;
 - no elimina los bloques;
 - registra cada bloque como `EXCUSADO` mediante un `AjusteCompromiso`;
-- conserva intactos los compromisos estrictos.
+- conserva intactos los compromisos estrictos y los plazos de autoridad
+  `EXTERNA`;
+- se rechaza sin gasto cuando no existe ningún bloque elegible.
 
 ## 4. Invariantes fundamentales
 
@@ -272,7 +277,6 @@ El modelo y sus adaptadores aún deben incorporar:
 - banco de recuperación;
 - extensión de plazos;
 - reducción de carga;
-- consulta y rehidratación de la billetera y sus transacciones;
 - calibración de la fórmula con observaciones de uso;
 - calendario funcional definitivo.
 

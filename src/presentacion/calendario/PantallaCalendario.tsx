@@ -22,6 +22,7 @@ import type { ServiciosCalendario } from "./ServiciosCalendario";
 
 interface PantallaCalendarioProps {
   readonly servicios: ServiciosCalendario;
+  readonly onPuntosCambiados?: () => void;
 }
 
 type EstadoCalendario =
@@ -32,7 +33,10 @@ type EstadoCalendario =
 const SELECCION_TODAS = "TODAS";
 const ID_CONTEXTO_LIBRE = "contexto-libre";
 
-export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
+export function PantallaCalendario({
+  servicios,
+  onPuntosCambiados,
+}: PantallaCalendarioProps) {
   const botonCrearContextoRef = useRef<HTMLButtonElement>(null);
   const botonEliminarContextoRef = useRef<HTMLButtonElement>(null);
   const botonRevisarCorteRef = useRef<HTMLButtonElement>(null);
@@ -370,6 +374,7 @@ export function PantallaCalendario({ servicios }: PantallaCalendarioProps) {
       const titulo = resolucionPendiente.bloque.titulo;
       const completado = resolucionPendiente.accion === "COMPLETAR";
       setResolucionPendiente(undefined);
+      if (completado) onPuntosCambiados?.();
       actualizar(
         completado
           ? `${titulo} quedó completado y registrado en su historial.`

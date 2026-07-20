@@ -83,7 +83,7 @@
     <text class="detalle" x="18" y="82">• calendario general: día, semana y mes</text>
     <text class="detalle" x="18" y="106">• panel de siete días y lista equivalente</text>
     <text class="detalle" x="18" y="130">• selección, revisión, asignación y corrección</text>
-    <text class="detalle" x="18" y="154">• resolución, historial y eliminación accesibles</text>
+    <text class="detalle" x="18" y="154">• resolución, historial, eliminación y billetera</text>
     <text class="detalle" x="18" y="181">Sólo conoce DTO y puertos de entrada.</text>
     <text class="codigo" x="18" y="212">src/presentacion</text>
   </g>
@@ -92,10 +92,10 @@
     <rect class="componente aplicacion" width="440" height="128"/>
     <path class="cabecera-aplicacion" d="M12 0 H428 A12 12 0 0 1 440 12 V48 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«CONTRATO DEL ADAPTADOR»</text>
-    <text class="nombre" x="18" y="40">ServiciosCalendario</text>
+    <text class="nombre" x="18" y="40">ServiciosCalendario · ServiciosPuntos</text>
     <text class="detalle" x="18" y="74">Agrupa capacidades de entrada requeridas por React.</text>
     <text class="detalle" x="18" y="96">Expone sólo ejecutar() y resultados serializables.</text>
-    <text class="codigo" x="18" y="117">presentacion/calendario/ServiciosCalendario.ts</text>
+    <text class="codigo" x="18" y="117">src/presentacion/*/Servicios*.ts</text>
   </g>
 
   <g transform="translate(755 390)">
@@ -107,7 +107,7 @@
     <text class="detalle" x="18" y="106">• asignar, editar y quitar bloques</text>
     <text class="detalle" x="18" y="130">• revisar, asignar, corregir y sincronizar cortes</text>
     <text class="detalle" x="18" y="154">• proyectar calendario; eliminar contexto</text>
-    <text class="detalle" x="18" y="178">• completar y acreditar; o registrar incumplimiento</text>
+    <text class="detalle" x="18" y="178">• completar y acreditar; consultar la billetera</text>
     <text class="detalle" x="18" y="198">Orquestan reglas y límites transaccionales.</text>
     <text class="codigo" x="18" y="220">src/aplicacion</text>
   </g>
@@ -132,7 +132,7 @@
     <text class="nombre" x="18" y="42">Contratos requeridos</text>
     <text class="detalle" x="18" y="82">RepositorioContextos · RepositorioActividades</text>
     <text class="detalle" x="18" y="106">RepositorioBloques · RepositorioCortes</text>
-    <text class="detalle" x="18" y="130">RepositorioResoluciones · RepositorioAgendas</text>
+    <text class="detalle" x="18" y="130">Repositorios: resoluciones · agendas · transacciones de puntos</text>
     <text class="detalle" x="18" y="154">TransaccionEliminacionContextoPlanificacion</text>
     <text class="detalle" x="18" y="178">TransaccionCompletarBloqueConPuntos · Reloj · UUID</text>
     <text class="codigo" x="18" y="226">src/aplicacion/puertos</text>

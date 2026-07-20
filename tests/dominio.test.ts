@@ -11,6 +11,7 @@ import {
 } from "../src/dominio";
 
 const fecha = FechaLocal.crear("2026-07-20");
+const fechaActual = FechaLocal.crear("2026-07-19");
 const instante = new Date("2026-07-12T20:00:00.000Z");
 
 function politicaEstricta() {
@@ -129,6 +130,7 @@ describe("base del dominio", () => {
       billetera,
       agendas: [agenda],
       fechaObjetivo: fecha,
+      fechaActual,
       fechaCanje: instante,
     });
 
@@ -157,6 +159,7 @@ describe("base del dominio", () => {
       billetera,
       agendas: [agenda],
       fechaObjetivo: fecha,
+      fechaActual,
       fechaCanje: instante,
     });
     const ajustes = resultado.ajustesPorAgenda[0]?.ajustes;

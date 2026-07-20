@@ -20,6 +20,7 @@ interface SolicitudDiaLibre {
   billetera: BilleteraPuntos;
   agendas: readonly Agenda[];
   fechaObjetivo: FechaLocal;
+  fechaActual: FechaLocal;
   fechaCanje: Date;
 }
 
@@ -42,6 +43,12 @@ export class ServicioCanjeRecompensas {
       throw new ErrorDominio(
         "RECOMPENSA_INCORRECTA",
         "La recompensa indicada no corresponde a un día libre.",
+      );
+    }
+    if (!solicitud.fechaObjetivo.esPosteriorA(solicitud.fechaActual)) {
+      throw new ErrorDominio(
+        "DIA_LIBRE_FUERA_DE_VENTANA",
+        "El día libre debe canjearse para una fecha local posterior al día actual.",
       );
     }
     if (solicitud.billetera.saldo < solicitud.recompensa.costoPuntos) {

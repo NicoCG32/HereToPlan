@@ -229,6 +229,7 @@ export class Agenda {
         bloque.estado === "PENDIENTE" &&
         bloque.fecha.esIgualA(fecha) &&
         bloque.politica.rigidez === "FLEXIBLE" &&
+        bloque.politica.autoridadPlazo === "PERSONAL" &&
         bloque.politica.ajustesPermitidos.includes(tipoAjuste),
     );
   }

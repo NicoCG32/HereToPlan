@@ -4,6 +4,19 @@ import type { TransaccionPuntos } from "./TransaccionPuntos";
 export class BilleteraPuntos {
   private readonly transacciones: TransaccionPuntos[] = [];
 
+  public static rehidratar(
+    transacciones: readonly TransaccionPuntos[],
+  ): BilleteraPuntos {
+    const billetera = new BilleteraPuntos();
+    const ordenadas = [...transacciones].sort(
+      (a, b) =>
+        a.ocurridaEn.getTime() - b.ocurridaEn.getTime() ||
+        a.id.localeCompare(b.id),
+    );
+    for (const transaccion of ordenadas) billetera.registrar(transaccion);
+    return billetera;
+  }
+
   public get saldo(): number {
     return this.transacciones.reduce(
       (total, transaccion) => total + transaccion.obtenerVariacion(),

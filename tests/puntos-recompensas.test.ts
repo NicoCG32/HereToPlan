@@ -13,6 +13,7 @@ import {
 import { esperarErrorDominio } from "./esperarErrorDominio";
 
 const fecha = FechaLocal.crear("2026-07-21");
+const fechaActual = FechaLocal.crear("2026-07-20");
 const instante = new Date("2026-07-20T10:00:00.000Z");
 
 function crearTransaccion(
@@ -43,7 +44,12 @@ function crearRecompensa(costoPuntos = 1500) {
   });
 }
 
-function crearAgenda(id: string, bloqueId: string, flexible = true) {
+function crearAgenda(
+  id: string,
+  bloqueId: string,
+  flexible = true,
+  autoridadPlazo: "PERSONAL" | "EXTERNA" = "PERSONAL",
+) {
   const agenda = new Agenda({
     id,
     nombre: `Agenda ${id}`,
@@ -59,7 +65,7 @@ function crearAgenda(id: string, bloqueId: string, flexible = true) {
     minutosPlanificados: 60,
     politica: new PoliticaCompromiso({
       rigidez: flexible ? "FLEXIBLE" : "ESTRICTO",
-      autoridadPlazo: "PERSONAL",
+      autoridadPlazo,
       ajustesPermitidos: flexible ? ["EXCUSAR"] : [],
     }),
   });
@@ -137,6 +143,7 @@ describe("puntos y recompensas", () => {
       recompensa: crearRecompensa(),
       agendas: [crearAgenda("agenda-1", "bloque-1")],
       fechaObjetivo: fecha,
+      fechaActual,
       fechaCanje: instante,
     };
 
@@ -169,9 +176,60 @@ describe("puntos y recompensas", () => {
           crearAgenda("agenda-2", "bloque-repetido"),
         ],
         fechaObjetivo: fecha,
+        fechaActual,
         fechaCanje: instante,
       }),
     );
+  });
+
+  it("exige una fecha futura respecto del día local del canje", () => {
+    const servicio = new ServicioCanjeRecompensas();
+    const solicitud = {
+      idCanje: "canje-1",
+      idTransaccion: "gasto-1",
+      crearIdAjuste: (_agendaId: string, bloqueId: string) =>
+        `ajuste-${bloqueId}`,
+      recompensa: crearRecompensa(),
+      billetera: crearBilletera(),
+      agendas: [crearAgenda("agenda-1", "bloque-1")],
+      fechaActual,
+      fechaCanje: instante,
+    };
+
+    for (const fechaObjetivo of [FechaLocal.crear("2026-07-19"), fechaActual]) {
+      esperarErrorDominio("DIA_LIBRE_FUERA_DE_VENTANA", () =>
+        servicio.prepararCanjeDiaLibre({ ...solicitud, fechaObjetivo }),
+      );
+    }
+  });
+
+  it("afecta todos los flexibles personales y protege estrictos y externos", () => {
+    const resultado = new ServicioCanjeRecompensas().prepararCanjeDiaLibre({
+      idCanje: "canje-1",
+      idTransaccion: "gasto-1",
+      crearIdAjuste: (agendaId, bloqueId) => `ajuste-${agendaId}-${bloqueId}`,
+      recompensa: crearRecompensa(),
+      billetera: crearBilletera(),
+      agendas: [
+        crearAgenda("agenda-a", "bloque-a"),
+        crearAgenda("agenda-b", "bloque-b"),
+        crearAgenda("agenda-estricta", "bloque-estricto", false),
+        crearAgenda("agenda-externa", "bloque-externo", true, "EXTERNA"),
+      ],
+      fechaObjetivo: fecha,
+      fechaActual,
+      fechaCanje: instante,
+    });
+
+    expect([...resultado.canje.listarBloquesAfectados()].sort()).toEqual([
+      "bloque-a",
+      "bloque-b",
+    ]);
+    expect(
+      resultado.ajustesPorAgenda.flatMap(({ ajustes }) =>
+        ajustes.map((ajuste) => ajuste.bloqueId),
+      ),
+    ).toHaveLength(2);
   });
 
   it("conserva el costo, la fecha y los bloques del canje", () => {

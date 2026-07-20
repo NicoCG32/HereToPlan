@@ -2416,6 +2416,90 @@ button:focus-visible {
   }
 }
 
+.panel-billetera {
+  margin-bottom: 1.5rem;
+}
+
+.cabecera-billetera,
+.saldo-billetera,
+.lista-movimientos-puntos li,
+.valor-movimiento-puntos {
+  display: flex;
+}
+
+.cabecera-billetera,
+.lista-movimientos-puntos li {
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.saldo-billetera,
+.valor-movimiento-puntos {
+  flex-direction: column;
+}
+
+.saldo-billetera {
+  min-width: 10rem;
+  margin: 0;
+  text-align: right;
+}
+
+.saldo-billetera strong {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  line-height: 1;
+}
+
+.lista-movimientos-puntos {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-movimientos-puntos li {
+  border: 1px solid var(--borde-metalico);
+  padding: 1rem;
+}
+
+.lista-movimientos-puntos li > div:first-child {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.valor-movimiento-puntos {
+  align-items: flex-end;
+  gap: 0.25rem;
+  text-align: right;
+}
+
+.valor-movimiento-puntos strong {
+  font-size: 1.4rem;
+}
+
+.estado-billetera-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@media (max-width: 42rem) {
+  .cabecera-billetera,
+  .lista-movimientos-puntos li,
+  .estado-billetera-error {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .saldo-billetera,
+  .valor-movimiento-puntos {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
 /* ========================================================================== */
 /* ACTUALIZACIÓN VISUAL — METAL, PIEDRAS PRECIOSAS Y VERDE PLANTA            */
 /* ========================================================================== */

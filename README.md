@@ -150,6 +150,8 @@ preparación del reward `Día libre`. El recorrido principal permite:
 - consultar el estado y el instante histórico de la resolución;
 - acreditar al completar entre uno y cuatro puntos mediante una fórmula
   explícita, en la misma transacción que registra el cumplimiento;
+- reconstruir y mostrar la billetera desde movimientos persistidos, distinguiendo
+  ingresos, gastos y la fuente semántica de cada operación;
 - recuperar contextos, actividades y bloques desde IndexedDB después de
   recargar.
 

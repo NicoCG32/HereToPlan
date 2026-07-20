@@ -6,6 +6,7 @@ import {
   exigirTexto,
 } from "../compartido/validaciones";
 import type { TipoFuentePuntos, TipoTransaccionPuntos } from "./tipos";
+import { ErrorDominio } from "../compartido/ErrorDominio";
 
 interface DatosTransaccionPuntos {
   id: Identificador;
@@ -28,12 +29,27 @@ export class TransaccionPuntos {
 
   constructor(datos: DatosTransaccionPuntos) {
     this.id = exigirIdentificador(datos.id, "identificador de transacción");
+    if (datos.tipo !== "INGRESO" && datos.tipo !== "GASTO") {
+      throw new ErrorDominio(
+        "TIPO_TRANSACCION_PUNTOS_INVALIDO",
+        "El tipo de transacción debe ser INGRESO o GASTO.",
+      );
+    }
     this.tipo = datos.tipo;
     this.cantidad = exigirEnteroPositivo(
       datos.cantidad,
       "CANTIDAD_PUNTOS_INVALIDA",
       "La cantidad de puntos debe ser un entero positivo.",
     );
+    if (
+      datos.fuenteTipo !== "COMPROMISO_COMPLETADO" &&
+      datos.fuenteTipo !== "CANJE_RECOMPENSA"
+    ) {
+      throw new ErrorDominio(
+        "TIPO_FUENTE_PUNTOS_INVALIDO",
+        "El tipo de fuente de puntos no es reconocido.",
+      );
+    }
     this.fuenteTipo = datos.fuenteTipo;
     this.fuenteId = exigirIdentificador(
       datos.fuenteId,

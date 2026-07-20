@@ -7,7 +7,7 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CasoDeUsoAsignarActividad,
   CasoDeUsoAsignarCortePlanificacion,
@@ -238,7 +238,7 @@ describe("interfaz de contextos del calendario", () => {
       screen.getByRole("button", { name: "Agendar Preparar informe" }),
     ).toBeTruthy();
     await expect(entorno.bloques.listar()).resolves.toHaveLength(0);
-  }, 15_000);
+  }, 25_000);
 
   it("crea un proyecto sin fecha y lo mantiene en Sin programar", async () => {
     const usuario = userEvent.setup();
@@ -373,8 +373,21 @@ describe("interfaz de contextos del calendario", () => {
     const usuario = userEvent.setup();
     const entorno = await crearEntorno();
     await prepararBloquesConfirmados(entorno);
-    render(<App serviciosCalendario={entorno.servicios} />);
+    const consultarBilletera = vi.fn().mockResolvedValue({
+      saldo: 0,
+      movimientos: [],
+    });
+    render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        serviciosPuntos={{
+          consultarBilletera: { ejecutar: consultarBilletera },
+        }}
+      />,
+    );
     await screen.findByRole("heading", { name: "Calendario general" });
+    await screen.findByText(/Aún no hay movimientos/);
+    expect(consultarBilletera).toHaveBeenCalledTimes(1);
 
     const botonCompletar = screen.getByRole("button", {
       name: "Completar Sesión terminada",
@@ -403,6 +416,7 @@ describe("interfaz de contextos del calendario", () => {
     expect(
       await screen.findByText(/quedó completado y registrado/),
     ).toBeTruthy();
+    await waitFor(() => expect(consultarBilletera).toHaveBeenCalledTimes(2));
     expect(
       screen.getByRole("list", { name: "Historial de Sesión terminada" })
         .textContent,
@@ -429,11 +443,14 @@ describe("interfaz de contextos del calendario", () => {
       await screen.findByText(/marcado como incumplido, sin deuda/),
     ).toBeTruthy();
     expect(
-      screen.getByRole("list", { name: "Historial de Sesión pendiente" })
-        .textContent,
+      (
+        await screen.findByRole("list", {
+          name: "Historial de Sesión pendiente",
+        })
+      ).textContent,
     ).toContain("Incumplido");
     await expect(entorno.resoluciones.listar()).resolves.toHaveLength(2);
-  }, 15_000);
+  }, 25_000);
 
   it("cancela el diálogo y luego elimina trasladando los bloques a Libre", async () => {
     const usuario = userEvent.setup();

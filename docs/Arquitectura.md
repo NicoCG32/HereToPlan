@@ -522,8 +522,24 @@ operaciones y valida la billetera antes de publicar ambos hechos.
 
 Esta frontera no sustituye la unidad de trabajo futura del canje: cada operación
 multiagregado posee por ahora el contrato mínimo que necesita. La lectura y
-rehidratación completa de la billetera se incorporan por el puerto de repositorio
-del siguiente incremento.
+rehidratación de la billetera emplean un puerto de repositorio independiente y
+no amplían la responsabilidad de esta unidad de trabajo.
+
+### 6.12. Consulta y rehidratación de la billetera
+
+`RepositorioTransaccionesPuntos` define la persistencia del historial sin
+exponer IndexedDB. Sus adaptadores en memoria e IndexedDB conservan la unicidad
+del identificador y de la fuente semántica. El mapeador versionado valida tanto
+la estructura persistida como los tipos y el instante antes de reconstruir cada
+`TransaccionPuntos`.
+
+`ConsultarBilletera` recupera los movimientos, delega en
+`BilleteraPuntos.rehidratar` la reconstrucción de invariantes y deriva el saldo.
+El DTO de salida ordena los movimientos más recientes primero e identifica tipo,
+variación, fuente y fecha. `PanelBilletera` representa los estados de carga,
+vacío, error y resultado; React vuelve a ejecutar la consulta después de un
+cumplimiento exitoso, pero no calcula el saldo ni accede directamente a la base
+de datos.
 
 ## 7. Operaciones entre agregados y atomicidad
 
@@ -554,14 +570,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                             |
-| --------------- | ----------------------------------------------------------------------------------------- |
-| Dominio         | Planificación, resoluciones y fórmula de puntos protegidas por invariantes                |
-| Presentación    | Calendario, controles de resultado e historial accesible por bloque                       |
-| Aplicación      | Resolución idempotente y cumplimiento con acreditación atómica                            |
-| Infraestructura | Repositorios y transacciones especializadas en memoria e IndexedDB                        |
-| Composición     | Ensambla consultas, resolución y cumplimiento puntuable                                   |
-| Persistencia    | IndexedDB v7 añade ingresos con unicidad de fuente y escritura conjunta con la resolución |
+| Elemento        | Estado actual                                                                   |
+| --------------- | ------------------------------------------------------------------------------- |
+| Dominio         | Planificación, resoluciones y fórmula de puntos protegidas por invariantes      |
+| Presentación    | Calendario, historial por bloque y billetera trazable                           |
+| Aplicación      | Resolución idempotente, acreditación atómica y consulta derivada de movimientos |
+| Infraestructura | Repositorios y transacciones especializadas en memoria e IndexedDB              |
+| Composición     | Ensambla consultas, resolución, cumplimiento puntuable y lectura de billetera   |
+| Persistencia    | IndexedDB v7 conserva resoluciones y transacciones con unicidad semántica       |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes
