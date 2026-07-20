@@ -240,7 +240,7 @@ describe("puntos y recompensas", () => {
       puntosGastados: 1500,
       canjeadoEn,
       fechaObjetivo: fecha,
-      bloquesAfectados: ["bloque-1", "bloque-1", "bloque-2"],
+      bloquesAfectados: ["bloque-1", "bloque-2"],
     });
     canjeadoEn.setUTCFullYear(2030);
     const vista = canje.canjeadoEn;
@@ -249,6 +249,21 @@ describe("puntos y recompensas", () => {
     expect(canje.puntosGastados).toBe(1500);
     expect(canje.canjeadoEn.toISOString()).toBe(instante.toISOString());
     expect(canje.listarBloquesAfectados()).toEqual(["bloque-1", "bloque-2"]);
+  });
+
+  it("rechaza bloques duplicados dentro de un canje", () => {
+    esperarErrorDominio(
+      "BLOQUES_CANJE_DUPLICADOS",
+      () =>
+        new CanjeRecompensa({
+          id: "canje-1",
+          recompensaId: "dia-libre",
+          puntosGastados: 1500,
+          canjeadoEn: instante,
+          fechaObjetivo: fecha,
+          bloquesAfectados: ["bloque-1", "bloque-1"],
+        }),
+    );
   });
 
   it("valida el costo y los textos de una recompensa", () => {

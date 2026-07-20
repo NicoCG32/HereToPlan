@@ -330,6 +330,11 @@ La versión 7 añade `transacciones-puntos`. Usa `id` como clave primaria y un
 el caso de uso de cumplimiento puede abrir una transacción sobre este almacén y
 el de resoluciones sin reescribir datos anteriores.
 
+La versión 8 añade `canjes-recompensas` y `ajustes-compromisos`. El primer
+almacén conserva cada compra histórica; el segundo usa un índice único por
+`bloqueId` y otro no único por `canjeRecompensaId`. La migración es aditiva y no
+reescribe movimientos, cortes ni resoluciones existentes.
+
 `InicializarContextosPlanificacion` garantiza una sola instancia de `Libre` de
 forma idempotente. La raíz de composición ejecuta este caso de uso antes de
 montar React, por lo que la interfaz nunca comienza sobre una base inicializada
@@ -520,10 +525,11 @@ los dos. Índices únicos protegen bloque, operación, identificador de movimien
 y pareja `fuenteTipo + fuenteId`. El adaptador en memoria serializa las
 operaciones y valida la billetera antes de publicar ambos hechos.
 
-Esta frontera no sustituye la unidad de trabajo futura del canje: cada operación
-multiagregado posee por ahora el contrato mínimo que necesita. La lectura y
+Cada operación multiagregado posee el contrato mínimo que necesita. La lectura y
 rehidratación de la billetera emplean un puerto de repositorio independiente y
-no amplían la responsabilidad de esta unidad de trabajo.
+no amplían la responsabilidad de esta unidad de trabajo. Desde la versión 8, la
+transacción de cumplimiento consulta también los ajustes por bloque para impedir
+que una carrera entre completar y excusar publique ambos desenlaces.
 
 ### 6.12. Consulta y rehidratación de la billetera
 
@@ -541,15 +547,39 @@ vacío, error y resultado; React vuelve a ejecutar la consulta después de un
 cumplimiento exitoso, pero no calcula el saldo ni accede directamente a la base
 de datos.
 
+### 6.13. Canje atómico de Día libre
+
+`PrepararCanjeDiaLibre` reúne instantáneas de cortes confirmados, resoluciones,
+ajustes, contextos y movimientos de puntos. `ServicioDiaLibrePlanificacion`
+clasifica cada bloque de la fecha como afectado o protegido y conserva el motivo
+—resuelto, ya excusado, estricto, externo o sin permiso de excusa—. El DTO de
+vista previa añade costo, saldo actual y saldo posterior sin producir escrituras.
+
+`CanjearDiaLibre` vuelve a evaluar la solicitud y prepara tres clases de hechos:
+`CanjeRecompensa`, `TransaccionPuntos(GASTO)` y un `AjusteCompromiso(EXCUSAR)`
+por bloque afectado. El puerto `UnidadTrabajoCanjeDiaLibre` los confirma juntos.
+Su adaptador IndexedDB incluye movimientos y resoluciones en la misma frontera:
+rehidrata la billetera antes de gastar y rechaza bloques resueltos mientras las
+transacciones concurrentes permanecen serializadas por almacén.
+
+Los almacenes `canjes-recompensas` y `ajustes-compromisos` usan registros V1.
+La clave de bloque del ajuste es única; por ello un compromiso no puede quedar
+asociado a dos canjes. El identificador de operación es también el identificador
+del canje: un reintento idéntico recupera el hecho ganador y uno contradictorio
+se informa como conflicto. React sólo abre la confirmación y representa el
+resultado; la atomicidad y la idempotencia permanecen fuera de presentación.
+
 ## 7. Operaciones entre agregados y atomicidad
 
-`Agenda` y `BilleteraPuntos` son agregados diferentes. El dominio puede evaluar reglas y preparar una decisión, pero no debe simular una transacción técnica entre agregados.
+Los cortes confirmados, `BilleteraPuntos` y el historial de recompensas poseen
+fronteras diferentes. El dominio evalúa reglas y prepara una decisión, pero no
+simula una transacción técnica entre agregados.
 
-El canje de un día libre seguirá esta secuencia:
+El canje de un día libre sigue esta secuencia:
 
 1. un adaptador de entrada solicita el canje mediante un puerto de entrada;
-2. el caso de uso carga agendas y billetera mediante puertos de salida;
-3. `ServicioCanjeRecompensas` prepara el canje, el gasto y los ajustes sin mutar el estado cargado;
+2. el caso de uso carga cortes, resoluciones, ajustes y billetera mediante puertos de salida;
+3. `ServicioDiaLibrePlanificacion` prepara el canje, el gasto y los ajustes sin mutar el estado cargado;
 4. el caso de uso aplica la decisión;
 5. una unidad de trabajo persiste todos los cambios o ninguno;
 6. el caso de uso devuelve un resultado independiente de React y del formato almacenado.
@@ -572,12 +602,12 @@ La arquitectura es un contrato de evolución; no debe confundirse con el grado a
 
 | Elemento        | Estado actual                                                                   |
 | --------------- | ------------------------------------------------------------------------------- |
-| Dominio         | Planificación, resoluciones y fórmula de puntos protegidas por invariantes      |
-| Presentación    | Calendario, historial por bloque y billetera trazable                           |
-| Aplicación      | Resolución idempotente, acreditación atómica y consulta derivada de movimientos |
-| Infraestructura | Repositorios y transacciones especializadas en memoria e IndexedDB              |
-| Composición     | Ensambla consultas, resolución, cumplimiento puntuable y lectura de billetera   |
-| Persistencia    | IndexedDB v7 conserva resoluciones y transacciones con unicidad semántica       |
+| Dominio         | Planificación, resoluciones, economía y elegibilidad protegidas por invariantes |
+| Presentación    | Calendario, billetera, vista previa, confirmación e historial de canjes         |
+| Aplicación      | Resolución, acreditación y canje idempotentes con límites atómicos              |
+| Infraestructura | Repositorios y unidades de trabajo equivalentes en memoria e IndexedDB          |
+| Composición     | Ensambla calendario, puntos y Rewards sin reglas de negocio                     |
+| Persistencia    | IndexedDB v8 conserva canjes y ajustes junto con el movimiento de puntos        |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

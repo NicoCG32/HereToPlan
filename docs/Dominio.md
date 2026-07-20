@@ -228,7 +228,9 @@ Contiene:
 
 - `DefinicionRecompensa`: describe una recompensa y su costo;
 - `CanjeRecompensa`: registra una compra concreta;
-- `ServicioCanjeRecompensas`: prepara el canje de un día libre.
+- `ServicioCanjeRecompensas`: conserva el contrato de las agendas legadas;
+- `ServicioDiaLibrePlanificacion`: evalúa instantáneas de cortes confirmados y
+  prepara el canje del modelo de planificación vigente.
 
 El servicio de dominio no muta agendas ni billeteras. Devuelve:
 
@@ -236,7 +238,9 @@ El servicio de dominio no muta agendas ni billeteras. Devuelve:
 2. la transacción de gasto;
 3. los ajustes agrupados por agenda.
 
-La capa de aplicación deberá aplicar y persistir esos cambios como una operación coherente.
+La capa de aplicación aplica y persiste esos hechos mediante una unidad de
+trabajo. El canje, el gasto y todos los ajustes se publican juntos o ninguno se
+vuelve visible.
 
 ## 3. Regla del día libre
 
@@ -244,7 +248,7 @@ La recompensa `DIA_LIBRE`:
 
 - requiere saldo suficiente;
 - solo puede canjearse para una `FechaLocal` posterior al día local actual;
-- solo considera agendas confirmadas;
+- solo considera instantáneas pertenecientes a cortes confirmados;
 - afecta todos los bloques pendientes de la fecha seleccionada cuya política
   sea flexible, esté bajo autoridad `PERSONAL` y permita `EXCUSAR`;
 - no elimina los bloques;
@@ -290,8 +294,9 @@ La base permite crecer sin romper la regla central:
 - contexto de calendario y corte confirmable evolucionarán como conceptos separados;
 - nuevos ajustes pueden implementarse dentro de `BloqueTrabajo.validarAjuste`;
 - nuevas recompensas pueden producir otros tipos de ajuste;
-- la capa de aplicación puede incorporar transacciones atómicas;
-- infraestructura podrá rehidratar agendas, billeteras y canjes;
+- la capa de aplicación coordina transacciones atómicas entre agregados;
+- infraestructura rehidrata agendas, billeteras, canjes y ajustes mediante
+  registros versionados;
 - las vistas de los agregados pueden convertirse en DTO persistibles.
 
 La evolución se entiende como capacidad de extensión controlada, no como implementación anticipada de todas las funciones.

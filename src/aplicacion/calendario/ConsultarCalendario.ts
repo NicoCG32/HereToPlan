@@ -1,5 +1,6 @@
 import {
   FechaLocal,
+  type AjusteCompromiso,
   type Agenda,
   type BloquePlanificacion,
   type CortePlanificacion,
@@ -15,6 +16,7 @@ import type { RepositorioBloquesPlanificacion } from "../puertos/RepositorioBloq
 import type { RepositorioContextosPlanificacion } from "../puertos/RepositorioContextosPlanificacion";
 import type { RepositorioCortesPlanificacion } from "../puertos/RepositorioCortesPlanificacion";
 import type { RepositorioResolucionesBloquesPlanificacion } from "../puertos/RepositorioResolucionesBloquesPlanificacion";
+import type { RepositorioAjustesCompromisos } from "../puertos/UnidadTrabajoCanjeDiaLibre";
 import type {
   BloqueCalendarioDto,
   CalendarioDto,
@@ -56,6 +58,7 @@ export class CasoDeUsoConsultarCalendario {
     private readonly repositorioCortes: RepositorioCortesPlanificacion,
     private readonly repositorioResoluciones: RepositorioResolucionesBloquesPlanificacion,
     private readonly calendarioLocal: CalendarioLocal,
+    private readonly repositorioAjustes?: RepositorioAjustesCompromisos,
   ) {}
 
   public async ejecutar(consulta: ConsultaCalendario): Promise<CalendarioDto> {
@@ -70,6 +73,7 @@ export class CasoDeUsoConsultarCalendario {
       bloquesPlanificacion,
       cortes,
       resoluciones,
+      ajustes,
     ] = await Promise.all([
       this.repositorioContextos.listar(),
       this.repositorioActividades.listar(),
@@ -77,9 +81,11 @@ export class CasoDeUsoConsultarCalendario {
       this.repositorioBloques.listar(),
       this.repositorioCortes.listar(),
       this.repositorioResoluciones.listar(),
+      this.repositorioAjustes?.listarAjustes() ?? Promise.resolve([]),
     ]);
     const protecciones = construirProtecciones(cortes);
     const resolucionesPorBloque = construirResolucionesPorBloque(resoluciones);
+    const ajustesPorBloque = construirAjustesPorBloque(ajustes);
     const hoy = this.calendarioLocal.hoy();
     const contextosOrdenados = this.ordenarContextos(contextos);
     const seleccion = this.resolverSeleccion(
@@ -99,6 +105,7 @@ export class CasoDeUsoConsultarCalendario {
           consulta.seleccion,
           protecciones,
           resolucionesPorBloque,
+          ajustesPorBloque,
         ),
       ].sort(
         (a, b) => a.fecha.localeCompare(b.fecha) || a.id.localeCompare(b.id),
@@ -262,6 +269,7 @@ export class CasoDeUsoConsultarCalendario {
       Readonly<{ corteId: string; estado: "EN_GRACIA" | "CONFIRMADA" }>
     >,
     resolucionesPorBloque: ReadonlyMap<string, ResolucionBloquePlanificacion>,
+    ajustesPorBloque: ReadonlyMap<string, AjusteCompromiso>,
   ): readonly BloqueCalendarioDto[] {
     const contextosPorId = new Map(
       contextos.map((contexto) => [contexto.id, contexto] as const),
@@ -283,6 +291,7 @@ export class CasoDeUsoConsultarCalendario {
         }
         const proteccion = protecciones.get(bloque.id);
         const resolucion = resolucionesPorBloque.get(bloque.id);
+        const ajuste = ajustesPorBloque.get(bloque.id);
         return [
           Object.freeze({
             id: bloque.id,
@@ -290,7 +299,10 @@ export class CasoDeUsoConsultarCalendario {
             titulo: bloque.titulo,
             fecha: bloque.fecha.toString(),
             minutosPlanificados: bloque.minutosPlanificados,
-            estado: resolucion?.resultado ?? ("PENDIENTE" as const),
+            estado:
+              ajuste?.tipo === "EXCUSAR"
+                ? ("EXCUSADO" as const)
+                : (resolucion?.resultado ?? ("PENDIENTE" as const)),
             origen: Object.freeze({
               contextoId: contexto.id,
               nombreContexto: contexto.nombre,
@@ -303,18 +315,30 @@ export class CasoDeUsoConsultarCalendario {
                 ...bloque.politica.ajustesPermitidos,
               ]),
             }),
-            editable: proteccion === undefined && resolucion === undefined,
+            editable:
+              proteccion === undefined &&
+              resolucion === undefined &&
+              ajuste === undefined,
             historial: Object.freeze(
-              resolucion
+              ajuste
                 ? [
                     Object.freeze({
-                      tipo: "RESOLUCION" as const,
-                      resultado: resolucion.resultado,
-                      ocurridoEn: resolucion.resueltoEn.toISOString(),
-                      operacionId: resolucion.operacionId,
+                      tipo: "AJUSTE" as const,
+                      resultado: "EXCUSADO" as const,
+                      ocurridoEn: ajuste.aplicadoEn.toISOString(),
+                      canjeRecompensaId: ajuste.canjeRecompensaId,
                     }),
                   ]
-                : [],
+                : resolucion
+                  ? [
+                      Object.freeze({
+                        tipo: "RESOLUCION" as const,
+                        resultado: resolucion.resultado,
+                        ocurridoEn: resolucion.resueltoEn.toISOString(),
+                        operacionId: resolucion.operacionId,
+                      }),
+                    ]
+                  : [],
             ),
             ...(proteccion ? { proteccion } : {}),
           }),
@@ -377,6 +401,12 @@ function construirResolucionesPorBloque(
   return new Map(
     resoluciones.map((resolucion) => [resolucion.bloqueId, resolucion]),
   );
+}
+
+function construirAjustesPorBloque(
+  ajustes: readonly AjusteCompromiso[],
+): ReadonlyMap<string, AjusteCompromiso> {
+  return new Map(ajustes.map((ajuste) => [ajuste.bloqueId, ajuste]));
 }
 
 export function calcularRangoVisible(

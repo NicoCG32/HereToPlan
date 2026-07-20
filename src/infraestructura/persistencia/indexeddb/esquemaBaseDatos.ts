@@ -1,4 +1,4 @@
-export const VERSION_BASE_DATOS = 7;
+export const VERSION_BASE_DATOS = 8;
 export const ALMACEN_AGENDAS = "agendas";
 export const ALMACEN_ACTIVIDADES = "actividades";
 export const ALMACEN_CONTEXTOS = "contextos-planificacion";
@@ -9,6 +9,10 @@ export const ALMACEN_RESOLUCIONES_BLOQUES_PLANIFICACION =
 export const INDICE_RESOLUCIONES_POR_OPERACION = "por-operacion-id";
 export const ALMACEN_TRANSACCIONES_PUNTOS = "transacciones-puntos";
 export const INDICE_TRANSACCIONES_POR_FUENTE = "por-fuente-semantica";
+export const ALMACEN_CANJES_RECOMPENSAS = "canjes-recompensas";
+export const ALMACEN_AJUSTES_COMPROMISOS = "ajustes-compromisos";
+export const INDICE_AJUSTES_POR_BLOQUE = "por-bloque-id";
+export const INDICE_AJUSTES_POR_CANJE = "por-canje-id";
 
 export function asegurarAlmacenes(baseDatos: IDBDatabase): void {
   if (!baseDatos.objectStoreNames.contains(ALMACEN_AGENDAS)) {
@@ -52,5 +56,21 @@ export function asegurarAlmacenes(baseDatos: IDBDatabase): void {
       ["fuenteTipo", "fuenteId"],
       { unique: true },
     );
+  }
+  if (!baseDatos.objectStoreNames.contains(ALMACEN_CANJES_RECOMPENSAS)) {
+    baseDatos.createObjectStore(ALMACEN_CANJES_RECOMPENSAS, {
+      keyPath: "id",
+    });
+  }
+  if (!baseDatos.objectStoreNames.contains(ALMACEN_AJUSTES_COMPROMISOS)) {
+    const almacen = baseDatos.createObjectStore(ALMACEN_AJUSTES_COMPROMISOS, {
+      keyPath: "id",
+    });
+    almacen.createIndex(INDICE_AJUSTES_POR_BLOQUE, "bloqueId", {
+      unique: true,
+    });
+    almacen.createIndex(INDICE_AJUSTES_POR_CANJE, "canjeRecompensaId", {
+      unique: false,
+    });
   }
 }

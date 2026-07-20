@@ -32,10 +32,11 @@ export interface PoliticaBloqueCalendarioDto {
 }
 
 export interface EventoHistorialBloqueCalendarioDto {
-  readonly tipo: "RESOLUCION";
+  readonly tipo: "RESOLUCION" | "AJUSTE";
   readonly resultado: "COMPLETADO" | "INCUMPLIDO" | "EXCUSADO";
   readonly ocurridoEn: string;
   readonly operacionId?: string;
+  readonly canjeRecompensaId?: string;
 }
 
 export interface BloqueCalendarioDto {

@@ -1,4 +1,5 @@
 import type { Identificador } from "../compartido/tipos";
+import { ErrorDominio } from "../compartido/ErrorDominio";
 import { copiarFecha, exigirIdentificador } from "../compartido/validaciones";
 import type { TipoAjusteCompromiso } from "./tipos";
 
@@ -27,6 +28,17 @@ export class AjusteCompromiso {
       datos.canjeRecompensaId,
       "identificador de canje",
     );
+    if (
+      datos.tipo !== "EXCUSAR" &&
+      datos.tipo !== "REPROGRAMAR" &&
+      datos.tipo !== "EXTENDER_PLAZO" &&
+      datos.tipo !== "REDUCIR_CARGA"
+    ) {
+      throw new ErrorDominio(
+        "TIPO_AJUSTE_INVALIDO",
+        "El tipo de ajuste de compromiso no es válido.",
+      );
+    }
     this.tipo = datos.tipo;
     this._aplicadoEn = copiarFecha(datos.aplicadoEn, "fecha de aplicación");
   }

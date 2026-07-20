@@ -22,7 +22,8 @@ Esta base permite explorar, entre otras, las siguientes reglas:
 - la flexibilidad de un compromiso se decide antes de conocer su resultado;
 - los compromisos estrictos y flexibles reaccionan de manera distinta a una recompensa;
 - los movimientos de puntos son trazables y no permiten un saldo negativo;
-- el canje de un día libre se prepara sin producir mutaciones parciales.
+- el canje de un día libre muestra su efecto antes de confirmar y persiste
+  gasto, ajustes e historial como una sola operación.
 
 El repositorio crecerá mediante incrementos funcionales verificables. Las decisiones documentadas constituyen la base vigente del proyecto, aunque podrán revisarse cuando la evidencia de uso revele una alternativa mejor.
 
@@ -137,8 +138,8 @@ existentes bajo `/HereToPlan/`; debe ejecutarse después del build.
 ## Capacidades implementadas
 
 El núcleo disponible incluye actividades, contextos de planificación, agendas,
-bloques de trabajo, políticas de compromiso, una billetera de puntos y la
-preparación del reward `Día libre`. El recorrido principal permite:
+bloques de trabajo, políticas de compromiso, una billetera de puntos y el
+reward `Día libre`. El recorrido principal permite:
 
 - comenzar directamente en `Libre` o crear una agenda nombrada opcional;
 - crear y reutilizar actividades de distintos tipos;
@@ -152,6 +153,8 @@ preparación del reward `Día libre`. El recorrido principal permite:
   explícita, en la misma transacción que registra el cumplimiento;
 - reconstruir y mostrar la billetera desde movimientos persistidos, distinguiendo
   ingresos, gastos y la fuente semántica de cada operación;
+- previsualizar un Día libre, distinguir bloques afectados y protegidos, y
+  confirmar atómicamente el canje con enlaces a su origen histórico;
 - recuperar contextos, actividades y bloques desde IndexedDB después de
   recargar.
 

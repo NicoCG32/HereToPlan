@@ -2500,6 +2500,139 @@ button:focus-visible {
   }
 }
 
+.panel-dia-libre {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.formulario-dia-libre {
+  display: flex;
+  align-items: end;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.formulario-dia-libre .campo {
+  min-width: min(100%, 15rem);
+}
+
+.vista-previa-dia-libre,
+.resultado-canje-dia-libre,
+.historial-canjes {
+  display: grid;
+  gap: 1rem;
+  padding: 1.15rem;
+  border: 1px solid var(--borde-metalico, rgb(120 125 135 / 36%));
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--superficie) 86%, transparent);
+}
+
+.vista-previa-dia-libre h3,
+.vista-previa-dia-libre h4,
+.resultado-canje-dia-libre h3,
+.historial-canjes h3 {
+  margin: 0;
+}
+
+.resumen-dia-libre {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.resumen-dia-libre div {
+  padding: 0.85rem;
+  border-radius: 0.8rem;
+  background: var(--superficie-elevada);
+}
+
+.resumen-dia-libre dt {
+  color: var(--texto-secundario);
+  font-size: 0.82rem;
+}
+
+.resumen-dia-libre dd {
+  margin: 0.25rem 0 0;
+  font-weight: 750;
+}
+
+.columnas-dia-libre {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.columnas-dia-libre > div {
+  display: grid;
+  align-content: start;
+  gap: 0.6rem;
+}
+
+.columnas-dia-libre ul,
+.historial-canjes ol {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.columnas-dia-libre li,
+.historial-canjes li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--superficie-elevada);
+}
+
+.columnas-dia-libre li span,
+.historial-canjes li span,
+.historial-canjes time {
+  color: var(--texto-secundario);
+  font-size: 0.85rem;
+}
+
+.historial-canjes li div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.aviso-dia-libre {
+  color: var(--color-advertencia, #8a5a00);
+  font-weight: 650;
+}
+
+.enlaces-resultado-canje {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.dialogo-canje-dia-libre {
+  max-width: 38rem;
+}
+
+@media (max-width: 42rem) {
+  .resumen-dia-libre,
+  .columnas-dia-libre {
+    grid-template-columns: 1fr;
+  }
+
+  .formulario-dia-libre,
+  .formulario-dia-libre .boton-secundario {
+    width: 100%;
+  }
+
+  .columnas-dia-libre li,
+  .historial-canjes li {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 /* ========================================================================== */
 /* ACTUALIZACIÓN VISUAL — METAL, PIEDRAS PRECIOSAS Y VERDE PLANTA            */
 /* ========================================================================== */

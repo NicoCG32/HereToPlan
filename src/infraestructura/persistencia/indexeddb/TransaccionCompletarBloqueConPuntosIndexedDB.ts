@@ -9,9 +9,11 @@ import type {
 import { convertirResolucionBloquePlanificacionEnV1 } from "../mapeadores/MapeadorResolucionBloquePlanificacionV1";
 import { convertirTransaccionPuntosEnV1 } from "../mapeadores/MapeadorTransaccionPuntosV1";
 import {
+  ALMACEN_AJUSTES_COMPROMISOS,
   ALMACEN_RESOLUCIONES_BLOQUES_PLANIFICACION,
   ALMACEN_TRANSACCIONES_PUNTOS,
   asegurarAlmacenes,
+  INDICE_AJUSTES_POR_BLOQUE,
   VERSION_BASE_DATOS,
 } from "./esquemaBaseDatos";
 
@@ -67,23 +69,44 @@ export class TransaccionCompletarBloqueConPuntosIndexedDB implements Transaccion
         [
           ALMACEN_RESOLUCIONES_BLOQUES_PLANIFICACION,
           ALMACEN_TRANSACCIONES_PUNTOS,
+          ALMACEN_AJUSTES_COMPROMISOS,
         ],
         "readwrite",
       );
-      const solicitudResolucion = transaccion
-        .objectStore(ALMACEN_RESOLUCIONES_BLOQUES_PLANIFICACION)
-        .add(convertirResolucionBloquePlanificacionEnV1(resolucion));
-      const solicitudIngreso = transaccion
-        .objectStore(ALMACEN_TRANSACCIONES_PUNTOS)
-        .add(convertirTransaccionPuntosEnV1(ingreso));
+      let causaConflicto: unknown;
+      let solicitudResolucion: IDBRequest | undefined;
+      let solicitudIngreso: IDBRequest | undefined;
+      const solicitudAjuste = transaccion
+        .objectStore(ALMACEN_AJUSTES_COMPROMISOS)
+        .index(INDICE_AJUSTES_POR_BLOQUE)
+        .get(resolucion.bloqueId);
+      solicitudAjuste.onsuccess = () => {
+        if (solicitudAjuste.result) {
+          causaConflicto = new Error(
+            "El bloque fue excusado antes de registrar su cumplimiento.",
+          );
+          transaccion.abort();
+          return;
+        }
+        solicitudResolucion = transaccion
+          .objectStore(ALMACEN_RESOLUCIONES_BLOQUES_PLANIFICACION)
+          .add(convertirResolucionBloquePlanificacionEnV1(resolucion));
+        solicitudIngreso = transaccion
+          .objectStore(ALMACEN_TRANSACCIONES_PUNTOS)
+          .add(convertirTransaccionPuntosEnV1(ingreso));
+      };
 
       transaccion.oncomplete = () => resolve();
       transaccion.onabort = () => {
         const causa =
-          solicitudResolucion.error ??
-          solicitudIngreso.error ??
+          causaConflicto ??
+          solicitudResolucion?.error ??
+          solicitudIngreso?.error ??
           transaccion.error;
-        if (causa?.name === "ConstraintError") {
+        if (
+          causaConflicto ||
+          (causa instanceof DOMException && causa.name === "ConstraintError")
+        ) {
           reject(new ErrorConfirmacionBloqueConPuntosDuplicada(causa));
           return;
         }

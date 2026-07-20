@@ -97,7 +97,7 @@ export function PanelBilletera({ servicios, revision }: PanelBilleteraProps) {
           aria-label="Movimientos de puntos"
         >
           {estado.billetera.movimientos.map((movimiento) => (
-            <li key={movimiento.id}>
+            <li id={`movimiento-${movimiento.id}`} key={movimiento.id}>
               <div>
                 <strong>{movimiento.descripcion}</strong>
                 <span>{etiquetaFuente(movimiento.fuente.tipo)}</span>

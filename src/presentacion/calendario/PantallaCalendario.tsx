@@ -23,6 +23,7 @@ import type { ServiciosCalendario } from "./ServiciosCalendario";
 interface PantallaCalendarioProps {
   readonly servicios: ServiciosCalendario;
   readonly onPuntosCambiados?: () => void;
+  readonly revisionExterna?: number;
 }
 
 type EstadoCalendario =
@@ -36,6 +37,7 @@ const ID_CONTEXTO_LIBRE = "contexto-libre";
 export function PantallaCalendario({
   servicios,
   onPuntosCambiados,
+  revisionExterna = 0,
 }: PantallaCalendarioProps) {
   const botonCrearContextoRef = useRef<HTMLButtonElement>(null);
   const botonEliminarContextoRef = useRef<HTMLButtonElement>(null);
@@ -120,7 +122,15 @@ export function PantallaCalendario({
     return () => {
       activa = false;
     };
-  }, [diaSeleccionado, fechaAncla, revision, seleccion, servicios, vista]);
+  }, [
+    diaSeleccionado,
+    fechaAncla,
+    revision,
+    revisionExterna,
+    seleccion,
+    servicios,
+    vista,
+  ]);
 
   const actualizar = (mensajeActualizacion?: string) => {
     if (mensajeActualizacion) setMensaje(mensajeActualizacion);

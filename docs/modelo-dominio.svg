@@ -272,8 +272,8 @@
 
   <rect class="regla" x="72" y="1200" width="1454" height="76"/>
   <text class="regla-titulo" x="92" y="1226">Reglas transversales de historia, puntos y flexibilidad</text>
-  <text class="regla-texto" x="92" y="1250">Completar confirma resolución e ingreso juntos; la billetera rehidrata sus movimientos y deriva el saldo sin persistirlo por separado.</text>
-  <text class="regla-texto" x="92" y="1268">Un día libre futuro excusa todos los bloques flexibles personales elegibles y protege compromisos estrictos o externos.</text>
+  <text class="regla-texto" x="92" y="1250">Completar publica resolución e ingreso juntos. Canjear publica CanjeRecompensa, gasto y todos los AjusteCompromiso como una unidad.</text>
+  <text class="regla-texto" x="92" y="1268">Un día libre futuro excusa cada bloque flexible personal elegible; saldo, compromisos estrictos y plazos externos permanecen protegidos.</text>
 
   <line x1="60" y1="1347" x2="105" y2="1347" class="composicion"/>
   <text class="leyenda" x="116" y="1352">composición / control de ciclo</text>

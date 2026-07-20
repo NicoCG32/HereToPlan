@@ -1,6 +1,7 @@
 import {
   CasoDeUsoAsignarCortePlanificacion,
   CasoDeUsoAsignarActividad,
+  CasoDeUsoCanjearDiaLibre,
   CasoDeUsoConsultarCalendario,
   CasoDeUsoConsultarBilletera,
   CasoDeUsoCorregirCortePlanificacion,
@@ -15,13 +16,15 @@ import {
   CasoDeUsoInicializarContextosPlanificacion,
   CasoDeUsoListarAgendasBorrador,
   CasoDeUsoListarContextosPlanificacion,
+  CasoDeUsoListarCanjesDiaLibre,
   CasoDeUsoCompletarBloquePlanificacion,
   CasoDeUsoCompletarBloqueConPuntos,
   CasoDeUsoMarcarBloqueIncumplido,
+  CasoDeUsoPrepararCanjeDiaLibre,
   CasoDeUsoRevisarCortePlanificacion,
   CasoDeUsoSincronizarCortesPlanificacion,
 } from "../aplicacion";
-import { FormulaPuntosBloque } from "../dominio";
+import { DefinicionRecompensa, FormulaPuntosBloque } from "../dominio";
 import { RepositorioActividadesIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioActividadesIndexedDB";
 import { RepositorioAgendasIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioAgendasIndexedDB";
 import { RepositorioBloquesPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioBloquesPlanificacionIndexedDB";
@@ -32,17 +35,20 @@ import { RepositorioTransaccionesPuntosIndexedDB } from "../infraestructura/pers
 import { MigradorContextosDesdeAgendasIndexedDB } from "../infraestructura/persistencia/indexeddb/MigradorContextosDesdeAgendasIndexedDB";
 import { TransaccionEliminacionContextoPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionEliminacionContextoPlanificacionIndexedDB";
 import { TransaccionCompletarBloqueConPuntosIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionCompletarBloqueConPuntosIndexedDB";
+import { UnidadTrabajoCanjeDiaLibreIndexedDB } from "../infraestructura/persistencia/indexeddb/UnidadTrabajoCanjeDiaLibreIndexedDB";
 import { CalendarioLocalSistema } from "../infraestructura/sistema/CalendarioLocalSistema";
 import { GeneradorIdentificadoresUUID } from "../infraestructura/sistema/GeneradorIdentificadoresUUID";
 import { RelojSistema } from "../infraestructura/sistema/RelojSistema";
 import type { ServiciosAgendaBorrador } from "../presentacion/agendas/ServiciosAgendaBorrador";
 import type { ServiciosCalendario } from "../presentacion/calendario/ServiciosCalendario";
 import type { ServiciosPuntos } from "../presentacion/puntos/ServiciosPuntos";
+import type { ServiciosRecompensas } from "../presentacion/recompensas/ServiciosRecompensas";
 
 let servicios: ServiciosAgendaBorrador | undefined;
 let serviciosCalendario: ServiciosCalendario | undefined;
 let serviciosResolucionBloques: ServiciosResolucionBloques | undefined;
 let serviciosPuntos: ServiciosPuntos | undefined;
+let serviciosRecompensas: ServiciosRecompensas | undefined;
 let inicializacionPendiente: Promise<void> | undefined;
 let repositorioContextos:
   RepositorioContextosPlanificacionIndexedDB | undefined;
@@ -56,6 +62,7 @@ let repositorioTransaccionesPuntos:
   RepositorioTransaccionesPuntosIndexedDB | undefined;
 let transaccionEliminacion:
   TransaccionEliminacionContextoPlanificacionIndexedDB | undefined;
+let unidadTrabajoCanjeDiaLibre: UnidadTrabajoCanjeDiaLibreIndexedDB | undefined;
 
 export function inicializarAplicacion(): Promise<void> {
   if (!inicializacionPendiente) {
@@ -92,6 +99,38 @@ export function obtenerServiciosPuntos(): ServiciosPuntos {
     ),
   });
   return serviciosPuntos;
+}
+
+export function obtenerServiciosRecompensas(): ServiciosRecompensas {
+  if (serviciosRecompensas) return serviciosRecompensas;
+  const unidad = obtenerUnidadTrabajoCanjeDiaLibre();
+  const recompensa = crearDefinicionDiaLibre();
+  const dependenciasLectura = {
+    repositorioCortes: obtenerRepositorioCortes(),
+    repositorioResoluciones: obtenerRepositorioResoluciones(),
+    repositorioTransacciones: obtenerRepositorioTransaccionesPuntos(),
+    repositorioAjustes: unidad,
+    repositorioContextos: obtenerRepositorioContextos(),
+    calendarioLocal: new CalendarioLocalSistema(),
+    recompensa,
+  };
+  const generador = new GeneradorIdentificadoresUUID();
+  serviciosRecompensas = Object.freeze({
+    prepararDiaLibre: new CasoDeUsoPrepararCanjeDiaLibre(dependenciasLectura),
+    canjearDiaLibre: new CasoDeUsoCanjearDiaLibre({
+      ...dependenciasLectura,
+      repositorioCanjes: unidad,
+      unidadTrabajo: unidad,
+      reloj: new RelojSistema(),
+      generadorIdentificadores: generador,
+    }),
+    listarCanjes: new CasoDeUsoListarCanjesDiaLibre({
+      ...dependenciasLectura,
+      repositorioCanjes: unidad,
+    }),
+    generarOperacionId: () => generador.generar(),
+  });
+  return serviciosRecompensas;
 }
 
 export interface ServiciosResolucionBloques {
@@ -152,6 +191,7 @@ function crearServiciosCalendario(): ServiciosCalendario {
       cortes,
       resoluciones,
       new CalendarioLocalSistema(),
+      obtenerUnidadTrabajoCanjeDiaLibre(),
     ),
     revisarCorte: new CasoDeUsoRevisarCortePlanificacion(bloques, cortes),
     asignarCorte: new CasoDeUsoAsignarCortePlanificacion(
@@ -261,4 +301,20 @@ function obtenerTransaccionEliminacion(): TransaccionEliminacionContextoPlanific
   transaccionEliminacion ??=
     new TransaccionEliminacionContextoPlanificacionIndexedDB();
   return transaccionEliminacion;
+}
+
+function obtenerUnidadTrabajoCanjeDiaLibre(): UnidadTrabajoCanjeDiaLibreIndexedDB {
+  unidadTrabajoCanjeDiaLibre ??= new UnidadTrabajoCanjeDiaLibreIndexedDB();
+  return unidadTrabajoCanjeDiaLibre;
+}
+
+function crearDefinicionDiaLibre(): DefinicionRecompensa {
+  return new DefinicionRecompensa({
+    id: "dia-libre",
+    nombre: "Día libre",
+    descripcion:
+      "Excusa todos los compromisos flexibles personales elegibles de una fecha futura.",
+    costoPuntos: 1500,
+    tipoEfecto: "DIA_LIBRE",
+  });
 }

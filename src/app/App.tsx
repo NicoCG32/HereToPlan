@@ -7,28 +7,38 @@ import type { ServiciosCalendario } from "../presentacion/calendario/ServiciosCa
 import { useGradienteGlobal } from "../presentacion/hooks/useGradienteGlobal";
 import { PanelBilletera } from "../presentacion/puntos/PanelBilletera";
 import type { ServiciosPuntos } from "../presentacion/puntos/ServiciosPuntos";
+import { PanelDiaLibre } from "../presentacion/recompensas/PanelDiaLibre";
+import type { ServiciosRecompensas } from "../presentacion/recompensas/ServiciosRecompensas";
 import logoHereToPlan from "../presentacion/recursos/logos/HereToPlanLogo.svg";
 import {
   obtenerServiciosCalendario,
   obtenerServiciosPuntos,
+  obtenerServiciosRecompensas,
 } from "./configurarAplicacion";
 
 interface AppProps {
   readonly servicios?: ServiciosAgendaBorrador;
   readonly serviciosCalendario?: ServiciosCalendario;
   readonly serviciosPuntos?: ServiciosPuntos;
+  readonly serviciosRecompensas?: ServiciosRecompensas;
 }
 
 export function App({
   servicios,
   serviciosCalendario,
   serviciosPuntos,
+  serviciosRecompensas,
 }: AppProps) {
   useGradienteGlobal();
-  const [revisionPuntos, setRevisionPuntos] = useState(0);
+  const [revisionDatos, setRevisionDatos] = useState(0);
   const serviciosPuntosEfectivos =
     serviciosPuntos ??
     (!servicios && !serviciosCalendario ? obtenerServiciosPuntos() : undefined);
+  const serviciosRecompensasEfectivos =
+    serviciosRecompensas ??
+    (!servicios && !serviciosCalendario
+      ? obtenerServiciosRecompensas()
+      : undefined);
 
   return (
     <main className="contenedor-principal">
@@ -54,14 +64,23 @@ export function App({
         <>
           <PantallaCalendario
             servicios={serviciosCalendario ?? obtenerServiciosCalendario()}
+            revisionExterna={revisionDatos}
             onPuntosCambiados={() =>
-              setRevisionPuntos((revision) => revision + 1)
+              setRevisionDatos((revision) => revision + 1)
             }
           />
           {serviciosPuntosEfectivos && (
             <PanelBilletera
               servicios={serviciosPuntosEfectivos}
-              revision={revisionPuntos}
+              revision={revisionDatos}
+            />
+          )}
+          {serviciosRecompensasEfectivos && (
+            <PanelDiaLibre
+              servicios={serviciosRecompensasEfectivos}
+              onCanjeConfirmado={() =>
+                setRevisionDatos((revision) => revision + 1)
+              }
             />
           )}
         </>

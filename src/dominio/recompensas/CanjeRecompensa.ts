@@ -1,4 +1,5 @@
 import type { FechaLocal } from "../compartido/FechaLocal";
+import { ErrorDominio } from "../compartido/ErrorDominio";
 import type { Identificador } from "../compartido/tipos";
 import {
   copiarFecha,
@@ -36,11 +37,22 @@ export class CanjeRecompensa {
     );
     this._canjeadoEn = copiarFecha(datos.canjeadoEn, "fecha de canje");
     this.fechaObjetivo = datos.fechaObjetivo;
-    this.bloquesAfectados = new Set(
-      [...datos.bloquesAfectados].map((id) =>
-        exigirIdentificador(id, "identificador de bloque afectado"),
-      ),
+    const bloquesAfectados = [...datos.bloquesAfectados].map((id) =>
+      exigirIdentificador(id, "identificador de bloque afectado"),
     );
+    if (bloquesAfectados.length === 0) {
+      throw new ErrorDominio(
+        "CANJE_SIN_BLOQUES_AFECTADOS",
+        "Un canje de día libre debe afectar al menos un bloque.",
+      );
+    }
+    if (new Set(bloquesAfectados).size !== bloquesAfectados.length) {
+      throw new ErrorDominio(
+        "BLOQUES_CANJE_DUPLICADOS",
+        "Un canje no puede registrar dos veces el mismo bloque.",
+      );
+    }
+    this.bloquesAfectados = new Set(bloquesAfectados);
   }
 
   public get canjeadoEn(): Date {

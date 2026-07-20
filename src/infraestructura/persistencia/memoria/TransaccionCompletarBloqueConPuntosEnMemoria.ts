@@ -1,6 +1,7 @@
 import {
   ErrorConfirmacionBloqueConPuntosDuplicada,
   ErrorResolucionBloquePlanificacionDuplicada,
+  type RepositorioAjustesCompromisos,
   type RepositorioResolucionesBloquesPlanificacion,
   type TransaccionCompletarBloqueConPuntos,
 } from "../../../aplicacion";
@@ -17,6 +18,7 @@ export class TransaccionCompletarBloqueConPuntosEnMemoria implements Transaccion
 
   constructor(
     private readonly repositorioResoluciones: RepositorioResolucionesBloquesPlanificacion,
+    private readonly repositorioAjustes?: RepositorioAjustesCompromisos,
   ) {}
 
   public confirmar(
@@ -42,6 +44,12 @@ export class TransaccionCompletarBloqueConPuntosEnMemoria implements Transaccion
     resolucion: ResolucionBloquePlanificacion,
     ingreso: TransaccionPuntos,
   ): Promise<void> {
+    const ajustes = await this.repositorioAjustes?.listarAjustes();
+    if (ajustes?.some((ajuste) => ajuste.bloqueId === resolucion.bloqueId)) {
+      throw new ErrorConfirmacionBloqueConPuntosDuplicada(
+        new Error("El bloque ya fue excusado."),
+      );
+    }
     const billeteraValidada = new BilleteraPuntos();
     for (const transaccion of this.billetera.listarTransacciones()) {
       billeteraValidada.registrar(transaccion);
