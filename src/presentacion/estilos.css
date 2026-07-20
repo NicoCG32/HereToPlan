@@ -1935,6 +1935,58 @@ button:focus-visible {
   );
 }
 
+.ejecucion-bloque {
+  display: grid;
+  gap: 0.75rem;
+  min-width: min(100%, 22rem);
+}
+
+.control-cronometro {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.8rem;
+  border: 1px solid var(--borde-metalico, rgb(120 125 135 / 36%));
+  border-radius: 0.8rem;
+  background: linear-gradient(
+    120deg,
+    rgb(var(--diamante-blanco) / 62%),
+    rgb(var(--plata-brillante) / 44%)
+  );
+}
+
+.control-cronometro > div:first-child,
+.acciones-cronometro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+}
+
+.control-cronometro output {
+  min-width: 7.5ch;
+  color: var(--texto);
+  font:
+    700 1.05rem/1 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  letter-spacing: 0.06em;
+  text-align: right;
+}
+
+.estado-cronometro,
+.mensaje-cronometro,
+.control-cronometro .ayuda-campo {
+  margin: 0;
+  color: var(--texto-secundario);
+  font-size: 0.82rem;
+}
+
+.acciones-cronometro {
+  justify-content: flex-start;
+}
+
 .barra-acciones-agenda p {
   margin: 0;
   font-size: 0.8rem;

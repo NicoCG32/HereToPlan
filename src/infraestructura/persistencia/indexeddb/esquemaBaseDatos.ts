@@ -1,4 +1,4 @@
-export const VERSION_BASE_DATOS = 8;
+export const VERSION_BASE_DATOS = 9;
 export const ALMACEN_AGENDAS = "agendas";
 export const ALMACEN_ACTIVIDADES = "actividades";
 export const ALMACEN_CONTEXTOS = "contextos-planificacion";
@@ -13,6 +13,10 @@ export const ALMACEN_CANJES_RECOMPENSAS = "canjes-recompensas";
 export const ALMACEN_AJUSTES_COMPROMISOS = "ajustes-compromisos";
 export const INDICE_AJUSTES_POR_BLOQUE = "por-bloque-id";
 export const INDICE_AJUSTES_POR_CANJE = "por-canje-id";
+export const ALMACEN_SESIONES_CRONOMETRO = "sesiones-cronometro";
+export const INDICE_SESIONES_POR_BLOQUE = "por-bloque-id";
+export const INDICE_SESIONES_POR_OPERACION = "por-operacion-id";
+export const INDICE_SESION_ABIERTA = "por-sesion-abierta";
 
 export function asegurarAlmacenes(baseDatos: IDBDatabase): void {
   if (!baseDatos.objectStoreNames.contains(ALMACEN_AGENDAS)) {
@@ -71,6 +75,21 @@ export function asegurarAlmacenes(baseDatos: IDBDatabase): void {
     });
     almacen.createIndex(INDICE_AJUSTES_POR_CANJE, "canjeRecompensaId", {
       unique: false,
+    });
+  }
+  if (!baseDatos.objectStoreNames.contains(ALMACEN_SESIONES_CRONOMETRO)) {
+    const almacen = baseDatos.createObjectStore(ALMACEN_SESIONES_CRONOMETRO, {
+      keyPath: "id",
+    });
+    almacen.createIndex(INDICE_SESIONES_POR_BLOQUE, "bloqueId", {
+      unique: false,
+    });
+    almacen.createIndex(INDICE_SESIONES_POR_OPERACION, "operacionesIds", {
+      unique: true,
+      multiEntry: true,
+    });
+    almacen.createIndex(INDICE_SESION_ABIERTA, "claveAbierta", {
+      unique: true,
     });
   }
 }

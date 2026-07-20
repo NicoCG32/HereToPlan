@@ -286,6 +286,21 @@ async function crearEntorno(
       resoluciones,
       reloj,
     ),
+    consultarCronometro: {
+      ejecutar: (bloqueId: string) =>
+        Promise.resolve({
+          bloqueId,
+          consultadoEn: reloj.ahora().toISOString(),
+          sesiones: [],
+          duracionTotalMilisegundos: 0,
+        }),
+    },
+    gestionarCronometro: {
+      ejecutar: () =>
+        Promise.reject(
+          new Error("El cronómetro no forma parte de este escenario."),
+        ),
+    },
     generarOperacionId: () => generadorOperaciones.generar(),
   };
 

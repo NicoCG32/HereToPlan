@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1390" viewBox="0 0 1600 1390" role="img" aria-labelledby="titulo descripcion">
   <title id="titulo">HereToPlan — Modelo de dominio implementado</title>
-  <desc id="descripcion">Diagrama de entidades y relaciones entre actividades, contextos, bloques editables, cortes confirmables, resoluciones históricas, puntos y recompensas.</desc>
+  <desc id="descripcion">Diagrama de entidades y relaciones entre actividades, planificación, sesiones de cronómetro, resoluciones, puntos y recompensas.</desc>
   <defs>
     <filter id="sombra" x="-10%" y="-10%" width="120%" height="130%">
       <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.12"/>
@@ -47,7 +47,7 @@
 
   <rect class="fondo" width="1600" height="1280"/>
   <text class="titulo" x="54" y="54">HereToPlan — Modelo de dominio implementado</text>
-  <text class="subtitulo" x="54" y="82">Los contextos organizan; los bloques planifican; los cortes gobiernan revisión, gracia y confirmación.</text>
+  <text class="subtitulo" x="54" y="82">Los contextos organizan; los cortes confirman; las sesiones miden sin decidir el resultado.</text>
 
   <rect class="grupo" x="40" y="112" width="455" height="720"/>
   <text class="grupo-titulo" x="64" y="143">Catálogo de actividades</text>
@@ -153,59 +153,65 @@
   <text class="multiplicidad" x="530" y="496">0..*</text>
 
   <rect class="grupo" x="1075" y="112" width="485" height="720"/>
-  <text class="grupo-titulo" x="1099" y="143">Compromisos e historia</text>
-  <text class="grupo-subtitulo" x="1099" y="164">Hechos confirmados y registro legado preservado</text>
+  <text class="grupo-titulo" x="1099" y="143">Ejecución, compromisos e historia</text>
+  <text class="grupo-subtitulo" x="1099" y="164">Medición opcional y hechos históricos independientes</text>
 
-  <g transform="translate(1110 190)">
-    <rect class="clase historia" width="415" height="148"/>
-    <path class="cabecera-historia" d="M10 0 H405 A10 10 0 0 1 415 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
+  <g transform="translate(1110 185)">
+    <rect class="clase historia" width="415" height="108"/>
+    <path class="cabecera-historia" d="M10 0 H405 A10 10 0 0 1 415 10 V42 H0 V10 A10 10 0 0 1 10 0"/>
     <text class="estereotipo" x="16" y="18">«RAÍZ DE AGREGADO LEGADA»</text>
-    <text class="nombre" x="16" y="40">Agenda</text>
-    <text class="atributo" x="16" y="72">id · nombre · rango</text>
-    <text class="atributo" x="16" y="94">estado: BORRADOR | CONFIRMADA | FINALIZADA</text>
-    <text class="atributo" x="16" y="116">confirmadaEn / finalizadaEn: Date?</text>
-    <text class="atributo" x="16" y="138">controla el ciclo histórico de sus bloques</text>
+    <text class="nombre" x="16" y="35">Agenda</text>
+    <text class="atributo" x="16" y="64">id · nombre · rango</text>
+    <text class="atributo" x="16" y="84">estado: BORRADOR | CONFIRMADA | FINALIZADA</text>
+    <text class="atributo" x="16" y="102">confirmadaEn / finalizadaEn: Date?</text>
   </g>
 
-  <g transform="translate(1110 392)">
-    <rect class="clase historia" width="415" height="166"/>
-    <path class="cabecera-historia" d="M10 0 H405 A10 10 0 0 1 415 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
-    <text class="estereotipo" x="16" y="18">«ENTIDAD HISTÓRICA»</text>
-    <text class="nombre" x="16" y="40">BloqueTrabajo</text>
-    <text class="atributo" x="16" y="72">actividadId · fecha · minutosPlanificados</text>
-    <text class="atributo" x="16" y="94">estado: PENDIENTE | COMPLETADO</text>
-    <text class="atributo" x="16" y="116">| INCUMPLIDO | EXCUSADO</text>
-    <text class="atributo" x="16" y="138">politica efectiva · resueltoEn: Date?</text>
-    <text class="atributo" x="16" y="158">inmutable después de confirmar</text>
-  </g>
-
-  <g transform="translate(1110 610)">
-    <rect class="clase historia" width="415" height="94"/>
+  <g transform="translate(1110 315)">
+    <rect class="clase historia" width="415" height="120"/>
     <path class="cabecera-historia" d="M10 0 H405 A10 10 0 0 1 415 10 V42 H0 V10 A10 10 0 0 1 10 0"/>
     <text class="estereotipo" x="16" y="18">«ENTIDAD HISTÓRICA»</text>
-    <text class="nombre" x="16" y="35">AjusteCompromiso</text>
-    <text class="atributo" x="16" y="64">bloqueId · canjeRecompensaId · tipo</text>
-    <text class="atributo" x="16" y="84">aplicadoEn: Date</text>
+    <text class="nombre" x="16" y="35">BloqueTrabajo</text>
+    <text class="atributo" x="16" y="64">actividadId · fecha · minutosPlanificados</text>
+    <text class="atributo" x="16" y="84">estado: PENDIENTE | COMPLETADO</text>
+    <text class="atributo" x="16" y="102">| INCUMPLIDO | EXCUSADO</text>
+    <text class="atributo" x="16" y="116">inmutable después de confirmar</text>
   </g>
 
-  <path class="composicion" d="M1317 340 V390"/>
-  <text class="relacion-etiqueta" x="1332" y="372">contiene</text>
-  <text class="multiplicidad" x="1326" y="352">1</text>
-  <text class="multiplicidad" x="1326" y="389">0..*</text>
-  <path class="relacion" d="M1317 560 V608"/>
-  <text class="relacion-etiqueta" x="1332" y="591">registra 0..*</text>
+  <g transform="translate(1110 458)">
+    <rect class="clase historia" width="415" height="82"/>
+    <path class="cabecera-historia" d="M10 0 H405 A10 10 0 0 1 415 10 V38 H0 V10 A10 10 0 0 1 10 0"/>
+    <text class="estereotipo" x="16" y="17">«HECHO HISTÓRICO»</text>
+    <text class="nombre" x="16" y="33">AjusteCompromiso</text>
+    <text class="atributo" x="16" y="58">bloqueId · canjeRecompensaId · tipo</text>
+    <text class="atributo" x="16" y="76">aplicadoEn: Date</text>
+  </g>
 
-  <g transform="translate(1110 720)">
-    <rect class="clase historia" width="415" height="96"/>
+  <g transform="translate(1110 565)">
+    <rect class="clase historia" width="415" height="82"/>
+    <path class="cabecera-historia" d="M10 0 H405 A10 10 0 0 1 415 10 V38 H0 V10 A10 10 0 0 1 10 0"/>
+    <text class="estereotipo" x="16" y="17">«HECHO HISTÓRICO»</text>
+    <text class="nombre" x="16" y="33">ResolucionBloquePlanificacion</text>
+    <text class="atributo" x="16" y="58">bloqueId · operacionId · resultado</text>
+    <text class="atributo" x="16" y="76">resueltoEn: Date</text>
+  </g>
+
+  <g transform="translate(1110 675)">
+    <rect class="clase historia" width="415" height="125"/>
     <path class="cabecera-historia" d="M10 0 H405 A10 10 0 0 1 415 10 V42 H0 V10 A10 10 0 0 1 10 0"/>
-    <text class="estereotipo" x="16" y="18">«HECHO HISTÓRICO»</text>
-    <text class="nombre" x="16" y="35">ResolucionBloquePlanificacion</text>
-    <text class="atributo" x="16" y="64">bloqueId · operacionId · resultado</text>
-    <text class="atributo" x="16" y="84">resueltoEn: Date</text>
+    <text class="estereotipo" x="16" y="18">«RAÍZ DE AGREGADO»</text>
+    <text class="nombre" x="16" y="35">SesionCronometro</text>
+    <text class="atributo" x="16" y="64">id · bloqueId · revision</text>
+    <text class="atributo" x="16" y="84">estado: ACTIVA | PAUSADA | FINALIZADA</text>
+    <text class="atributo" x="16" y="104">operaciones[1..*] · instantes UTC</text>
+    <text class="atributo" x="16" y="120">duracion efectiva «derivada»</text>
   </g>
 
-  <path class="relacion" d="M1017 746 H1060 V768 H1108"/>
-  <text class="relacion-etiqueta" x="1024" y="735">resuelve bloque confirmado</text>
+  <path class="composicion" d="M1317 295 V313"/>
+  <path class="relacion" d="M1317 437 V456"/>
+  <path class="relacion" d="M1017 690 H1060 V606 H1108"/>
+  <text class="relacion-etiqueta" x="1024" y="679">resuelve bloque confirmado</text>
+  <path class="relacion" d="M1017 746 H1108"/>
+  <text class="relacion-etiqueta" x="1024" y="735">mide bloque confirmado</text>
 
   <rect class="grupo" x="40" y="862" width="1520" height="440"/>
   <text class="grupo-titulo" x="64" y="893">Puntos y recompensas</text>
@@ -257,7 +263,7 @@
   <text class="relacion-etiqueta" x="1128" y="999">materializa</text>
   <path class="relacion" d="M1186 1056 V1095 H590 V1080"/>
   <text class="relacion-etiqueta" x="848" y="1091">genera gasto</text>
-  <path class="relacion" d="M1356 944 V830 H1318 V706"/>
+  <path class="relacion" d="M1356 944 V830 H1540 V499 H1527"/>
   <text class="relacion-etiqueta" x="1368" y="856">autoriza ajustes</text>
 
   <g transform="translate(800 1100)">
@@ -271,9 +277,9 @@
   <text class="relacion-etiqueta" x="532" y="1134">calcula ingreso al completar</text>
 
   <rect class="regla" x="72" y="1200" width="1454" height="76"/>
-  <text class="regla-titulo" x="92" y="1226">Reglas transversales de historia, puntos y flexibilidad</text>
+  <text class="regla-titulo" x="92" y="1226">Reglas transversales de ejecución, historia, puntos y flexibilidad</text>
   <text class="regla-texto" x="92" y="1250">Completar publica resolución e ingreso juntos. Canjear publica CanjeRecompensa, gasto y todos los AjusteCompromiso como una unidad.</text>
-  <text class="regla-texto" x="92" y="1268">Un día libre futuro excusa cada bloque flexible personal elegible; saldo, compromisos estrictos y plazos externos permanecen protegidos.</text>
+  <text class="regla-texto" x="92" y="1268">Cronometrar es opcional y detener no resuelve. Día libre sólo excusa bloques flexibles personales elegibles; lo protegido permanece intacto.</text>
 
   <line x1="60" y1="1347" x2="105" y2="1347" class="composicion"/>
   <text class="leyenda" x="116" y="1352">composición / control de ciclo</text>

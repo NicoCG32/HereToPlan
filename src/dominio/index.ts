@@ -35,3 +35,5 @@ export * from "./recompensas/DefinicionRecompensa";
 export * from "./recompensas/ServicioCanjeRecompensas";
 export * from "./recompensas/ServicioDiaLibrePlanificacion";
 export * from "./recompensas/tipos";
+
+export * from "./cronometro/SesionCronometro";

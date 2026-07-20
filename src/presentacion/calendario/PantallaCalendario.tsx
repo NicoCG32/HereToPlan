@@ -18,6 +18,7 @@ import { FormularioActividadCalendario } from "./FormularioActividadCalendario";
 import { FormularioBloqueCalendario } from "./FormularioBloqueCalendario";
 import { FormularioContextoNombrado } from "./FormularioContextoNombrado";
 import { PanelGraciaPlanificacion } from "./PanelGraciaPlanificacion";
+import { ControlCronometroBloque } from "./ControlCronometroBloque";
 import type { ServiciosCalendario } from "./ServiciosCalendario";
 
 interface PantallaCalendarioProps {
@@ -684,6 +685,9 @@ export function PantallaCalendario({
         }}
         onQuitar={(bloque) => void quitarBloque(bloque)}
         onResolver={abrirResolucion}
+        servicios={servicios}
+        revisionCronometro={revision}
+        onCronometroCambio={actualizar}
       />
 
       {impactoEliminacion && (
@@ -924,6 +928,9 @@ function VistaListaBloques({
   onEditar,
   onQuitar,
   onResolver,
+  servicios,
+  revisionCronometro,
+  onCronometroCambio,
 }: {
   readonly bloques: readonly BloqueCalendarioDto[];
   readonly bloquesSeleccionados: readonly string[];
@@ -938,6 +945,9 @@ function VistaListaBloques({
     accion: AccionResolucionBloque,
     origen: HTMLButtonElement,
   ) => void;
+  readonly servicios: ServiciosCalendario;
+  readonly revisionCronometro: number;
+  readonly onCronometroCambio: (mensaje: string) => void;
 }) {
   return (
     <section
@@ -1035,27 +1045,46 @@ function VistaListaBloques({
                 </div>
               )}
               {!bloque.editable &&
-                bloque.estado === "PENDIENTE" &&
                 bloque.proteccion?.estado === "CONFIRMADA" && (
-                  <div className="acciones-bloque acciones-resolucion-bloque">
-                    <button
-                      className="boton-texto"
-                      type="button"
-                      onClick={(evento) =>
-                        onResolver(bloque, "COMPLETAR", evento.currentTarget)
-                      }
-                    >
-                      Completar {bloque.titulo}
-                    </button>
-                    <button
-                      className="boton-texto boton-peligro"
-                      type="button"
-                      onClick={(evento) =>
-                        onResolver(bloque, "INCUMPLIR", evento.currentTarget)
-                      }
-                    >
-                      Marcar incumplido {bloque.titulo}
-                    </button>
+                  <div className="ejecucion-bloque">
+                    <ControlCronometroBloque
+                      bloqueId={bloque.id}
+                      titulo={bloque.titulo}
+                      permitirInicio={bloque.estado === "PENDIENTE"}
+                      servicios={servicios}
+                      revision={revisionCronometro}
+                      onCambio={onCronometroCambio}
+                    />
+                    {bloque.estado === "PENDIENTE" && (
+                      <div className="acciones-bloque acciones-resolucion-bloque">
+                        <button
+                          className="boton-texto"
+                          type="button"
+                          onClick={(evento) =>
+                            onResolver(
+                              bloque,
+                              "COMPLETAR",
+                              evento.currentTarget,
+                            )
+                          }
+                        >
+                          Completar {bloque.titulo}
+                        </button>
+                        <button
+                          className="boton-texto boton-peligro"
+                          type="button"
+                          onClick={(evento) =>
+                            onResolver(
+                              bloque,
+                              "INCUMPLIR",
+                              evento.currentTarget,
+                            )
+                          }
+                        >
+                          Marcar incumplido {bloque.titulo}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
             </li>

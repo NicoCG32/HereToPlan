@@ -14,6 +14,8 @@ import type {
   CasoDeUsoMarcarBloqueIncumplido,
   CasoDeUsoRevisarCortePlanificacion,
   CasoDeUsoSincronizarCortesPlanificacion,
+  CasoDeUsoConsultarCronometroBloque,
+  CasoDeUsoGestionarSesionCronometro,
 } from "../../aplicacion";
 
 export interface ServiciosCalendario {
@@ -48,6 +50,14 @@ export interface ServiciosCalendario {
   readonly completarBloque: Pick<CasoDeUsoCompletarBloqueConPuntos, "ejecutar">;
   readonly marcarBloqueIncumplido: Pick<
     CasoDeUsoMarcarBloqueIncumplido,
+    "ejecutar"
+  >;
+  readonly consultarCronometro: Pick<
+    CasoDeUsoConsultarCronometroBloque,
+    "ejecutar"
+  >;
+  readonly gestionarCronometro: Pick<
+    CasoDeUsoGestionarSesionCronometro,
     "ejecutar"
   >;
   readonly generarOperacionId: () => string;

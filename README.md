@@ -24,6 +24,8 @@ Esta base permite explorar, entre otras, las siguientes reglas:
 - los movimientos de puntos son trazables y no permiten un saldo negativo;
 - el canje de un día libre muestra su efecto antes de confirmar y persiste
   gasto, ajustes e historial como una sola operación.
+- el cronómetro es opcional, conserva sus sesiones entre recargas y no sustituye
+  la declaración humana que completa o incumple un bloque.
 
 El repositorio crecerá mediante incrementos funcionales verificables. Las decisiones documentadas constituyen la base vigente del proyecto, aunque podrán revisarse cuando la evidencia de uso revele una alternativa mejor.
 
@@ -155,8 +157,10 @@ reward `Día libre`. El recorrido principal permite:
   ingresos, gastos y la fuente semántica de cada operación;
 - previsualizar un Día libre, distinguir bloques afectados y protegidos, y
   confirmar atómicamente el canje con enlaces a su origen histórico;
-- recuperar contextos, actividades y bloques desde IndexedDB después de
-  recargar.
+- iniciar, pausar, reanudar y detener sesiones opcionales cuya duración se
+  deriva de instantes persistidos, sin completar automáticamente el bloque;
+- recuperar contextos, actividades, bloques y sesiones de cronómetro desde
+  IndexedDB después de recargar.
 
 El catálogo persistente de actividades distingue tareas simples, tareas compuestas, proyectos y hábitos. Las actividades existen independientemente del calendario: solo aparecen en una fecha después de asignarlas mediante un bloque de trabajo.
 

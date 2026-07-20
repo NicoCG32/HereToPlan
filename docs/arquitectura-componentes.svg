@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" role="img" aria-labelledby="titulo descripcion">
   <title id="titulo">HereToPlan — Arquitectura hexagonal implementada</title>
-  <desc id="descripcion">Diagrama de componentes de React, casos de uso, dominio, puertos, adaptadores IndexedDB, servicios del sistema y raíz de composición.</desc>
+  <desc id="descripcion">Diagrama de componentes de React, casos de uso, dominio, puertos, persistencia de sesiones y adaptadores del navegador.</desc>
   <defs>
     <filter id="sombra" x="-10%" y="-10%" width="120%" height="130%">
       <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.12"/>
@@ -83,7 +83,7 @@
     <text class="detalle" x="18" y="82">• calendario general: día, semana y mes</text>
     <text class="detalle" x="18" y="106">• panel de siete días y lista equivalente</text>
     <text class="detalle" x="18" y="130">• selección, revisión, asignación y corrección</text>
-    <text class="detalle" x="18" y="154">• resolución, billetera, Rewards e historial</text>
+    <text class="detalle" x="18" y="154">• resolución, cronómetro, Rewards e historial</text>
     <text class="detalle" x="18" y="181">Sólo conoce DTO y puertos de entrada.</text>
     <text class="codigo" x="18" y="212">src/presentacion</text>
   </g>
@@ -107,7 +107,7 @@
     <text class="detalle" x="18" y="106">• asignar, editar y quitar bloques</text>
     <text class="detalle" x="18" y="130">• revisar, asignar, corregir y sincronizar cortes</text>
     <text class="detalle" x="18" y="154">• proyectar calendario; eliminar contexto</text>
-    <text class="detalle" x="18" y="178">• completar, acreditar, previsualizar y canjear</text>
+    <text class="detalle" x="18" y="178">• medir, completar, acreditar y canjear</text>
     <text class="detalle" x="18" y="198">Orquestan reglas y límites transaccionales.</text>
     <text class="codigo" x="18" y="220">src/aplicacion</text>
   </g>
@@ -119,7 +119,7 @@
     <text class="nombre" x="18" y="42">Modelo de dominio</text>
     <text class="detalle" x="18" y="82">• actividades, tareas y hábitos</text>
     <text class="detalle" x="18" y="106">• contextos y planificación editable</text>
-    <text class="detalle" x="18" y="130">• cortes y resoluciones históricas</text>
+    <text class="detalle" x="18" y="130">• cortes, sesiones y resoluciones históricas</text>
     <text class="detalle" x="18" y="154">• políticas, puntos y recompensas</text>
     <text class="detalle" x="18" y="181">Sin dependencias de React ni IndexedDB.</text>
     <text class="codigo" x="18" y="212">src/dominio</text>
@@ -132,7 +132,7 @@
     <text class="nombre" x="18" y="42">Contratos requeridos</text>
     <text class="detalle" x="18" y="82">RepositorioContextos · RepositorioActividades</text>
     <text class="detalle" x="18" y="106">RepositorioBloques · RepositorioCortes</text>
-    <text class="detalle" x="18" y="130">Repositorios: resoluciones · agendas · transacciones de puntos</text>
+    <text class="detalle" x="18" y="130">Repositorios: resoluciones · sesiones · puntos</text>
     <text class="detalle" x="18" y="154">TransaccionEliminacionContextoPlanificacion</text>
     <text class="detalle" x="18" y="178">TransaccionCompletar · UnidadTrabajoCanje · Reloj · UUID</text>
     <text class="codigo" x="18" y="226">src/aplicacion/puertos</text>
@@ -156,14 +156,14 @@
     <rect class="componente datos" width="400" height="238"/>
     <path class="cabecera-datos" d="M12 0 H388 A12 12 0 0 1 400 12 V52 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«ALMACENAMIENTO LOCAL»</text>
-    <text class="nombre" x="18" y="42">IndexedDB v8 · here-to-plan</text>
+    <text class="nombre" x="18" y="42">IndexedDB v9 · here-to-plan</text>
     <text class="detalle" x="18" y="82">contextos · actividades · agendas</text>
     <text class="detalle" x="18" y="106">bloques-planificacion · cortes-planificacion</text>
     <text class="detalle" x="18" y="130">resoluciones-bloques · ResolucionV1</text>
     <text class="detalle" x="18" y="154">transacciones-puntos · TransaccionPuntosV1</text>
-    <text class="detalle" x="18" y="178">canjes-recompensas · CanjeRecompensaV1</text>
-    <text class="detalle" x="18" y="202">ajustes-compromisos · AjusteCompromisoV1</text>
-    <text class="detalle" x="18" y="226">Datos versionados rehidratables.</text>
+    <text class="detalle" x="18" y="178">canjes-recompensas · ajustes-compromisos</text>
+    <text class="detalle" x="18" y="202">sesiones-cronometro · SesionCronometroV1</text>
+    <text class="detalle" x="18" y="226">Registros versionados rehidratables.</text>
   </g>
 
   <path class="flujo" d="M192 515 H298"/>

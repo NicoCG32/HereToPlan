@@ -20,6 +20,7 @@ dominio/
 ├── agendas/
 ├── contextos/
 ├── compromisos/
+├── cronometro/
 ├── planificacion/
 ├── puntos/
 ├── recompensas/
@@ -196,6 +197,24 @@ Agenda y actividad pueden proponer políticas predeterminadas. La política efec
 
 `AjusteCompromiso` registra la autorización histórica que modifica un bloque. Actualmente está implementado `EXCUSAR`, utilizado por el día libre. Los tipos `REPROGRAMAR`, `EXTENDER_PLAZO` y `REDUCIR_CARGA` forman parte del modelo de extensión, pero todavía no poseen comportamiento.
 
+### `cronometro`
+
+`SesionCronometro` registra medición temporal opcional para un bloque
+confirmado. Sus estados son `ACTIVA`, `PAUSADA` y `FINALIZADA`; las transiciones
+válidas son iniciar, pausar, reanudar y detener. Una sesión finalizada no se
+reabre.
+
+La sesión conserva operaciones identificadas y fechadas, no segundos
+acumulados. Los intervalos se derivan de la secuencia y la duración efectiva se
+calcula como la suma de cada tramo activo. Por ello suspender la pestaña o
+recargar la aplicación no altera la medición. Una orden idéntica es idempotente;
+reutilizar su identificador para otra transición se rechaza.
+
+Sólo puede existir una sesión abierta en la aplicación, aunque esté pausada.
+Cada bloque puede acumular varias sesiones finalizadas. Detener una sesión no
+crea una `ResolucionBloquePlanificacion`: completar o incumplir sigue siendo una
+declaración humana separada y el cronómetro nunca es obligatorio.
+
 ### `puntos`
 
 `BilleteraPuntos` deriva su saldo desde `TransaccionPuntos`.
@@ -269,6 +288,8 @@ La recompensa `DIA_LIBRE`:
 8. El saldo de puntos nunca es negativo.
 9. El mismo hecho no genera dos movimientos de puntos.
 10. Un canje no altera el estado hasta que la capa de aplicación aplica su resultado.
+11. Sólo existe una sesión de cronómetro abierta y cada transición conserva orden temporal.
+12. Detener el cronómetro no resuelve ni acredita un bloque.
 
 ## 5. Capacidades todavía no implementadas
 
@@ -277,7 +298,6 @@ El modelo y sus adaptadores aún deben incorporar:
 - reglas internas de tareas compuestas y proyectos;
 - recurrencia completa de hábitos;
 - plantillas de agenda;
-- cronómetro;
 - banco de recuperación;
 - extensión de plazos;
 - reducción de carga;
@@ -295,7 +315,7 @@ La base permite crecer sin romper la regla central:
 - nuevos ajustes pueden implementarse dentro de `BloqueTrabajo.validarAjuste`;
 - nuevas recompensas pueden producir otros tipos de ajuste;
 - la capa de aplicación coordina transacciones atómicas entre agregados;
-- infraestructura rehidrata agendas, billeteras, canjes y ajustes mediante
+- infraestructura rehidrata agendas, billeteras, canjes, ajustes y sesiones mediante
   registros versionados;
 - las vistas de los agregados pueden convertirse en DTO persistibles.
 

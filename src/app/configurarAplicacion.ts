@@ -23,6 +23,8 @@ import {
   CasoDeUsoPrepararCanjeDiaLibre,
   CasoDeUsoRevisarCortePlanificacion,
   CasoDeUsoSincronizarCortesPlanificacion,
+  CasoDeUsoConsultarCronometroBloque,
+  CasoDeUsoGestionarSesionCronometro,
 } from "../aplicacion";
 import { DefinicionRecompensa, FormulaPuntosBloque } from "../dominio";
 import { RepositorioActividadesIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioActividadesIndexedDB";
@@ -36,6 +38,7 @@ import { MigradorContextosDesdeAgendasIndexedDB } from "../infraestructura/persi
 import { TransaccionEliminacionContextoPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionEliminacionContextoPlanificacionIndexedDB";
 import { TransaccionCompletarBloqueConPuntosIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionCompletarBloqueConPuntosIndexedDB";
 import { UnidadTrabajoCanjeDiaLibreIndexedDB } from "../infraestructura/persistencia/indexeddb/UnidadTrabajoCanjeDiaLibreIndexedDB";
+import { RepositorioSesionesCronometroIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioSesionesCronometroIndexedDB";
 import { CalendarioLocalSistema } from "../infraestructura/sistema/CalendarioLocalSistema";
 import { GeneradorIdentificadoresUUID } from "../infraestructura/sistema/GeneradorIdentificadoresUUID";
 import { RelojSistema } from "../infraestructura/sistema/RelojSistema";
@@ -63,6 +66,8 @@ let repositorioTransaccionesPuntos:
 let transaccionEliminacion:
   TransaccionEliminacionContextoPlanificacionIndexedDB | undefined;
 let unidadTrabajoCanjeDiaLibre: UnidadTrabajoCanjeDiaLibreIndexedDB | undefined;
+let repositorioSesionesCronometro:
+  RepositorioSesionesCronometroIndexedDB | undefined;
 
 export function inicializarAplicacion(): Promise<void> {
   if (!inicializacionPendiente) {
@@ -176,6 +181,8 @@ function crearServiciosCalendario(): ServiciosCalendario {
   const reloj = new RelojSistema();
   const generador = new GeneradorIdentificadoresUUID();
   const eliminacion = obtenerTransaccionEliminacion();
+  const sesionesCronometro = obtenerRepositorioSesionesCronometro();
+  const ajustes = obtenerUnidadTrabajoCanjeDiaLibre();
   return Object.freeze({
     crearContexto: new CasoDeUsoCrearContextoNombrado(
       contextos,
@@ -191,7 +198,7 @@ function crearServiciosCalendario(): ServiciosCalendario {
       cortes,
       resoluciones,
       new CalendarioLocalSistema(),
-      obtenerUnidadTrabajoCanjeDiaLibre(),
+      ajustes,
     ),
     revisarCorte: new CasoDeUsoRevisarCortePlanificacion(bloques, cortes),
     asignarCorte: new CasoDeUsoAsignarCortePlanificacion(
@@ -238,6 +245,18 @@ function crearServiciosCalendario(): ServiciosCalendario {
       resoluciones,
       reloj,
     ),
+    consultarCronometro: new CasoDeUsoConsultarCronometroBloque(
+      sesionesCronometro,
+      reloj,
+    ),
+    gestionarCronometro: new CasoDeUsoGestionarSesionCronometro({
+      repositorioSesiones: sesionesCronometro,
+      repositorioCortes: cortes,
+      repositorioResoluciones: resoluciones,
+      repositorioAjustes: ajustes,
+      reloj,
+      generadorIdentificadores: generador,
+    }),
     generarOperacionId: () => generador.generar(),
   });
 }
@@ -306,6 +325,12 @@ function obtenerTransaccionEliminacion(): TransaccionEliminacionContextoPlanific
 function obtenerUnidadTrabajoCanjeDiaLibre(): UnidadTrabajoCanjeDiaLibreIndexedDB {
   unidadTrabajoCanjeDiaLibre ??= new UnidadTrabajoCanjeDiaLibreIndexedDB();
   return unidadTrabajoCanjeDiaLibre;
+}
+
+function obtenerRepositorioSesionesCronometro(): RepositorioSesionesCronometroIndexedDB {
+  repositorioSesionesCronometro ??=
+    new RepositorioSesionesCronometroIndexedDB();
+  return repositorioSesionesCronometro;
 }
 
 function crearDefinicionDiaLibre(): DefinicionRecompensa {

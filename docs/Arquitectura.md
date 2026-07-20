@@ -142,6 +142,7 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 - completar o incumplir un bloque;
 - consultar agenda e historial;
 - preparar y confirmar un canje de recompensa.
+- iniciar, pausar, reanudar, detener y consultar sesiones de cronómetro.
 
 ### Puertos de salida
 
@@ -151,6 +152,7 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 - repositorio de resoluciones de bloques;
 - repositorio de billetera y transacciones;
 - repositorio de canjes;
+- repositorio de sesiones de cronómetro;
 - unidad de trabajo para confirmación atómica;
 - reloj;
 - generador de identificadores;
@@ -334,6 +336,13 @@ La versión 8 añade `canjes-recompensas` y `ajustes-compromisos`. El primer
 almacén conserva cada compra histórica; el segundo usa un índice único por
 `bloqueId` y otro no único por `canjeRecompensaId`. La migración es aditiva y no
 reescribe movimientos, cortes ni resoluciones existentes.
+
+La versión 9 añade `sesiones-cronometro`. Cada `SesionCronometroV1` conserva
+una secuencia versionada de órdenes con instantes ISO UTC. Un índice no único
+por `bloqueId` permite reconstruir su historial; un índice único multivalor por
+identificador de operación sostiene la idempotencia entre sesiones; y una clave
+única `ABIERTA`, ausente al finalizar, impide mantener dos sesiones abiertas.
+La actualización sólo incorpora el almacén y conserva íntegros los datos v8.
 
 `InicializarContextosPlanificacion` garantiza una sola instancia de `Libre` de
 forma idempotente. La raíz de composición ejecuta este caso de uso antes de
@@ -569,6 +578,25 @@ del canje: un reintento idéntico recupera el hecho ganador y uno contradictorio
 se informa como conflicto. React sólo abre la confirmación y representa el
 resultado; la atomicidad y la idempotencia permanecen fuera de presentación.
 
+### 6.14. Cronómetro recuperable e idempotente
+
+`SesionCronometro` modela `ACTIVA`, `PAUSADA` y `FINALIZADA` mediante órdenes
+`INICIAR`, `PAUSAR`, `REANUDAR` y `DETENER`. No persiste un contador mutable:
+reconstruye intervalos y calcula la duración efectiva desde los instantes. Una
+orden idéntica repetida no incrementa la revisión; reutilizar su identificador
+con otro tipo o destino produce conflicto.
+
+`GestionarSesionCronometro` sólo inicia sesiones para instantáneas confirmadas
+que continúan pendientes. El puerto `RepositorioSesionesCronometro` aplica
+control optimista de revisión y ofrece búsquedas por sesión, bloque, operación y
+sesión abierta. Sus adaptadores en memoria e IndexedDB serializan escrituras,
+rechazan dos sesiones abiertas y conservan el mismo contrato tras una recarga.
+
+React actualiza localmente la representación del tiempo, pero no acumula la
+duración autoritativa ni anuncia cada segundo a tecnologías de asistencia. Los
+controles disponibles dependen del estado recuperado. Detener sólo finaliza la
+medición: completar o incumplir continúa siendo una orden humana independiente.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 Los cortes confirmados, `BilleteraPuntos` y el historial de recompensas poseen
@@ -590,6 +618,7 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 - `Agenda` controla el ciclo de vida de sus bloques y ajustes.
 - `CortePlanificacion` controla revisión, gracia y confirmación de una selección explícita de bloques sin absorber el contexto visible.
+- `SesionCronometro` controla medición e intervalos sin decidir el resultado del bloque.
 - Un bloque confirmado no se modifica mediante referencias externas.
 - `BilleteraPuntos` deriva su saldo de transacciones y protege la unicidad semántica.
 - Los servicios de dominio calculan decisiones; no acceden a almacenamiento ni controlan transacciones técnicas.
@@ -600,14 +629,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                   |
-| --------------- | ------------------------------------------------------------------------------- |
-| Dominio         | Planificación, resoluciones, economía y elegibilidad protegidas por invariantes |
-| Presentación    | Calendario, billetera, vista previa, confirmación e historial de canjes         |
-| Aplicación      | Resolución, acreditación y canje idempotentes con límites atómicos              |
-| Infraestructura | Repositorios y unidades de trabajo equivalentes en memoria e IndexedDB          |
-| Composición     | Ensambla calendario, puntos y Rewards sin reglas de negocio                     |
-| Persistencia    | IndexedDB v8 conserva canjes y ajustes junto con el movimiento de puntos        |
+| Elemento        | Estado actual                                                                       |
+| --------------- | ----------------------------------------------------------------------------------- |
+| Dominio         | Planificación, ejecución medida, resoluciones y economía protegidas por invariantes |
+| Presentación    | Calendario, cronómetro opcional, billetera, canjes e historiales                    |
+| Aplicación      | Sesiones, resolución, acreditación y canje coordinados de forma idempotente         |
+| Infraestructura | Repositorios y unidades de trabajo equivalentes en memoria e IndexedDB              |
+| Composición     | Ensambla calendario, cronómetro, puntos y Rewards sin reglas de negocio             |
+| Persistencia    | IndexedDB v9 conserva sesiones, canjes, ajustes, resoluciones y puntos              |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes
