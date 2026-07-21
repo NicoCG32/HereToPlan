@@ -64,6 +64,7 @@ Los contratos vigentes se documentan en:
 
 - [`docs/Dominio.md`](docs/Dominio.md)
 - [`docs/Arquitectura.md`](docs/Arquitectura.md)
+- [`docs/Respaldo.md`](docs/Respaldo.md)
 
 ## Ejecución local
 
@@ -163,6 +164,8 @@ reward `Día libre`. El recorrido principal permite:
   deriva de instantes persistidos, sin completar automáticamente el bloque;
 - acreditar una sola vez el excedente de sesiones finalizadas y consumir el
   saldo del banco de recuperación sobre carga futura que lo permita;
+- descargar un respaldo JSON versionado de todo el estado persistente y
+  analizar su compatibilidad sin reemplazar los datos locales;
 - recuperar contextos, actividades, bloques y sesiones de cronómetro desde
   IndexedDB después de recargar.
 

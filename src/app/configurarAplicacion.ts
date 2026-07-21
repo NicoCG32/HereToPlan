@@ -28,6 +28,8 @@ import {
   CasoDeUsoAcreditarRecuperacion,
   CasoDeUsoConsultarBancoRecuperacion,
   CasoDeUsoConsumirRecuperacion,
+  CasoDeUsoAnalizarImportacionRespaldo,
+  CasoDeUsoExportarRespaldo,
 } from "../aplicacion";
 import { DefinicionRecompensa, FormulaPuntosBloque } from "../dominio";
 import { RepositorioActividadesIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioActividadesIndexedDB";
@@ -43,6 +45,11 @@ import { TransaccionCompletarBloqueConPuntosIndexedDB } from "../infraestructura
 import { UnidadTrabajoCanjeDiaLibreIndexedDB } from "../infraestructura/persistencia/indexeddb/UnidadTrabajoCanjeDiaLibreIndexedDB";
 import { RepositorioSesionesCronometroIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioSesionesCronometroIndexedDB";
 import { RepositorioRecuperacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioRecuperacionIndexedDB";
+import { LectorEstadoPersistenteIndexedDB } from "../infraestructura/persistencia/indexeddb/LectorEstadoPersistenteIndexedDB";
+import {
+  descargarArchivoRespaldo,
+  leerArchivoRespaldo,
+} from "../infraestructura/archivos/ArchivosRespaldoNavegador";
 import { CalendarioLocalSistema } from "../infraestructura/sistema/CalendarioLocalSistema";
 import { GeneradorIdentificadoresUUID } from "../infraestructura/sistema/GeneradorIdentificadoresUUID";
 import { RelojSistema } from "../infraestructura/sistema/RelojSistema";
@@ -51,6 +58,7 @@ import type { ServiciosCalendario } from "../presentacion/calendario/ServiciosCa
 import type { ServiciosPuntos } from "../presentacion/puntos/ServiciosPuntos";
 import type { ServiciosRecompensas } from "../presentacion/recompensas/ServiciosRecompensas";
 import type { ServiciosRecuperacion } from "../presentacion/recuperacion/ServiciosRecuperacion";
+import type { ServiciosRespaldo } from "../presentacion/respaldo/ServiciosRespaldo";
 
 let servicios: ServiciosAgendaBorrador | undefined;
 let serviciosCalendario: ServiciosCalendario | undefined;
@@ -58,6 +66,7 @@ let serviciosResolucionBloques: ServiciosResolucionBloques | undefined;
 let serviciosPuntos: ServiciosPuntos | undefined;
 let serviciosRecompensas: ServiciosRecompensas | undefined;
 let serviciosRecuperacion: ServiciosRecuperacion | undefined;
+let serviciosRespaldo: ServiciosRespaldo | undefined;
 let inicializacionPendiente: Promise<void> | undefined;
 let repositorioContextos:
   RepositorioContextosPlanificacionIndexedDB | undefined;
@@ -165,6 +174,19 @@ export function obtenerServiciosRecuperacion(): ServiciosRecuperacion {
     generarOperacionId: () => generador.generar(),
   });
   return serviciosRecuperacion;
+}
+
+export function obtenerServiciosRespaldo(): ServiciosRespaldo {
+  serviciosRespaldo ??= Object.freeze({
+    exportar: new CasoDeUsoExportarRespaldo(
+      new LectorEstadoPersistenteIndexedDB(),
+      new RelojSistema(),
+    ),
+    analizarImportacion: new CasoDeUsoAnalizarImportacionRespaldo(),
+    descargar: descargarArchivoRespaldo,
+    leerArchivo: leerArchivoRespaldo,
+  });
+  return serviciosRespaldo;
 }
 
 export interface ServiciosResolucionBloques {

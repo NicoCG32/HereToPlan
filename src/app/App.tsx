@@ -11,12 +11,15 @@ import { PanelDiaLibre } from "../presentacion/recompensas/PanelDiaLibre";
 import type { ServiciosRecompensas } from "../presentacion/recompensas/ServiciosRecompensas";
 import { PanelRecuperacion } from "../presentacion/recuperacion/PanelRecuperacion";
 import type { ServiciosRecuperacion } from "../presentacion/recuperacion/ServiciosRecuperacion";
+import { PanelRespaldo } from "../presentacion/respaldo/PanelRespaldo";
+import type { ServiciosRespaldo } from "../presentacion/respaldo/ServiciosRespaldo";
 import logoHereToPlan from "../presentacion/recursos/logos/HereToPlanLogo.svg";
 import {
   obtenerServiciosCalendario,
   obtenerServiciosPuntos,
   obtenerServiciosRecompensas,
   obtenerServiciosRecuperacion,
+  obtenerServiciosRespaldo,
 } from "./configurarAplicacion";
 
 interface AppProps {
@@ -25,6 +28,7 @@ interface AppProps {
   readonly serviciosPuntos?: ServiciosPuntos;
   readonly serviciosRecompensas?: ServiciosRecompensas;
   readonly serviciosRecuperacion?: ServiciosRecuperacion;
+  readonly serviciosRespaldo?: ServiciosRespaldo;
 }
 
 export function App({
@@ -33,6 +37,7 @@ export function App({
   serviciosPuntos,
   serviciosRecompensas,
   serviciosRecuperacion,
+  serviciosRespaldo,
 }: AppProps) {
   useGradienteGlobal();
   const [revisionDatos, setRevisionDatos] = useState(0);
@@ -48,6 +53,11 @@ export function App({
     serviciosRecuperacion ??
     (!servicios && !serviciosCalendario
       ? obtenerServiciosRecuperacion()
+      : undefined);
+  const serviciosRespaldoEfectivos =
+    serviciosRespaldo ??
+    (!servicios && !serviciosCalendario
+      ? obtenerServiciosRespaldo()
       : undefined);
 
   return (
@@ -101,6 +111,9 @@ export function App({
                 setRevisionDatos((revision) => revision + 1)
               }
             />
+          )}
+          {serviciosRespaldoEfectivos && (
+            <PanelRespaldo servicios={serviciosRespaldoEfectivos} />
           )}
         </>
       )}

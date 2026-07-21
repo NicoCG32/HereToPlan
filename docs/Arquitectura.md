@@ -144,6 +144,7 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 - preparar y confirmar un canje de recompensa.
 - iniciar, pausar, reanudar, detener y consultar sesiones de cronómetro.
 - consultar, acreditar y consumir minutos del banco de recuperación.
+- exportar el estado persistente y analizar un respaldo sin importarlo.
 
 ### Puertos de salida
 
@@ -158,7 +159,7 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 - unidad de trabajo para confirmación atómica;
 - reloj;
 - generador de identificadores;
-- mecanismo de respaldo y restauración.
+- lector consistente del estado persistente para respaldo.
 
 Esta lista no autoriza a implementar contratos anticipadamente. Un puerto existe para servir a un caso de uso, no para completar una plantilla arquitectónica.
 
@@ -625,6 +626,27 @@ invariante, una restricción única o una lectura concurrente, ambos registros s
 aborta la operación. La proyección del calendario recibe las reducciones por el mismo puerto
 y deriva los minutos efectivos sin cambiar la instantánea original.
 
+### 6.16. Respaldo versionado y análisis no destructivo
+
+`ExportarRespaldo` y `AnalizarImportacionRespaldo` son puertos de entrada de
+aplicación. La envolvente `HereToPlan.respaldo` posee `versionFormato: 1`,
+separada de `versionBaseDatos` y de la `versionEsquema` de cada registro. Esta
+separación evita interpretar una migración interna de IndexedDB como un cambio
+automático del formato portable.
+
+El puerto de salida `LectorEstadoPersistente` expone una única operación de
+lectura completa. `LectorEstadoPersistenteIndexedDB` la implementa abriendo una
+transacción `readonly` sobre los doce almacenes respaldables. El caso de uso
+recibe así una instantánea coherente, la envuelve y la serializa; los errores de
+lectura y serialización se distinguen y nunca habilitan una escritura.
+
+El análisis de importación es deliberadamente puro: recibe texto JSON y devuelve
+estado `VALIDO`, `INVALIDO` o `INCOMPATIBLE`, versión detectada, conteos de
+colecciones reconocidas, advertencias y causas. No conoce repositorios, unidades
+de trabajo ni IndexedDB. Por ello validar un archivo no puede reemplazar el
+estado vigente. El contrato detallado y sus ejemplos se encuentran en
+[`Respaldo.md`](Respaldo.md).
+
 ## 7. Operaciones entre agregados y atomicidad
 
 Los cortes confirmados, `BilleteraPuntos` y el historial de recompensas poseen
@@ -664,14 +686,14 @@ El consumo de recuperación aplica el mismo principio entre otras fronteras:
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                     |
-| --------------- | --------------------------------------------------------------------------------- |
-| Dominio         | Planificación, ejecución, puntos y recuperación protegidos por invariantes        |
-| Presentación    | Calendario, cronómetro, billetera, recuperación, canjes e historiales             |
-| Aplicación      | Sesiones, resolución, puntos, recuperación y canje coordinados idempotentemente   |
-| Infraestructura | Repositorios y unidades de trabajo equivalentes en memoria e IndexedDB            |
-| Composición     | Ensambla calendario, cronómetro, economías y Rewards sin reglas de negocio        |
-| Persistencia    | IndexedDB v10 conserva sesiones, economías, reducciones y demás hechos históricos |
+| Elemento        | Estado actual                                                                       |
+| --------------- | ----------------------------------------------------------------------------------- |
+| Dominio         | Planificación, ejecución, puntos y recuperación protegidos por invariantes          |
+| Presentación    | Calendario, cronómetro, economías, canjes, respaldo y diagnóstico de archivos       |
+| Aplicación      | Sesiones, resolución, economías, canje y contrato V1 de respaldo                    |
+| Infraestructura | Repositorios, unidades atómicas, instantánea IndexedDB y descarga del navegador     |
+| Composición     | Ensambla calendario, ejecución, economías, Rewards y respaldo sin reglas de negocio |
+| Persistencia    | IndexedDB v10 conserva y permite respaldar los doce almacenes soportados            |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

@@ -2436,6 +2436,96 @@ button:focus-visible {
   }
 }
 
+.panel-respaldo {
+  display: grid;
+  gap: 1rem;
+}
+
+.aviso-respaldo {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgb(var(--plata-profunda) / 34%);
+  border-radius: 0.75rem;
+  background: rgb(var(--diamante-blanco) / 52%);
+}
+
+.acciones-respaldo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.selector-archivo-respaldo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.selector-archivo-respaldo:focus-within {
+  outline: 3px solid rgb(var(--dorado) / 42%);
+  outline-offset: 3px;
+}
+
+.selector-archivo-respaldo input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.informe-respaldo {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgb(var(--plata-profunda) / 35%);
+  border-left-width: 0.35rem;
+  border-radius: 0.85rem;
+  background: rgb(var(--plata-blanca) / 72%);
+}
+
+.informe-respaldo h3,
+.informe-respaldo h4,
+.informe-respaldo p,
+.informe-respaldo ul {
+  margin: 0;
+}
+
+.informe-respaldo-valido {
+  border-left-color: rgb(var(--dorado-profundo));
+}
+
+.informe-respaldo-invalido,
+.informe-respaldo-incompatible {
+  border-left-color: rgb(var(--bronce-metal));
+}
+
+.conteos-respaldo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.4rem 1rem;
+  margin: 0;
+}
+
+.conteos-respaldo div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgb(var(--plata-profunda) / 20%);
+}
+
+.conteos-respaldo dt {
+  overflow-wrap: anywhere;
+}
+
+.conteos-respaldo dd {
+  margin: 0;
+  font-weight: 700;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .encabezado::before,
   .etiqueta,
