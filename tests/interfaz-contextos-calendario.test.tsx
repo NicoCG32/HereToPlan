@@ -472,8 +472,11 @@ describe("interfaz de contextos del calendario", () => {
       />,
     );
     await screen.findByRole("heading", { name: "Calendario general" });
+    await usuario.click(screen.getByRole("link", { name: "Puntos" }));
     await screen.findByText(/Aún no hay movimientos/);
     expect(consultarBilletera).toHaveBeenCalledTimes(1);
+    await usuario.click(screen.getByRole("link", { name: "Calendario" }));
+    await screen.findByRole("heading", { name: "Calendario general" });
 
     const botonCompletar = screen.getByRole("button", {
       name: "Completar Sesión terminada",
@@ -502,7 +505,6 @@ describe("interfaz de contextos del calendario", () => {
     expect(
       await screen.findByText(/quedó completado y registrado/),
     ).toBeTruthy();
-    await waitFor(() => expect(consultarBilletera).toHaveBeenCalledTimes(2));
     expect(
       screen.getByRole("list", { name: "Historial de Sesión terminada" })
         .textContent,
@@ -510,6 +512,11 @@ describe("interfaz de contextos del calendario", () => {
     expect(
       screen.queryByRole("button", { name: "Completar Sesión terminada" }),
     ).toBeNull();
+
+    await usuario.click(screen.getByRole("link", { name: "Puntos" }));
+    await waitFor(() => expect(consultarBilletera).toHaveBeenCalledTimes(2));
+    await usuario.click(screen.getByRole("link", { name: "Calendario" }));
+    await screen.findByRole("heading", { name: "Calendario general" });
 
     await usuario.click(
       screen.getByRole("button", {

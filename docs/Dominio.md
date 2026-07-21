@@ -22,11 +22,25 @@ dominio/
 ├── compromisos/
 ├── cronometro/
 ├── planificacion/
+├── perfil/
 ├── puntos/
 ├── recuperacion/
 ├── recompensas/
 └── compartido/
 ```
+
+### `perfil`
+
+`PerfilUsuario` representa la identidad local mínima de la persona dentro de
+la aplicación. Conserva un identificador estable, un nombre visible y los
+instantes de creación y actualización. No representa una cuenta remota, una
+sesión autenticada ni autorización.
+
+El nombre se normaliza eliminando espacios exteriores, admite Unicode y no
+puede quedar vacío ni superar 60 puntos de código. Actualizarlo produce una
+nueva instancia con la misma identidad y creación; el nuevo instante no puede
+ser anterior a la creación. La ausencia de perfil es válida y se expresa fuera
+de la entidad como `undefined`, nunca mediante un nombre vacío ficticio.
 
 ### `actividades`
 
@@ -335,6 +349,7 @@ La recompensa `DIA_LIBRE`:
 14. Los puntos y los minutos de recuperación nunca se intercambian entre sí.
 15. Consumir recuperación y registrar la reducción de carga son una sola operación atómica.
 16. Una reducción conserva los minutos originales y sólo altera la carga efectiva proyectada.
+17. Existe como máximo un perfil local y una actualización nunca cambia su identidad ni su instante de creación.
 
 ## 5. Capacidades todavía no implementadas
 
@@ -345,7 +360,7 @@ El modelo y sus adaptadores aún deben incorporar:
 - plantillas de agenda;
 - extensión de plazos;
 - calibración de la fórmula con observaciones de uso;
-- calendario funcional definitivo.
+- inventario separado de recompensas adquiridas y aplicadas.
 
 Estas capacidades forman parte de la evolución prevista. Su diseño definitivo puede ajustarse a partir de la evidencia obtenida durante el uso del producto.
 
@@ -358,7 +373,7 @@ La base permite crecer sin romper la regla central:
 - nuevos ajustes pueden implementarse dentro de `BloqueTrabajo.validarAjuste`;
 - nuevas recompensas pueden producir otros tipos de ajuste;
 - la capa de aplicación coordina transacciones atómicas entre agregados;
-- infraestructura rehidrata agendas, billeteras, canjes, ajustes, sesiones y movimientos de recuperación mediante
+- infraestructura rehidrata perfil, agendas, billeteras, canjes, ajustes, sesiones y movimientos de recuperación mediante
   registros versionados;
 - las vistas de los agregados pueden convertirse en DTO persistibles.
 

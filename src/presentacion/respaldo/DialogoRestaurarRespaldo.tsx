@@ -45,7 +45,7 @@ export function DialogoRestaurarRespaldo({
         <p className="sobrelinea">Reemplazo total controlado</p>
         <h2 id="titulo-restaurar-respaldo">Restaurar respaldo</h2>
         <p id="consecuencias-restaurar-respaldo">
-          Esta operación reemplazará las doce colecciones locales. Si cualquier
+          Esta operación reemplazará las trece colecciones locales. Si cualquier
           registro falla, IndexedDB revertirá la operación completa.
         </p>
 
@@ -64,7 +64,7 @@ export function DialogoRestaurarRespaldo({
           </div>
           <div>
             <dt>Ruta de migración</dt>
-            <dd>V1 → actual</dd>
+            <dd>V{plan.versionFormatoOrigen} → actual</dd>
           </div>
         </dl>
 

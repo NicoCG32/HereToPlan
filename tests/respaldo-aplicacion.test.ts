@@ -3,6 +3,7 @@ import {
   CasoDeUsoAnalizarImportacionRespaldo,
   CasoDeUsoExportarRespaldo,
   COLECCIONES_RESPALDO,
+  COLECCIONES_RESPALDO_V1,
   ErrorExportacionRespaldo,
   IDENTIFICADOR_FORMATO_RESPALDO,
   type ContenidoRespaldo,
@@ -34,7 +35,7 @@ describe("contrato y exportación de respaldo", () => {
     );
     expect(documento).toMatchObject({
       formato: IDENTIFICADOR_FORMATO_RESPALDO,
-      versionFormato: 1,
+      versionFormato: 2,
       creadoEn: "2026-07-20T15:30:00.000Z",
       origen: { aplicacion: "HereToPlan", versionBaseDatos: 10 },
     });
@@ -95,7 +96,7 @@ describe("análisis no destructivo de importación", () => {
 
     expect(resultado).toMatchObject({
       estado: "VALIDO",
-      versionFormato: 1,
+      versionFormato: 2,
       versionBaseDatos: 10,
       creadoEn: "2026-07-20T15:30:00.000Z",
       errores: [],
@@ -129,10 +130,10 @@ describe("análisis no destructivo de importación", () => {
       "versión futura",
       JSON.stringify({
         formato: IDENTIFICADOR_FORMATO_RESPALDO,
-        versionFormato: 2,
+        versionFormato: 3,
       }),
       "INCOMPATIBLE",
-      "versión 2 no es compatible",
+      "versión 3 no es compatible",
     ],
   ])("rechaza %s con causa explícita", (_caso, texto, estado, causa) => {
     const resultado = analizar.ejecutar(texto);
@@ -223,6 +224,24 @@ describe("análisis no destructivo de importación", () => {
       'El campo raíz "campoFuturo" no es reconocido.',
     ]);
   });
+
+  it("admite V1 mediante una migración explícita sin exigir perfil", () => {
+    const documento = respaldoVacio();
+    documento.versionFormato = 1;
+    documento.contenido = Object.fromEntries(
+      COLECCIONES_RESPALDO_V1.map((nombre) => [nombre, []]),
+    );
+
+    const resultado = analizar.ejecutar(JSON.stringify(documento));
+
+    expect(resultado.estado).toBe("VALIDO");
+    expect(resultado.contenidoReconocido).toHaveLength(
+      COLECCIONES_RESPALDO_V1.length,
+    );
+    expect(resultado.advertencias).toContain(
+      "El respaldo V1 se migrará al formato actual sin un perfil local.",
+    );
+  });
 });
 
 const contextoValido = Object.freeze({
@@ -268,7 +287,7 @@ interface DocumentoRespaldoPrueba {
 function respaldoVacio(): DocumentoRespaldoPrueba {
   return {
     formato: IDENTIFICADOR_FORMATO_RESPALDO,
-    versionFormato: 1,
+    versionFormato: 2,
     creadoEn: "2026-07-20T15:30:00.000Z",
     origen: { aplicacion: "HereToPlan", versionBaseDatos: 10 },
     contenido: Object.fromEntries(

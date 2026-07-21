@@ -32,6 +32,9 @@ import {
   CasoDeUsoExportarRespaldo,
   CasoDeUsoPrepararRestauracionRespaldo,
   CasoDeUsoRestaurarRespaldo,
+  CasoDeUsoActualizarPerfilUsuario,
+  CasoDeUsoConsultarPerfilUsuario,
+  CasoDeUsoCrearPerfilUsuario,
 } from "../aplicacion";
 import { DefinicionRecompensa, FormulaPuntosBloque } from "../dominio";
 import { RepositorioActividadesIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioActividadesIndexedDB";
@@ -49,6 +52,7 @@ import { RepositorioSesionesCronometroIndexedDB } from "../infraestructura/persi
 import { RepositorioRecuperacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioRecuperacionIndexedDB";
 import { LectorEstadoPersistenteIndexedDB } from "../infraestructura/persistencia/indexeddb/LectorEstadoPersistenteIndexedDB";
 import { RestauradorEstadoPersistenteIndexedDB } from "../infraestructura/persistencia/indexeddb/RestauradorEstadoPersistenteIndexedDB";
+import { RepositorioPerfilUsuarioIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioPerfilUsuarioIndexedDB";
 import {
   descargarArchivoRespaldo,
   leerArchivoRespaldo,
@@ -62,6 +66,7 @@ import type { ServiciosPuntos } from "../presentacion/puntos/ServiciosPuntos";
 import type { ServiciosRecompensas } from "../presentacion/recompensas/ServiciosRecompensas";
 import type { ServiciosRecuperacion } from "../presentacion/recuperacion/ServiciosRecuperacion";
 import type { ServiciosRespaldo } from "../presentacion/respaldo/ServiciosRespaldo";
+import type { ServiciosPerfil } from "../presentacion/perfil/ServiciosPerfil";
 
 let servicios: ServiciosAgendaBorrador | undefined;
 let serviciosCalendario: ServiciosCalendario | undefined;
@@ -70,6 +75,7 @@ let serviciosPuntos: ServiciosPuntos | undefined;
 let serviciosRecompensas: ServiciosRecompensas | undefined;
 let serviciosRecuperacion: ServiciosRecuperacion | undefined;
 let serviciosRespaldo: ServiciosRespaldo | undefined;
+let serviciosPerfil: ServiciosPerfil | undefined;
 let inicializacionPendiente: Promise<void> | undefined;
 let repositorioContextos:
   RepositorioContextosPlanificacionIndexedDB | undefined;
@@ -87,6 +93,7 @@ let unidadTrabajoCanjeDiaLibre: UnidadTrabajoCanjeDiaLibreIndexedDB | undefined;
 let repositorioSesionesCronometro:
   RepositorioSesionesCronometroIndexedDB | undefined;
 let repositorioRecuperacion: RepositorioRecuperacionIndexedDB | undefined;
+let repositorioPerfil: RepositorioPerfilUsuarioIndexedDB | undefined;
 
 export function inicializarAplicacion(): Promise<void> {
   if (!inicializacionPendiente) {
@@ -195,6 +202,22 @@ export function obtenerServiciosRespaldo(): ServiciosRespaldo {
     recargarAplicacion: () => globalThis.location.reload(),
   });
   return serviciosRespaldo;
+}
+
+export function obtenerServiciosPerfil(): ServiciosPerfil {
+  if (serviciosPerfil) return serviciosPerfil;
+  const repositorio = obtenerRepositorioPerfil();
+  const reloj = new RelojSistema();
+  serviciosPerfil = Object.freeze({
+    consultar: new CasoDeUsoConsultarPerfilUsuario(repositorio),
+    crear: new CasoDeUsoCrearPerfilUsuario(
+      repositorio,
+      reloj,
+      new GeneradorIdentificadoresUUID(),
+    ),
+    actualizar: new CasoDeUsoActualizarPerfilUsuario(repositorio, reloj),
+  });
+  return serviciosPerfil;
 }
 
 export interface ServiciosResolucionBloques {
@@ -396,6 +419,11 @@ function obtenerRepositorioSesionesCronometro(): RepositorioSesionesCronometroIn
 function obtenerRepositorioRecuperacion(): RepositorioRecuperacionIndexedDB {
   repositorioRecuperacion ??= new RepositorioRecuperacionIndexedDB();
   return repositorioRecuperacion;
+}
+
+function obtenerRepositorioPerfil(): RepositorioPerfilUsuarioIndexedDB {
+  repositorioPerfil ??= new RepositorioPerfilUsuarioIndexedDB();
+  return repositorioPerfil;
 }
 
 function crearDefinicionDiaLibre(): DefinicionRecompensa {

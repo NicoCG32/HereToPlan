@@ -1,7 +1,9 @@
 import {
   COLECCIONES_RESPALDO,
+  COLECCIONES_RESPALDO_V1,
   IDENTIFICADOR_FORMATO_RESPALDO,
   VERSION_FORMATO_RESPALDO,
+  VERSION_FORMATO_RESPALDO_ANTERIOR,
   type NombreColeccionRespaldo,
 } from "./ContratoRespaldo";
 
@@ -122,6 +124,12 @@ const CAMPOS_OBLIGATORIOS: Readonly<
     minutosReducidos: "numero",
     aplicadaEn: "cadena",
   },
+  "perfil-usuario": {
+    id: "cadena",
+    nombreVisible: "cadena",
+    creadoEn: "cadena",
+    actualizadoEn: "cadena",
+  },
 };
 
 export class CasoDeUsoAnalizarImportacionRespaldo {
@@ -168,13 +176,16 @@ export class CasoDeUsoAnalizarImportacionRespaldo {
         ],
       );
     }
-    if (versionFormato !== VERSION_FORMATO_RESPALDO) {
+    if (
+      versionFormato !== VERSION_FORMATO_RESPALDO_ANTERIOR &&
+      versionFormato !== VERSION_FORMATO_RESPALDO
+    ) {
       return resultado(
         "INCOMPATIBLE",
         [],
         [],
         [
-          `La versión ${versionFormato} no es compatible; esta aplicación admite la versión ${VERSION_FORMATO_RESPALDO}.`,
+          `La versión ${versionFormato} no es compatible; esta aplicación admite las versiones ${VERSION_FORMATO_RESPALDO_ANTERIOR} y ${VERSION_FORMATO_RESPALDO}.`,
         ],
         versionFormato,
       );
@@ -182,6 +193,15 @@ export class CasoDeUsoAnalizarImportacionRespaldo {
 
     const errores: string[] = [];
     const advertencias: string[] = [];
+    const coleccionesEsperadas =
+      versionFormato === VERSION_FORMATO_RESPALDO_ANTERIOR
+        ? COLECCIONES_RESPALDO_V1
+        : COLECCIONES_RESPALDO;
+    if (versionFormato === VERSION_FORMATO_RESPALDO_ANTERIOR) {
+      advertencias.push(
+        "El respaldo V1 se migrará al formato actual sin un perfil local.",
+      );
+    }
     const creadoEn = validarInstante(valor.creadoEn, "creadoEn", errores);
     const origen = esObjeto(valor.origen) ? valor.origen : undefined;
     if (!origen) errores.push("El objeto origen es obligatorio.");
@@ -201,7 +221,7 @@ export class CasoDeUsoAnalizarImportacionRespaldo {
     let versionRegistroIncompatible = false;
 
     if (contenido) {
-      for (const coleccion of COLECCIONES_RESPALDO) {
+      for (const coleccion of coleccionesEsperadas) {
         const registros = contenido[coleccion];
         if (!Array.isArray(registros)) {
           errores.push(`contenido.${coleccion} debe ser un arreglo.`);
@@ -238,7 +258,7 @@ export class CasoDeUsoAnalizarImportacionRespaldo {
         });
       }
 
-      const conocidas = new Set<string>(COLECCIONES_RESPALDO);
+      const conocidas = new Set<string>(coleccionesEsperadas);
       for (const nombre of Object.keys(contenido)) {
         if (!conocidas.has(nombre)) {
           advertencias.push(

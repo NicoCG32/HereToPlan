@@ -42,3 +42,5 @@ export * from "./recuperacion/BancoRecuperacion";
 export * from "./recuperacion/ConfiguracionRecuperacion";
 export * from "./recuperacion/MovimientoRecuperacion";
 export * from "./recuperacion/ReduccionCarga";
+
+export * from "./perfil/PerfilUsuario";

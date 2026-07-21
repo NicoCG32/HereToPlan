@@ -20,7 +20,7 @@ afterEach(async () => {
 });
 
 describe("instantánea de respaldo en IndexedDB", () => {
-  it("lee los doce almacenes dentro de una única instantánea", async () => {
+  it("lee todos los almacenes dentro de una única instantánea", async () => {
     const nombre = crearNombre("completo");
     const baseDatos = await abrirBase(nombre);
     await agregarContexto(baseDatos);
@@ -51,7 +51,7 @@ describe("instantánea de respaldo en IndexedDB", () => {
     const antes = await lector.leerEstadoCompleto();
     const documento = {
       formato: "HereToPlan.respaldo",
-      versionFormato: 1,
+      versionFormato: 2,
       creadoEn: "2026-07-20T15:30:00.000Z",
       origen: { aplicacion: "HereToPlan", versionBaseDatos: 10 },
       contenido: Object.fromEntries(

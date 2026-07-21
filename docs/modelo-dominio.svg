@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1660" viewBox="0 0 1600 1660" role="img" aria-labelledby="titulo descripcion">
   <title id="titulo">HereToPlan — Modelo de dominio implementado</title>
-  <desc id="descripcion">Diagrama de entidades y relaciones entre actividades, planificación, sesiones de cronómetro, resoluciones, puntos, recuperación y recompensas.</desc>
+  <desc id="descripcion">Diagrama de entidades y relaciones entre perfil local, actividades, planificación, sesiones de cronómetro, resoluciones, puntos, recuperación y recompensas.</desc>
   <defs>
     <filter id="sombra" x="-10%" y="-10%" width="120%" height="130%">
       <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.12"/>
@@ -47,7 +47,7 @@
 
   <rect class="fondo" width="1600" height="1660"/>
   <text class="titulo" x="54" y="54">HereToPlan — Modelo de dominio implementado</text>
-  <text class="subtitulo" x="54" y="82">Los contextos organizan; los cortes confirman; las sesiones miden; puntos y recuperación conservan economías separadas.</text>
+  <text class="subtitulo" x="54" y="82">El perfil identifica localmente; los contextos organizan; los cortes confirman; puntos y recuperación conservan economías separadas.</text>
 
   <rect class="grupo" x="40" y="112" width="455" height="720"/>
   <text class="grupo-titulo" x="64" y="143">Catálogo de actividades</text>
@@ -321,6 +321,15 @@
     <text class="estereotipo" x="16" y="18">«POLÍTICA DE DOMINIO»</text>
     <text class="nombre" x="16" y="35">FormulaPuntosBloque</text>
     <text class="atributo" x="16" y="65">min(4, ceil(minutos planificados / 30))</text>
+  </g>
+
+  <g transform="translate(72 1320)">
+    <rect class="clase actividad" width="430" height="100"/>
+    <path class="cabecera-actividad" d="M10 0 H420 A10 10 0 0 1 430 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
+    <text class="estereotipo" x="16" y="18">«ENTIDAD LOCAL ÚNICA»</text>
+    <text class="nombre" x="16" y="40">PerfilUsuario</text>
+    <text class="atributo" x="16" y="70">id · nombreVisible · creadoEn · actualizadoEn</text>
+    <text class="atributo" x="16" y="91">sin autenticación ni datos sensibles</text>
   </g>
   <path class="relacion" d="M798 1370 H770 V1085 H590 V1080"/>
   <text class="relacion-etiqueta" x="758" y="1308" text-anchor="end">calcula puntos</text>

@@ -171,7 +171,7 @@ reward `Día libre`. El recorrido principal permite:
   saldo del banco de recuperación sobre carga futura que lo permita;
 - descargar un respaldo JSON versionado de todo el estado persistente y
   analizar su compatibilidad sin escribir, o restaurarlo con confirmación y
-  reemplazo atómico de las doce colecciones;
+  reemplazo atómico de las trece colecciones y migración explícita desde V1;
 - recorrer con teclado la navegación, los editores y los diálogos, con foco
   explícito ante errores y retorno al control de origen al cancelar;
 - comprender estados vacíos, recuperar lecturas fallidas y conocer el motivo

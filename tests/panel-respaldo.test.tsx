@@ -48,7 +48,7 @@ describe("panel de respaldo", () => {
     );
 
     expect((await screen.findByRole("status")).textContent).toContain(
-      "Respaldo válido · formato v1 · IndexedDB v10",
+      "Respaldo válido · formato v2 · IndexedDB v10",
     );
     expect(screen.getByText("coleccion-futura", { exact: false })).toBeTruthy();
     expect(screen.getByText("contextos-planificacion")).toBeTruthy();
@@ -60,7 +60,7 @@ describe("panel de respaldo", () => {
       leerArchivo: vi.fn().mockResolvedValue(
         JSON.stringify({
           formato: "HereToPlan.respaldo",
-          versionFormato: 2,
+          versionFormato: 3,
         }),
       ),
     });
@@ -72,7 +72,7 @@ describe("panel de respaldo", () => {
     );
 
     expect((await screen.findByRole("alert")).textContent).toContain(
-      "Respaldo incompatible · formato v2",
+      "Respaldo incompatible · formato v3",
     );
     expect(screen.getByText(/no reemplaza, combina ni elimina/i)).toBeTruthy();
   });
@@ -188,7 +188,7 @@ interface DocumentoRespaldoPrueba {
 function respaldoVacio(): DocumentoRespaldoPrueba {
   return {
     formato: "HereToPlan.respaldo",
-    versionFormato: 1,
+    versionFormato: 2,
     creadoEn: "2026-07-20T15:30:00.000Z",
     origen: { aplicacion: "HereToPlan", versionBaseDatos: 10 },
     contenido: Object.fromEntries(

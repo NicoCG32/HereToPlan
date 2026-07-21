@@ -43,3 +43,8 @@ export * from "./puertos/TransaccionEliminacionContextoPlanificacion";
 export * from "./puertos/RepositorioBloquesPlanificacion";
 export * from "./puertos/RepositorioCortesPlanificacion";
 export * from "./puertos/RepositorioResolucionesBloquesPlanificacion";
+export * from "./perfil/PerfilUsuarioDto";
+export * from "./perfil/ConsultarPerfilUsuario";
+export * from "./perfil/CrearPerfilUsuario";
+export * from "./perfil/ActualizarPerfilUsuario";
+export * from "./puertos/RepositorioPerfilUsuario";

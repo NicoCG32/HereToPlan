@@ -71,7 +71,7 @@
     <text class="estereotipo" x="18" y="19">«COMPOSITION ROOT»</text>
     <text class="nombre" x="18" y="40">configurarAplicacion</text>
     <text class="detalle" x="18" y="74">Inicializa Libre, sincroniza cortes y migra legado.</text>
-    <text class="detalle" x="18" y="96">Construye casos de uso, respaldo y adaptadores.</text>
+    <text class="detalle" x="18" y="96">Construye rutas, perfil, casos de uso y adaptadores.</text>
     <text class="codigo" x="18" y="117">src/app</text>
   </g>
 
@@ -80,8 +80,8 @@
     <path class="cabecera-presentacion" d="M12 0 H388 A12 12 0 0 1 400 12 V52 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«ADAPTADOR DE ENTRADA»</text>
     <text class="nombre" x="18" y="42">Presentación React</text>
-    <text class="detalle" x="18" y="82">• calendario general: día, semana y mes</text>
-    <text class="detalle" x="18" y="106">• panel de siete días y lista equivalente</text>
+    <text class="detalle" x="18" y="82">• armazón SPA y cuatro rutas hash</text>
+    <text class="detalle" x="18" y="106">• calendario general: día, semana y mes</text>
     <text class="detalle" x="18" y="130">• selección, revisión, asignación y corrección</text>
     <text class="detalle" x="18" y="154">• resolución, cronómetro, economías, respaldo y Rewards</text>
     <text class="detalle" x="18" y="181">Sólo conoce DTO y puertos de entrada.</text>
@@ -93,7 +93,7 @@
     <path class="cabecera-aplicacion" d="M12 0 H428 A12 12 0 0 1 440 12 V48 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«CONTRATO DEL ADAPTADOR»</text>
     <text class="nombre" x="18" y="40">Servicios de presentación</text>
-    <text class="detalle" x="18" y="74">Calendario · Economías · Recompensas · Respaldo</text>
+    <text class="detalle" x="18" y="74">Calendario · Perfil · Economías · Recompensas · Respaldo</text>
     <text class="detalle" x="18" y="96">Expone sólo ejecutar() y resultados serializables.</text>
     <text class="codigo" x="18" y="117">src/presentacion/*/Servicios*.ts</text>
   </g>
@@ -107,7 +107,7 @@
     <text class="detalle" x="18" y="106">• asignar, editar y quitar bloques</text>
     <text class="detalle" x="18" y="130">• revisar, asignar, corregir y sincronizar cortes</text>
     <text class="detalle" x="18" y="154">• proyectar calendario; eliminar contexto</text>
-    <text class="detalle" x="18" y="178">• ejecución, economías, respaldo y restauración</text>
+    <text class="detalle" x="18" y="178">• perfil, ejecución, economías, respaldo y restauración</text>
     <text class="detalle" x="18" y="198">Orquestan reglas y límites transaccionales.</text>
     <text class="codigo" x="18" y="220">src/aplicacion</text>
   </g>
@@ -117,7 +117,7 @@
     <path class="cabecera-dominio" d="M12 0 H408 A12 12 0 0 1 420 12 V52 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«NÚCLEO»</text>
     <text class="nombre" x="18" y="42">Modelo de dominio</text>
-    <text class="detalle" x="18" y="82">• actividades, tareas y hábitos</text>
+    <text class="detalle" x="18" y="82">• perfil, actividades, tareas y hábitos</text>
     <text class="detalle" x="18" y="106">• contextos y planificación editable</text>
     <text class="detalle" x="18" y="130">• cortes, sesiones y resoluciones históricas</text>
     <text class="detalle" x="18" y="154">• políticas, puntos, recuperación y recompensas</text>
@@ -132,7 +132,7 @@
     <text class="nombre" x="18" y="42">Contratos requeridos</text>
     <text class="detalle" x="18" y="82">RepositorioContextos · RepositorioActividades</text>
     <text class="detalle" x="18" y="106">RepositorioBloques · RepositorioCortes</text>
-    <text class="detalle" x="18" y="130">Repositorios: resoluciones · sesiones · puntos · recuperación</text>
+    <text class="detalle" x="18" y="130">Repositorios: perfil · resoluciones · sesiones · puntos · recuperación</text>
     <text class="detalle" x="18" y="154">TransaccionEliminacionContextoPlanificacion</text>
     <text class="detalle" x="18" y="178">TransaccionCompletar · UnidadTrabajoCanje</text>
     <text class="detalle" x="18" y="202">Lector/RestauradorEstado · Reloj · UUID</text>
@@ -157,8 +157,8 @@
     <rect class="componente datos" width="400" height="238"/>
     <path class="cabecera-datos" d="M12 0 H388 A12 12 0 0 1 400 12 V52 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«ALMACENAMIENTO LOCAL»</text>
-    <text class="nombre" x="18" y="42">IndexedDB v10 · here-to-plan</text>
-    <text class="detalle" x="18" y="82">contextos · actividades · agendas</text>
+    <text class="nombre" x="18" y="42">IndexedDB v11 · here-to-plan</text>
+    <text class="detalle" x="18" y="82">perfil · contextos · actividades · agendas</text>
     <text class="detalle" x="18" y="106">bloques-planificacion · cortes-planificacion</text>
     <text class="detalle" x="18" y="130">resoluciones-bloques · ResolucionV1</text>
     <text class="detalle" x="18" y="154">transacciones-puntos · TransaccionPuntosV1</text>
@@ -192,7 +192,7 @@
   <rect class="nota" x="300" y="958" width="1370" height="78"/>
   <text class="nota-titulo" x="322" y="985">Límite transaccional implementado</text>
   <text class="nota-texto" x="322" y="1009">Completar une resolución e ingreso; canjear une gasto y ajustes; consumir recuperación une movimiento y reducción.</text>
-  <text class="nota-texto" x="322" y="1029">El respaldo lee una instantánea readonly; restaurar reemplaza los doce almacenes en una única transacción readwrite.</text>
+  <text class="nota-texto" x="322" y="1029">El respaldo V2 lee una instantánea readonly; restaurar reemplaza los trece almacenes en una única transacción readwrite.</text>
 
   <line x1="270" y1="1072" x2="325" y2="1072" class="flujo"/>
   <text class="leyenda" x="337" y="1077">flujo de ejecución / datos</text>

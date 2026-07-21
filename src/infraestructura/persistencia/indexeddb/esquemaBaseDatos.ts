@@ -1,6 +1,7 @@
 import { COLECCIONES_RESPALDO } from "../../../aplicacion/respaldo/ContratoRespaldo";
 
-export const VERSION_BASE_DATOS = 10;
+export const VERSION_BASE_DATOS = 11;
+export const ALMACEN_PERFIL_USUARIO = "perfil-usuario";
 export const ALMACEN_AGENDAS = "agendas";
 export const ALMACEN_ACTIVIDADES = "actividades";
 export const ALMACEN_CONTEXTOS = "contextos-planificacion";
@@ -28,6 +29,9 @@ export const INDICE_REDUCCION_POR_OPERACION = "por-operacion-id";
 export const ALMACENES_RESPALDABLES = COLECCIONES_RESPALDO;
 
 export function asegurarAlmacenes(baseDatos: IDBDatabase): void {
+  if (!baseDatos.objectStoreNames.contains(ALMACEN_PERFIL_USUARIO)) {
+    baseDatos.createObjectStore(ALMACEN_PERFIL_USUARIO, { keyPath: "id" });
+  }
   if (!baseDatos.objectStoreNames.contains(ALMACEN_AGENDAS)) {
     baseDatos.createObjectStore(ALMACEN_AGENDAS, { keyPath: "id" });
   }

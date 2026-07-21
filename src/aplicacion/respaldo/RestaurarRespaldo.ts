@@ -6,21 +6,29 @@ import {
 import {
   COLECCIONES_RESPALDO,
   VERSION_FORMATO_RESPALDO,
+  VERSION_FORMATO_RESPALDO_ANTERIOR,
   type ContenidoRespaldo,
   type EstadoPersistenteRespaldable,
+  type NombreColeccionRespaldo,
   type RegistroRespaldable,
-  type RespaldoHereToPlanV1,
+  type RespaldoHereToPlan,
 } from "./ContratoRespaldo";
 
 export const CONFIRMACION_RESTAURACION = "RESTAURAR";
 export const RUTA_MIGRACION_RESPALDO_V1 =
   "FORMATO_V1_A_ESTADO_PERSISTENTE_ACTUAL";
+export const RUTA_MIGRACION_RESPALDO_V2 =
+  "FORMATO_V2_A_ESTADO_PERSISTENTE_ACTUAL";
+
+export type RutaMigracionRespaldo =
+  typeof RUTA_MIGRACION_RESPALDO_V1 | typeof RUTA_MIGRACION_RESPALDO_V2;
 
 export interface PlanRestauracionRespaldo {
-  readonly versionFormatoOrigen: typeof VERSION_FORMATO_RESPALDO;
+  readonly versionFormatoOrigen:
+    typeof VERSION_FORMATO_RESPALDO_ANTERIOR | typeof VERSION_FORMATO_RESPALDO;
   readonly versionBaseDatosOrigen: number;
   readonly creadoEn: string;
-  readonly rutaMigracion: typeof RUTA_MIGRACION_RESPALDO_V1;
+  readonly rutaMigracion: RutaMigracionRespaldo;
   readonly totalRegistros: number;
   readonly diagnostico: ResultadoAnalisisRespaldo;
   readonly estadoDestino: EstadoPersistenteRespaldable;
@@ -33,7 +41,7 @@ export interface ComandoRestaurarRespaldo {
 
 export interface ResultadoRestauracionRespaldo {
   readonly totalRegistros: number;
-  readonly rutaMigracion: typeof RUTA_MIGRACION_RESPALDO_V1;
+  readonly rutaMigracion: RutaMigracionRespaldo;
 }
 
 export class ErrorPreparacionRestauracionRespaldo extends Error {
@@ -74,18 +82,21 @@ export class CasoDeUsoPrepararRestauracionRespaldo {
       throw new ErrorPreparacionRestauracionRespaldo(diagnostico);
     }
 
-    const respaldo = JSON.parse(texto) as RespaldoHereToPlanV1;
-    const estadoDestino = migrarFormatoV1(respaldo);
+    const respaldo = JSON.parse(texto) as RespaldoHereToPlan;
+    const estadoDestino = migrarRespaldo(respaldo);
     const totalRegistros = COLECCIONES_RESPALDO.reduce(
       (total, coleccion) => total + estadoDestino.colecciones[coleccion].length,
       0,
     );
 
     return Object.freeze({
-      versionFormatoOrigen: VERSION_FORMATO_RESPALDO,
+      versionFormatoOrigen: respaldo.versionFormato,
       versionBaseDatosOrigen: respaldo.origen.versionBaseDatos,
       creadoEn: respaldo.creadoEn,
-      rutaMigracion: RUTA_MIGRACION_RESPALDO_V1,
+      rutaMigracion:
+        respaldo.versionFormato === VERSION_FORMATO_RESPALDO_ANTERIOR
+          ? RUTA_MIGRACION_RESPALDO_V1
+          : RUTA_MIGRACION_RESPALDO_V2,
       totalRegistros,
       diagnostico,
       estadoDestino,
@@ -116,17 +127,31 @@ export class CasoDeUsoRestaurarRespaldo {
   }
 }
 
-function migrarFormatoV1(
-  respaldo: RespaldoHereToPlanV1,
+function migrarRespaldo(
+  respaldo: RespaldoHereToPlan,
 ): EstadoPersistenteRespaldable {
   const pares = COLECCIONES_RESPALDO.map(
     (coleccion) =>
-      [coleccion, congelarRegistros(respaldo.contenido[coleccion])] as const,
+      [
+        coleccion,
+        congelarRegistros(obtenerRegistrosOrigen(respaldo, coleccion)),
+      ] as const,
   );
   return Object.freeze({
     versionBaseDatos: respaldo.origen.versionBaseDatos,
     colecciones: Object.freeze(Object.fromEntries(pares)) as ContenidoRespaldo,
   });
+}
+
+function obtenerRegistrosOrigen(
+  respaldo: RespaldoHereToPlan,
+  coleccion: NombreColeccionRespaldo,
+): readonly RegistroRespaldable[] {
+  if (respaldo.versionFormato === VERSION_FORMATO_RESPALDO) {
+    return respaldo.contenido[coleccion];
+  }
+  if (coleccion === "perfil-usuario") return [];
+  return respaldo.contenido[coleccion];
 }
 
 function congelarRegistros(

@@ -40,10 +40,11 @@ job de despliegue obtiene `pages: write` e `id-token: write`, necesarios para la
 publicación mediante GitHub Pages.
 
 Vite construye con `base: "/HereToPlan/"` porque el sitio pertenece a un
-repositorio de proyecto y no al dominio raíz de la cuenta. Mientras no exista
-un router del lado del cliente, la única ruta soportada es `/HereToPlan/`. Una
-futura navegación deberá usar rutas hash o incorporar una estrategia explícita
-de fallback antes de añadir rutas navegables.
+repositorio de proyecto y no al dominio raíz de la cuenta. La navegación usa
+`HashRouter`: GitHub Pages siempre entrega el mismo `index.html` y la porción
+posterior a `#` se resuelve en el navegador. Las rutas públicas son
+`#/calendario`, `#/crear`, `#/puntos` y `#/respaldo`; no requieren reglas de
+fallback del servidor.
 
 ## 3. Conceptos fundamentales
 
@@ -353,6 +354,12 @@ semántica `tipo + bloqueFuenteId`; el segundo impide más de una reducción por
 bloque u operación. La actualización es aditiva y no reescribe las sesiones ni
 las economías anteriores.
 
+La versión 11 añade `perfil-usuario`. El almacén conserva cero o una entidad
+`PerfilUsuarioV1`; el repositorio comprueba la cardinalidad de manera explícita
+y rechaza tanto una segunda creación como un estado persistido con múltiples
+perfiles. La actualización sólo incorpora el almacén y no transforma ninguna
+colección de planificación o economía.
+
 `InicializarContextosPlanificacion` garantiza una sola instancia de `Libre` de
 forma idempotente. La raíz de composición ejecuta este caso de uso antes de
 montar React, por lo que la interfaz nunca comienza sobre una base inicializada
@@ -630,14 +637,15 @@ y deriva los minutos efectivos sin cambiar la instantánea original.
 
 `ExportarRespaldo`, `AnalizarImportacionRespaldo`,
 `PrepararRestauracionRespaldo` y `RestaurarRespaldo` son puertos de entrada de
-aplicación. La envolvente `HereToPlan.respaldo` posee `versionFormato: 1`,
+aplicación. La envolvente vigente `HereToPlan.respaldo` posee
+`versionFormato: 2`,
 separada de `versionBaseDatos` y de la `versionEsquema` de cada registro. Esta
 separación evita interpretar una migración interna de IndexedDB como un cambio
 automático del formato portable.
 
 El puerto de salida `LectorEstadoPersistente` expone una única operación de
 lectura completa. `LectorEstadoPersistenteIndexedDB` la implementa abriendo una
-transacción `readonly` sobre los doce almacenes respaldables. El caso de uso
+transacción `readonly` sobre los trece almacenes respaldables. El caso de uso
 recibe así una instantánea coherente, la envuelve y la serializa; los errores de
 lectura y serialización se distinguen y nunca habilitan una escritura.
 
@@ -649,20 +657,35 @@ estado vigente. El contrato detallado y sus ejemplos se encuentran en
 [`Respaldo.md`](Respaldo.md).
 
 Preparar y ejecutar también permanecen separados. La preparación sólo acepta un
-diagnóstico `VALIDO`, aplica la ruta explícita
-`FORMATO_V1_A_ESTADO_PERSISTENTE_ACTUAL` y produce un plan inmutable con el
-estado de destino. Una versión futura se rechaza antes de disponer de capacidad
-de escritura. La ejecución exige la confirmación exacta `RESTAURAR` y delega una
-única sustitución completa al puerto `RestauradorEstadoPersistente`.
+diagnóstico `VALIDO`, aplica una ruta explícita y produce un plan inmutable con
+el estado de destino. V1 conserva sus doce colecciones y migra con perfil vacío;
+V2 conserva también `perfil-usuario`. Una versión futura se rechaza antes de
+disponer de capacidad de escritura. La ejecución exige la confirmación exacta
+`RESTAURAR` y delega una única sustitución completa al puerto
+`RestauradorEstadoPersistente`.
 
 `RestauradorEstadoPersistenteIndexedDB` abre una transacción `readwrite` sobre
-los doce almacenes. Todos los `clear` y `add` pertenecen a esa misma
+los trece almacenes. Todos los `clear` y `add` pertenecen a esa misma
 transacción: sólo `oncomplete` representa éxito; cualquier excepción o aborto
 conserva el estado anterior completo. La presentación ofrece recargar la
 aplicación después de la confirmación técnica para reconstruir consultas y
 proyecciones, pero esa recarga no participa del límite transaccional.
 
-### 6.17. Navegación por teclado y gestión de foco
+### 6.17. Perfil local
+
+`PerfilUsuario` es una entidad del dominio con identidad estable, nombre
+visible e instantes de creación y actualización. Su nombre se normaliza, admite
+Unicode y se limita a 60 puntos de código. No representa autenticación ni
+contiene correo, contraseña u otros datos sensibles.
+
+Los puertos de entrada permiten crear, consultar y actualizar. El puerto de
+salida `RepositorioPerfilUsuario` desconoce IndexedDB; sus adaptadores en
+memoria y persistente respetan el mismo contrato de unicidad. React consumirá
+estos casos de uso mediante servicios de composición, sin acceder al almacén ni
+convertirse en fuente de verdad. La ausencia de perfil es un estado válido y
+distinto de un perfil con nombre vacío.
+
+### 6.18. Navegación por teclado y gestión de foco
 
 La accesibilidad operativa pertenece al adaptador de presentación. No altera
 los puertos de aplicación ni incorpora decisiones visuales al dominio, pero sí
@@ -794,14 +817,14 @@ El consumo de recuperación aplica el mismo principio entre otras fronteras:
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                       |
-| --------------- | ----------------------------------------------------------------------------------- |
-| Dominio         | Planificación, ejecución, puntos y recuperación protegidos por invariantes          |
-| Presentación    | Calendario, economías, respaldo, diagnóstico y confirmación destructiva accesible   |
-| Aplicación      | Sesiones, economías, canje, contrato V1 y ruta explícita de restauración            |
-| Infraestructura | Repositorios, unidades atómicas, instantánea y sustitución completa en IndexedDB    |
-| Composición     | Ensambla calendario, ejecución, economías, Rewards y respaldo sin reglas de negocio |
-| Persistencia    | IndexedDB v10 respalda o reemplaza atómicamente los doce almacenes soportados       |
+| Elemento        | Estado actual                                                                    |
+| --------------- | -------------------------------------------------------------------------------- |
+| Dominio         | Planificación, ejecución, economías y perfil local protegidos por invariantes    |
+| Presentación    | SPA con cuatro rutas, armazón adaptativo y capacidades existentes separadas      |
+| Aplicación      | Casos de uso de perfil, respaldo V2 y migraciones explícitas V1/V2               |
+| Infraestructura | Repositorios, unidades atómicas, instantánea y sustitución completa en IndexedDB |
+| Composición     | Ensambla páginas y servicios sin introducir reglas de negocio                    |
+| Persistencia    | IndexedDB v11 respalda o reemplaza atómicamente los trece almacenes soportados   |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

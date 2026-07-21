@@ -3,10 +3,12 @@ import {
   CasoDeUsoPrepararRestauracionRespaldo,
   CasoDeUsoRestaurarRespaldo,
   COLECCIONES_RESPALDO,
+  COLECCIONES_RESPALDO_V1,
   ErrorConfirmacionRestauracionRespaldo,
   ErrorPreparacionRestauracionRespaldo,
   ErrorRestauracionRespaldo,
   RUTA_MIGRACION_RESPALDO_V1,
+  RUTA_MIGRACION_RESPALDO_V2,
 } from "../src/aplicacion";
 
 describe("restauración de respaldos", () => {
@@ -30,6 +32,7 @@ describe("restauración de respaldos", () => {
     expect(plan.rutaMigracion).toBe(RUTA_MIGRACION_RESPALDO_V1);
     expect(plan.totalRegistros).toBe(1);
     expect(plan.versionBaseDatosOrigen).toBe(10);
+    expect(plan.estadoDestino.colecciones["perfil-usuario"]).toEqual([]);
     expect(Object.isFrozen(plan)).toBe(true);
     expect(Object.isFrozen(plan.estadoDestino.colecciones)).toBe(true);
     expect(
@@ -40,9 +43,33 @@ describe("restauración de respaldos", () => {
     ).toBe(true);
   });
 
-  it("rechaza versiones futuras cuando no existe una ruta de migración", () => {
+  it("prepara V2 conservando el perfil local respaldado", () => {
     const documento = respaldoV1();
     documento.versionFormato = 2;
+    documento.contenido = Object.fromEntries(
+      COLECCIONES_RESPALDO.map((coleccion) => [coleccion, []]),
+    );
+    documento.contenido["perfil-usuario"] = [
+      {
+        versionEsquema: 1,
+        id: "perfil-local",
+        nombreVisible: "Nicolás",
+        creadoEn: "2026-07-21T10:00:00.000Z",
+        actualizadoEn: "2026-07-21T10:00:00.000Z",
+      },
+    ];
+
+    const plan = new CasoDeUsoPrepararRestauracionRespaldo().ejecutar(
+      JSON.stringify(documento),
+    );
+
+    expect(plan.rutaMigracion).toBe(RUTA_MIGRACION_RESPALDO_V2);
+    expect(plan.estadoDestino.colecciones["perfil-usuario"]).toHaveLength(1);
+  });
+
+  it("rechaza versiones futuras cuando no existe una ruta de migración", () => {
+    const documento = respaldoV1();
+    documento.versionFormato = 3;
 
     expect(() =>
       new CasoDeUsoPrepararRestauracionRespaldo().ejecutar(
@@ -116,7 +143,7 @@ function respaldoV1(): DocumentoRespaldoMutable {
     creadoEn: "2026-07-20T15:30:00.000Z",
     origen: { aplicacion: "HereToPlan", versionBaseDatos: 10 },
     contenido: Object.fromEntries(
-      COLECCIONES_RESPALDO.map((coleccion) => [coleccion, []]),
+      COLECCIONES_RESPALDO_V1.map((coleccion) => [coleccion, []]),
     ),
   };
 }

@@ -1,19 +1,19 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { HashRouter } from "react-router-dom";
 
-import { PantallaAgendaBorrador } from "../presentacion/agendas/PantallaAgendaBorrador";
 import type { ServiciosAgendaBorrador } from "../presentacion/agendas/ServiciosAgendaBorrador";
-import { PantallaCalendario } from "../presentacion/calendario/PantallaCalendario";
+import { ArmazonAplicacion } from "../presentacion/armazon/ArmazonAplicacion";
 import type { ServiciosCalendario } from "../presentacion/calendario/ServiciosCalendario";
 import { useGradienteGlobal } from "../presentacion/hooks/useGradienteGlobal";
-import { PanelBilletera } from "../presentacion/puntos/PanelBilletera";
+import { PaginaCalendario } from "../presentacion/paginas/PaginaCalendario";
+import { PaginaCrear } from "../presentacion/paginas/PaginaCrear";
+import { PaginaPuntos } from "../presentacion/paginas/PaginaPuntos";
+import { PaginaRespaldo } from "../presentacion/paginas/PaginaRespaldo";
 import type { ServiciosPuntos } from "../presentacion/puntos/ServiciosPuntos";
-import { PanelDiaLibre } from "../presentacion/recompensas/PanelDiaLibre";
 import type { ServiciosRecompensas } from "../presentacion/recompensas/ServiciosRecompensas";
-import { PanelRecuperacion } from "../presentacion/recuperacion/PanelRecuperacion";
 import type { ServiciosRecuperacion } from "../presentacion/recuperacion/ServiciosRecuperacion";
-import { PanelRespaldo } from "../presentacion/respaldo/PanelRespaldo";
 import type { ServiciosRespaldo } from "../presentacion/respaldo/ServiciosRespaldo";
-import logoHereToPlan from "../presentacion/recursos/logos/HereToPlanLogo.svg";
+import { RutasAplicacion } from "./rutas/RutasAplicacion";
 import {
   obtenerServiciosCalendario,
   obtenerServiciosPuntos,
@@ -22,7 +22,7 @@ import {
   obtenerServiciosRespaldo,
 } from "./configurarAplicacion";
 
-interface AppProps {
+export interface AppProps {
   readonly servicios?: ServiciosAgendaBorrador;
   readonly serviciosCalendario?: ServiciosCalendario;
   readonly serviciosPuntos?: ServiciosPuntos;
@@ -31,7 +31,17 @@ interface AppProps {
   readonly serviciosRespaldo?: ServiciosRespaldo;
 }
 
-export function App({
+export function App(props: AppProps) {
+  useGradienteGlobal();
+
+  return (
+    <HashRouter>
+      <AplicacionEnrutada {...props} />
+    </HashRouter>
+  );
+}
+
+function AplicacionEnrutada({
   servicios,
   serviciosCalendario,
   serviciosPuntos,
@@ -39,97 +49,59 @@ export function App({
   serviciosRecuperacion,
   serviciosRespaldo,
 }: AppProps) {
-  useGradienteGlobal();
-  const contenidoRef = useRef<HTMLElement>(null);
   const [revisionDatos, setRevisionDatos] = useState(0);
-  const serviciosPuntosEfectivos =
+  const usaComposicionReal = !servicios && !serviciosCalendario;
+  const calendario =
+    serviciosCalendario ??
+    (servicios ? undefined : obtenerServiciosCalendario());
+  const puntos =
     serviciosPuntos ??
-    (!servicios && !serviciosCalendario ? obtenerServiciosPuntos() : undefined);
-  const serviciosRecompensasEfectivos =
+    (usaComposicionReal ? obtenerServiciosPuntos() : undefined);
+  const recompensas =
     serviciosRecompensas ??
-    (!servicios && !serviciosCalendario
-      ? obtenerServiciosRecompensas()
-      : undefined);
-  const serviciosRecuperacionEfectivos =
+    (usaComposicionReal ? obtenerServiciosRecompensas() : undefined);
+  const recuperacion =
     serviciosRecuperacion ??
-    (!servicios && !serviciosCalendario
-      ? obtenerServiciosRecuperacion()
-      : undefined);
-  const serviciosRespaldoEfectivos =
+    (usaComposicionReal ? obtenerServiciosRecuperacion() : undefined);
+  const respaldo =
     serviciosRespaldo ??
-    (!servicios && !serviciosCalendario
-      ? obtenerServiciosRespaldo()
-      : undefined);
+    (usaComposicionReal ? obtenerServiciosRespaldo() : undefined);
+
+  const actualizarDatos = () =>
+    setRevisionDatos((revisionActual) => revisionActual + 1);
 
   return (
-    <main
-      ref={contenidoRef}
-      id="contenido-principal"
-      className="contenedor-principal"
-      tabIndex={-1}
-    >
-      <a
-        className="enlace-saltar"
-        href="#contenido-principal"
-        onClick={() => contenidoRef.current?.focus()}
-      >
-        Saltar al contenido principal
-      </a>
-      <header className="encabezado">
-        <p className="etiqueta">Planificación personal consciente</p>
-        <h1>
-          <img
-            src={logoHereToPlan}
-            width="1536"
-            height="384"
-            alt="HereToPlan"
+    <ArmazonAplicacion>
+      <RutasAplicacion
+        calendario={
+          <PaginaCalendario
+            {...(servicios ? { serviciosAgenda: servicios } : {})}
+            {...(calendario ? { serviciosCalendario: calendario } : {})}
+            revisionDatos={revisionDatos}
+            onDatosCambiados={actualizarDatos}
           />
-        </h1>
-        <p>
-          HereToPlan combina compromisos, flexibilidad y trazabilidad para
-          construir planes realistas sin convertirlos en un sistema punitivo.
-        </p>
-      </header>
-
-      {servicios ? (
-        <PantallaAgendaBorrador servicios={servicios} />
-      ) : (
-        <>
-          <PantallaCalendario
-            servicios={serviciosCalendario ?? obtenerServiciosCalendario()}
-            revisionExterna={revisionDatos}
-            onPuntosCambiados={() =>
-              setRevisionDatos((revision) => revision + 1)
-            }
+        }
+        crear={
+          <PaginaCrear
+            {...(calendario ? { serviciosCalendario: calendario } : {})}
+            {...(servicios ? { serviciosAgenda: servicios } : {})}
           />
-          {serviciosPuntosEfectivos && (
-            <PanelBilletera
-              servicios={serviciosPuntosEfectivos}
-              revision={revisionDatos}
-            />
-          )}
-          {serviciosRecuperacionEfectivos && (
-            <PanelRecuperacion
-              servicios={serviciosRecuperacionEfectivos}
-              revision={revisionDatos}
-              onRecuperacionCambiada={() =>
-                setRevisionDatos((revision) => revision + 1)
-              }
-            />
-          )}
-          {serviciosRecompensasEfectivos && (
-            <PanelDiaLibre
-              servicios={serviciosRecompensasEfectivos}
-              onCanjeConfirmado={() =>
-                setRevisionDatos((revision) => revision + 1)
-              }
-            />
-          )}
-          {serviciosRespaldoEfectivos && (
-            <PanelRespaldo servicios={serviciosRespaldoEfectivos} />
-          )}
-        </>
-      )}
-    </main>
+        }
+        puntos={
+          <PaginaPuntos
+            {...(puntos ? { serviciosPuntos: puntos } : {})}
+            {...(recompensas ? { serviciosRecompensas: recompensas } : {})}
+            {...(recuperacion ? { serviciosRecuperacion: recuperacion } : {})}
+            revisionDatos={revisionDatos}
+            onDatosCambiados={actualizarDatos}
+          />
+        }
+        respaldo={
+          <PaginaRespaldo
+            {...(respaldo ? { serviciosRespaldo: respaldo } : {})}
+          />
+        }
+      />
+    </ArmazonAplicacion>
   );
 }
