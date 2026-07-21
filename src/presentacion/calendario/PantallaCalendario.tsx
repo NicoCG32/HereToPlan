@@ -902,12 +902,12 @@ function ListaCompactaBloques({
       {bloques.map((bloque) => (
         <li
           key={bloque.id}
-          aria-label={`${bloque.titulo}, ${bloque.origen.nombreContexto}, ${bloque.minutosPlanificados} minutos, ${bloque.politica.rigidez.toLowerCase()}, ${etiquetaEstadoBloque(bloque.estado).toLowerCase()}`}
+          aria-label={`${bloque.titulo}, ${bloque.origen.nombreContexto}, ${obtenerMinutosEfectivos(bloque)} minutos efectivos, ${bloque.politica.rigidez.toLowerCase()}, ${etiquetaEstadoBloque(bloque.estado).toLowerCase()}`}
         >
           <strong>{bloque.titulo}</strong>
           <span>{bloque.origen.nombreContexto}</span>
           <small>
-            {bloque.minutosPlanificados} min ·{" "}
+            {etiquetaCargaBloque(bloque)} ·{" "}
             {bloque.politica.rigidez === "ESTRICTO" ? "Estricta" : "Flexible"}
             {bloque.estado !== "PENDIENTE" &&
               ` · ${etiquetaEstadoBloque(bloque.estado)}`}
@@ -983,8 +983,8 @@ function VistaListaBloques({
                 <time dateTime={bloque.fecha}>{bloque.fecha}</time>
                 <strong>{bloque.titulo}</strong>
                 <span>
-                  {bloque.origen.nombreContexto} · {bloque.minutosPlanificados}{" "}
-                  min ·{" "}
+                  {bloque.origen.nombreContexto} · {etiquetaCargaBloque(bloque)}{" "}
+                  ·{" "}
                   {bloque.politica.rigidez === "ESTRICTO"
                     ? "Estricta"
                     : "Flexible"}
@@ -1164,6 +1164,17 @@ function etiquetaEstadoBloque(estado: BloqueCalendarioDto["estado"]): string {
     INCUMPLIDO: "Incumplido",
     EXCUSADO: "Excusado",
   }[estado];
+}
+
+function obtenerMinutosEfectivos(bloque: BloqueCalendarioDto): number {
+  return bloque.reduccionCarga?.minutosEfectivos ?? bloque.minutosPlanificados;
+}
+
+function etiquetaCargaBloque(bloque: BloqueCalendarioDto): string {
+  const minutosEfectivos = obtenerMinutosEfectivos(bloque);
+  return bloque.reduccionCarga
+    ? `${minutosEfectivos} min efectivos (${bloque.minutosPlanificados} originales)`
+    : `${minutosEfectivos} min`;
 }
 
 function formatearInstante(instante: string): string {

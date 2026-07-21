@@ -1,4 +1,4 @@
-export const VERSION_BASE_DATOS = 9;
+export const VERSION_BASE_DATOS = 10;
 export const ALMACEN_AGENDAS = "agendas";
 export const ALMACEN_ACTIVIDADES = "actividades";
 export const ALMACEN_CONTEXTOS = "contextos-planificacion";
@@ -17,6 +17,12 @@ export const ALMACEN_SESIONES_CRONOMETRO = "sesiones-cronometro";
 export const INDICE_SESIONES_POR_BLOQUE = "por-bloque-id";
 export const INDICE_SESIONES_POR_OPERACION = "por-operacion-id";
 export const INDICE_SESION_ABIERTA = "por-sesion-abierta";
+export const ALMACEN_MOVIMIENTOS_RECUPERACION = "movimientos-recuperacion";
+export const INDICE_RECUPERACION_POR_OPERACION = "por-operacion-id";
+export const INDICE_RECUPERACION_POR_FUENTE = "por-tipo-y-bloque-fuente";
+export const ALMACEN_REDUCCIONES_CARGA = "reducciones-carga";
+export const INDICE_REDUCCION_POR_BLOQUE = "por-bloque-id";
+export const INDICE_REDUCCION_POR_OPERACION = "por-operacion-id";
 
 export function asegurarAlmacenes(baseDatos: IDBDatabase): void {
   if (!baseDatos.objectStoreNames.contains(ALMACEN_AGENDAS)) {
@@ -89,6 +95,31 @@ export function asegurarAlmacenes(baseDatos: IDBDatabase): void {
       multiEntry: true,
     });
     almacen.createIndex(INDICE_SESION_ABIERTA, "claveAbierta", {
+      unique: true,
+    });
+  }
+  if (!baseDatos.objectStoreNames.contains(ALMACEN_MOVIMIENTOS_RECUPERACION)) {
+    const almacen = baseDatos.createObjectStore(
+      ALMACEN_MOVIMIENTOS_RECUPERACION,
+      { keyPath: "id" },
+    );
+    almacen.createIndex(INDICE_RECUPERACION_POR_OPERACION, "operacionId", {
+      unique: true,
+    });
+    almacen.createIndex(
+      INDICE_RECUPERACION_POR_FUENTE,
+      ["tipo", "bloqueFuenteId"],
+      { unique: true },
+    );
+  }
+  if (!baseDatos.objectStoreNames.contains(ALMACEN_REDUCCIONES_CARGA)) {
+    const almacen = baseDatos.createObjectStore(ALMACEN_REDUCCIONES_CARGA, {
+      keyPath: "id",
+    });
+    almacen.createIndex(INDICE_REDUCCION_POR_BLOQUE, "bloqueId", {
+      unique: true,
+    });
+    almacen.createIndex(INDICE_REDUCCION_POR_OPERACION, "operacionId", {
       unique: true,
     });
   }

@@ -23,6 +23,7 @@ dominio/
 ├── cronometro/
 ├── planificacion/
 ├── puntos/
+├── recuperacion/
 ├── recompensas/
 └── compartido/
 ```
@@ -195,7 +196,11 @@ Un compromiso estricto no admite ajustes. Un plazo externo no puede declarar `EX
 
 Agenda y actividad pueden proponer políticas predeterminadas. La política efectiva se resuelve con precedencia explícita del bloque, actividad y agenda. El bloque recibe una copia independiente antes de confirmarse; su vista incluye `versionEsquema: 1` y se persiste como instantánea histórica. Cambiar posteriormente una propuesta no modifica bloques existentes.
 
-`AjusteCompromiso` registra la autorización histórica que modifica un bloque. Actualmente está implementado `EXCUSAR`, utilizado por el día libre. Los tipos `REPROGRAMAR`, `EXTENDER_PLAZO` y `REDUCIR_CARGA` forman parte del modelo de extensión, pero todavía no poseen comportamiento.
+`AjusteCompromiso` registra la autorización histórica que modifica un bloque.
+`EXCUSAR` se utiliza en el Día libre. `REDUCIR_CARGA` posee un contrato
+especializado, `ReduccionCarga`, porque además de la autorización debe conservar
+la cantidad exacta y enlazarse con un consumo del banco de recuperación. Los
+tipos `REPROGRAMAR` y `EXTENDER_PLAZO` todavía no poseen comportamiento.
 
 ### `cronometro`
 
@@ -214,6 +219,42 @@ Sólo puede existir una sesión abierta en la aplicación, aunque esté pausada.
 Cada bloque puede acumular varias sesiones finalizadas. Detener una sesión no
 crea una `ResolucionBloquePlanificacion`: completar o incumplir sigue siendo una
 declaración humana separada y el cronómetro nunca es obligatorio.
+
+### `recuperacion`
+
+La recuperación es una economía de minutos separada de los puntos.
+`MovimientoRecuperacion` registra una `ACREDITACION` o un `CONSUMO`, conserva
+una operación idempotente y referencia el bloque que originó el hecho.
+`BancoRecuperacion` reconstruye su saldo desde esos movimientos; el saldo no se
+persiste como un contador mutable ni puede ser negativo.
+
+Una acreditación sólo puede provenir de un bloque confirmado y completado. Se
+calcula con sesiones `FINALIZADA` y usa la carga efectiva del bloque:
+
+```text
+excedente = max(0, minutos cronometrados - carga efectiva)
+acreditación = min(floor(excedente × tasa), capacidad diaria, capacidad semanal)
+```
+
+La configuración inicial utiliza una tasa racional `1:2`, un máximo diario de
+120 minutos y uno semanal de 300. Estos valores están encapsulados en
+`ConfiguracionRecuperacion`: son parámetros explícitos y calibrables, no una
+política definitiva oculta en la interfaz. Las fracciones se redondean hacia
+abajo para no acreditar tiempo no verificado.
+
+`ReduccionCarga` registra cuántos minutos se descuentan de un bloque futuro,
+pendiente, flexible y cuya política permita `REDUCIR_CARGA`. No reescribe
+`minutosPlanificados`: la proyección calcula
+`carga efectiva = minutos planificados - minutos reducidos`, conservando así la
+estimación original para auditoría. Debe quedar al menos un minuto de carga; una
+exención completa pertenece a la regla de Día libre.
+
+Movimiento de consumo y reducción se confirman en una única transacción. La
+persistencia vuelve a calcular el saldo y comprueba que el bloque continúe
+pendiente antes de publicar ambos hechos. Los índices únicos impiden reutilizar
+una operación, acreditar dos veces un bloque o aplicar más de una reducción al
+mismo bloque. Los topes también se revalidan dentro de la transacción de
+acreditación para tolerar dos pestañas concurrentes.
 
 ### `puntos`
 
@@ -290,6 +331,10 @@ La recompensa `DIA_LIBRE`:
 10. Un canje no altera el estado hasta que la capa de aplicación aplica su resultado.
 11. Sólo existe una sesión de cronómetro abierta y cada transición conserva orden temporal.
 12. Detener el cronómetro no resuelve ni acredita un bloque.
+13. Un bloque completado sólo acredita una vez sus minutos excedentes finalizados.
+14. Los puntos y los minutos de recuperación nunca se intercambian entre sí.
+15. Consumir recuperación y registrar la reducción de carga son una sola operación atómica.
+16. Una reducción conserva los minutos originales y sólo altera la carga efectiva proyectada.
 
 ## 5. Capacidades todavía no implementadas
 
@@ -298,9 +343,7 @@ El modelo y sus adaptadores aún deben incorporar:
 - reglas internas de tareas compuestas y proyectos;
 - recurrencia completa de hábitos;
 - plantillas de agenda;
-- banco de recuperación;
 - extensión de plazos;
-- reducción de carga;
 - calibración de la fórmula con observaciones de uso;
 - calendario funcional definitivo.
 
@@ -315,7 +358,7 @@ La base permite crecer sin romper la regla central:
 - nuevos ajustes pueden implementarse dentro de `BloqueTrabajo.validarAjuste`;
 - nuevas recompensas pueden producir otros tipos de ajuste;
 - la capa de aplicación coordina transacciones atómicas entre agregados;
-- infraestructura rehidrata agendas, billeteras, canjes, ajustes y sesiones mediante
+- infraestructura rehidrata agendas, billeteras, canjes, ajustes, sesiones y movimientos de recuperación mediante
   registros versionados;
 - las vistas de los agregados pueden convertirse en DTO persistibles.
 

@@ -37,3 +37,8 @@ export * from "./recompensas/ServicioDiaLibrePlanificacion";
 export * from "./recompensas/tipos";
 
 export * from "./cronometro/SesionCronometro";
+
+export * from "./recuperacion/BancoRecuperacion";
+export * from "./recuperacion/ConfiguracionRecuperacion";
+export * from "./recuperacion/MovimientoRecuperacion";
+export * from "./recuperacion/ReduccionCarga";

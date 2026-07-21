@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1390" viewBox="0 0 1600 1390" role="img" aria-labelledby="titulo descripcion">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1660" viewBox="0 0 1600 1660" role="img" aria-labelledby="titulo descripcion">
   <title id="titulo">HereToPlan — Modelo de dominio implementado</title>
-  <desc id="descripcion">Diagrama de entidades y relaciones entre actividades, planificación, sesiones de cronómetro, resoluciones, puntos y recompensas.</desc>
+  <desc id="descripcion">Diagrama de entidades y relaciones entre actividades, planificación, sesiones de cronómetro, resoluciones, puntos, recuperación y recompensas.</desc>
   <defs>
     <filter id="sombra" x="-10%" y="-10%" width="120%" height="130%">
       <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.12"/>
@@ -45,9 +45,9 @@
     </style>
   </defs>
 
-  <rect class="fondo" width="1600" height="1280"/>
+  <rect class="fondo" width="1600" height="1660"/>
   <text class="titulo" x="54" y="54">HereToPlan — Modelo de dominio implementado</text>
-  <text class="subtitulo" x="54" y="82">Los contextos organizan; los cortes confirman; las sesiones miden sin decidir el resultado.</text>
+  <text class="subtitulo" x="54" y="82">Los contextos organizan; los cortes confirman; las sesiones miden; puntos y recuperación conservan economías separadas.</text>
 
   <rect class="grupo" x="40" y="112" width="455" height="720"/>
   <text class="grupo-titulo" x="64" y="143">Catálogo de actividades</text>
@@ -213,9 +213,9 @@
   <path class="relacion" d="M1017 746 H1108"/>
   <text class="relacion-etiqueta" x="1024" y="735">mide bloque confirmado</text>
 
-  <rect class="grupo" x="40" y="862" width="1520" height="440"/>
-  <text class="grupo-titulo" x="64" y="893">Puntos y recompensas</text>
-  <text class="grupo-subtitulo" x="64" y="914">Trazabilidad económica y flexibilidad ganada</text>
+  <rect class="grupo" x="40" y="862" width="1520" height="700"/>
+  <text class="grupo-titulo" x="64" y="893">Economías y recompensas</text>
+  <text class="grupo-subtitulo" x="64" y="914">Puntos y recuperación son saldos trazables, separados y nunca negativos</text>
 
   <g transform="translate(72 946)">
     <rect class="clase economia" width="300" height="132"/>
@@ -266,26 +266,75 @@
   <path class="relacion" d="M1356 944 V830 H1540 V499 H1527"/>
   <text class="relacion-etiqueta" x="1368" y="856">autoriza ajustes</text>
 
-  <g transform="translate(800 1100)">
+  <g transform="translate(72 1120)">
+    <rect class="clase economia" width="300" height="134"/>
+    <path class="cabecera-economia" d="M10 0 H290 A10 10 0 0 1 300 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
+    <text class="estereotipo" x="16" y="18">«AGREGADO»</text>
+    <text class="nombre" x="16" y="40">BancoRecuperacion</text>
+    <text class="atributo" x="16" y="76">saldoMinutos: number «derivado»</text>
+    <text class="atributo" x="16" y="99">saldo ≥ 0</text>
+    <text class="atributo" x="16" y="122">fuentes y operaciones únicas</text>
+  </g>
+
+  <g transform="translate(430 1120)">
+    <rect class="clase economia" width="322" height="134"/>
+    <path class="cabecera-economia" d="M10 0 H312 A10 10 0 0 1 322 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
+    <text class="estereotipo" x="16" y="18">«ENTIDAD HISTÓRICA»</text>
+    <text class="nombre" x="16" y="40">MovimientoRecuperacion</text>
+    <text class="atributo" x="16" y="76">tipo: ACREDITACION | CONSUMO</text>
+    <text class="atributo" x="16" y="99">minutos · bloqueFuenteId · fechaFuente</text>
+    <text class="atributo" x="16" y="122">operacionId · ocurridoEn</text>
+  </g>
+
+  <g transform="translate(810 1120)">
+    <rect class="clase economia" width="320" height="134"/>
+    <path class="cabecera-economia" d="M10 0 H310 A10 10 0 0 1 320 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
+    <text class="estereotipo" x="16" y="18">«HECHO HISTÓRICO»</text>
+    <text class="nombre" x="16" y="40">ReduccionCarga</text>
+    <text class="atributo" x="16" y="76">bloqueId · movimientoId · operacionId</text>
+    <text class="atributo" x="16" y="99">minutosReducidos: number</text>
+    <text class="atributo" x="16" y="122">aplicadaEn: Date</text>
+  </g>
+
+  <g transform="translate(1188 1120)">
+    <rect class="clase economia" width="338" height="134"/>
+    <path class="cabecera-economia" d="M10 0 H328 A10 10 0 0 1 338 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
+    <text class="estereotipo" x="16" y="18">«POLÍTICA CONFIGURABLE»</text>
+    <text class="nombre" x="16" y="40">ConfiguracionRecuperacion</text>
+    <text class="atributo" x="16" y="76">tasa: numerador / denominador</text>
+    <text class="atributo" x="16" y="99">maximoDiarioMinutos</text>
+    <text class="atributo" x="16" y="122">maximoSemanalMinutos</text>
+  </g>
+
+  <path class="composicion" d="M374 1187 H428"/>
+  <text class="relacion-etiqueta" x="378" y="1174">deriva saldo</text>
+  <path class="relacion" d="M754 1187 H808"/>
+  <text class="relacion-etiqueta" x="754" y="1174">materializa consumo</text>
+  <path class="relacion" d="M1186 1235 V1292 H222 V1256"/>
+  <text class="relacion-etiqueta" x="655" y="1285">limita tasa y acreditaciones diarias/semanales</text>
+  <path class="relacion" d="M1317 802 V842 H590 V1118"/>
+  <text class="relacion-etiqueta" x="760" y="837">sesiones finalizadas verifican excedente</text>
+
+  <g transform="translate(800 1330)">
     <rect class="clase economia" width="420" height="80"/>
     <path class="cabecera-economia" d="M10 0 H410 A10 10 0 0 1 420 10 V42 H0 V10 A10 10 0 0 1 10 0"/>
     <text class="estereotipo" x="16" y="18">«POLÍTICA DE DOMINIO»</text>
     <text class="nombre" x="16" y="35">FormulaPuntosBloque</text>
     <text class="atributo" x="16" y="65">min(4, ceil(minutos planificados / 30))</text>
   </g>
-  <path class="relacion" d="M798 1140 H720 V1080"/>
-  <text class="relacion-etiqueta" x="532" y="1134">calcula ingreso al completar</text>
+  <path class="relacion" d="M798 1370 H770 V1085 H590 V1080"/>
+  <text class="relacion-etiqueta" x="758" y="1308" text-anchor="end">calcula puntos</text>
 
-  <rect class="regla" x="72" y="1200" width="1454" height="76"/>
-  <text class="regla-titulo" x="92" y="1226">Reglas transversales de ejecución, historia, puntos y flexibilidad</text>
-  <text class="regla-texto" x="92" y="1250">Completar publica resolución e ingreso juntos. Canjear publica CanjeRecompensa, gasto y todos los AjusteCompromiso como una unidad.</text>
-  <text class="regla-texto" x="92" y="1268">Cronometrar es opcional y detener no resuelve. Día libre sólo excusa bloques flexibles personales elegibles; lo protegido permanece intacto.</text>
+  <rect class="regla" x="72" y="1440" width="1454" height="90"/>
+  <text class="regla-titulo" x="92" y="1466">Reglas transversales de ejecución, historia y economías</text>
+  <text class="regla-texto" x="92" y="1490">Completar publica resolución e ingreso juntos. Canjear publica recompensa, gasto y ajustes como una unidad.</text>
+  <text class="regla-texto" x="92" y="1512">Consumir recuperación publica movimiento y reducción juntos; conserva la estimación original y deriva la carga efectiva.</text>
 
-  <line x1="60" y1="1347" x2="105" y2="1347" class="composicion"/>
-  <text class="leyenda" x="116" y="1352">composición / control de ciclo</text>
-  <line x1="350" y1="1347" x2="395" y2="1347" class="herencia"/>
-  <text class="leyenda" x="406" y="1352">especialización</text>
-  <line x1="590" y1="1347" x2="635" y2="1347" class="relacion"/>
-  <text class="leyenda" x="646" y="1352">referencia o efecto</text>
-  <text class="leyenda" x="1518" y="1352" text-anchor="end">Estado implementado · julio de 2026</text>
+  <line x1="60" y1="1610" x2="105" y2="1610" class="composicion"/>
+  <text class="leyenda" x="116" y="1615">composición / control de ciclo</text>
+  <line x1="350" y1="1610" x2="395" y2="1610" class="herencia"/>
+  <text class="leyenda" x="406" y="1615">especialización</text>
+  <line x1="590" y1="1610" x2="635" y2="1610" class="relacion"/>
+  <text class="leyenda" x="646" y="1615">referencia o efecto</text>
+  <text class="leyenda" x="1518" y="1615" text-anchor="end">Estado implementado · julio de 2026</text>
 </svg>

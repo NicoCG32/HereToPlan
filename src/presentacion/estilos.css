@@ -2468,6 +2468,107 @@ button:focus-visible {
   }
 }
 
+.panel-recuperacion {
+  border-color: rgb(var(--planta-profundo) / 38%);
+  background:
+    linear-gradient(
+      128deg,
+      rgb(var(--planta-luz) / 18%),
+      rgb(var(--diamante-blanco) / 62%) 48%,
+      rgb(var(--diamante-hielo) / 12%)
+    ),
+    rgb(var(--plata-blanca) / 88%);
+}
+
+.saldo-recuperacion {
+  display: grid;
+  min-width: 8rem;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgb(var(--planta-profundo) / 35%);
+  border-radius: 1rem;
+  text-align: center;
+  background: rgb(var(--plata-blanca) / 75%);
+}
+
+.saldo-recuperacion strong {
+  font-size: clamp(1.75rem, 5vw, 2.7rem);
+  line-height: 1;
+  color: rgb(var(--planta-profundo));
+}
+
+.saldo-recuperacion span,
+.lista-recuperacion span,
+.historial-recuperacion span {
+  color: var(--texto-secundario);
+}
+
+.politica-recuperacion {
+  margin: 0 0 1.25rem;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid rgb(var(--dorado-profundo));
+  background: rgb(var(--dorado-claro) / 15%);
+}
+
+.columnas-recuperacion {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: 1rem;
+}
+
+.columnas-recuperacion > section,
+.historial-recuperacion {
+  padding: 1rem;
+  border: 1px solid rgb(var(--plata-profunda) / 28%);
+  border-radius: 1rem;
+  background: rgb(var(--plata-blanca) / 68%);
+}
+
+.lista-recuperacion,
+.historial-recuperacion ol {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-recuperacion li,
+.historial-recuperacion li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid rgb(var(--plata-profunda) / 20%);
+  border-radius: 0.75rem;
+}
+
+.lista-recuperacion li > div,
+.historial-recuperacion li > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.formulario-recuperacion {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.historial-recuperacion {
+  margin-top: 1rem;
+}
+
+.movimiento-positivo {
+  color: rgb(var(--planta-profundo)) !important;
+  font-weight: 800;
+}
+
+.movimiento-negativo {
+  color: rgb(var(--bronce-sombra)) !important;
+  font-weight: 800;
+}
+
 .panel-billetera {
   margin-bottom: 1.5rem;
 }

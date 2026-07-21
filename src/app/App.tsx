@@ -9,11 +9,14 @@ import { PanelBilletera } from "../presentacion/puntos/PanelBilletera";
 import type { ServiciosPuntos } from "../presentacion/puntos/ServiciosPuntos";
 import { PanelDiaLibre } from "../presentacion/recompensas/PanelDiaLibre";
 import type { ServiciosRecompensas } from "../presentacion/recompensas/ServiciosRecompensas";
+import { PanelRecuperacion } from "../presentacion/recuperacion/PanelRecuperacion";
+import type { ServiciosRecuperacion } from "../presentacion/recuperacion/ServiciosRecuperacion";
 import logoHereToPlan from "../presentacion/recursos/logos/HereToPlanLogo.svg";
 import {
   obtenerServiciosCalendario,
   obtenerServiciosPuntos,
   obtenerServiciosRecompensas,
+  obtenerServiciosRecuperacion,
 } from "./configurarAplicacion";
 
 interface AppProps {
@@ -21,6 +24,7 @@ interface AppProps {
   readonly serviciosCalendario?: ServiciosCalendario;
   readonly serviciosPuntos?: ServiciosPuntos;
   readonly serviciosRecompensas?: ServiciosRecompensas;
+  readonly serviciosRecuperacion?: ServiciosRecuperacion;
 }
 
 export function App({
@@ -28,6 +32,7 @@ export function App({
   serviciosCalendario,
   serviciosPuntos,
   serviciosRecompensas,
+  serviciosRecuperacion,
 }: AppProps) {
   useGradienteGlobal();
   const [revisionDatos, setRevisionDatos] = useState(0);
@@ -38,6 +43,11 @@ export function App({
     serviciosRecompensas ??
     (!servicios && !serviciosCalendario
       ? obtenerServiciosRecompensas()
+      : undefined);
+  const serviciosRecuperacionEfectivos =
+    serviciosRecuperacion ??
+    (!servicios && !serviciosCalendario
+      ? obtenerServiciosRecuperacion()
       : undefined);
 
   return (
@@ -73,6 +83,15 @@ export function App({
             <PanelBilletera
               servicios={serviciosPuntosEfectivos}
               revision={revisionDatos}
+            />
+          )}
+          {serviciosRecuperacionEfectivos && (
+            <PanelRecuperacion
+              servicios={serviciosRecuperacionEfectivos}
+              revision={revisionDatos}
+              onRecuperacionCambiada={() =>
+                setRevisionDatos((revision) => revision + 1)
+              }
             />
           )}
           {serviciosRecompensasEfectivos && (

@@ -4,6 +4,7 @@ import {
   CasoDeUsoConsultarCalendario,
   ErrorConsultaCalendario,
   type CalendarioLocal,
+  type RepositorioRecuperacion,
 } from "../src/aplicacion";
 import {
   Agenda,
@@ -13,6 +14,7 @@ import {
   FechaLocal,
   Habito,
   PoliticaCompromiso,
+  ReduccionCarga,
   Tarea,
 } from "../src/dominio";
 import { RepositorioActividadesEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioActividadesEnMemoria";
@@ -253,6 +255,83 @@ describe("consulta del calendario general", () => {
         proteccion: { corteId: "corte-activo", estado: "EN_GRACIA" },
       },
     ]);
+  });
+
+  it("proyecta carga efectiva sin sobrescribir los minutos originales", async () => {
+    const contextos = new RepositorioContextosPlanificacionEnMemoria();
+    const bloques = new RepositorioBloquesPlanificacionEnMemoria();
+    const cortes = new RepositorioCortesPlanificacionEnMemoria();
+    await contextos.guardar(ContextoPlanificacion.crearLibre(CREADA_EN));
+    const bloque = new BloquePlanificacion({
+      id: "bloque-reducido",
+      contextoId: "contexto-libre",
+      actividadId: "actividad-1",
+      titulo: "Lectura flexible",
+      fecha: FechaLocal.crear("2026-07-21"),
+      minutosPlanificados: 60,
+      politica: new PoliticaCompromiso({
+        rigidez: "FLEXIBLE",
+        autoridadPlazo: "PERSONAL",
+        ajustesPermitidos: ["REDUCIR_CARGA"],
+      }),
+      creadoEn: CREADA_EN,
+    });
+    await bloques.guardar(bloque);
+    const corte = CortePlanificacion.crear({
+      id: "corte-reducido",
+      bloques: [bloque],
+      creadoEn: CREADA_EN,
+    });
+    corte.iniciarRevision();
+    corte.asignar(CREADA_EN);
+    corte.actualizarSegunReloj(new Date("2026-07-18T10:10:00.000Z"));
+    await cortes.guardar(corte);
+    const reduccion = new ReduccionCarga({
+      id: "reduccion-1",
+      operacionId: "operacion-reduccion",
+      movimientoId: "movimiento-consumo",
+      bloqueId: bloque.id,
+      minutosReducidos: 15,
+      aplicadaEn: new Date("2026-07-20T12:00:00.000Z"),
+    });
+    const recuperacion = {
+      listarMovimientos: () => Promise.resolve([]),
+      listarReducciones: () => Promise.resolve([reduccion]),
+      obtenerMovimientoPorOperacionId: () => Promise.resolve(undefined),
+      obtenerMovimientoPorFuente: () => Promise.resolve(undefined),
+      obtenerReduccionPorBloque: () => Promise.resolve(reduccion),
+      guardarAcreditacion: () => Promise.resolve(),
+      confirmarConsumo: () => Promise.resolve(),
+    } satisfies RepositorioRecuperacion;
+    const casoDeUso = new CasoDeUsoConsultarCalendario(
+      contextos,
+      new RepositorioActividadesEnMemoria(),
+      new RepositorioAgendasEnMemoria(),
+      bloques,
+      cortes,
+      new RepositorioResolucionesBloquesPlanificacionEnMemoria(),
+      new CalendarioLocalFijo("2026-07-20"),
+      undefined,
+      recuperacion,
+    );
+
+    const calendario = await casoDeUso.ejecutar({
+      seleccion: { tipo: "TODAS" },
+      vistaTemporal: "MES",
+      fechaAncla: "2026-07-21",
+    });
+
+    expect(calendario.bloquesVisibles[0]).toMatchObject({
+      id: "bloque-reducido",
+      minutosPlanificados: 60,
+      reduccionCarga: {
+        minutosReducidos: 15,
+        minutosEfectivos: 45,
+        operacionId: "operacion-reduccion",
+      },
+    });
+    expect(calendario.resumenSeleccion.minutosPlanificados).toBe(45);
+    expect(calendario.proximosSieteDias[1]?.minutosPlanificados).toBe(45);
   });
 
   it("rechaza una selección inexistente", async () => {

@@ -143,6 +143,7 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 - consultar agenda e historial;
 - preparar y confirmar un canje de recompensa.
 - iniciar, pausar, reanudar, detener y consultar sesiones de cronómetro.
+- consultar, acreditar y consumir minutos del banco de recuperación.
 
 ### Puertos de salida
 
@@ -153,6 +154,7 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 - repositorio de billetera y transacciones;
 - repositorio de canjes;
 - repositorio de sesiones de cronómetro;
+- repositorio de movimientos de recuperación y reducciones de carga;
 - unidad de trabajo para confirmación atómica;
 - reloj;
 - generador de identificadores;
@@ -343,6 +345,12 @@ por `bloqueId` permite reconstruir su historial; un índice único multivalor po
 identificador de operación sostiene la idempotencia entre sesiones; y una clave
 única `ABIERTA`, ausente al finalizar, impide mantener dos sesiones abiertas.
 La actualización sólo incorpora el almacén y conserva íntegros los datos v8.
+
+La versión 10 añade `movimientos-recuperacion` y `reducciones-carga`. El primer
+almacén indexa de forma única el identificador de operación y la fuente
+semántica `tipo + bloqueFuenteId`; el segundo impide más de una reducción por
+bloque u operación. La actualización es aditiva y no reescribe las sesiones ni
+las economías anteriores.
 
 `InicializarContextosPlanificacion` garantiza una sola instancia de `Libre` de
 forma idempotente. La raíz de composición ejecuta este caso de uso antes de
@@ -597,6 +605,26 @@ duración autoritativa ni anuncia cada segundo a tecnologías de asistencia. Los
 controles disponibles dependen del estado recuperado. Detener sólo finaliza la
 medición: completar o incumplir continúa siendo una orden humana independiente.
 
+### 6.15. Banco de recuperación y reducción atómica
+
+`ConsultarBancoRecuperacion`, `AcreditarRecuperacion` y
+`ConsumirRecuperacion` son puertos de entrada independientes de React. Su
+configuración recibe una tasa racional y topes diarios/semanales; por ello la
+política económica puede calibrarse sin modificar los casos de uso ni colocar
+constantes en la presentación.
+
+El puerto de salida `RepositorioRecuperacion` abstrae movimientos y reducciones.
+Para acreditar, el caso de uso exige una instantánea confirmada, resolución
+`COMPLETADO` y sesiones finalizadas; el adaptador vuelve a comprobar los topes
+dentro de su transacción para impedir que dos pestañas los excedan. Para
+consumir, valida fecha futura, estado pendiente y política `REDUCIR_CARGA`.
+
+IndexedDB confirma el movimiento negativo y `ReduccionCarga` en una sola
+transacción que también lee saldo, resolución y ajustes vigentes. Si falla una
+invariante, una restricción única o una lectura concurrente, ambos registros se
+aborta la operación. La proyección del calendario recibe las reducciones por el mismo puerto
+y deriva los minutos efectivos sin cambiar la instantánea original.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 Los cortes confirmados, `BilleteraPuntos` y el historial de recompensas poseen
@@ -614,6 +642,13 @@ El canje de un día libre sigue esta secuencia:
 
 No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin el gasto correspondiente. Los reintentos tampoco deben duplicar transacciones o canjes.
 
+El consumo de recuperación aplica el mismo principio entre otras fronteras:
+
+1. el caso de uso valida el bloque futuro y prepara un movimiento y una reducción coherentes;
+2. la unidad de persistencia reconstruye el banco desde sus movimientos vigentes;
+3. vuelve a consultar resolución y ajustes del bloque dentro de la transacción;
+4. publica consumo y reducción juntos o aborta ambos.
+
 ## 8. Límites del dominio
 
 - `Agenda` controla el ciclo de vida de sus bloques y ajustes.
@@ -629,14 +664,14 @@ No puede existir un gasto confirmado sin sus ajustes ni ajustes confirmados sin 
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                       |
-| --------------- | ----------------------------------------------------------------------------------- |
-| Dominio         | Planificación, ejecución medida, resoluciones y economía protegidas por invariantes |
-| Presentación    | Calendario, cronómetro opcional, billetera, canjes e historiales                    |
-| Aplicación      | Sesiones, resolución, acreditación y canje coordinados de forma idempotente         |
-| Infraestructura | Repositorios y unidades de trabajo equivalentes en memoria e IndexedDB              |
-| Composición     | Ensambla calendario, cronómetro, puntos y Rewards sin reglas de negocio             |
-| Persistencia    | IndexedDB v9 conserva sesiones, canjes, ajustes, resoluciones y puntos              |
+| Elemento        | Estado actual                                                                     |
+| --------------- | --------------------------------------------------------------------------------- |
+| Dominio         | Planificación, ejecución, puntos y recuperación protegidos por invariantes        |
+| Presentación    | Calendario, cronómetro, billetera, recuperación, canjes e historiales             |
+| Aplicación      | Sesiones, resolución, puntos, recuperación y canje coordinados idempotentemente   |
+| Infraestructura | Repositorios y unidades de trabajo equivalentes en memoria e IndexedDB            |
+| Composición     | Ensambla calendario, cronómetro, economías y Rewards sin reglas de negocio        |
+| Persistencia    | IndexedDB v10 conserva sesiones, economías, reducciones y demás hechos históricos |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

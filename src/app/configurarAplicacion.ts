@@ -25,6 +25,9 @@ import {
   CasoDeUsoSincronizarCortesPlanificacion,
   CasoDeUsoConsultarCronometroBloque,
   CasoDeUsoGestionarSesionCronometro,
+  CasoDeUsoAcreditarRecuperacion,
+  CasoDeUsoConsultarBancoRecuperacion,
+  CasoDeUsoConsumirRecuperacion,
 } from "../aplicacion";
 import { DefinicionRecompensa, FormulaPuntosBloque } from "../dominio";
 import { RepositorioActividadesIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioActividadesIndexedDB";
@@ -39,6 +42,7 @@ import { TransaccionEliminacionContextoPlanificacionIndexedDB } from "../infraes
 import { TransaccionCompletarBloqueConPuntosIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionCompletarBloqueConPuntosIndexedDB";
 import { UnidadTrabajoCanjeDiaLibreIndexedDB } from "../infraestructura/persistencia/indexeddb/UnidadTrabajoCanjeDiaLibreIndexedDB";
 import { RepositorioSesionesCronometroIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioSesionesCronometroIndexedDB";
+import { RepositorioRecuperacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioRecuperacionIndexedDB";
 import { CalendarioLocalSistema } from "../infraestructura/sistema/CalendarioLocalSistema";
 import { GeneradorIdentificadoresUUID } from "../infraestructura/sistema/GeneradorIdentificadoresUUID";
 import { RelojSistema } from "../infraestructura/sistema/RelojSistema";
@@ -46,12 +50,14 @@ import type { ServiciosAgendaBorrador } from "../presentacion/agendas/ServiciosA
 import type { ServiciosCalendario } from "../presentacion/calendario/ServiciosCalendario";
 import type { ServiciosPuntos } from "../presentacion/puntos/ServiciosPuntos";
 import type { ServiciosRecompensas } from "../presentacion/recompensas/ServiciosRecompensas";
+import type { ServiciosRecuperacion } from "../presentacion/recuperacion/ServiciosRecuperacion";
 
 let servicios: ServiciosAgendaBorrador | undefined;
 let serviciosCalendario: ServiciosCalendario | undefined;
 let serviciosResolucionBloques: ServiciosResolucionBloques | undefined;
 let serviciosPuntos: ServiciosPuntos | undefined;
 let serviciosRecompensas: ServiciosRecompensas | undefined;
+let serviciosRecuperacion: ServiciosRecuperacion | undefined;
 let inicializacionPendiente: Promise<void> | undefined;
 let repositorioContextos:
   RepositorioContextosPlanificacionIndexedDB | undefined;
@@ -68,6 +74,7 @@ let transaccionEliminacion:
 let unidadTrabajoCanjeDiaLibre: UnidadTrabajoCanjeDiaLibreIndexedDB | undefined;
 let repositorioSesionesCronometro:
   RepositorioSesionesCronometroIndexedDB | undefined;
+let repositorioRecuperacion: RepositorioRecuperacionIndexedDB | undefined;
 
 export function inicializarAplicacion(): Promise<void> {
   if (!inicializacionPendiente) {
@@ -138,6 +145,28 @@ export function obtenerServiciosRecompensas(): ServiciosRecompensas {
   return serviciosRecompensas;
 }
 
+export function obtenerServiciosRecuperacion(): ServiciosRecuperacion {
+  if (serviciosRecuperacion) return serviciosRecuperacion;
+  const generador = new GeneradorIdentificadoresUUID();
+  const dependencias = {
+    repositorioRecuperacion: obtenerRepositorioRecuperacion(),
+    repositorioCortes: obtenerRepositorioCortes(),
+    repositorioResoluciones: obtenerRepositorioResoluciones(),
+    repositorioSesiones: obtenerRepositorioSesionesCronometro(),
+    repositorioAjustes: obtenerUnidadTrabajoCanjeDiaLibre(),
+    calendarioLocal: new CalendarioLocalSistema(),
+    reloj: new RelojSistema(),
+    generadorIdentificadores: generador,
+  };
+  serviciosRecuperacion = Object.freeze({
+    consultarBanco: new CasoDeUsoConsultarBancoRecuperacion(dependencias),
+    acreditar: new CasoDeUsoAcreditarRecuperacion(dependencias),
+    consumir: new CasoDeUsoConsumirRecuperacion(dependencias),
+    generarOperacionId: () => generador.generar(),
+  });
+  return serviciosRecuperacion;
+}
+
 export interface ServiciosResolucionBloques {
   readonly completarBloque: CasoDeUsoCompletarBloquePlanificacion;
   readonly marcarBloqueIncumplido: CasoDeUsoMarcarBloqueIncumplido;
@@ -199,6 +228,7 @@ function crearServiciosCalendario(): ServiciosCalendario {
       resoluciones,
       new CalendarioLocalSistema(),
       ajustes,
+      obtenerRepositorioRecuperacion(),
     ),
     revisarCorte: new CasoDeUsoRevisarCortePlanificacion(bloques, cortes),
     asignarCorte: new CasoDeUsoAsignarCortePlanificacion(
@@ -331,6 +361,11 @@ function obtenerRepositorioSesionesCronometro(): RepositorioSesionesCronometroIn
   repositorioSesionesCronometro ??=
     new RepositorioSesionesCronometroIndexedDB();
   return repositorioSesionesCronometro;
+}
+
+function obtenerRepositorioRecuperacion(): RepositorioRecuperacionIndexedDB {
+  repositorioRecuperacion ??= new RepositorioRecuperacionIndexedDB();
+  return repositorioRecuperacion;
 }
 
 function crearDefinicionDiaLibre(): DefinicionRecompensa {

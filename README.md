@@ -26,6 +26,8 @@ Esta base permite explorar, entre otras, las siguientes reglas:
   gasto, ajustes e historial como una sola operación.
 - el cronómetro es opcional, conserva sus sesiones entre recargas y no sustituye
   la declaración humana que completa o incumple un bloque.
+- el sobretrabajo cronometrado puede convertirse, con tasa y topes explícitos,
+  en minutos para reducir atómicamente carga flexible futura.
 
 El repositorio crecerá mediante incrementos funcionales verificables. Las decisiones documentadas constituyen la base vigente del proyecto, aunque podrán revisarse cuando la evidencia de uso revele una alternativa mejor.
 
@@ -159,6 +161,8 @@ reward `Día libre`. El recorrido principal permite:
   confirmar atómicamente el canje con enlaces a su origen histórico;
 - iniciar, pausar, reanudar y detener sesiones opcionales cuya duración se
   deriva de instantes persistidos, sin completar automáticamente el bloque;
+- acreditar una sola vez el excedente de sesiones finalizadas y consumir el
+  saldo del banco de recuperación sobre carga futura que lo permita;
 - recuperar contextos, actividades, bloques y sesiones de cronómetro desde
   IndexedDB después de recargar.
 

@@ -85,7 +85,14 @@ export function DialogoResolverBloque({
           </div>
           <div>
             <dt>Tiempo planificado</dt>
-            <dd>{bloque.minutosPlanificados} min</dd>
+            <dd>
+              {bloque.reduccionCarga?.minutosEfectivos ??
+                bloque.minutosPlanificados}{" "}
+              min
+              {bloque.reduccionCarga
+                ? ` (${bloque.minutosPlanificados} min originales)`
+                : ""}
+            </dd>
           </div>
         </dl>
 

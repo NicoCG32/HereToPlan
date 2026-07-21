@@ -16,6 +16,7 @@ import type { RepositorioBloquesPlanificacion } from "../puertos/RepositorioBloq
 import type { RepositorioContextosPlanificacion } from "../puertos/RepositorioContextosPlanificacion";
 import type { RepositorioCortesPlanificacion } from "../puertos/RepositorioCortesPlanificacion";
 import type { RepositorioResolucionesBloquesPlanificacion } from "../puertos/RepositorioResolucionesBloquesPlanificacion";
+import type { RepositorioRecuperacion } from "../puertos/RepositorioRecuperacion";
 import type { RepositorioAjustesCompromisos } from "../puertos/UnidadTrabajoCanjeDiaLibre";
 import type {
   BloqueCalendarioDto,
@@ -59,6 +60,7 @@ export class CasoDeUsoConsultarCalendario {
     private readonly repositorioResoluciones: RepositorioResolucionesBloquesPlanificacion,
     private readonly calendarioLocal: CalendarioLocal,
     private readonly repositorioAjustes?: RepositorioAjustesCompromisos,
+    private readonly repositorioRecuperacion?: RepositorioRecuperacion,
   ) {}
 
   public async ejecutar(consulta: ConsultaCalendario): Promise<CalendarioDto> {
@@ -74,6 +76,7 @@ export class CasoDeUsoConsultarCalendario {
       cortes,
       resoluciones,
       ajustes,
+      reducciones,
     ] = await Promise.all([
       this.repositorioContextos.listar(),
       this.repositorioActividades.listar(),
@@ -82,6 +85,7 @@ export class CasoDeUsoConsultarCalendario {
       this.repositorioCortes.listar(),
       this.repositorioResoluciones.listar(),
       this.repositorioAjustes?.listarAjustes() ?? Promise.resolve([]),
+      this.repositorioRecuperacion?.listarReducciones() ?? Promise.resolve([]),
     ]);
     const protecciones = construirProtecciones(cortes);
     const resolucionesPorBloque = construirResolucionesPorBloque(resoluciones);
@@ -106,6 +110,9 @@ export class CasoDeUsoConsultarCalendario {
           protecciones,
           resolucionesPorBloque,
           ajustesPorBloque,
+          new Map(
+            reducciones.map((reduccion) => [reduccion.bloqueId, reduccion]),
+          ),
         ),
       ].sort(
         (a, b) => a.fecha.localeCompare(b.fecha) || a.id.localeCompare(b.id),
@@ -156,7 +163,7 @@ export class CasoDeUsoConsultarCalendario {
       resumenSeleccion: Object.freeze({
         cantidadBloques: bloquesSeleccionados.length,
         minutosPlanificados: bloquesSeleccionados.reduce(
-          (total, bloque) => total + bloque.minutosPlanificados,
+          (total, bloque) => total + obtenerMinutosEfectivos(bloque),
           0,
         ),
       }),
@@ -270,6 +277,10 @@ export class CasoDeUsoConsultarCalendario {
     >,
     resolucionesPorBloque: ReadonlyMap<string, ResolucionBloquePlanificacion>,
     ajustesPorBloque: ReadonlyMap<string, AjusteCompromiso>,
+    reduccionesPorBloque: ReadonlyMap<
+      string,
+      import("../../dominio").ReduccionCarga
+    >,
   ): readonly BloqueCalendarioDto[] {
     const contextosPorId = new Map(
       contextos.map((contexto) => [contexto.id, contexto] as const),
@@ -292,6 +303,7 @@ export class CasoDeUsoConsultarCalendario {
         const proteccion = protecciones.get(bloque.id);
         const resolucion = resolucionesPorBloque.get(bloque.id);
         const ajuste = ajustesPorBloque.get(bloque.id);
+        const reduccion = reduccionesPorBloque.get(bloque.id);
         return [
           Object.freeze({
             id: bloque.id,
@@ -299,6 +311,17 @@ export class CasoDeUsoConsultarCalendario {
             titulo: bloque.titulo,
             fecha: bloque.fecha.toString(),
             minutosPlanificados: bloque.minutosPlanificados,
+            ...(reduccion
+              ? {
+                  reduccionCarga: Object.freeze({
+                    minutosReducidos: reduccion.minutosReducidos,
+                    minutosEfectivos:
+                      bloque.minutosPlanificados - reduccion.minutosReducidos,
+                    aplicadaEn: reduccion.aplicadaEn.toISOString(),
+                    operacionId: reduccion.operacionId,
+                  }),
+                }
+              : {}),
             estado:
               ajuste?.tipo === "EXCUSAR"
                 ? ("EXCUSADO" as const)
@@ -362,13 +385,17 @@ export class CasoDeUsoConsultarCalendario {
           esHoy: desplazamiento === 0,
           bloques: bloquesDelDia,
           minutosPlanificados: bloquesDelDia.reduce(
-            (total, bloque) => total + bloque.minutosPlanificados,
+            (total, bloque) => total + obtenerMinutosEfectivos(bloque),
             0,
           ),
         });
       }),
     );
   }
+}
+
+function obtenerMinutosEfectivos(bloque: BloqueCalendarioDto): number {
+  return bloque.reduccionCarga?.minutosEfectivos ?? bloque.minutosPlanificados;
 }
 
 function construirProtecciones(

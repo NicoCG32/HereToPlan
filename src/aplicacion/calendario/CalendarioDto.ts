@@ -45,6 +45,12 @@ export interface BloqueCalendarioDto {
   readonly titulo: string;
   readonly fecha: string;
   readonly minutosPlanificados: number;
+  readonly reduccionCarga?: Readonly<{
+    minutosReducidos: number;
+    minutosEfectivos: number;
+    aplicadaEn: string;
+    operacionId: string;
+  }>;
   readonly estado: "PENDIENTE" | "COMPLETADO" | "INCUMPLIDO" | "EXCUSADO";
   readonly origen: OrigenBloqueCalendarioDto;
   readonly politica: PoliticaBloqueCalendarioDto;
