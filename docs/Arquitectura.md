@@ -622,13 +622,14 @@ consumir, valida fecha futura, estado pendiente y política `REDUCIR_CARGA`.
 
 IndexedDB confirma el movimiento negativo y `ReduccionCarga` en una sola
 transacción que también lee saldo, resolución y ajustes vigentes. Si falla una
-invariante, una restricción única o una lectura concurrente, ambos registros se
-aborta la operación. La proyección del calendario recibe las reducciones por el mismo puerto
+invariante, una restricción única o una lectura concurrente, la operación se
+aborta. La proyección del calendario recibe las reducciones por el mismo puerto
 y deriva los minutos efectivos sin cambiar la instantánea original.
 
-### 6.16. Respaldo versionado y análisis no destructivo
+### 6.16. Respaldo versionado y restauración atómica
 
-`ExportarRespaldo` y `AnalizarImportacionRespaldo` son puertos de entrada de
+`ExportarRespaldo`, `AnalizarImportacionRespaldo`,
+`PrepararRestauracionRespaldo` y `RestaurarRespaldo` son puertos de entrada de
 aplicación. La envolvente `HereToPlan.respaldo` posee `versionFormato: 1`,
 separada de `versionBaseDatos` y de la `versionEsquema` de cada registro. Esta
 separación evita interpretar una migración interna de IndexedDB como un cambio
@@ -646,6 +647,20 @@ colecciones reconocidas, advertencias y causas. No conoce repositorios, unidades
 de trabajo ni IndexedDB. Por ello validar un archivo no puede reemplazar el
 estado vigente. El contrato detallado y sus ejemplos se encuentran en
 [`Respaldo.md`](Respaldo.md).
+
+Preparar y ejecutar también permanecen separados. La preparación sólo acepta un
+diagnóstico `VALIDO`, aplica la ruta explícita
+`FORMATO_V1_A_ESTADO_PERSISTENTE_ACTUAL` y produce un plan inmutable con el
+estado de destino. Una versión futura se rechaza antes de disponer de capacidad
+de escritura. La ejecución exige la confirmación exacta `RESTAURAR` y delega una
+única sustitución completa al puerto `RestauradorEstadoPersistente`.
+
+`RestauradorEstadoPersistenteIndexedDB` abre una transacción `readwrite` sobre
+los doce almacenes. Todos los `clear` y `add` pertenecen a esa misma
+transacción: sólo `oncomplete` representa éxito; cualquier excepción o aborto
+conserva el estado anterior completo. La presentación ofrece recargar la
+aplicación después de la confirmación técnica para reconstruir consultas y
+proyecciones, pero esa recarga no participa del límite transaccional.
 
 ## 7. Operaciones entre agregados y atomicidad
 
@@ -689,11 +704,11 @@ La arquitectura es un contrato de evolución; no debe confundirse con el grado a
 | Elemento        | Estado actual                                                                       |
 | --------------- | ----------------------------------------------------------------------------------- |
 | Dominio         | Planificación, ejecución, puntos y recuperación protegidos por invariantes          |
-| Presentación    | Calendario, cronómetro, economías, canjes, respaldo y diagnóstico de archivos       |
-| Aplicación      | Sesiones, resolución, economías, canje y contrato V1 de respaldo                    |
-| Infraestructura | Repositorios, unidades atómicas, instantánea IndexedDB y descarga del navegador     |
+| Presentación    | Calendario, economías, respaldo, diagnóstico y confirmación destructiva accesible   |
+| Aplicación      | Sesiones, economías, canje, contrato V1 y ruta explícita de restauración            |
+| Infraestructura | Repositorios, unidades atómicas, instantánea y sustitución completa en IndexedDB    |
 | Composición     | Ensambla calendario, ejecución, economías, Rewards y respaldo sin reglas de negocio |
-| Persistencia    | IndexedDB v10 conserva y permite respaldar los doce almacenes soportados            |
+| Persistencia    | IndexedDB v10 respalda o reemplaza atómicamente los doce almacenes soportados       |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

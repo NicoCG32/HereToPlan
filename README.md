@@ -165,7 +165,8 @@ reward `Día libre`. El recorrido principal permite:
 - acreditar una sola vez el excedente de sesiones finalizadas y consumir el
   saldo del banco de recuperación sobre carga futura que lo permita;
 - descargar un respaldo JSON versionado de todo el estado persistente y
-  analizar su compatibilidad sin reemplazar los datos locales;
+  analizar su compatibilidad sin escribir, o restaurarlo con confirmación y
+  reemplazo atómico de las doce colecciones;
 - recuperar contextos, actividades, bloques y sesiones de cronómetro desde
   IndexedDB después de recargar.
 

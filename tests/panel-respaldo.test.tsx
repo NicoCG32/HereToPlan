@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CasoDeUsoAnalizarImportacionRespaldo,
   CasoDeUsoExportarRespaldo,
+  CasoDeUsoPrepararRestauracionRespaldo,
+  CasoDeUsoRestaurarRespaldo,
   COLECCIONES_RESPALDO,
   type ContenidoRespaldo,
 } from "../src/aplicacion";
@@ -95,6 +97,49 @@ describe("panel de respaldo", () => {
     );
     expect(descargar).not.toHaveBeenCalled();
   });
+
+  it("exige confirmación exacta, restaura y ofrece recargar la aplicación", async () => {
+    const usuario = userEvent.setup();
+    const reemplazarEstadoCompleto = vi.fn().mockResolvedValue(undefined);
+    const recargarAplicacion = vi.fn();
+    const servicios = crearServicios({
+      restaurar: new CasoDeUsoRestaurarRespaldo({
+        reemplazarEstadoCompleto,
+      }),
+      recargarAplicacion,
+    });
+    render(<PanelRespaldo servicios={servicios} />);
+
+    await usuario.upload(
+      screen.getByLabelText("Analizar archivo"),
+      new File(["{}"], "respaldo.json", { type: "application/json" }),
+    );
+    await usuario.click(
+      await screen.findByRole("button", { name: "Restaurar este respaldo" }),
+    );
+
+    const confirmar = screen.getByRole("button", {
+      name: "Reemplazar estado local",
+    });
+    expect((confirmar as HTMLButtonElement).disabled).toBe(true);
+    await usuario.type(
+      screen.getByLabelText(/Escribe RESTAURAR/i),
+      "RESTAURAR",
+    );
+    expect((confirmar as HTMLButtonElement).disabled).toBe(false);
+    await usuario.click(confirmar);
+
+    await waitFor(() =>
+      expect(reemplazarEstadoCompleto).toHaveBeenCalledOnce(),
+    );
+    expect(await screen.findByText(/Restauración completada/)).toBeTruthy();
+    await usuario.click(
+      screen.getByRole("button", {
+        name: "Recargar y usar los datos restaurados",
+      }),
+    );
+    expect(recargarAplicacion).toHaveBeenCalledOnce();
+  });
 });
 
 function crearServicios(
@@ -112,8 +157,13 @@ function crearServicios(
       { ahora: () => new Date("2026-07-20T15:30:00.000Z") },
     ),
     analizarImportacion: new CasoDeUsoAnalizarImportacionRespaldo(),
+    prepararRestauracion: new CasoDeUsoPrepararRestauracionRespaldo(),
+    restaurar: new CasoDeUsoRestaurarRespaldo({
+      reemplazarEstadoCompleto: vi.fn().mockResolvedValue(undefined),
+    }),
     descargar: vi.fn(),
     leerArchivo: vi.fn().mockResolvedValue(JSON.stringify(respaldoVacio())),
+    recargarAplicacion: vi.fn(),
     ...cambios,
   };
 }

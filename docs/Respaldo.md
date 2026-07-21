@@ -6,9 +6,10 @@ El respaldo permite obtener una representación portable del estado local de
 HereToPlan. El archivo es JSON, se identifica explícitamente y evoluciona con
 una versión propia, independiente de la versión interna de IndexedDB.
 
-El contrato vigente permite **exportar** y **analizar** un respaldo. Analizar no
-restaura, combina ni reemplaza datos; la escritura de una importación requerirá
-un caso de uso y un límite transaccional posteriores.
+El contrato vigente permite **exportar**, **analizar** y **restaurar** un
+respaldo. Analizar no restaura, combina ni reemplaza datos. Restaurar es una
+acción posterior, explícita y destructiva que reemplaza el estado completo bajo
+un único límite transaccional.
 
 ## 2. Envolvente V1
 
@@ -63,6 +64,9 @@ transición todavía no ocurrida— se omiten cuando no existen.
 7. Una versión de formato o de registro no soportada se diagnostica como incompatible.
 8. Campos o colecciones adicionales se informan como advertencias; no se confunden con contenido reconocido.
 9. El análisis es una función de lectura: recibe texto y devuelve un diagnóstico sin disponer de puertos de escritura.
+10. Sólo un diagnóstico `VALIDO` puede producir un plan de restauración.
+11. La restauración exige la confirmación exacta `RESTAURAR` y no mezcla el respaldo con el estado previo.
+12. Los doce almacenes se limpian y repueblan dentro de una única transacción `readwrite`; se confirman todos o ninguno.
 
 ## 5. Ejemplo válido mínimo
 
@@ -117,3 +121,36 @@ intentar degradarlo ni tocar IndexedDB.
 También son inválidos —no meramente incompatibles— un JSON truncado, un
 identificador de formato ajeno, una colección obligatoria ausente, un registro
 sin clave o dos registros con la misma clave primaria.
+
+## 7. Restauración y atomicidad
+
+La restauración separa cuatro momentos observables:
+
+1. el archivo se lee y analiza sin acceso de escritura;
+2. un respaldo V1 válido se transforma en un plan inmutable mediante la ruta `FORMATO_V1_A_ESTADO_PERSISTENTE_ACTUAL`;
+3. la interfaz muestra versión, origen y cantidad de registros, y solicita la confirmación exacta `RESTAURAR`;
+4. el adaptador sustituye las doce colecciones en una sola transacción de IndexedDB.
+
+La sustitución no es una secuencia de doce confirmaciones independientes. El
+adaptador abre una transacción `readwrite` que incluye todos los almacenes,
+ejecuta `clear` y luego `add` para cada colección, y sólo informa éxito cuando
+la transacción completa. Un error de clave, índice, dato o almacenamiento aborta
+la transacción; IndexedDB conserva entonces íntegramente el estado anterior.
+
+Tras una restauración exitosa, la aplicación ofrece una recarga explícita para
+reconstruir sus proyecciones desde la nueva persistencia. La recarga no forma
+parte de la transacción: ocurre sólo después de que IndexedDB haya confirmado el
+reemplazo.
+
+## 8. Política de migraciones
+
+Una ruta de migración relaciona una versión del formato portable con el estado
+persistente que entiende la aplicación actual. La ruta soportada es V1 → estado
+actual. En ella se conservan las doce colecciones y sus registros V1; la versión
+física de la base de origen se registra para diagnóstico, pero no selecciona por
+sí sola una migración.
+
+No existe una conversión implícita para versiones futuras. Un respaldo V2 se
+clasifica como `INCOMPATIBLE` y no alcanza el puerto de escritura hasta que se
+implemente y pruebe una ruta V2 explícita. Esta regla evita degradar datos
+desconocidos o interpretar por conjetura una envolvente nueva.

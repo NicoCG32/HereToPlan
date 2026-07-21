@@ -1,5 +1,9 @@
-import { useState, type ChangeEvent } from "react";
-import type { ResultadoAnalisisRespaldo } from "../../aplicacion";
+import { useRef, useState, type ChangeEvent } from "react";
+import type {
+  PlanRestauracionRespaldo,
+  ResultadoAnalisisRespaldo,
+} from "../../aplicacion";
+import { DialogoRestaurarRespaldo } from "./DialogoRestaurarRespaldo";
 import type { ServiciosRespaldo } from "./ServiciosRespaldo";
 
 interface PanelRespaldoProps {
@@ -11,6 +15,10 @@ export function PanelRespaldo({ servicios }: PanelRespaldoProps) {
   const [mensaje, setMensaje] = useState<string>();
   const [error, setError] = useState<string>();
   const [analisis, setAnalisis] = useState<ResultadoAnalisisRespaldo>();
+  const [plan, setPlan] = useState<PlanRestauracionRespaldo>();
+  const [dialogoAbierto, setDialogoAbierto] = useState(false);
+  const [restauracionCompletada, setRestauracionCompletada] = useState(false);
+  const abrirRestauracionRef = useRef<HTMLButtonElement>(null);
 
   const exportar = async () => {
     setProcesando(true);
@@ -35,11 +43,45 @@ export function PanelRespaldo({ servicios }: PanelRespaldoProps) {
     setMensaje(undefined);
     setError(undefined);
     setAnalisis(undefined);
+    setPlan(undefined);
+    setRestauracionCompletada(false);
     try {
       const contenido = await servicios.leerArchivo(archivo);
-      setAnalisis(servicios.analizarImportacion.ejecutar(contenido));
+      const resultado = servicios.analizarImportacion.ejecutar(contenido);
+      setAnalisis(resultado);
+      if (resultado.estado === "VALIDO") {
+        setPlan(servicios.prepararRestauracion.ejecutar(contenido));
+      }
     } catch (causa: unknown) {
       setError(mensajeError(causa, "No fue posible analizar el respaldo."));
+    } finally {
+      setProcesando(false);
+    }
+  };
+
+  const cancelarRestauracion = () => {
+    setDialogoAbierto(false);
+    setError(undefined);
+    queueMicrotask(() => abrirRestauracionRef.current?.focus());
+  };
+
+  const restaurar = async (confirmacion: string) => {
+    if (!plan) return;
+    setProcesando(true);
+    setError(undefined);
+    setMensaje(undefined);
+    try {
+      const resultado = await servicios.restaurar.ejecutar({
+        plan,
+        confirmacion,
+      });
+      setDialogoAbierto(false);
+      setRestauracionCompletada(true);
+      setMensaje(
+        `Restauración completada: ${resultado.totalRegistros} registros reemplazados atómicamente.`,
+      );
+    } catch (causa: unknown) {
+      setError(mensajeError(causa, "No fue posible restaurar el respaldo."));
     } finally {
       setProcesando(false);
     }
@@ -56,7 +98,7 @@ export function PanelRespaldo({ servicios }: PanelRespaldoProps) {
           <h2 id="titulo-respaldo">Respaldo de datos</h2>
           <p className="descripcion-panel">
             Descarga una instantánea versionada de todo el estado persistente o
-            comprueba un archivo antes de una futura restauración.
+            analiza y restaura una instantánea compatible de forma controlada.
           </p>
         </div>
       </header>
@@ -70,7 +112,7 @@ export function PanelRespaldo({ servicios }: PanelRespaldoProps) {
           {mensaje}
         </p>
       )}
-      {error && (
+      {error && !dialogoAbierto && (
         <p className="mensaje-error mensaje-formulario" role="alert">
           {error}
         </p>
@@ -97,6 +139,48 @@ export function PanelRespaldo({ servicios }: PanelRespaldoProps) {
       </div>
 
       {analisis && <InformeAnalisis analisis={analisis} />}
+
+      {plan && !restauracionCompletada && (
+        <section
+          className="preparacion-restauracion"
+          aria-labelledby="titulo-preparacion-restauracion"
+        >
+          <h3 id="titulo-preparacion-restauracion">Restauración preparada</h3>
+          <p>
+            {plan.totalRegistros} registros · ruta V1 → estado persistente
+            actual. El reemplazo todavía no se ha ejecutado.
+          </p>
+          <button
+            ref={abrirRestauracionRef}
+            className="boton-destructivo boton-primario"
+            type="button"
+            disabled={procesando}
+            onClick={() => setDialogoAbierto(true)}
+          >
+            Restaurar este respaldo
+          </button>
+        </section>
+      )}
+
+      {restauracionCompletada && (
+        <button
+          className="boton-primario"
+          type="button"
+          onClick={servicios.recargarAplicacion}
+        >
+          Recargar y usar los datos restaurados
+        </button>
+      )}
+
+      {dialogoAbierto && plan && (
+        <DialogoRestaurarRespaldo
+          plan={plan}
+          procesando={procesando}
+          error={error}
+          onCancelar={cancelarRestauracion}
+          onConfirmar={(confirmacion) => void restaurar(confirmacion)}
+        />
+      )}
     </section>
   );
 }

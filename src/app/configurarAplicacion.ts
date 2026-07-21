@@ -30,6 +30,8 @@ import {
   CasoDeUsoConsumirRecuperacion,
   CasoDeUsoAnalizarImportacionRespaldo,
   CasoDeUsoExportarRespaldo,
+  CasoDeUsoPrepararRestauracionRespaldo,
+  CasoDeUsoRestaurarRespaldo,
 } from "../aplicacion";
 import { DefinicionRecompensa, FormulaPuntosBloque } from "../dominio";
 import { RepositorioActividadesIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioActividadesIndexedDB";
@@ -46,6 +48,7 @@ import { UnidadTrabajoCanjeDiaLibreIndexedDB } from "../infraestructura/persiste
 import { RepositorioSesionesCronometroIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioSesionesCronometroIndexedDB";
 import { RepositorioRecuperacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioRecuperacionIndexedDB";
 import { LectorEstadoPersistenteIndexedDB } from "../infraestructura/persistencia/indexeddb/LectorEstadoPersistenteIndexedDB";
+import { RestauradorEstadoPersistenteIndexedDB } from "../infraestructura/persistencia/indexeddb/RestauradorEstadoPersistenteIndexedDB";
 import {
   descargarArchivoRespaldo,
   leerArchivoRespaldo,
@@ -183,8 +186,13 @@ export function obtenerServiciosRespaldo(): ServiciosRespaldo {
       new RelojSistema(),
     ),
     analizarImportacion: new CasoDeUsoAnalizarImportacionRespaldo(),
+    prepararRestauracion: new CasoDeUsoPrepararRestauracionRespaldo(),
+    restaurar: new CasoDeUsoRestaurarRespaldo(
+      new RestauradorEstadoPersistenteIndexedDB(),
+    ),
     descargar: descargarArchivoRespaldo,
     leerArchivo: leerArchivoRespaldo,
+    recargarAplicacion: () => globalThis.location.reload(),
   });
   return serviciosRespaldo;
 }

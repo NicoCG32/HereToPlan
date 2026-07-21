@@ -2502,6 +2502,29 @@ button:focus-visible {
   border-left-color: rgb(var(--bronce-metal));
 }
 
+.preparacion-restauracion {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgb(var(--bronce-metal) / 48%);
+  border-radius: 0.85rem;
+  background: rgb(var(--dorado-claro) / 24%);
+}
+
+.preparacion-restauracion h3,
+.preparacion-restauracion p {
+  margin: 0;
+}
+
+.dialogo-restauracion {
+  width: min(42rem, calc(100vw - 2rem));
+}
+
+.dialogo-restauracion .confirmacion-reforzada {
+  margin-top: 0.5rem;
+}
+
 .conteos-respaldo {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));

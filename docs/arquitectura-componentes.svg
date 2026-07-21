@@ -107,7 +107,7 @@
     <text class="detalle" x="18" y="106">• asignar, editar y quitar bloques</text>
     <text class="detalle" x="18" y="130">• revisar, asignar, corregir y sincronizar cortes</text>
     <text class="detalle" x="18" y="154">• proyectar calendario; eliminar contexto</text>
-    <text class="detalle" x="18" y="178">• medir, completar, recuperar, canjear y respaldar</text>
+    <text class="detalle" x="18" y="178">• ejecución, economías, respaldo y restauración</text>
     <text class="detalle" x="18" y="198">Orquestan reglas y límites transaccionales.</text>
     <text class="codigo" x="18" y="220">src/aplicacion</text>
   </g>
@@ -135,7 +135,7 @@
     <text class="detalle" x="18" y="130">Repositorios: resoluciones · sesiones · puntos · recuperación</text>
     <text class="detalle" x="18" y="154">TransaccionEliminacionContextoPlanificacion</text>
     <text class="detalle" x="18" y="178">TransaccionCompletar · UnidadTrabajoCanje</text>
-    <text class="detalle" x="18" y="202">LectorEstadoPersistente · Reloj · UUID</text>
+    <text class="detalle" x="18" y="202">Lector/RestauradorEstado · Reloj · UUID</text>
     <text class="codigo" x="18" y="226">src/aplicacion/puertos</text>
   </g>
 
@@ -147,7 +147,7 @@
     <text class="detalle" x="18" y="82">• repositorios IndexedDB</text>
     <text class="detalle" x="18" y="106">• migrador de contextos legados</text>
     <text class="detalle" x="18" y="130">• unidades atómicas de cumplimiento, canje y recuperación</text>
-    <text class="detalle" x="18" y="154">• instantánea IndexedDB y archivos del navegador</text>
+    <text class="detalle" x="18" y="154">• instantánea y restauración atómica en IndexedDB</text>
     <text class="detalle" x="18" y="178">• reloj, fecha local y UUID</text>
     <text class="detalle" x="18" y="202">Implementan contratos; no dictan reglas.</text>
     <text class="codigo" x="18" y="226">src/infraestructura</text>
@@ -192,7 +192,7 @@
   <rect class="nota" x="300" y="958" width="1370" height="78"/>
   <text class="nota-titulo" x="322" y="985">Límite transaccional implementado</text>
   <text class="nota-texto" x="322" y="1009">Completar une resolución e ingreso; canjear une gasto y ajustes; consumir recuperación une movimiento y reducción.</text>
-  <text class="nota-texto" x="322" y="1029">El respaldo lee los doce almacenes en una instantánea readonly; analizar un archivo no dispone de escritura.</text>
+  <text class="nota-texto" x="322" y="1029">El respaldo lee una instantánea readonly; restaurar reemplaza los doce almacenes en una única transacción readwrite.</text>
 
   <line x1="270" y1="1072" x2="325" y2="1072" class="flujo"/>
   <text class="leyenda" x="337" y="1077">flujo de ejecución / datos</text>
