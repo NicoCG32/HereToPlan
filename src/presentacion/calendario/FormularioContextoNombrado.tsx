@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type {
   ContextoPlanificacionDto,
+  ResultadoEditarContextoPlanificacion,
   ResultadoCrearContextoNombrado,
 } from "../../aplicacion";
 import type { ServiciosCalendario } from "./ServiciosCalendario";
@@ -10,21 +11,27 @@ type CampoFormulario = "nombre" | "proposito" | "fechaInicio" | "fechaFin";
 
 interface FormularioContextoNombradoProps {
   readonly crearContexto: ServiciosCalendario["crearContexto"];
+  readonly editarContexto?: NonNullable<ServiciosCalendario["editarContexto"]>;
+  readonly contexto?: ContextoPlanificacionDto;
   readonly onCancelar: () => void;
   readonly onCreado: (contexto: ContextoPlanificacionDto) => void;
 }
 
 export function FormularioContextoNombrado({
   crearContexto,
+  editarContexto,
+  contexto,
   onCancelar,
   onCreado,
 }: FormularioContextoNombradoProps) {
   const nombreRef = useRef<HTMLInputElement>(null);
-  const [nombre, setNombre] = useState("");
-  const [proposito, setProposito] = useState("");
-  const [usarRango, setUsarRango] = useState(false);
-  const [fechaInicio, setFechaInicio] = useState("");
-  const [fechaFin, setFechaFin] = useState("");
+  const [nombre, setNombre] = useState(contexto?.nombre ?? "");
+  const [proposito, setProposito] = useState(contexto?.proposito ?? "");
+  const [usarRango, setUsarRango] = useState(
+    Boolean(contexto?.fechaInicio && contexto.fechaFin),
+  );
+  const [fechaInicio, setFechaInicio] = useState(contexto?.fechaInicio ?? "");
+  const [fechaFin, setFechaFin] = useState(contexto?.fechaFin ?? "");
   const [errores, setErrores] = useState<
     Partial<Record<CampoFormulario, string>>
   >({});
@@ -60,11 +67,17 @@ export function FormularioContextoNombrado({
     setErrores({});
     setMensajeGeneral(undefined);
     try {
-      const resultado = await crearContexto.ejecutar({
+      const datos = {
         nombre,
         ...(proposito ? { proposito } : {}),
         ...(usarRango ? { fechaInicio, fechaFin } : {}),
-      });
+      };
+      const resultado = contexto
+        ? await editarContexto!.ejecutar({
+            contextoId: contexto.id,
+            ...datos,
+          })
+        : await crearContexto.ejecutar(datos);
       procesarResultado(resultado);
     } catch (error: unknown) {
       setMensajeGeneral(
@@ -77,7 +90,10 @@ export function FormularioContextoNombrado({
     }
   };
 
-  const procesarResultado = (resultado: ResultadoCrearContextoNombrado) => {
+  const procesarResultado = (
+    resultado:
+      ResultadoCrearContextoNombrado | ResultadoEditarContextoPlanificacion,
+  ) => {
     if (resultado.exito) {
       onCreado(resultado.contexto);
       return;
@@ -94,7 +110,9 @@ export function FormularioContextoNombrado({
       <div className="titulo-region">
         <div>
           <p className="sobrelinea">Contexto opcional</p>
-          <h3 id="titulo-nueva-agenda">Nueva agenda nombrada</h3>
+          <h3 id="titulo-nueva-agenda">
+            {contexto ? "Editar agenda nombrada" : "Nueva agenda nombrada"}
+          </h3>
         </div>
       </div>
       <p className="descripcion-panel-contexto">
@@ -229,7 +247,11 @@ export function FormularioContextoNombrado({
             Cancelar
           </button>
           <button className="boton-primario" type="submit" disabled={guardando}>
-            {guardando ? "Guardando…" : "Crear agenda"}
+            {guardando
+              ? "Guardando…"
+              : contexto
+                ? "Guardar cambios"
+                : "Crear agenda"}
           </button>
         </div>
       </form>

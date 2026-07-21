@@ -9,9 +9,13 @@ import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 interface PanelRespaldoProps {
   readonly servicios: ServiciosRespaldo;
+  readonly onDatosRestaurados?: () => void;
 }
 
-export function PanelRespaldo({ servicios }: PanelRespaldoProps) {
+export function PanelRespaldo({
+  servicios,
+  onDatosRestaurados,
+}: PanelRespaldoProps) {
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState<string>();
   const [error, setError] = useState<string>();
@@ -89,6 +93,7 @@ export function PanelRespaldo({ servicios }: PanelRespaldoProps) {
       });
       setDialogoAbierto(false);
       setRestauracionCompletada(true);
+      onDatosRestaurados?.();
       setMensaje(
         `Restauración completada: ${resultado.totalRegistros} registros reemplazados atómicamente.`,
       );

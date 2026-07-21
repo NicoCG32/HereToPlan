@@ -1,4 +1,5 @@
 import { PantallaAgendaBorrador } from "../agendas/PantallaAgendaBorrador";
+import { useSearchParams } from "react-router-dom";
 import type { ServiciosAgendaBorrador } from "../agendas/ServiciosAgendaBorrador";
 import { PantallaCalendario } from "../calendario/PantallaCalendario";
 import type { ServiciosCalendario } from "../calendario/ServiciosCalendario";
@@ -17,6 +18,9 @@ export function PaginaCalendario({
   revisionDatos,
   onDatosCambiados,
 }: PaginaCalendarioProps) {
+  const [parametros] = useSearchParams();
+  const actividadInicialId = parametros.get("actividad") ?? undefined;
+  const fechaInicial = parametros.get("fecha") ?? undefined;
   return (
     <div className="pagina-aplicacion pagina-calendario">
       <EncabezadoPagina
@@ -31,6 +35,8 @@ export function PaginaCalendario({
           servicios={serviciosCalendario}
           revisionExterna={revisionDatos}
           onPuntosCambiados={onDatosCambiados}
+          {...(actividadInicialId ? { actividadInicialId } : {})}
+          {...(fechaInicial ? { fechaInicial } : {})}
         />
       ) : (
         <p className="estado-vacio-lineal">El calendario no está disponible.</p>

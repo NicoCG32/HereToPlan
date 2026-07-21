@@ -4,12 +4,17 @@ import type {
   CampoCrearActividad,
   ComandoCrearActividad,
   ResultadoCrearActividad,
+  ResultadoEditarActividad,
 } from "../../aplicacion";
 import type { ServiciosCalendario } from "./ServiciosCalendario";
 import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 interface FormularioActividadCalendarioProps {
   readonly crearActividad: ServiciosCalendario["crearActividad"];
+  readonly editarActividad?: NonNullable<
+    ServiciosCalendario["editarActividad"]
+  >;
+  readonly actividad?: ActividadDto;
   readonly fechaDestino?: string;
   readonly onCancelar: () => void;
   readonly onCreada: (actividad: ActividadDto, asignar: boolean) => void;
@@ -27,19 +32,31 @@ const DIAS = [
 
 export function FormularioActividadCalendario({
   crearActividad,
+  editarActividad,
+  actividad,
   fechaDestino,
   onCancelar,
   onCreada,
 }: FormularioActividadCalendarioProps) {
-  const [tipo, setTipo] = useState<ActividadDto["tipo"]>("TAREA_SIMPLE");
-  const [titulo, setTitulo] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [minutos, setMinutos] = useState("30");
-  const [fechaLimite, setFechaLimite] = useState("");
+  const [tipo, setTipo] = useState<ActividadDto["tipo"]>(
+    actividad?.tipo ?? "TAREA_SIMPLE",
+  );
+  const [titulo, setTitulo] = useState(actividad?.titulo ?? "");
+  const [descripcion, setDescripcion] = useState(actividad?.descripcion ?? "");
+  const [minutos, setMinutos] = useState(
+    String(actividad?.tiempoNecesarioMinutos ?? 30),
+  );
+  const [fechaLimite, setFechaLimite] = useState(
+    actividad && actividad.tipo !== "HABITO"
+      ? (actividad.fechaLimite ?? "")
+      : "",
+  );
   const [frecuencia, setFrecuencia] = useState<
     "DIARIA" | "SEMANAL" | "PERSONALIZADA"
-  >("DIARIA");
-  const [diasSemana, setDiasSemana] = useState<number[]>([1]);
+  >(actividad?.tipo === "HABITO" ? actividad.frecuencia : "DIARIA");
+  const [diasSemana, setDiasSemana] = useState<number[]>(
+    actividad?.tipo === "HABITO" ? [...actividad.diasSemana] : [1],
+  );
   const [errores, setErrores] = useState<
     Partial<Record<CampoCrearActividad | "general", string>>
   >({});
@@ -57,7 +74,13 @@ export function FormularioActividadCalendario({
     setGuardando(true);
     setErrores({});
     try {
-      const resultado = await crearActividad.ejecutar(crearComando());
+      const comando = crearComando();
+      const resultado = actividad
+        ? await editarActividad!.ejecutar({
+            actividadId: actividad.id,
+            ...comando,
+          })
+        : await crearActividad.ejecutar(comando);
       procesarResultado(resultado);
     } catch (error: unknown) {
       setErrores({
@@ -97,7 +120,9 @@ export function FormularioActividadCalendario({
     };
   };
 
-  const procesarResultado = (resultado: ResultadoCrearActividad) => {
+  const procesarResultado = (
+    resultado: ResultadoCrearActividad | ResultadoEditarActividad,
+  ) => {
     if (resultado.exito) {
       onCreada(resultado.actividad, intencionAsignar.current);
       return;
@@ -118,7 +143,9 @@ export function FormularioActividadCalendario({
   return (
     <section className="panel-contexto" aria-labelledby="titulo-actividad">
       <p className="sobrelinea">Catálogo de actividades</p>
-      <h3 id="titulo-actividad">Nueva actividad</h3>
+      <h3 id="titulo-actividad">
+        {actividad ? "Editar actividad" : "Nueva actividad"}
+      </h3>
       <p className="descripcion-panel-contexto">
         La actividad define qué quieres realizar. Solo ocupará una fecha cuando
         guardes además un bloque explícito.
@@ -145,13 +172,19 @@ export function FormularioActividadCalendario({
             onChange={(evento) =>
               setTipo(evento.target.value as ActividadDto["tipo"])
             }
-            disabled={guardando}
+            disabled={guardando || Boolean(actividad)}
+            aria-describedby={actividad ? "ayuda-tipo-actividad" : undefined}
           >
             <option value="TAREA_SIMPLE">Tarea simple</option>
             <option value="TAREA_COMPUESTA">Tarea compuesta</option>
             <option value="PROYECTO">Proyecto</option>
             <option value="HABITO">Hábito</option>
           </select>
+          {actividad && (
+            <small id="ayuda-tipo-actividad">
+              La familia tarea/hábito se conserva para proteger su historia.
+            </small>
+          )}
         </div>
         <div className="campo">
           <label htmlFor="titulo-actividad-campo">Título</label>
@@ -303,16 +336,16 @@ export function FormularioActividadCalendario({
             Cancelar
           </button>
           <button
-            className="boton-secundario"
+            className={actividad ? "boton-primario" : "boton-secundario"}
             type="submit"
             onClick={() => {
               intencionAsignar.current = false;
             }}
             disabled={guardando}
           >
-            Guardar sin programar
+            {actividad ? "Guardar cambios" : "Guardar sin programar"}
           </button>
-          {fechaDestino && (
+          {!actividad && fechaDestino && (
             <button
               className="boton-primario"
               type="submit"

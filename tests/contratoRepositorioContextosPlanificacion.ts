@@ -77,6 +77,22 @@ export function verificarContratoRepositorioContextosPlanificacion(
       ).resolves.toMatchObject({ nombre: "Original" });
     });
 
+    it("actualiza únicamente un contexto nombrado existente", async () => {
+      await repositorio.guardar(crearContexto("contexto-1", "Original"));
+
+      await repositorio.actualizar(crearContexto("contexto-1", "Actualizado"));
+
+      await expect(
+        repositorio.obtenerPorId("contexto-1"),
+      ).resolves.toMatchObject({ nombre: "Actualizado" });
+      await expect(
+        repositorio.actualizar(crearContexto("contexto-ausente")),
+      ).rejects.toMatchObject({
+        name: "ErrorContextoNoEncontrado",
+        codigo: "CONTEXTO_NO_ENCONTRADO",
+      } satisfies Partial<ErrorContextoNoEncontrado>);
+    });
+
     it("elimina un contexto nombrado y rechaza una segunda eliminación", async () => {
       const contexto = crearContexto("contexto-1");
       await repositorio.guardar(contexto);

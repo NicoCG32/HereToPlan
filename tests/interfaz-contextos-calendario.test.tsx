@@ -474,7 +474,7 @@ describe("interfaz de contextos del calendario", () => {
     await screen.findByRole("heading", { name: "Calendario general" });
     await usuario.click(screen.getByRole("link", { name: "Puntos" }));
     await screen.findByText(/Aún no hay movimientos/);
-    expect(consultarBilletera).toHaveBeenCalledTimes(1);
+    expect(consultarBilletera).toHaveBeenCalledTimes(2);
     await usuario.click(screen.getByRole("link", { name: "Calendario" }));
     await screen.findByRole("heading", { name: "Calendario general" });
 
@@ -514,7 +514,7 @@ describe("interfaz de contextos del calendario", () => {
     ).toBeNull();
 
     await usuario.click(screen.getByRole("link", { name: "Puntos" }));
-    await waitFor(() => expect(consultarBilletera).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(consultarBilletera).toHaveBeenCalledTimes(4));
     await usuario.click(screen.getByRole("link", { name: "Calendario" }));
     await screen.findByRole("heading", { name: "Calendario general" });
 

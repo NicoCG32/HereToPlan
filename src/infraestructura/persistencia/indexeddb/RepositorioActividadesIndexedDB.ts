@@ -1,5 +1,6 @@
 import {
   ErrorActividadDuplicada,
+  ErrorActividadNoEncontrada,
   type RepositorioActividades,
 } from "../../../aplicacion";
 import type { Actividad, Identificador } from "../../../dominio";
@@ -124,6 +125,42 @@ export class RepositorioActividadesIndexedDB implements RepositorioActividades {
     });
   }
 
+  public async actualizar(actividad: Actividad): Promise<void> {
+    const baseDatos = await this.abrirBaseDatos();
+    const registro = convertirActividadEnV1(actividad);
+    return new Promise<void>((resolve, reject) => {
+      const transaccion = baseDatos.transaction(
+        ALMACEN_ACTIVIDADES,
+        "readwrite",
+      );
+      const almacen = transaccion.objectStore(ALMACEN_ACTIVIDADES);
+      const lectura = almacen.get(actividad.id);
+      let ausente = false;
+      lectura.onsuccess = () => {
+        if (lectura.result === undefined) {
+          ausente = true;
+          transaccion.abort();
+          return;
+        }
+        almacen.put(registro);
+      };
+      transaccion.oncomplete = () => resolve();
+      transaccion.onabort = () => {
+        if (ausente) {
+          reject(new ErrorActividadNoEncontrada(actividad.id));
+          return;
+        }
+        reject(
+          new ErrorRepositorioActividadesIndexedDB(
+            "ESCRITURA_INDEXEDDB_FALLIDA",
+            `No fue posible actualizar la actividad ${actividad.id}.`,
+            transaccion.error,
+          ),
+        );
+      };
+    });
+  }
+
   public async listar(): Promise<readonly Actividad[]> {
     const baseDatos = await this.abrirBaseDatos();
     return new Promise<readonly Actividad[]>((resolve, reject) => {
@@ -157,6 +194,41 @@ export class RepositorioActividadesIndexedDB implements RepositorioActividades {
             transaccion.error ?? solicitud.error,
           ),
         );
+    });
+  }
+
+  public async eliminar(id: Identificador): Promise<void> {
+    const baseDatos = await this.abrirBaseDatos();
+    return new Promise<void>((resolve, reject) => {
+      const transaccion = baseDatos.transaction(
+        ALMACEN_ACTIVIDADES,
+        "readwrite",
+      );
+      const almacen = transaccion.objectStore(ALMACEN_ACTIVIDADES);
+      const lectura = almacen.get(id);
+      let ausente = false;
+      lectura.onsuccess = () => {
+        if (lectura.result === undefined) {
+          ausente = true;
+          transaccion.abort();
+          return;
+        }
+        almacen.delete(id);
+      };
+      transaccion.oncomplete = () => resolve();
+      transaccion.onabort = () => {
+        if (ausente) {
+          reject(new ErrorActividadNoEncontrada(id));
+          return;
+        }
+        reject(
+          new ErrorRepositorioActividadesIndexedDB(
+            "ESCRITURA_INDEXEDDB_FALLIDA",
+            `No fue posible eliminar la actividad ${id}.`,
+            transaccion.error,
+          ),
+        );
+      };
     });
   }
 

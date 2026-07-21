@@ -50,6 +50,11 @@ La actividad no se calendariza directamente. Sus ejecuciones concretas se repres
 
 El catálogo de actividades posee persistencia independiente de las agendas. Crear una actividad no crea un bloque ni le asigna una fecha. La consulta `Sin programar` es una proyección de aplicación: devuelve las actividades cuyo identificador no aparece en ningún bloque existente.
 
+Editar una definición conserva su identificador y fecha de creación. Una tarea
+conserva además su estado y sus subtareas; la edición no permite convertir una
+tarea en hábito ni un hábito en tarea. Una actividad solo puede eliminarse si no
+está referenciada por agendas, bloques editables o cortes históricos.
+
 `Tarea` especializa `Actividad` con estimación necesaria, fecha límite opcional, estado y composición. Una tarea simple no admite subtareas; las tareas compuestas y los proyectos forman un grafo dirigido acíclico. Terminar sus subtareas no completa automáticamente la tarea contenedora: su resolución requiere una decisión explícita y queda fechada.
 
 `Habito` especializa `Actividad` con frecuencia `DIARIA`, `SEMANAL` o `PERSONALIZADA`. Los días utilizan numeración ISO de 1 —lunes— a 7 —domingo—. Una frecuencia semanal declara exactamente un día y una personalizada al menos uno. `correspondeA(fecha)` calcula determinísticamente si debe proponerse una ocurrencia, pero cada ocurrencia real continúa siendo un bloque independiente.
@@ -64,6 +69,10 @@ El catálogo de actividades posee persistencia independiente de las agendas. Cre
 El contexto no contiene bloques, estados de confirmación ni horizontes de visualización. Día, semana y mes pertenecen a las proyecciones de lectura. Un contexto nombrado puede representar un semestre, un proyecto con fechas o un período abierto sin modificar la semántica de los compromisos.
 
 El propósito se normaliza eliminando espacios exteriores; un valor vacío equivale a no declararlo y su extensión máxima es de 240 caracteres. `Libre` no admite propósito editable porque su significado es estable y pertenece al sistema.
+
+Editar un contexto nombrado conserva su identidad y creación y vuelve a validar
+nombre, propósito y rango completo. `Libre` tampoco puede editarse a través de
+este comando: su identidad y significado pertenecen al sistema.
 
 ### `planificacion`
 

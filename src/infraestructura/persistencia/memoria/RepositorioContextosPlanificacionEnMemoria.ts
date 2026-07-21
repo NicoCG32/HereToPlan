@@ -22,6 +22,14 @@ export class RepositorioContextosPlanificacionEnMemoria implements RepositorioCo
     return Promise.resolve(this.contextos.get(id));
   }
 
+  public actualizar(contexto: ContextoPlanificacion): Promise<void> {
+    if (!this.contextos.has(contexto.id)) {
+      return Promise.reject(new ErrorContextoNoEncontrado(contexto.id));
+    }
+    this.contextos.set(contexto.id, contexto);
+    return Promise.resolve();
+  }
+
   public listar(): Promise<readonly ContextoPlanificacion[]> {
     return Promise.resolve([...this.contextos.values()]);
   }

@@ -26,6 +26,8 @@ interface PantallaCalendarioProps {
   readonly servicios: ServiciosCalendario;
   readonly onPuntosCambiados?: () => void;
   readonly revisionExterna?: number;
+  readonly actividadInicialId?: string;
+  readonly fechaInicial?: string;
 }
 
 type EstadoCalendario =
@@ -40,6 +42,8 @@ export function PantallaCalendario({
   servicios,
   onPuntosCambiados,
   revisionExterna = 0,
+  actividadInicialId,
+  fechaInicial,
 }: PantallaCalendarioProps) {
   const botonCrearContextoRef = useRef<HTMLButtonElement>(null);
   const botonEliminarContextoRef = useRef<HTMLButtonElement>(null);
@@ -48,19 +52,26 @@ export function PantallaCalendario({
   const controlEditorOrigenRef = useRef<HTMLElement | null>(null);
   const controlActividadOrigenRef = useRef<HTMLElement | null>(null);
   const selectorContextoRef = useRef<HTMLSelectElement>(null);
-  const fechaInicialSincronizadaRef = useRef(false);
+  const fechaInicialSincronizadaRef = useRef(Boolean(fechaInicial));
   const [estado, setEstado] = useState<EstadoCalendario>({ tipo: "cargando" });
   const [seleccion, setSeleccion] = useState(SELECCION_TODAS);
   const [vista, setVista] = useState<VistaTemporalCalendario>("MES");
-  const [fechaAncla, setFechaAncla] = useState(obtenerHoyLocal());
-  const [diaSeleccionado, setDiaSeleccionado] = useState<string>();
+  const [fechaAncla, setFechaAncla] = useState(
+    fechaInicial ?? obtenerHoyLocal(),
+  );
+  const [diaSeleccionado, setDiaSeleccionado] = useState<string | undefined>(
+    fechaInicial,
+  );
   const [formularioContextoVisible, setFormularioContextoVisible] =
     useState(false);
   const [formularioActividadVisible, setFormularioActividadVisible] =
     useState(false);
-  const [fechaDestinoActividad, setFechaDestinoActividad] = useState<string>();
-  const [actividadPreseleccionadaId, setActividadPreseleccionadaId] =
-    useState<string>();
+  const [fechaDestinoActividad, setFechaDestinoActividad] = useState<
+    string | undefined
+  >(fechaInicial);
+  const [actividadPreseleccionadaId, setActividadPreseleccionadaId] = useState<
+    string | undefined
+  >(actividadInicialId);
   const [bloqueEditado, setBloqueEditado] = useState<BloqueCalendarioDto>();
   const [mensaje, setMensaje] = useState<string>();
   const [errorAccion, setErrorAccion] = useState<string>();

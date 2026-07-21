@@ -9,8 +9,11 @@ import {
   CasoDeUsoCrearActividad,
   CasoDeUsoCrearAgendaBorrador,
   CasoDeUsoCrearContextoNombrado,
+  CasoDeUsoEditarActividad,
+  CasoDeUsoEditarContextoPlanificacion,
   CasoDeUsoEditarBloquePlanificacion,
   CasoDeUsoEliminarContextoPlanificacion,
+  CasoDeUsoEliminarActividad,
   CasoDeUsoEliminarBloquePlanificacion,
   CasoDeUsoGuardarBloquesAgendaBorrador,
   CasoDeUsoInicializarContextosPlanificacion,
@@ -271,6 +274,7 @@ function crearServiciosCalendario(): ServiciosCalendario {
       reloj,
       generador,
     ),
+    editarContexto: new CasoDeUsoEditarContextoPlanificacion(contextos),
     listarContextos: new CasoDeUsoListarContextosPlanificacion(contextos),
     consultarCalendario: new CasoDeUsoConsultarCalendario(
       contextos,
@@ -296,6 +300,13 @@ function crearServiciosCalendario(): ServiciosCalendario {
       reloj,
     ),
     crearActividad: new CasoDeUsoCrearActividad(actividades, reloj, generador),
+    editarActividad: new CasoDeUsoEditarActividad(actividades),
+    eliminarActividad: new CasoDeUsoEliminarActividad(
+      actividades,
+      agendas,
+      bloques,
+      cortes,
+    ),
     asignarActividad: new CasoDeUsoAsignarActividad(
       bloques,
       actividades,

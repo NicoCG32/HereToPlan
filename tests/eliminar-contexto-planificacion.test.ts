@@ -165,6 +165,7 @@ describe("eliminación segura de contextos de planificación", () => {
     const base = new RepositorioContextosPlanificacionEnMemoria();
     const repositorioConFallo: RepositorioContextosPlanificacion = {
       guardar: (contexto) => base.guardar(contexto),
+      actualizar: (contexto) => base.actualizar(contexto),
       obtenerPorId: (id) => base.obtenerPorId(id),
       listar: () => base.listar(),
       eliminar: () => Promise.reject(new Error("Fallo de escritura simulado")),

@@ -119,9 +119,9 @@ verifica formato, análisis estático, pruebas, cobertura y build tanto en pull
 requests como en cambios de `main`. Los cambios aceptados en `main` publican el
 mismo artefacto verificado en GitHub Pages.
 
-Actualmente la aplicación no incorpora un router del lado del cliente. Su única
-ruta navegable es la raíz `/HereToPlan/`; cualquier ruta adicional deberá usar
-una estrategia compatible con GitHub Pages antes de considerarse soportada.
+La aplicación utiliza navegación hash para conservar compatibilidad con el
+alojamiento estático de GitHub Pages. Calendario, Crear, Puntos y Respaldo poseen
+rutas propias sin depender de reescrituras del servidor.
 
 ## Verificación
 
@@ -152,7 +152,13 @@ bloques de trabajo, políticas de compromiso, una billetera de puntos y el
 reward `Día libre`. El recorrido principal permite:
 
 - comenzar directamente en `Libre` o crear una agenda nombrada opcional;
-- crear y reutilizar actividades de distintos tipos;
+- crear, editar y administrar agendas y actividades mediante casos de uso;
+- conservar actividades referenciadas para no romper bloques ni historia;
+- guardar una actividad sin programarla o continuar al calendario con su
+  identidad y fecha de destino explícitas;
+- identificar el espacio mediante un perfil local mínimo, editable y respaldable;
+- consultar en un HUD compartido el nombre, una frase estable por apertura y el
+  saldo derivado de movimientos;
 - asignar, editar y quitar bloques estrictos o flexibles en fechas concretas;
 - consultar conjuntamente toda la planificación o filtrarla por agenda;
 - navegar por día, semana y mes y revisar los siete días próximos;

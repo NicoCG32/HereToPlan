@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import { NavegacionPrincipal } from "./NavegacionPrincipal";
+import { HudAplicacion } from "../sesion/HudAplicacion";
 import "./ArmazonAplicacion.css";
 
 interface ArmazonAplicacionProps {
@@ -93,16 +94,7 @@ export function ArmazonAplicacion({ children }: ArmazonAplicacionProps) {
       </aside>
 
       <div className="region-aplicacion">
-        <header
-          className="hud-superior-estructural"
-          aria-label="Resumen personal"
-        >
-          <div>
-            <p className="sobrelinea">HereToPlan</p>
-            <strong>Planifica, cultiva y florece</strong>
-          </div>
-          <p>Tu identidad local y el resumen de puntos aparecerán aquí.</p>
-        </header>
+        <HudAplicacion />
         <main
           ref={contenidoRef}
           id="contenido-principal"

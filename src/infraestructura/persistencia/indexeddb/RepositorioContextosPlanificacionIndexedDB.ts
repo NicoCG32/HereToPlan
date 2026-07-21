@@ -116,6 +116,40 @@ export class RepositorioContextosPlanificacionIndexedDB implements RepositorioCo
     });
   }
 
+  public async actualizar(contexto: ContextoPlanificacion): Promise<void> {
+    contexto.exigirEliminable();
+    const baseDatos = await this.abrirBaseDatos();
+    const registro = convertirContextoEnV1(contexto);
+    return new Promise<void>((resolve, reject) => {
+      const transaccion = baseDatos.transaction(ALMACEN_CONTEXTOS, "readwrite");
+      const almacen = transaccion.objectStore(ALMACEN_CONTEXTOS);
+      const lectura = almacen.get(contexto.id);
+      let ausente = false;
+      lectura.onsuccess = () => {
+        if (lectura.result === undefined) {
+          ausente = true;
+          transaccion.abort();
+          return;
+        }
+        almacen.put(registro);
+      };
+      transaccion.oncomplete = () => resolve();
+      transaccion.onabort = () => {
+        if (ausente) {
+          reject(new ErrorContextoNoEncontrado(contexto.id));
+          return;
+        }
+        reject(
+          new ErrorRepositorioContextosIndexedDB(
+            "ESCRITURA_INDEXEDDB_FALLIDA",
+            `No fue posible actualizar el contexto ${contexto.id}.`,
+            transaccion.error,
+          ),
+        );
+      };
+    });
+  }
+
   public async listar(): Promise<readonly ContextoPlanificacion[]> {
     const baseDatos = await this.abrirBaseDatos();
     return new Promise((resolve, reject) => {

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   ErrorActividadDuplicada,
+  ErrorActividadNoEncontrada,
   type RepositorioActividades,
 } from "../src/aplicacion";
 import { Tarea } from "../src/dominio";
@@ -66,6 +67,38 @@ export function verificarContratoRepositorioActividades(
       await expect(
         repositorio.obtenerPorId("actividad-1"),
       ).resolves.toMatchObject({ titulo: "Original" });
+    });
+
+    it("actualiza únicamente una actividad existente", async () => {
+      await repositorio.guardar(crearActividad("actividad-1", "Original"));
+
+      await repositorio.actualizar(
+        crearActividad("actividad-1", "Actualizada"),
+      );
+
+      await expect(
+        repositorio.obtenerPorId("actividad-1"),
+      ).resolves.toMatchObject({ titulo: "Actualizada" });
+      await expect(
+        repositorio.actualizar(crearActividad("actividad-ausente")),
+      ).rejects.toMatchObject({
+        name: "ErrorActividadNoEncontrada",
+        codigo: "ACTIVIDAD_NO_ENCONTRADA",
+      } satisfies Partial<ErrorActividadNoEncontrada>);
+    });
+
+    it("elimina una actividad y rechaza repetir la operación", async () => {
+      await repositorio.guardar(crearActividad("actividad-1"));
+
+      await repositorio.eliminar("actividad-1");
+
+      await expect(
+        repositorio.obtenerPorId("actividad-1"),
+      ).resolves.toBeUndefined();
+      await expect(repositorio.eliminar("actividad-1")).rejects.toMatchObject({
+        name: "ErrorActividadNoEncontrada",
+        codigo: "ACTIVIDAD_NO_ENCONTRADA",
+      } satisfies Partial<ErrorActividadNoEncontrada>);
     });
   });
 }

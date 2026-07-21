@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" role="img" aria-labelledby="titulo descripcion">
   <title id="titulo">HereToPlan — Arquitectura hexagonal implementada</title>
-  <desc id="descripcion">Diagrama de componentes de React, casos de uso, dominio, puertos, persistencia, respaldo versionado y adaptadores del navegador.</desc>
+  <desc id="descripcion">Diagrama de componentes de React, sesión compartida, casos de uso, dominio, puertos, persistencia, respaldo versionado y adaptadores del navegador.</desc>
   <defs>
     <filter id="sombra" x="-10%" y="-10%" width="120%" height="130%">
       <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.12"/>
@@ -81,9 +81,9 @@
     <text class="estereotipo" x="18" y="19">«ADAPTADOR DE ENTRADA»</text>
     <text class="nombre" x="18" y="42">Presentación React</text>
     <text class="detalle" x="18" y="82">• armazón SPA y cuatro rutas hash</text>
-    <text class="detalle" x="18" y="106">• calendario general: día, semana y mes</text>
-    <text class="detalle" x="18" y="130">• selección, revisión, asignación y corrección</text>
-    <text class="detalle" x="18" y="154">• resolución, cronómetro, economías, respaldo y Rewards</text>
+    <text class="detalle" x="18" y="106">• sesión compartida, bienvenida, HUD y perfil editable</text>
+    <text class="detalle" x="18" y="130">• calendario y catálogos editables de Crear</text>
+    <text class="detalle" x="18" y="154">• ejecución, economías, respaldo y Rewards</text>
     <text class="detalle" x="18" y="181">Sólo conoce DTO y puertos de entrada.</text>
     <text class="codigo" x="18" y="212">src/presentacion</text>
   </g>
@@ -93,7 +93,7 @@
     <path class="cabecera-aplicacion" d="M12 0 H428 A12 12 0 0 1 440 12 V48 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«CONTRATO DEL ADAPTADOR»</text>
     <text class="nombre" x="18" y="40">Servicios de presentación</text>
-    <text class="detalle" x="18" y="74">Calendario · Perfil · Economías · Recompensas · Respaldo</text>
+    <text class="detalle" x="18" y="74">Sesión · Calendario · Crear · Economías · Respaldo</text>
     <text class="detalle" x="18" y="96">Expone sólo ejecutar() y resultados serializables.</text>
     <text class="codigo" x="18" y="117">src/presentacion/*/Servicios*.ts</text>
   </g>
@@ -103,11 +103,11 @@
     <path class="cabecera-aplicacion" d="M12 0 H428 A12 12 0 0 1 440 12 V52 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«APLICACIÓN · PUERTOS DE ENTRADA»</text>
     <text class="nombre" x="18" y="42">Casos de uso</text>
-    <text class="detalle" x="18" y="82">• crear/listar contextos y actividades</text>
+    <text class="detalle" x="18" y="82">• crear, editar y eliminar contextos y actividades</text>
     <text class="detalle" x="18" y="106">• asignar, editar y quitar bloques</text>
     <text class="detalle" x="18" y="130">• revisar, asignar, corregir y sincronizar cortes</text>
     <text class="detalle" x="18" y="154">• proyectar calendario; eliminar contexto</text>
-    <text class="detalle" x="18" y="178">• perfil, ejecución, economías, respaldo y restauración</text>
+    <text class="detalle" x="18" y="178">• perfil, proyecciones, economías, respaldo y restauración</text>
     <text class="detalle" x="18" y="198">Orquestan reglas y límites transaccionales.</text>
     <text class="codigo" x="18" y="220">src/aplicacion</text>
   </g>

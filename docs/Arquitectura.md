@@ -680,12 +680,43 @@ contiene correo, contraseña u otros datos sensibles.
 
 Los puertos de entrada permiten crear, consultar y actualizar. El puerto de
 salida `RepositorioPerfilUsuario` desconoce IndexedDB; sus adaptadores en
-memoria y persistente respetan el mismo contrato de unicidad. React consumirá
+memoria y persistente respetan el mismo contrato de unicidad. React consume
 estos casos de uso mediante servicios de composición, sin acceder al almacén ni
 convertirse en fuente de verdad. La ausencia de perfil es un estado válido y
-distinto de un perfil con nombre vacío.
+distinto de un perfil con nombre vacío; presentación la representa mediante una
+bienvenida accesible que explica el alcance estrictamente local.
 
-### 6.18. Navegación por teclado y gestión de foco
+### 6.18. Sesión de presentación y HUD
+
+`ProveedorSesionAplicacion` es una proyección compartida de presentación. Reúne
+perfil, estado de carga, saldo derivado, revisión de datos y comandos de
+refresco; no calcula puntos ni introduce reglas del dominio. Sus lecturas
+atraviesan `ConsultarPerfilUsuario` y `ConsultarBilletera`, por lo que el saldo
+continúa teniendo como única fuente los movimientos persistidos.
+
+Completar, canjear o consumir recuperación incrementa la revisión y vuelve a
+consultar el saldo. Restaurar solicita además perfil y proyecciones de las
+páginas. El HUD consume este contrato sin persistir copias: muestra el nombre,
+un `output` de puntos y acceso al diálogo de edición. La frase motivacional se
+elige mediante un selector inyectable una sola vez al inicializar el proveedor;
+no se persiste ni cambia durante la navegación.
+
+### 6.19. Administración editable de definiciones
+
+La página Crear compone catálogos y reutiliza los formularios de contextos y
+actividades. `EditarContextoPlanificacion` y `EditarActividad` reconstruyen una
+entidad válida conservando identificador, creación y, en las tareas, estado y
+composición. Los repositorios diferencian `guardar` de `actualizar`; una ausencia
+no se convierte accidentalmente en alta.
+
+La familia tarea/hábito no cambia mediante edición porque alteraría el sentido
+de referencias históricas. `EliminarActividad` consulta agendas, bloques y
+cortes antes de escribir y solo retira definiciones sin referencias. Eliminar
+una agenda reutiliza la transacción de impacto vigente. `Guardar sin programar`
+solo actualiza el catálogo; `Guardar y agendar` navega al calendario con
+actividad y fecha explícitas, donde el bloque continúa siendo una orden distinta.
+
+### 6.20. Navegación por teclado y gestión de foco
 
 La accesibilidad operativa pertenece al adaptador de presentación. No altera
 los puertos de aplicación ni incorpora decisiones visuales al dominio, pero sí
@@ -709,7 +740,7 @@ foco sin romper esa contención. Esta política reside en hooks de presentación
 reutilizables para evitar que cada confirmación implemente variantes
 incompatibles.
 
-### 6.18. Estados explícitos y recuperación de la interfaz
+### 6.21. Estados explícitos y recuperación de la interfaz
 
 La presentación modela `cargando`, `vacío`, `lista` y `error` como resultados
 observables, no como ausencia accidental de elementos. Un estado vacío explica
@@ -731,7 +762,7 @@ Esta distinción permite comprender si corresponde cambiar datos, completar un
 prerrequisito o simplemente esperar, sin replicar las invariantes del dominio
 en React.
 
-### 6.19. Adaptación móvil y equivalencia temporal
+### 6.22. Adaptación móvil y equivalencia temporal
 
 La adaptación a pantallas estrechas pertenece al adaptador de presentación y
 no introduce una segunda consulta de calendario. Las vistas diaria, semanal,
@@ -759,7 +790,7 @@ contratos de operabilidad de presentación; las decisiones cromáticas y el
 acabado visual pueden evolucionar sin reducir el área táctil ni ocultar una
 operación existente en escritorio.
 
-### 6.20. Auditoría reproducible de la presentación
+### 6.23. Auditoría reproducible de la presentación
 
 La accesibilidad se protege mediante dos niveles complementarios. Vitest y
 `axe-core` inspeccionan estados representativos del calendario, formularios,
@@ -817,14 +848,14 @@ El consumo de recuperación aplica el mismo principio entre otras fronteras:
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                    |
-| --------------- | -------------------------------------------------------------------------------- |
-| Dominio         | Planificación, ejecución, economías y perfil local protegidos por invariantes    |
-| Presentación    | SPA con cuatro rutas, armazón adaptativo y capacidades existentes separadas      |
-| Aplicación      | Casos de uso de perfil, respaldo V2 y migraciones explícitas V1/V2               |
-| Infraestructura | Repositorios, unidades atómicas, instantánea y sustitución completa en IndexedDB |
-| Composición     | Ensambla páginas y servicios sin introducir reglas de negocio                    |
-| Persistencia    | IndexedDB v11 respalda o reemplaza atómicamente los trece almacenes soportados   |
+| Elemento        | Estado actual                                                                      |
+| --------------- | ---------------------------------------------------------------------------------- |
+| Dominio         | Planificación, ejecución, economías y perfil local protegidos por invariantes      |
+| Presentación    | SPA con cuatro rutas, perfil, sesión compartida, HUD y catálogos editables         |
+| Aplicación      | Casos de uso de perfil, edición segura, respaldo V2 y migraciones explícitas V1/V2 |
+| Infraestructura | Repositorios, unidades atómicas, instantánea y sustitución completa en IndexedDB   |
+| Composición     | Ensambla páginas y servicios sin introducir reglas de negocio                      |
+| Persistencia    | IndexedDB v11 respalda o reemplaza atómicamente los trece almacenes soportados     |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

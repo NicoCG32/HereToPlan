@@ -5,9 +5,12 @@ import type {
   CasoDeUsoCorregirCortePlanificacion,
   CasoDeUsoCrearActividad,
   CasoDeUsoCrearContextoNombrado,
+  CasoDeUsoEditarActividad,
+  CasoDeUsoEditarContextoPlanificacion,
   CasoDeUsoEditarBloquePlanificacion,
   CasoDeUsoEliminarContextoPlanificacion,
   CasoDeUsoEliminarBloquePlanificacion,
+  CasoDeUsoEliminarActividad,
   CasoDeUsoConsultarImpactoEliminacionContexto,
   CasoDeUsoListarContextosPlanificacion,
   CasoDeUsoCompletarBloqueConPuntos,
@@ -20,6 +23,10 @@ import type {
 
 export interface ServiciosCalendario {
   readonly crearContexto: Pick<CasoDeUsoCrearContextoNombrado, "ejecutar">;
+  readonly editarContexto?: Pick<
+    CasoDeUsoEditarContextoPlanificacion,
+    "ejecutar"
+  >;
   readonly listarContextos: Pick<
     CasoDeUsoListarContextosPlanificacion,
     "ejecutar"
@@ -33,6 +40,8 @@ export interface ServiciosCalendario {
     "ejecutar"
   >;
   readonly crearActividad: Pick<CasoDeUsoCrearActividad, "ejecutar">;
+  readonly editarActividad?: Pick<CasoDeUsoEditarActividad, "ejecutar">;
+  readonly eliminarActividad?: Pick<CasoDeUsoEliminarActividad, "ejecutar">;
   readonly asignarActividad: Pick<CasoDeUsoAsignarActividad, "ejecutar">;
   readonly editarBloque: Pick<CasoDeUsoEditarBloquePlanificacion, "ejecutar">;
   readonly eliminarBloque: Pick<

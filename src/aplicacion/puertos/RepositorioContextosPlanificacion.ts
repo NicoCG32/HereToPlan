@@ -20,6 +20,7 @@ export class ErrorContextoNoEncontrado extends Error {
 
 export interface RepositorioContextosPlanificacion {
   guardar(contexto: ContextoPlanificacion): Promise<void>;
+  actualizar(contexto: ContextoPlanificacion): Promise<void>;
   obtenerPorId(id: Identificador): Promise<ContextoPlanificacion | undefined>;
   listar(): Promise<readonly ContextoPlanificacion[]>;
   eliminar(contexto: ContextoPlanificacion): Promise<void>;

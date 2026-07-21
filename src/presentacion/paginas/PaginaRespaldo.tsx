@@ -4,9 +4,13 @@ import { EncabezadoPagina } from "./EncabezadoPagina";
 
 interface PaginaRespaldoProps {
   readonly serviciosRespaldo?: ServiciosRespaldo;
+  readonly onDatosRestaurados?: () => void;
 }
 
-export function PaginaRespaldo({ serviciosRespaldo }: PaginaRespaldoProps) {
+export function PaginaRespaldo({
+  serviciosRespaldo,
+  onDatosRestaurados,
+}: PaginaRespaldoProps) {
   return (
     <div className="pagina-aplicacion pagina-respaldo">
       <EncabezadoPagina
@@ -15,7 +19,10 @@ export function PaginaRespaldo({ serviciosRespaldo }: PaginaRespaldoProps) {
         descripcion="Exporta, analiza y restaura el estado local fuera del flujo cotidiano. Analizar un archivo nunca modifica la información vigente."
       />
       {serviciosRespaldo ? (
-        <PanelRespaldo servicios={serviciosRespaldo} />
+        <PanelRespaldo
+          servicios={serviciosRespaldo}
+          {...(onDatosRestaurados ? { onDatosRestaurados } : {})}
+        />
       ) : (
         <p className="estado-vacio-lineal">El respaldo no está disponible.</p>
       )}
