@@ -818,7 +818,7 @@ function BarraNavegacionCalendario({
       className="navegacion-calendario"
       aria-label="Navegación del calendario"
     >
-      <div className="grupo-vistas" aria-label="Vista temporal">
+      <div className="grupo-vistas" role="group" aria-label="Vista temporal">
         {(["DIA", "SEMANA", "MES"] as const).map((opcion) => (
           <button
             key={opcion}

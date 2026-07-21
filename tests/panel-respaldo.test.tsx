@@ -11,6 +11,7 @@ import {
 } from "../src/aplicacion";
 import { PanelRespaldo } from "../src/presentacion/respaldo/PanelRespaldo";
 import type { ServiciosRespaldo } from "../src/presentacion/respaldo/ServiciosRespaldo";
+import { comprobarAccesibilidad } from "./comprobarAccesibilidad";
 
 afterEach(cleanup);
 
@@ -122,6 +123,7 @@ describe("panel de respaldo", () => {
       name: "Reemplazar estado local",
     });
     expect((confirmar as HTMLButtonElement).disabled).toBe(true);
+    await comprobarAccesibilidad();
     await usuario.type(
       screen.getByLabelText(/Escribe RESTAURAR/i),
       "RESTAURAR",

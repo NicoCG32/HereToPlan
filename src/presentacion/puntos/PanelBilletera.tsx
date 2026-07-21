@@ -59,13 +59,13 @@ export function PanelBilletera({ servicios, revision }: PanelBilleteraProps) {
           </p>
         </div>
         {estado.tipo === "lista" && (
-          <p
+          <output
             className="saldo-billetera"
             aria-label={`${estado.billetera.saldo} puntos disponibles`}
           >
             <strong>{estado.billetera.saldo}</strong>
             <span>puntos disponibles</span>
-          </p>
+          </output>
         )}
       </header>
 

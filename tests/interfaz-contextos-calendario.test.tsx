@@ -49,10 +49,28 @@ import {
   GeneradorIdentificadoresPredefinidos,
   RelojFijo,
 } from "./doblesAplicacion";
+import { comprobarAccesibilidad } from "./comprobarAccesibilidad";
 
 afterEach(cleanup);
 
 describe("interfaz de contextos del calendario", () => {
+  it("supera la auditoría automática en calendario, formulario y editor", async () => {
+    const usuario = userEvent.setup();
+    render(<App serviciosCalendario={await crearServicios()} />);
+    await screen.findByRole("heading", { name: "Calendario general" });
+
+    await comprobarAccesibilidad();
+
+    await usuario.click(screen.getByRole("button", { name: "Nueva agenda" }));
+    await comprobarAccesibilidad();
+    await usuario.click(screen.getByRole("button", { name: "Cancelar" }));
+
+    await usuario.click(
+      screen.getByRole("button", { name: "Planificar fecha 2026-07-20" }),
+    );
+    await comprobarAccesibilidad();
+  }, 20_000);
+
   it("abre el calendario general con Todas y conserva Libre como asignación predeterminada", async () => {
     render(<App serviciosCalendario={await crearServicios()} />);
 
@@ -550,6 +568,7 @@ describe("interfaz de contextos del calendario", () => {
     expect(document.activeElement).toBe(
       within(dialogo).getByRole("button", { name: "Cancelar" }),
     );
+    await comprobarAccesibilidad();
     await usuario.click(
       within(dialogo).getByRole("button", { name: "Cancelar" }),
     );

@@ -145,13 +145,13 @@ export function PanelRecuperacion({
             no premia estimaciones infladas ni modifica el historial original.
           </p>
         </div>
-        <p
+        <output
           className="saldo-recuperacion"
           aria-label={`${banco.saldoMinutos} minutos disponibles`}
         >
           <strong>{banco.saldoMinutos}</strong>
           <span>min disponibles</span>
-        </p>
+        </output>
       </header>
 
       <p className="politica-recuperacion">

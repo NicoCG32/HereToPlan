@@ -736,6 +736,25 @@ contratos de operabilidad de presentación; las decisiones cromáticas y el
 acabado visual pueden evolucionar sin reducir el área táctil ni ocultar una
 operación existente en escritorio.
 
+### 6.20. Auditoría reproducible de la presentación
+
+La accesibilidad se protege mediante dos niveles complementarios. Vitest y
+`axe-core` inspeccionan estados representativos del calendario, formularios,
+diálogos, Rewards y restauración en cada ejecución de CI. Las reglas de
+contraste se revisan además en un navegador real porque JSDOM no compone
+gradientes ni superficies translúcidas.
+
+El contrato automático rechaza infracciones WCAG A y AA y buenas prácticas. La
+revisión manual verifica orden de teclado, traslado y retorno del foco, nombres
+accesibles, contraste y reflujo. Sus resultados y límites se conservan en
+`docs/Auditoria-accesibilidad.md`; no se consideran evidencia implícita de una
+prueba que no fue ejecutada.
+
+Las incidencias de uso se registran de forma append-only mediante identificador,
+versión, pasos, severidad, decisión y estado. El protocolo distingue defectos
+bloqueantes de preferencias visuales y evita que una mejora estética rebaje un
+contrato operativo ya comprobado.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 Los cortes confirmados, `BilleteraPuntos` y el historial de recompensas poseen

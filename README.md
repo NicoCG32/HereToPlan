@@ -65,6 +65,8 @@ Los contratos vigentes se documentan en:
 - [`docs/Dominio.md`](docs/Dominio.md)
 - [`docs/Arquitectura.md`](docs/Arquitectura.md)
 - [`docs/Respaldo.md`](docs/Respaldo.md)
+- [`docs/Auditoria-accesibilidad.md`](docs/Auditoria-accesibilidad.md)
+- [`docs/Protocolo-uso-sostenido.md`](docs/Protocolo-uso-sostenido.md)
 
 ## Ejecución local
 
@@ -124,6 +126,7 @@ una estrategia compatible con GitHub Pages antes de considerarse soportada.
 
 ```bash
 npm test
+npm run test:a11y
 npm run test:coverage
 npm run lint
 npm run format:check
@@ -132,6 +135,7 @@ npm run verify:pages
 ```
 
 `npm test` comprueba las invariantes implementadas del dominio y
+`npm run test:a11y` ejecuta axe sobre los estados principales de la interfaz.
 `npm run test:coverage` verifica sus umbrales de cobertura. `npm run lint`
 analiza TypeScript, React y la dirección de las dependencias arquitectónicas.
 `npm run format:check` comprueba el formato sin modificar archivos; para

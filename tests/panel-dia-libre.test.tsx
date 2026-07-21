@@ -9,6 +9,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PanelDiaLibre } from "../src/presentacion/recompensas/PanelDiaLibre";
 import type { ServiciosRecompensas } from "../src/presentacion/recompensas/ServiciosRecompensas";
+import { comprobarAccesibilidad } from "./comprobarAccesibilidad";
 
 afterEach(cleanup);
 
@@ -150,6 +151,7 @@ describe("panel de Día libre", () => {
     expect(document.activeElement).toBe(
       within(dialogo).getByRole("button", { name: "Cancelar" }),
     );
+    await comprobarAccesibilidad();
     await usuario.click(
       within(dialogo).getByRole("button", { name: "Confirmar canje" }),
     );
