@@ -1,0 +1,323 @@
+@property --intensidad-halo {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --intensidad-gradiente {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+:root {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: #25282d;
+  background: #f1f2f3;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  --mouse-x: 78%;
+  --mouse-y: 16%;
+  --fondo-1: #fbfbfb;
+  --fondo-2: #f0f1f2;
+  --fondo-3: #e4e6e8;
+  --fondo-4: #f5f5f4;
+  --cuarzo-blanco: 255 255 255;
+  --cuarzo-claro: 235 237 239;
+  --cuarzo-plata: 191 195 201;
+  --cuarzo-humo: 130 136 145;
+  --cuarzo-grafito: 57 62 70;
+  --superficie: rgb(255 255 255 / 82%);
+  --superficie-alterna: rgb(239 241 244 / 88%);
+  --superficie-elevada: rgb(255 255 255 / 96%);
+  --texto: #25282d;
+  --texto-secundario: #5a6068;
+  --texto-terciario: #60666f;
+  --linea: #cfd2d7;
+  --linea-fuerte: #9298a1;
+  --linea-grafito: #5f6670;
+  --verde-planta: 92 171 103;
+  --verde-esmeralda: 32 116 79;
+  --verde-claro: 157 205 137;
+  --verde-profundo: 32 116 79;
+  --dorado: 218 174 71;
+  --dorado-claro: 241 210 132;
+  --dorado-profundo: 125 84 32;
+  --bronce: 177 109 62;
+  --bronce-claro: 211 151 101;
+  --bronce-profundo: 132 79 47;
+  --celeste-diamante: 92 188 221;
+  --azul-diamante: 35 103 151;
+  --celeste-claro: 182 226 239;
+  --plata-blanca: 250 252 255;
+  --plata-luz: 238 242 246;
+  --plata-brillante: 222 228 235;
+  --plata-media: 180 188 198;
+  --plata-profunda: 105 115 128;
+  --diamante-blanco: 235 250 255;
+  --diamante-hielo: 154 222 241;
+  --diamante-azul: 57 151 201;
+  --diamante-profundo: 35 103 151;
+  --oro-luz: 247 221 151;
+  --oro-metal: 218 174 71;
+  --oro-profundo: 125 84 32;
+  --bronce-luz: 231 174 119;
+  --bronce-metal: 181 112 65;
+  --bronce-sombra: 111 63 38;
+  --planta-luz: 169 219 145;
+  --planta-metal: 77 169 95;
+  --planta-profundo: 32 116 79;
+  --borde-metalico: rgb(var(--plata-profunda) / 52%);
+  --borde-diamante: rgb(var(--diamante-azul) / 55%);
+  --borde-verde: rgb(var(--planta-profundo) / 52%);
+  --borde-oro: rgb(var(--oro-profundo) / 48%);
+  --borde-bronce: rgb(var(--bronce-sombra) / 48%);
+  --reflejo-blanco: rgb(255 255 255 / 78%);
+  --reflejo-plata: rgb(var(--plata-brillante) / 34%);
+  --reflejo-diamante: rgb(var(--diamante-hielo) / 24%);
+  --reflejo-verde: rgb(var(--planta-luz) / 20%);
+  --reflejo-oro: rgb(var(--oro-luz) / 20%);
+  --reflejo-bronce: rgb(var(--bronce-luz) / 18%);
+  --sombra-suave: rgb(44 49 57 / 8%);
+  --sombra-media: rgb(44 49 57 / 13%);
+  --sombra-profunda: rgb(35 40 48 / 18%);
+  --sombra-metalica:
+    0 1px 0 rgb(255 255 255 / 92%) inset,
+    0 -1px 0 rgb(var(--plata-profunda) / 12%) inset,
+    7px 8px 0 rgb(var(--plata-profunda) / 7%),
+    0 18px 42px rgb(var(--cuarzo-grafito) / 8%);
+  --sombra-diamante:
+    0 1px 0 rgb(255 255 255 / 94%) inset,
+    7px 8px 0 rgb(var(--diamante-profundo) / 8%),
+    0 18px 42px rgb(var(--diamante-hielo) / 9%);
+  --sombra-verde:
+    0 1px 0 rgb(255 255 255 / 94%) inset,
+    7px 8px 0 rgb(var(--planta-profundo) / 8%),
+    0 18px 42px rgb(var(--planta-metal) / 9%);
+  --sombra-oro:
+    0 1px 0 rgb(255 255 255 / 94%) inset,
+    7px 8px 0 rgb(var(--oro-profundo) / 8%),
+    0 18px 42px rgb(var(--oro-metal) / 9%);
+  --sombra-bronce:
+    0 1px 0 rgb(255 255 255 / 92%) inset,
+    7px 8px 0 rgb(var(--bronce-sombra) / 9%),
+    0 18px 42px rgb(var(--bronce-metal) / 10%);
+  --duracion-rapida: 160ms;
+  --duracion-media: 240ms;
+  --curva-principal: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: linear-gradient(
+    135deg,
+    var(--fondo-1),
+    var(--fondo-2) 40%,
+    var(--fondo-3) 72%,
+    var(--fondo-4)
+  );
+}
+
+body {
+  position: relative;
+  isolation: isolate;
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  color: var(--texto);
+  background:
+    radial-gradient(
+      circle 40rem at var(--mouse-x) var(--mouse-y),
+      rgb(var(--diamante-blanco) / 78%),
+      transparent 61%
+    ),
+    radial-gradient(
+      circle 35rem at calc(100% - var(--mouse-x)) calc(100% - var(--mouse-y)),
+      rgb(var(--plata-media) / 28%),
+      transparent 67%
+    ),
+    radial-gradient(
+      circle 31rem at 8% 14%,
+      rgb(var(--planta-metal) / 18%),
+      transparent 64%
+    ),
+    radial-gradient(
+      circle 30rem at 92% 12%,
+      rgb(var(--diamante-hielo) / 21%),
+      transparent 65%
+    ),
+    radial-gradient(
+      circle 27rem at 84% 88%,
+      rgb(var(--oro-metal) / 14%),
+      transparent 66%
+    ),
+    radial-gradient(
+      circle 25rem at 14% 86%,
+      rgb(var(--bronce-metal) / 13%),
+      transparent 67%
+    ),
+    linear-gradient(
+      118deg,
+      transparent 0 18%,
+      rgb(255 255 255 / 44%) 18% 28%,
+      transparent 28% 57%,
+      rgb(var(--diamante-blanco) / 20%) 57% 64%,
+      transparent 64%
+    ),
+    linear-gradient(
+      135deg,
+      var(--fondo-1),
+      var(--fondo-2) 38%,
+      var(--fondo-3) 72%,
+      var(--fondo-4)
+    );
+  background-attachment: fixed;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body::before {
+  background-image:
+    linear-gradient(rgb(var(--cuarzo-grafito) / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--cuarzo-grafito) / 4%) 1px, transparent 1px);
+  background-size: 46px 46px;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 88%),
+    rgb(0 0 0 / 48%) 72%,
+    transparent 97%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 88%),
+    rgb(0 0 0 / 48%) 72%,
+    transparent 97%
+  );
+}
+
+body::after {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 15rem,
+      rgb(var(--cuarzo-grafito) / 2.6%) 15rem 15.08rem
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 11rem,
+      rgb(var(--cuarzo-grafito) / 3.1%) 11rem 11.06rem
+    ),
+    linear-gradient(
+      90deg,
+      transparent 0 7%,
+      rgb(255 255 255 / 22%) 7% 21%,
+      transparent 21% 54%,
+      rgb(var(--cuarzo-plata) / 7%) 54% 71%,
+      transparent 71%
+    );
+  opacity: 0.8;
+}
+
+.enlace-saltar {
+  position: fixed;
+  z-index: 1000;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.7rem 1rem;
+  border: 2px solid rgb(var(--planta-profundo));
+  border-radius: 0;
+  background: linear-gradient(
+    120deg,
+    rgb(var(--diamante-blanco) / 72%),
+    rgb(var(--plata-blanca) / 96%)
+  );
+  color: rgb(var(--planta-profundo));
+  font-weight: 700;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 94%) inset,
+    5px 6px 0 rgb(var(--planta-profundo) / 14%),
+    0 14px 30px rgb(var(--cuarzo-grafito) / 14%);
+  transform: translateY(calc(-100% - 1rem));
+  transition: transform var(--duracion-rapida) ease;
+}
+
+.enlace-saltar:focus {
+  transform: translateY(0);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid rgb(var(--diamante-profundo));
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgb(var(--celeste-diamante) / 32%);
+  color: var(--texto);
+}
+
+[data-acento="verde"],
+.acento-verde {
+  --acento-a: var(--verde-planta);
+  --acento-b: var(--verde-esmeralda);
+  --acento-c: var(--verde-claro);
+  --acento-halo: var(--verde-planta);
+  --acento-sombra: 67 119 92;
+}
+
+[data-acento="dorado"],
+.acento-dorado {
+  --acento-a: var(--dorado);
+  --acento-b: var(--dorado-profundo);
+  --acento-c: var(--dorado-claro);
+  --acento-halo: var(--dorado);
+  --acento-sombra: 133 97 54;
+}
+
+[data-acento="bronce"],
+.acento-bronce {
+  --acento-a: var(--bronce);
+  --acento-b: var(--bronce-profundo);
+  --acento-c: var(--bronce-claro);
+  --acento-halo: var(--bronce);
+  --acento-sombra: 117 85 58;
+}
+
+[data-acento="celeste"],
+.acento-celeste {
+  --acento-a: var(--celeste-diamante);
+  --acento-b: var(--azul-diamante);
+  --acento-c: var(--celeste-claro);
+  --acento-halo: var(--celeste-diamante);
+  --acento-sombra: 57 109 140;
+}
