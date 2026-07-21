@@ -168,8 +168,15 @@ export function FormularioBloqueCalendario({
         <form
           className="formulario-contexto formulario-bloque-calendario"
           onSubmit={(evento) => void enviar(evento)}
+          aria-busy={guardando}
           noValidate
         >
+          {guardando && (
+            <p className="ayuda-campo campo-ancho" role="status">
+              Guardando el bloque; los controles están temporalmente
+              indisponibles.
+            </p>
+          )}
           <div className="campo campo-ancho">
             <label htmlFor="actividad-bloque">Actividad</label>
             <select
@@ -190,6 +197,9 @@ export function FormularioBloqueCalendario({
                 }
               }}
               disabled={Boolean(bloque) || guardando}
+              aria-describedby={
+                bloque ? "motivo-actividad-bloque-fija" : undefined
+              }
             >
               {actividades.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -197,6 +207,15 @@ export function FormularioBloqueCalendario({
                 </option>
               ))}
             </select>
+            {bloque && (
+              <small
+                id="motivo-actividad-bloque-fija"
+                className="motivo-control-inhabilitado"
+              >
+                La actividad pertenece a la identidad del bloque; para cambiarla
+                crea una asignación nueva.
+              </small>
+            )}
           </div>
           <div className="campo">
             <label htmlFor="fecha-bloque-calendario">Fecha</label>

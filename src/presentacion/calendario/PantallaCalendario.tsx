@@ -1026,15 +1026,29 @@ function VistaListaBloques({
           type="button"
           onClick={onRevisar}
           disabled={bloquesSeleccionados.length === 0 || revisando}
+          aria-describedby={
+            bloquesSeleccionados.length === 0
+              ? "motivo-revisar-seleccion"
+              : undefined
+          }
         >
           {revisando
             ? "Preparando revisión…"
             : `Revisar selección (${bloquesSeleccionados.length})`}
         </button>
+        {bloquesSeleccionados.length === 0 && (
+          <p
+            id="motivo-revisar-seleccion"
+            className="motivo-control-inhabilitado"
+          >
+            Selecciona al menos un bloque editable para preparar la revisión.
+          </p>
+        )}
       </div>
       {bloques.length === 0 ? (
         <p className="estado-vacio-lineal">
-          No hay bloques en el rango visible.
+          No hay bloques en el rango visible. Selecciona un día del calendario o
+          de los próximos siete días para planificar el primero.
         </p>
       ) : (
         <ul>

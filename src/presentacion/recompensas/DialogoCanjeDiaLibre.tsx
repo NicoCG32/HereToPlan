@@ -33,6 +33,7 @@ export function DialogoCanjeDiaLibre({
         className="dialogo-confirmacion dialogo-canje-dia-libre"
         role="dialog"
         aria-modal="true"
+        aria-busy={procesando}
         aria-labelledby="titulo-confirmar-dia-libre"
         aria-describedby="consecuencias-dia-libre"
         onKeyDown={gestionarTeclado}

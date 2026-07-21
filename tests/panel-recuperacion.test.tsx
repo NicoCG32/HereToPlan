@@ -1,10 +1,54 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { BancoRecuperacionDto } from "../src/aplicacion";
 import { PanelRecuperacion } from "../src/presentacion/recuperacion/PanelRecuperacion";
 import type { ServiciosRecuperacion } from "../src/presentacion/recuperacion/ServiciosRecuperacion";
 
+afterEach(cleanup);
+
 describe("PanelRecuperacion", () => {
+  it("explica la indisponibilidad y permite reintentar una carga fallida", async () => {
+    let intentos = 0;
+    const consultar = vi.fn(() => {
+      intentos += 1;
+      return intentos === 1
+        ? Promise.reject(new Error("IndexedDB no respondió."))
+        : Promise.resolve(crearBanco());
+    });
+    const servicios = {
+      consultarBanco: { ejecutar: consultar },
+      acreditar: { ejecutar: vi.fn() },
+      consumir: { ejecutar: vi.fn() },
+      generarOperacionId: () => "operacion-ui",
+    } as unknown as ServiciosRecuperacion;
+
+    render(<PanelRecuperacion servicios={servicios} />);
+    const reintentar = await screen.findByRole("button", {
+      name: "Reintentar banco de recuperación",
+    });
+    expect(screen.getByRole("alert").textContent).toContain(
+      "IndexedDB no respondió",
+    );
+    fireEvent.click(reintentar);
+
+    const consumir = await screen.findByRole("button", {
+      name: "Usar recuperación",
+    });
+    expect(consumir).toHaveProperty("disabled", true);
+    const motivoId = consumir.getAttribute("aria-describedby");
+    expect(motivoId).toBe("motivo-consumir-recuperacion");
+    expect(document.getElementById(motivoId!)?.textContent).toContain(
+      "Necesitas acreditar",
+    );
+    expect(consultar).toHaveBeenCalledTimes(2);
+  });
+
   it("acredita excedente, consume saldo y comunica ambos resultados", async () => {
     let banco = crearBanco();
     const consultar = vi.fn(() => Promise.resolve(banco));

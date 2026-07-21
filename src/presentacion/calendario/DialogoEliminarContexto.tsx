@@ -43,6 +43,7 @@ export function DialogoEliminarContexto({
         className="dialogo-confirmacion"
         role="dialog"
         aria-modal="true"
+        aria-busy={procesando}
         aria-labelledby="titulo-eliminar-contexto"
         aria-describedby="consecuencias-eliminar-contexto"
         onKeyDown={gestionarTeclado}

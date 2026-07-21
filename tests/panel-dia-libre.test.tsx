@@ -1,4 +1,10 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PanelDiaLibre } from "../src/presentacion/recompensas/PanelDiaLibre";
@@ -7,6 +13,59 @@ import type { ServiciosRecompensas } from "../src/presentacion/recompensas/Servi
 afterEach(cleanup);
 
 describe("panel de Día libre", () => {
+  it("permite recuperar el historial y explica por qué un canje no está disponible", async () => {
+    const usuario = userEvent.setup();
+    const listar = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("Lectura temporalmente fallida."))
+      .mockResolvedValueOnce([]);
+    const servicios: ServiciosRecompensas = {
+      prepararDiaLibre: {
+        ejecutar: vi.fn().mockResolvedValue({
+          fechaObjetivo: "2026-07-22",
+          recompensa: {
+            id: "dia-libre",
+            nombre: "Día libre",
+            descripcion: "Flexibilidad planificada",
+          },
+          costoPuntos: 3,
+          saldoActual: 1,
+          saldoPosterior: -2,
+          saldoSuficiente: false,
+          puedeCanjear: false,
+          afectados: [],
+          protegidos: [],
+        }),
+      },
+      canjearDiaLibre: { ejecutar: vi.fn() },
+      listarCanjes: { ejecutar: listar },
+      generarOperacionId: () => "canje-1",
+    };
+
+    render(<PanelDiaLibre servicios={servicios} />);
+    expect((await screen.findByRole("alert")).textContent).toContain(
+      "Lectura temporalmente fallida",
+    );
+    await usuario.click(
+      screen.getByRole("button", { name: "Reintentar historial de canjes" }),
+    );
+    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+
+    await usuario.type(screen.getByLabelText("Fecha futura"), "2026-07-22");
+    await usuario.click(
+      screen.getByRole("button", { name: "Ver efecto completo" }),
+    );
+    const canjear = await screen.findByRole("button", {
+      name: "Canjear Día libre",
+    });
+    expect(canjear).toHaveProperty("disabled", true);
+    expect(
+      document.getElementById(canjear.getAttribute("aria-describedby")!)
+        ?.textContent,
+    ).toContain("saldo actual no cubre");
+    expect(listar).toHaveBeenCalledTimes(2);
+  });
+
   it("previsualiza, confirma y enlaza el resultado con su historial", async () => {
     const usuario = userEvent.setup();
     const resultado = {

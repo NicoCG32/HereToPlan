@@ -25,9 +25,10 @@ export function PanelRecuperacion({
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState<string>();
   const [error, setError] = useState<string>();
-  const errorRef = useRef<HTMLParagraphElement>(null);
+  const [reintento, setReintento] = useState(0);
+  const panelRef = useRef<HTMLElement>(null);
   const claveError = estado.tipo === "error" ? estado.mensaje : (error ?? "");
-  useEnfoqueError(errorRef, claveError);
+  useEnfoqueError(panelRef, claveError);
 
   useEffect(() => {
     let activo = true;
@@ -48,7 +49,7 @@ export function PanelRecuperacion({
     return () => {
       activo = false;
     };
-  }, [revision, servicios]);
+  }, [reintento, revision, servicios]);
 
   const actualizar = async (texto: string) => {
     const banco = await servicios.consultarBanco.ejecutar();
@@ -102,9 +103,25 @@ export function PanelRecuperacion({
   }
   if (estado.tipo === "error") {
     return (
-      <p ref={errorRef} role="alert" tabIndex={-1}>
-        {estado.mensaje}
-      </p>
+      <section
+        ref={panelRef}
+        className="panel-agenda estado-error"
+        role="alert"
+        tabIndex={-1}
+      >
+        <h2>No fue posible abrir el banco de recuperación</h2>
+        <p>{estado.mensaje}</p>
+        <button
+          className="boton-secundario"
+          type="button"
+          onClick={() => {
+            setEstado({ tipo: "cargando" });
+            setReintento((actual) => actual + 1);
+          }}
+        >
+          Reintentar banco de recuperación
+        </button>
+      </section>
     );
   }
 
@@ -114,8 +131,10 @@ export function PanelRecuperacion({
   );
   return (
     <section
+      ref={panelRef}
       className="panel-agenda panel-recuperacion"
       aria-labelledby="titulo-recuperacion"
+      aria-busy={procesando}
     >
       <header className="cabecera-panel-agenda">
         <div>
@@ -149,7 +168,6 @@ export function PanelRecuperacion({
       )}
       {error && (
         <p
-          ref={errorRef}
           className="mensaje-error mensaje-formulario"
           role="alert"
           tabIndex={-1}
@@ -163,7 +181,8 @@ export function PanelRecuperacion({
           <h3 id="titulo-acreditar-recuperacion">Sobretrabajo verificable</h3>
           {banco.acreditables.length === 0 ? (
             <p className="estado-vacio-lineal">
-              No hay bloques completados con excedente cronometrado pendiente.
+              No hay excedente pendiente. Cronometra un bloque, detén la sesión
+              y complétalo para poder acreditar recuperación.
             </p>
           ) : (
             <ul className="lista-recuperacion">
@@ -180,10 +199,26 @@ export function PanelRecuperacion({
                     className="boton-secundario"
                     type="button"
                     disabled={procesando || bloque.minutosAcreditables === 0}
+                    aria-describedby={
+                      bloque.minutosAcreditables === 0
+                        ? `motivo-acreditar-${bloque.bloqueId}`
+                        : undefined
+                    }
                     onClick={() => void acreditar(bloque.bloqueId)}
                   >
-                    Acreditar {bloque.minutosAcreditables} min
+                    {procesando
+                      ? "Procesando…"
+                      : `Acreditar ${bloque.minutosAcreditables} min`}
                   </button>
+                  {bloque.minutosAcreditables === 0 && (
+                    <small
+                      id={`motivo-acreditar-${bloque.bloqueId}`}
+                      className="motivo-control-inhabilitado"
+                    >
+                      No disponible: el movimiento ya fue acreditado o alcanzó
+                      los topes configurados.
+                    </small>
+                  )}
                 </li>
               ))}
             </ul>
@@ -194,8 +229,8 @@ export function PanelRecuperacion({
           <h3 id="titulo-consumir-recuperacion">Reducir carga futura</h3>
           {banco.reducibles.length === 0 ? (
             <p className="estado-vacio-lineal">
-              No hay bloques futuros pendientes cuya política permita reducir
-              carga.
+              No hay carga reducible. Planifica un bloque flexible futuro que
+              permita reducir carga para usar este saldo.
             </p>
           ) : (
             <form
@@ -233,9 +268,23 @@ export function PanelRecuperacion({
                 className="boton-primario"
                 type="submit"
                 disabled={procesando || banco.saldoMinutos === 0}
+                aria-describedby={
+                  banco.saldoMinutos === 0
+                    ? "motivo-consumir-recuperacion"
+                    : undefined
+                }
               >
                 {procesando ? "Procesando…" : "Usar recuperación"}
               </button>
+              {banco.saldoMinutos === 0 && (
+                <p
+                  id="motivo-consumir-recuperacion"
+                  className="motivo-control-inhabilitado"
+                >
+                  Necesitas acreditar minutos de sobretrabajo antes de reducir
+                  carga futura.
+                </p>
+              )}
             </form>
           )}
         </section>
@@ -248,7 +297,8 @@ export function PanelRecuperacion({
         <h3 id="titulo-historial-recuperacion">Historial</h3>
         {banco.movimientos.length === 0 ? (
           <p className="estado-vacio-lineal">
-            El banco aún no tiene movimientos.
+            El banco aún no tiene movimientos. Acredita un excedente
+            cronometrado para crear el primero.
           </p>
         ) : (
           <ol>

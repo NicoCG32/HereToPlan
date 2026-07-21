@@ -169,6 +169,8 @@ reward `Día libre`. El recorrido principal permite:
   reemplazo atómico de las doce colecciones;
 - recorrer con teclado la navegación, los editores y los diálogos, con foco
   explícito ante errores y retorno al control de origen al cancelar;
+- comprender estados vacíos, recuperar lecturas fallidas y conocer el motivo
+  de las acciones temporalmente o funcionalmente indisponibles;
 - recuperar contextos, actividades, bloques y sesiones de cronómetro desde
   IndexedDB después de recargar.
 

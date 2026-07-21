@@ -686,6 +686,28 @@ foco sin romper esa contención. Esta política reside en hooks de presentación
 reutilizables para evitar que cada confirmación implemente variantes
 incompatibles.
 
+### 6.18. Estados explícitos y recuperación de la interfaz
+
+La presentación modela `cargando`, `vacío`, `lista` y `error` como resultados
+observables, no como ausencia accidental de elementos. Un estado vacío explica
+qué condición lo produjo y cuál es el siguiente paso dentro del flujo. No crea
+datos ficticios ni confunde una colección legítimamente vacía con un fallo de
+infraestructura.
+
+Los errores recuperables conservan el contexto y ofrecen una operación de
+reintento acotada. Reintentar vuelve a invocar el mismo puerto de entrada; no
+recarga globalmente la aplicación ni duplica órdenes de escritura. Cuando una
+operación principal tuvo éxito pero falló una consulta secundaria, como la
+actualización de un historial, ambos resultados se representan por separado
+para no informar falsamente que la escritura fracasó.
+
+La indisponibilidad permanente o derivada de reglas se acompaña de un motivo
+visible relacionado mediante `aria-describedby`. Los bloqueos transitorios
+declaran `aria-busy` en la región afectada y mantienen una etiqueta de progreso.
+Esta distinción permite comprender si corresponde cambiar datos, completar un
+prerrequisito o simplemente esperar, sin replicar las invariantes del dominio
+en React.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 Los cortes confirmados, `BilleteraPuntos` y el historial de recompensas poseen

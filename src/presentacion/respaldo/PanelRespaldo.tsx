@@ -104,6 +104,7 @@ export function PanelRespaldo({ servicios }: PanelRespaldoProps) {
       ref={panelRef}
       className="panel-agenda panel-respaldo"
       aria-labelledby="titulo-respaldo"
+      aria-busy={procesando}
     >
       <header className="cabecera-panel-agenda">
         <div>

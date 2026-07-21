@@ -89,6 +89,7 @@ export function FormularioCrearAgenda({
         ref={formularioRef}
         className="formulario-agenda"
         onSubmit={(evento) => void enviar(evento)}
+        aria-busy={guardando}
         noValidate
       >
         <div className="campo campo-ancho">

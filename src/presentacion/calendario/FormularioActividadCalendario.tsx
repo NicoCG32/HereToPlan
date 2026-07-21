@@ -127,8 +127,15 @@ export function FormularioActividadCalendario({
         ref={formularioRef}
         className="formulario-contexto"
         onSubmit={(evento) => void enviar(evento)}
+        aria-busy={guardando}
         noValidate
       >
+        {guardando && (
+          <p className="ayuda-campo campo-ancho" role="status">
+            Guardando la actividad; los controles están temporalmente
+            indisponibles.
+          </p>
+        )}
         <div className="campo">
           <label htmlFor="tipo-actividad">Tipo</label>
           <select

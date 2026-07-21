@@ -12,6 +12,43 @@ import type { ServiciosCalendario } from "../src/presentacion/calendario/Servici
 afterEach(cleanup);
 
 describe("control del cronómetro", () => {
+  it("permite reintentar cuando no puede recuperar la sesión", async () => {
+    const usuario = userEvent.setup();
+    const consultar = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("Sesiones inaccesibles."))
+      .mockResolvedValueOnce(crearEstado());
+    const servicios = {
+      consultarCronometro: { ejecutar: consultar },
+      gestionarCronometro: { ejecutar: vi.fn() },
+      generarOperacionId: () => "operacion-1",
+    } as Pick<
+      ServiciosCalendario,
+      "consultarCronometro" | "gestionarCronometro" | "generarOperacionId"
+    >;
+
+    render(
+      <ControlCronometroBloque
+        bloqueId="bloque-1"
+        titulo="Escribir informe"
+        permitirInicio
+        servicios={servicios}
+        revision={0}
+        onCambio={vi.fn()}
+      />,
+    );
+    expect((await screen.findByRole("alert")).textContent).toContain(
+      "Sesiones inaccesibles",
+    );
+    await usuario.click(
+      screen.getByRole("button", { name: "Reintentar cronómetro" }),
+    );
+    expect(
+      await screen.findByRole("button", { name: "Iniciar cronómetro" }),
+    ).toBeTruthy();
+    expect(consultar).toHaveBeenCalledTimes(2);
+  });
+
   it("ofrece controles por estado sin anunciar cada segundo ni cerrar el bloque", async () => {
     const usuario = userEvent.setup();
     let estado = crearEstado();

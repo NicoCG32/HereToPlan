@@ -30,12 +30,13 @@ export function PanelGraciaPlanificacion({
   const [cortes, setCortes] = useState<readonly CortePlanificacionDto[]>([]);
   const [anuncio, setAnuncio] = useState<string>();
   const [error, setError] = useState<string>();
+  const [reintento, setReintento] = useState(0);
   const [corteEnCorreccion, setCorteEnCorreccion] =
     useState<CortePlanificacionDto>();
   const [procesandoCorreccion, setProcesandoCorreccion] = useState(false);
   const [errorCorreccion, setErrorCorreccion] = useState<string>();
   const botonOrigenCorreccionRef = useRef<HTMLButtonElement | null>(null);
-  const errorRef = useRef<HTMLParagraphElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
   useEnfoqueError(errorRef, error ?? "");
 
   useEffect(() => {
@@ -75,7 +76,7 @@ export function PanelGraciaPlanificacion({
       activo = false;
       if (temporizador !== undefined) window.clearTimeout(temporizador);
     };
-  }, [intervaloActualizacionMs, revision, sincronizarCortes]);
+  }, [intervaloActualizacionMs, reintento, revision, sincronizarCortes]);
 
   const activos = cortes.filter((corte) => corte.estado === "EN_GRACIA");
 
@@ -126,14 +127,24 @@ export function PanelGraciaPlanificacion({
         </p>
       )}
       {error && (
-        <p
+        <div
           ref={errorRef}
           className="mensaje-error mensaje-formulario"
           role="alert"
           tabIndex={-1}
         >
-          {error}
-        </p>
+          <p>No fue posible actualizar los períodos de gracia. {error}</p>
+          <button
+            className="boton-secundario"
+            type="button"
+            onClick={() => {
+              setError(undefined);
+              setReintento((actual) => actual + 1);
+            }}
+          >
+            Reintentar sincronización
+          </button>
+        </div>
       )}
       {activos.length > 0 && (
         <section

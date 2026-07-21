@@ -996,6 +996,13 @@ button:focus-visible {
   font-size: 0.74rem;
 }
 
+.motivo-control-inhabilitado {
+  margin: 0.35rem 0 0;
+  color: var(--texto-secundario);
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
 .campo-verificacion {
   display: flex;
   align-items: flex-start;

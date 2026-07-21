@@ -7,6 +7,30 @@ import { PanelGraciaPlanificacion } from "../src/presentacion/calendario/PanelGr
 afterEach(cleanup);
 
 describe("panel de gracia de la planificación", () => {
+  it("ofrece reintentar cuando falla la sincronización", async () => {
+    const usuario = userEvent.setup();
+    const ejecutar = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("Reloj no disponible."))
+      .mockResolvedValueOnce([]);
+
+    render(
+      <PanelGraciaPlanificacion
+        sincronizarCortes={{ ejecutar }}
+        corregirCorte={{ ejecutar: vi.fn() }}
+      />,
+    );
+
+    expect((await screen.findByRole("alert")).textContent).toContain(
+      "Reloj no disponible",
+    );
+    await usuario.click(
+      screen.getByRole("button", { name: "Reintentar sincronización" }),
+    );
+    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+    expect(ejecutar).toHaveBeenCalledTimes(2);
+  });
+
   it("actualiza la cuenta visual sin convertir cada segundo en un anuncio accesible", async () => {
     const ejecutar = vi
       .fn()

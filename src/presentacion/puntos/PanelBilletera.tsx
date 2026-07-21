@@ -91,8 +91,9 @@ export function PanelBilletera({ servicios, revision }: PanelBilleteraProps) {
       )}
       {estado.tipo === "lista" && estado.billetera.movimientos.length === 0 && (
         <p className="estado-vacio-lineal">
-          Aún no hay movimientos. Completar un bloque confirmado generará el
-          primer ingreso.
+          Aún no hay movimientos. Vuelve al calendario, confirma una
+          planificación y completa uno de sus bloques para generar el primer
+          ingreso.
         </p>
       )}
       {estado.tipo === "lista" && estado.billetera.movimientos.length > 0 && (

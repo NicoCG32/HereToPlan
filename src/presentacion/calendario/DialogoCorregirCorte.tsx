@@ -33,6 +33,7 @@ export function DialogoCorregirCorte({
         className="dialogo-confirmacion dialogo-corregir-corte"
         role="dialog"
         aria-modal="true"
+        aria-busy={procesando}
         aria-labelledby="titulo-corregir-corte"
         aria-describedby="consecuencias-corregir-corte"
         onKeyDown={gestionarTeclado}

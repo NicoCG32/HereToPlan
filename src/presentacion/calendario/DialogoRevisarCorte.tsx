@@ -33,6 +33,7 @@ export function DialogoRevisarCorte({
         className="dialogo-confirmacion dialogo-revision-corte"
         role="dialog"
         aria-modal="true"
+        aria-busy={procesando}
         aria-labelledby="titulo-revisar-corte"
         aria-describedby="consecuencias-revisar-corte"
         onKeyDown={gestionarTeclado}

@@ -24,27 +24,31 @@ export function PanelDiaLibre({
   const [fecha, setFecha] = useState("");
   const [vistaPrevia, setVistaPrevia] = useState<VistaPreviaDiaLibreDto>();
   const [historial, setHistorial] = useState<readonly CanjeDiaLibreDto[]>([]);
+  const [errorHistorial, setErrorHistorial] = useState<string>();
+  const [revisionHistorial, setRevisionHistorial] = useState(0);
   const [consultando, setConsultando] = useState(false);
   const [error, setError] = useState<string>();
   const [operacionId, setOperacionId] = useState<string>();
   const [procesando, setProcesando] = useState(false);
   const [resultado, setResultado] = useState<CanjeDiaLibreDto>();
-  useEnfoqueError(panelRef, operacionId ? "" : (error ?? ""));
+  useEnfoqueError(panelRef, operacionId ? "" : (error ?? errorHistorial ?? ""));
 
   useEffect(() => {
     let activo = true;
     servicios.listarCanjes.ejecutar().then(
       (canjes) => {
-        if (activo) setHistorial(canjes);
+        if (!activo) return;
+        setHistorial(canjes);
+        setErrorHistorial(undefined);
       },
       (causa: unknown) => {
-        if (activo) setError(mensajeError(causa));
+        if (activo) setErrorHistorial(mensajeErrorHistorial(causa));
       },
     );
     return () => {
       activo = false;
     };
-  }, [servicios]);
+  }, [revisionHistorial, servicios]);
 
   const preparar = async (evento: FormEvent) => {
     evento.preventDefault();
@@ -77,10 +81,15 @@ export function PanelDiaLibre({
         fechaObjetivo: vistaPrevia.fechaObjetivo,
       });
       setResultado(canje);
-      setHistorial(await servicios.listarCanjes.ejecutar());
       setVistaPrevia(undefined);
       setOperacionId(undefined);
       onCanjeConfirmado?.();
+      try {
+        setHistorial(await servicios.listarCanjes.ejecutar());
+        setErrorHistorial(undefined);
+      } catch (causa: unknown) {
+        setErrorHistorial(mensajeErrorHistorial(causa));
+      }
       requestAnimationFrame(() => resultadoRef.current?.focus());
     } catch (causa: unknown) {
       setError(mensajeError(causa));
@@ -94,6 +103,7 @@ export function PanelDiaLibre({
       ref={panelRef}
       className="panel-agenda panel-dia-libre"
       aria-labelledby="titulo-dia-libre"
+      aria-busy={consultando || procesando}
     >
       <header className="cabecera-panel-agenda">
         <div>
@@ -196,9 +206,14 @@ export function PanelDiaLibre({
               )}
             </div>
           </div>
-          {!vistaPrevia.saldoSuficiente && (
-            <p className="aviso-dia-libre">
-              El saldo disponible no cubre el costo.
+          {!vistaPrevia.puedeCanjear && (
+            <p
+              id="motivo-canje-dia-libre"
+              className="aviso-dia-libre motivo-control-inhabilitado"
+            >
+              {!vistaPrevia.saldoSuficiente
+                ? "No disponible: el saldo actual no cubre el costo del canje."
+                : "No disponible: la fecha no contiene bloques elegibles para excusar."}
             </p>
           )}
           <button
@@ -206,6 +221,9 @@ export function PanelDiaLibre({
             className="boton-primario"
             type="button"
             disabled={!vistaPrevia.puedeCanjear}
+            aria-describedby={
+              vistaPrevia.puedeCanjear ? undefined : "motivo-canje-dia-libre"
+            }
             onClick={abrirConfirmacion}
           >
             Canjear Día libre
@@ -242,9 +260,28 @@ export function PanelDiaLibre({
         aria-labelledby="titulo-historial-canjes"
       >
         <h3 id="titulo-historial-canjes">Historial de canjes</h3>
-        {historial.length === 0 ? (
+        {errorHistorial ? (
+          <div
+            className="mensaje-error mensaje-formulario"
+            role="alert"
+            tabIndex={-1}
+          >
+            <p>No fue posible cargar el historial. {errorHistorial}</p>
+            <button
+              className="boton-secundario"
+              type="button"
+              onClick={() => {
+                setErrorHistorial(undefined);
+                setRevisionHistorial((actual) => actual + 1);
+              }}
+            >
+              Reintentar historial de canjes
+            </button>
+          </div>
+        ) : historial.length === 0 ? (
           <p className="estado-vacio-lineal">
-            Aún no existen canjes confirmados.
+            Aún no existen canjes confirmados. Selecciona una fecha futura y
+            revisa su efecto para preparar el primero.
           </p>
         ) : (
           <ol>
@@ -298,6 +335,12 @@ function mensajeError(causa: unknown): string {
   return causa instanceof Error
     ? causa.message
     : "No fue posible procesar el canje de Día libre.";
+}
+
+function mensajeErrorHistorial(causa: unknown): string {
+  return causa instanceof Error
+    ? causa.message
+    : "El almacenamiento local no respondió al consultar los canjes.";
 }
 
 function formatearInstante(instante: string): string {

@@ -35,7 +35,8 @@ export function ControlCronometroBloque({
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState<string>();
   const [error, setError] = useState<string>();
-  const errorRef = useRef<HTMLParagraphElement>(null);
+  const [reintento, setReintento] = useState(0);
+  const controlRef = useRef<HTMLElement>(null);
   const [marcaTemporal, setMarcaTemporal] = useState<
     Readonly<{ sesionId: string; ahora: number }> | undefined
   >();
@@ -68,14 +69,14 @@ export function ControlCronometroBloque({
     return () => {
       vigente = false;
     };
-  }, [bloqueId, revision, servicios]);
+  }, [bloqueId, reintento, revision, servicios]);
 
   const sesionAbierta =
     estado.tipo === "listo" ? estado.cronometro.sesionAbierta : undefined;
   const sesionPropia =
     sesionAbierta?.bloqueId === bloqueId ? sesionAbierta : undefined;
   useEnfoqueError(
-    errorRef,
+    controlRef,
     estado.tipo === "error" ? estado.mensaje : (error ?? ""),
   );
 
@@ -97,9 +98,24 @@ export function ControlCronometroBloque({
   }
   if (estado.tipo === "error") {
     return (
-      <p ref={errorRef} className="error-campo" role="alert" tabIndex={-1}>
-        {estado.mensaje}
-      </p>
+      <section
+        ref={controlRef}
+        className="error-campo estado-error-cronometro"
+        role="alert"
+        tabIndex={-1}
+      >
+        <p>No fue posible recuperar el cronómetro. {estado.mensaje}</p>
+        <button
+          className="boton-texto"
+          type="button"
+          onClick={() => {
+            setEstado({ tipo: "cargando" });
+            setReintento((actual) => actual + 1);
+          }}
+        >
+          Reintentar cronómetro
+        </button>
+      </section>
     );
   }
 
@@ -144,8 +160,10 @@ export function ControlCronometroBloque({
 
   return (
     <section
+      ref={controlRef}
       className="control-cronometro"
       aria-label={`Cronómetro opcional para ${titulo}`}
+      aria-busy={procesando}
     >
       <div>
         <span>Cronómetro opcional</span>
@@ -154,7 +172,7 @@ export function ControlCronometroBloque({
         </output>
       </div>
       {otraSesionAbierta && (
-        <p className="ayuda-campo">
+        <p id={`motivo-cronometro-${bloqueId}`} className="ayuda-campo">
           Hay otra sesión abierta. Detenla antes de medir este bloque.
         </p>
       )}
@@ -164,6 +182,9 @@ export function ControlCronometroBloque({
             className="boton-texto"
             type="button"
             disabled={procesando || otraSesionAbierta}
+            aria-describedby={
+              otraSesionAbierta ? `motivo-cronometro-${bloqueId}` : undefined
+            }
             onClick={() =>
               void ejecutar(
                 `INICIAR:${bloqueId}`,
@@ -247,7 +268,6 @@ export function ControlCronometroBloque({
       )}
       {error && (
         <p
-          ref={errorRef}
           className="mensaje-cronometro error-campo"
           role="alert"
           tabIndex={-1}

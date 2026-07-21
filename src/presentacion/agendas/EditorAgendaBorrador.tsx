@@ -314,6 +314,11 @@ export function EditorAgendaBorrador({
               type="checkbox"
               checked={borradorBloque.ajustesPermitidos.includes("EXCUSAR")}
               disabled={borradorBloque.rigidez === "ESTRICTO"}
+              aria-describedby={
+                borradorBloque.rigidez === "ESTRICTO"
+                  ? "motivo-excusar-bloque-estricto"
+                  : undefined
+              }
               onChange={(evento) =>
                 setBorradorBloque((actual) => ({
                   ...actual,
@@ -323,6 +328,14 @@ export function EditorAgendaBorrador({
             />
             Permitir que una recompensa excuse este bloque
           </label>
+          {borradorBloque.rigidez === "ESTRICTO" && (
+            <p
+              id="motivo-excusar-bloque-estricto"
+              className="motivo-control-inhabilitado"
+            >
+              No disponible: una política estricta no admite excusas.
+            </p>
+          )}
 
           <div className="acciones-formulario">
             {claveEditada && (

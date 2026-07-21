@@ -45,6 +45,7 @@ export function DialogoResolverBloque({
         className={`dialogo-confirmacion dialogo-resolucion-bloque${completar ? "" : " dialogo-resolucion-incumplida"}`}
         role="dialog"
         aria-modal="true"
+        aria-busy={procesando}
         aria-labelledby={tituloId}
         aria-describedby={descripcionId}
         onKeyDown={gestionarTeclado}

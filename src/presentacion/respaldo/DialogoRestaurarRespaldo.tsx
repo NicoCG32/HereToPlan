@@ -37,6 +37,7 @@ export function DialogoRestaurarRespaldo({
         className="dialogo-confirmacion dialogo-restauracion"
         role="dialog"
         aria-modal="true"
+        aria-busy={procesando}
         aria-labelledby="titulo-restaurar-respaldo"
         aria-describedby="consecuencias-restaurar-respaldo"
         onKeyDown={gestionarTeclado}

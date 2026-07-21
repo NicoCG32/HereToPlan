@@ -107,8 +107,15 @@ export function FormularioContextoNombrado({
         ref={formularioRef}
         className="formulario-contexto"
         onSubmit={(evento) => void enviar(evento)}
+        aria-busy={guardando}
         noValidate
       >
+        {guardando && (
+          <p className="ayuda-campo campo-ancho" role="status">
+            Guardando la agenda; los controles están temporalmente
+            indisponibles.
+          </p>
+        )}
         <div className="campo campo-ancho">
           <label htmlFor="nombre-contexto">Nombre</label>
           <input

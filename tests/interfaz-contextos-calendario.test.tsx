@@ -70,6 +70,15 @@ describe("interfaz de contextos del calendario", () => {
     expect(
       screen.getAllByRole("button", { name: /Planificar 2026-07-/ }),
     ).toHaveLength(7);
+    expect(screen.getByText(/Selecciona un día del calendario/)).toBeTruthy();
+    const revisar = screen.getByRole("button", {
+      name: "Revisar selección (0)",
+    });
+    expect(revisar).toHaveProperty("disabled", true);
+    expect(
+      document.getElementById(revisar.getAttribute("aria-describedby")!)
+        ?.textContent,
+    ).toContain("Selecciona al menos un bloque editable");
   });
 
   it("ofrece un salto de teclado al contenido principal", async () => {
