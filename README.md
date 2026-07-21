@@ -171,6 +171,9 @@ reward `Día libre`. El recorrido principal permite:
   explícito ante errores y retorno al control de origen al cancelar;
 - comprender estados vacíos, recuperar lecturas fallidas y conocer el motivo
   de las acciones temporalmente o funcionalmente indisponibles;
+- usar el calendario, la ventana de siete días y sus acciones sin
+  desplazamiento horizontal en pantallas móviles, con una representación
+  temporal equivalente en lista;
 - recuperar contextos, actividades, bloques y sesiones de cronómetro desde
   IndexedDB después de recargar.
 

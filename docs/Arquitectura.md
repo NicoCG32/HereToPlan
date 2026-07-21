@@ -708,6 +708,34 @@ Esta distinción permite comprender si corresponde cambiar datos, completar un
 prerrequisito o simplemente esperar, sin replicar las invariantes del dominio
 en React.
 
+### 6.19. Adaptación móvil y equivalencia temporal
+
+La adaptación a pantallas estrechas pertenece al adaptador de presentación y
+no introduce una segunda consulta de calendario. Las vistas diaria, semanal,
+mensual, de siete días y en lista consumen el mismo `CalendarioDto`; cambiar su
+composición CSS no modifica el rango, los filtros, el origen ni el estado de
+los bloques.
+
+Por debajo de `48rem`, las cuadrículas temporales abandonan las columnas con
+ancho mínimo fijo y adoptan columnas fluidas. Por debajo de `32rem`, se
+convierten en una sola secuencia vertical. Ninguna vista esencial depende así
+de un desplazamiento horizontal para consultar fechas o alcanzar acciones. El
+orden del DOM permanece estable, por lo que la transformación tampoco altera
+el recorrido de teclado.
+
+La representación en lista no es un resumen degradado: expone los mismos
+bloques del rango visible, en orden temporal, junto con contexto, carga,
+política, estado y operaciones disponibles. Un enlace explícito permite
+alcanzarla desde la navegación. Además, la fecha de referencia ofrece una
+acción directa de planificación, de modo que seleccionar un día no depende de
+la forma visual adoptada por la cuadrícula.
+
+En pantalla estrecha, los controles interactivos mantienen como mínimo
+`2.75rem` de altura y las etiquetas extensas pueden envolver texto. Estos son
+contratos de operabilidad de presentación; las decisiones cromáticas y el
+acabado visual pueden evolucionar sin reducir el área táctil ni ocultar una
+operación existente en escritorio.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 Los cortes confirmados, `BilleteraPuntos` y el historial de recompensas poseen

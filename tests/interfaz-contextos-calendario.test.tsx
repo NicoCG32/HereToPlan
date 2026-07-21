@@ -70,6 +70,16 @@ describe("interfaz de contextos del calendario", () => {
     expect(
       screen.getAllByRole("button", { name: /Planificar 2026-07-/ }),
     ).toHaveLength(7);
+    expect(
+      screen
+        .getByRole("link", {
+          name: "Consultar planificación como lista",
+        })
+        .getAttribute("href"),
+    ).toBe("#lista-equivalente");
+    expect(
+      screen.getByRole("heading", { name: "Vista de lista equivalente" }),
+    ).toBeTruthy();
     expect(screen.getByText(/Selecciona un día del calendario/)).toBeTruthy();
     const revisar = screen.getByRole("button", {
       name: "Revisar selección (0)",
@@ -79,6 +89,29 @@ describe("interfaz de contextos del calendario", () => {
       document.getElementById(revisar.getAttribute("aria-describedby")!)
         ?.textContent,
     ).toContain("Selecciona al menos un bloque editable");
+  });
+
+  it("permite planificar la fecha de referencia sin depender de la cuadrícula", async () => {
+    const usuario = userEvent.setup();
+    render(<App serviciosCalendario={await crearServicios()} />);
+    await screen.findByRole("heading", { name: "Calendario general" });
+
+    fireEvent.change(screen.getByLabelText("Fecha de referencia"), {
+      target: { value: "2026-07-24" },
+    });
+    const botonPlanificar = screen.getByRole("button", {
+      name: "Planificar fecha 2026-07-24",
+    });
+    await usuario.click(botonPlanificar);
+
+    expect(
+      screen.getByRole("heading", { name: "Planificar 2026-07-24" }),
+    ).toBeTruthy();
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByRole("button", { name: "Crear primera actividad" }),
+      ),
+    );
   });
 
   it("ofrece un salto de teclado al contenido principal", async () => {

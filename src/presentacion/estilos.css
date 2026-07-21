@@ -2606,6 +2606,201 @@ button:focus-visible {
   }
 }
 
+.acceso-lista-calendario {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0.75rem 0 0;
+}
+
+.acceso-lista-calendario a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: 0.65rem;
+  color: rgb(var(--azul-diamante));
+  font-size: 0.78rem;
+  font-weight: 750;
+  text-underline-offset: 0.2rem;
+}
+
+.descripcion-lista-equivalente {
+  max-width: 42rem;
+  margin: 0.45rem 0 0;
+  color: var(--texto-secundario);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.vista-lista-calendario {
+  scroll-margin-top: 1rem;
+}
+
+@media (max-width: 48rem) {
+  html,
+  body {
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .contenedor-principal,
+  .panel-agenda,
+  .panel-contexto,
+  .superficie-calendario,
+  .editor-dia,
+  .panel-siete-dias,
+  .bandeja-actividades,
+  .vista-lista-calendario,
+  .barra-contextos,
+  .navegacion-calendario,
+  .grupo-vistas,
+  .grupo-navegacion-fecha,
+  .campo-fecha-ancla,
+  .ejecucion-bloque,
+  .control-cronometro {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .grupo-vistas,
+  .grupo-navegacion-fecha {
+    width: 100%;
+  }
+
+  .grupo-vistas > button,
+  .grupo-navegacion-fecha > button {
+    flex: 1 1 8rem;
+  }
+
+  .campo-fecha-ancla,
+  .accion-planificar-fecha {
+    width: 100%;
+  }
+
+  .vista-lista-calendario .titulo-region {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .vista-lista-calendario .titulo-region > button {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .rejilla-calendario,
+  .rejilla-siete-dias {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-width: 0;
+    overflow-x: visible;
+  }
+
+  .rejilla-calendario.vista-mes,
+  .rejilla-calendario.vista-semana,
+  .rejilla-calendario.vista-dia {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dia-calendario,
+  .dia-proximo {
+    min-width: 0;
+    min-height: 8rem;
+  }
+
+  .dia-proximo {
+    border-right: 1px solid var(--linea);
+  }
+
+  .boton-dia-calendario,
+  .boton-dia-proximo,
+  .boton-texto,
+  .seleccion-bloque-corte {
+    min-height: 2.75rem;
+  }
+
+  .boton-texto {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.65rem 0.5rem;
+  }
+
+  .bloques-compactos strong,
+  .bloques-compactos span,
+  .bloques-compactos small {
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .vista-lista-calendario li,
+  .lista-actividades-sin-programar li,
+  .lista-cortes-gracia li,
+  .lista-recuperacion li,
+  .tarjeta-bloque,
+  .ejecucion-bloque,
+  .control-cronometro {
+    overflow-wrap: anywhere;
+  }
+
+  .acciones-bloque,
+  .acciones-formulario,
+  .acciones-dialogo-eliminacion,
+  .acciones-respaldo,
+  .acciones-recuperacion {
+    align-items: stretch;
+  }
+
+  .acceso-lista-calendario {
+    justify-content: stretch;
+  }
+
+  .acceso-lista-calendario a {
+    justify-content: center;
+    width: 100%;
+    border: 1px solid var(--linea);
+    background: rgb(255 255 255 / 52%);
+  }
+}
+
+@media (max-width: 32rem) {
+  .rejilla-calendario,
+  .rejilla-siete-dias,
+  .rejilla-calendario.vista-mes,
+  .rejilla-calendario.vista-semana,
+  .rejilla-calendario.vista-dia {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .superficie-calendario,
+  .editor-dia,
+  .panel-siete-dias,
+  .bandeja-actividades,
+  .vista-lista-calendario {
+    padding: 1rem;
+  }
+
+  .dia-calendario,
+  .dia-proximo {
+    min-height: 0;
+  }
+
+  .boton-dia-proximo {
+    align-items: center;
+    flex-flow: row wrap;
+  }
+
+  .boton-dia-proximo small {
+    flex-basis: 100%;
+  }
+
+  .lista-actividades-sin-programar button,
+  .acciones-bloque > button,
+  .acciones-formulario > button,
+  .acciones-dialogo-eliminacion > button {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
 .panel-recuperacion {
   border-color: rgb(var(--planta-profundo) / 38%);
   background:

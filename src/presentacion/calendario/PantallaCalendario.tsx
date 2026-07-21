@@ -582,7 +582,18 @@ export function PantallaCalendario({
           setFechaAncla(calendario.hoy);
           setDiaSeleccionado(calendario.hoy);
         }}
+        onPlanificarFecha={(origen) => {
+          controlEditorOrigenRef.current = origen;
+          setDiaSeleccionado(fechaAncla);
+          setFechaDestinoActividad(fechaAncla);
+          setBloqueEditado(undefined);
+          setActividadPreseleccionadaId(undefined);
+        }}
       />
+
+      <p className="acceso-lista-calendario">
+        <a href="#lista-equivalente">Consultar planificación como lista</a>
+      </p>
 
       {formularioContextoVisible && (
         <div id="panel-nueva-agenda">
@@ -790,6 +801,7 @@ interface BarraNavegacionCalendarioProps {
   readonly onFecha: (fecha: string) => void;
   readonly onDesplazar: (direccion: -1 | 1) => void;
   readonly onHoy: () => void;
+  readonly onPlanificarFecha: (origen: HTMLButtonElement) => void;
 }
 
 function BarraNavegacionCalendario({
@@ -799,6 +811,7 @@ function BarraNavegacionCalendario({
   onFecha,
   onDesplazar,
   onHoy,
+  onPlanificarFecha,
 }: BarraNavegacionCalendarioProps) {
   return (
     <nav
@@ -847,6 +860,14 @@ function BarraNavegacionCalendario({
             onChange={(evento) => onFecha(evento.target.value)}
           />
         </div>
+        <button
+          className="boton-primario accion-planificar-fecha"
+          type="button"
+          onClick={(evento) => onPlanificarFecha(evento.currentTarget)}
+          aria-label={`Planificar fecha ${fechaAncla}`}
+        >
+          Planificar fecha
+        </button>
       </div>
     </nav>
   );
@@ -1019,6 +1040,10 @@ function VistaListaBloques({
         <div>
           <p className="sobrelinea">Alternativa accesible</p>
           <h3 id="lista-equivalente">Vista de lista equivalente</h3>
+          <p className="descripcion-lista-equivalente">
+            Los mismos bloques del rango visible, ordenados por fecha y con sus
+            acciones disponibles.
+          </p>
         </div>
         <button
           ref={botonRevisarRef}
@@ -1051,7 +1076,7 @@ function VistaListaBloques({
           de los próximos siete días para planificar el primero.
         </p>
       ) : (
-        <ul>
+        <ul aria-label="Planificación temporal en lista">
           {bloques.map((bloque) => (
             <li key={bloque.id}>
               <div>
