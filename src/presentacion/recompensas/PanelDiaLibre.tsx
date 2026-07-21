@@ -6,6 +6,7 @@ import type {
 } from "../../aplicacion";
 import { DialogoCanjeDiaLibre } from "./DialogoCanjeDiaLibre";
 import type { ServiciosRecompensas } from "./ServiciosRecompensas";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 interface PanelDiaLibreProps {
   readonly servicios: ServiciosRecompensas;
@@ -17,6 +18,9 @@ export function PanelDiaLibre({
   onCanjeConfirmado,
 }: PanelDiaLibreProps) {
   const botonCanjearRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const vistaPreviaRef = useRef<HTMLHeadingElement>(null);
+  const resultadoRef = useRef<HTMLHeadingElement>(null);
   const [fecha, setFecha] = useState("");
   const [vistaPrevia, setVistaPrevia] = useState<VistaPreviaDiaLibreDto>();
   const [historial, setHistorial] = useState<readonly CanjeDiaLibreDto[]>([]);
@@ -25,6 +29,7 @@ export function PanelDiaLibre({
   const [operacionId, setOperacionId] = useState<string>();
   const [procesando, setProcesando] = useState(false);
   const [resultado, setResultado] = useState<CanjeDiaLibreDto>();
+  useEnfoqueError(panelRef, operacionId ? "" : (error ?? ""));
 
   useEffect(() => {
     let activo = true;
@@ -48,6 +53,7 @@ export function PanelDiaLibre({
     setResultado(undefined);
     try {
       setVistaPrevia(await servicios.prepararDiaLibre.ejecutar(fecha));
+      requestAnimationFrame(() => vistaPreviaRef.current?.focus());
     } catch (causa: unknown) {
       setVistaPrevia(undefined);
       setError(mensajeError(causa));
@@ -75,6 +81,7 @@ export function PanelDiaLibre({
       setVistaPrevia(undefined);
       setOperacionId(undefined);
       onCanjeConfirmado?.();
+      requestAnimationFrame(() => resultadoRef.current?.focus());
     } catch (causa: unknown) {
       setError(mensajeError(causa));
     } finally {
@@ -84,6 +91,7 @@ export function PanelDiaLibre({
 
   return (
     <section
+      ref={panelRef}
       className="panel-agenda panel-dia-libre"
       aria-labelledby="titulo-dia-libre"
     >
@@ -124,8 +132,12 @@ export function PanelDiaLibre({
         </button>
       </form>
 
-      {error && (
-        <p className="mensaje-error mensaje-formulario" role="alert">
+      {error && !operacionId && (
+        <p
+          className="mensaje-error mensaje-formulario"
+          role="alert"
+          tabIndex={-1}
+        >
           {error}
         </p>
       )}
@@ -135,7 +147,9 @@ export function PanelDiaLibre({
           className="vista-previa-dia-libre"
           aria-labelledby="titulo-vista-dia-libre"
         >
-          <h3 id="titulo-vista-dia-libre">Vista previa del canje</h3>
+          <h3 ref={vistaPreviaRef} id="titulo-vista-dia-libre" tabIndex={-1}>
+            Vista previa del canje
+          </h3>
           <dl className="resumen-dia-libre">
             <div>
               <dt>Costo</dt>
@@ -204,7 +218,9 @@ export function PanelDiaLibre({
           className="resultado-canje-dia-libre"
           aria-labelledby="titulo-resultado-canje"
         >
-          <h3 id="titulo-resultado-canje">Canje confirmado</h3>
+          <h3 ref={resultadoRef} id="titulo-resultado-canje" tabIndex={-1}>
+            Canje confirmado
+          </h3>
           <p>
             Se excusaron {resultado.bloquesAfectados.length} bloques del{" "}
             {resultado.fechaObjetivo}.

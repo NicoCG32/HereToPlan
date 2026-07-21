@@ -82,6 +82,14 @@ describe("panel de gracia de la planificación", () => {
     expect(document.activeElement).toBe(
       screen.getByRole("button", { name: "Mantener planificación" }),
     );
+    await usuario.keyboard("{Shift>}{Tab}{/Shift}");
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "Volver a editar" }),
+    );
+    await usuario.keyboard("{Tab}");
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "Mantener planificación" }),
+    );
 
     await usuario.keyboard("{Escape}");
     expect(screen.queryByRole("dialog")).toBeNull();

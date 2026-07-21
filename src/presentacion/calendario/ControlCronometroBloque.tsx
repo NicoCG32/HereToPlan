@@ -3,6 +3,7 @@ import type {
   ComandoGestionarSesionCronometro,
   EstadoCronometroBloqueDto,
 } from "../../aplicacion";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 import type { ServiciosCalendario } from "./ServiciosCalendario";
 
 interface ControlCronometroBloqueProps {
@@ -33,6 +34,8 @@ export function ControlCronometroBloque({
   const [estado, setEstado] = useState<EstadoControl>({ tipo: "cargando" });
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState<string>();
+  const [error, setError] = useState<string>();
+  const errorRef = useRef<HTMLParagraphElement>(null);
   const [marcaTemporal, setMarcaTemporal] = useState<
     Readonly<{ sesionId: string; ahora: number }> | undefined
   >();
@@ -71,6 +74,10 @@ export function ControlCronometroBloque({
     estado.tipo === "listo" ? estado.cronometro.sesionAbierta : undefined;
   const sesionPropia =
     sesionAbierta?.bloqueId === bloqueId ? sesionAbierta : undefined;
+  useEnfoqueError(
+    errorRef,
+    estado.tipo === "error" ? estado.mensaje : (error ?? ""),
+  );
 
   useEffect(() => {
     if (sesionPropia?.estado !== "ACTIVA") return;
@@ -89,7 +96,11 @@ export function ControlCronometroBloque({
     return <p className="estado-cronometro">Recuperando cronómetro…</p>;
   }
   if (estado.tipo === "error") {
-    return <p className="error-campo">{estado.mensaje}</p>;
+    return (
+      <p ref={errorRef} className="error-campo" role="alert" tabIndex={-1}>
+        {estado.mensaje}
+      </p>
+    );
   }
 
   const ejecutar = async (
@@ -105,13 +116,14 @@ export function ControlCronometroBloque({
     operacionPendiente.current = { clave, operacionId };
     setProcesando(true);
     setMensaje(undefined);
+    setError(undefined);
     try {
       await servicios.gestionarCronometro.ejecutar(crearComando(operacionId));
       operacionPendiente.current = undefined;
       setMensaje(confirmacion);
       onCambio(confirmacion);
     } catch (error: unknown) {
-      setMensaje(
+      setError(
         error instanceof Error
           ? error.message
           : "No fue posible cambiar el cronómetro.",
@@ -231,6 +243,16 @@ export function ControlCronometroBloque({
       {mensaje && (
         <p className="mensaje-cronometro" role="status">
           {mensaje}
+        </p>
+      )}
+      {error && (
+        <p
+          ref={errorRef}
+          className="mensaje-cronometro error-campo"
+          role="alert"
+          tabIndex={-1}
+        >
+          {error}
         </p>
       )}
     </section>

@@ -1,9 +1,10 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import type {
   AgendaBorradorCreada,
   CampoCrearAgendaBorrador,
   CrearAgendaBorrador,
 } from "../../aplicacion";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 interface FormularioCrearAgendaProps {
   readonly crearAgenda: CrearAgendaBorrador;
@@ -22,6 +23,12 @@ export function FormularioCrearAgenda({
   const [errores, setErrores] = useState<ErroresCamposAgenda>({});
   const [errorGeneral, setErrorGeneral] = useState<string>();
   const [guardando, setGuardando] = useState(false);
+  const formularioRef = useRef<HTMLFormElement>(null);
+  const nombreRef = useRef<HTMLInputElement>(null);
+  const claveError = `${JSON.stringify(errores)}|${errorGeneral ?? ""}`;
+
+  useEffect(() => nombreRef.current?.focus(), []);
+  useEnfoqueError(formularioRef, claveError);
 
   const enviar = async (evento: FormEvent<HTMLFormElement>) => {
     evento.preventDefault();
@@ -79,6 +86,7 @@ export function FormularioCrearAgenda({
       </p>
 
       <form
+        ref={formularioRef}
         className="formulario-agenda"
         onSubmit={(evento) => void enviar(evento)}
         noValidate
@@ -86,6 +94,7 @@ export function FormularioCrearAgenda({
         <div className="campo campo-ancho">
           <label htmlFor="nombre-agenda">Nombre de la agenda</label>
           <input
+            ref={nombreRef}
             id="nombre-agenda"
             name="nombre"
             value={nombre}
@@ -142,7 +151,11 @@ export function FormularioCrearAgenda({
         </div>
 
         {errorGeneral && (
-          <p className="mensaje-error mensaje-formulario" role="alert">
+          <p
+            className="mensaje-error mensaje-formulario"
+            role="alert"
+            tabIndex={-1}
+          >
             {errorGeneral}
           </p>
         )}

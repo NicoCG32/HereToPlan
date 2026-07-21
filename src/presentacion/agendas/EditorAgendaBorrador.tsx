@@ -4,6 +4,7 @@ import type {
   BloqueEditableAgendaBorrador,
   GuardarBloquesAgendaBorrador,
 } from "../../aplicacion";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 interface EditorAgendaBorradorProps {
   readonly agenda: AgendaBorradorDto;
@@ -39,6 +40,8 @@ export function EditorAgendaBorrador({
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<string>();
   const [error, setError] = useState<string>();
+  const errorRef = useRef<HTMLParagraphElement>(null);
+  useEnfoqueError(errorRef, error ?? "");
 
   const agregarOEditarBloque = (evento: FormEvent<HTMLFormElement>) => {
     evento.preventDefault();
@@ -339,7 +342,12 @@ export function EditorAgendaBorrador({
       </div>
 
       {error && (
-        <p className="mensaje-error mensaje-formulario" role="alert">
+        <p
+          ref={errorRef}
+          className="mensaje-error mensaje-formulario"
+          role="alert"
+          tabIndex={-1}
+        >
           {error}
         </p>
       )}

@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useRef, useState } from "react";
 import {
   CONFIRMACION_RESTAURACION,
   type PlanRestauracionRespaldo,
 } from "../../aplicacion";
+import { useDialogoModal } from "../hooks/useDialogoModal";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 interface DialogoRestaurarRespaldoProps {
   readonly plan: PlanRestauracionRespaldo;
@@ -19,33 +21,14 @@ export function DialogoRestaurarRespaldo({
   onCancelar,
   onConfirmar,
 }: DialogoRestaurarRespaldoProps) {
-  const dialogoRef = useRef<HTMLDivElement>(null);
   const confirmacionRef = useRef<HTMLInputElement>(null);
   const [confirmacion, setConfirmacion] = useState("");
-
-  useEffect(() => confirmacionRef.current?.focus(), []);
-
-  const gestionarTeclado = (evento: KeyboardEvent<HTMLDivElement>) => {
-    if (evento.key === "Escape" && !procesando) {
-      evento.preventDefault();
-      onCancelar();
-      return;
-    }
-    if (evento.key !== "Tab") return;
-    const controles = dialogoRef.current?.querySelectorAll<HTMLElement>(
-      'button:not(:disabled), input:not(:disabled), [tabindex]:not([tabindex="-1"])',
-    );
-    if (!controles || controles.length === 0) return;
-    const primero = controles[0];
-    const ultimo = controles[controles.length - 1];
-    if (evento.shiftKey && document.activeElement === primero) {
-      evento.preventDefault();
-      ultimo?.focus();
-    } else if (!evento.shiftKey && document.activeElement === ultimo) {
-      evento.preventDefault();
-      primero?.focus();
-    }
-  };
+  const { dialogoRef, gestionarTeclado } = useDialogoModal({
+    focoInicialRef: confirmacionRef,
+    bloqueado: procesando,
+    onCerrar: onCancelar,
+  });
+  useEnfoqueError(dialogoRef, error ?? "");
 
   return (
     <div className="fondo-dialogo" role="presentation">
@@ -85,7 +68,11 @@ export function DialogoRestaurarRespaldo({
         </dl>
 
         {error && (
-          <p className="mensaje-error mensaje-formulario" role="alert">
+          <p
+            className="mensaje-error mensaje-formulario"
+            role="alert"
+            tabIndex={-1}
+          >
             {error}
           </p>
         )}

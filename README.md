@@ -167,6 +167,8 @@ reward `Día libre`. El recorrido principal permite:
 - descargar un respaldo JSON versionado de todo el estado persistente y
   analizar su compatibilidad sin escribir, o restaurarlo con confirmación y
   reemplazo atómico de las doce colecciones;
+- recorrer con teclado la navegación, los editores y los diálogos, con foco
+  explícito ante errores y retorno al control de origen al cancelar;
 - recuperar contextos, actividades, bloques y sesiones de cronómetro desde
   IndexedDB después de recargar.
 

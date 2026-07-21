@@ -1,4 +1,10 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import {
@@ -31,6 +37,11 @@ describe("interfaz de agenda borrador", () => {
     expect(
       await screen.findByText("La agenda debe tener un nombre."),
     ).toBeTruthy();
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByLabelText("Nombre de la agenda"),
+      ),
+    );
     expect(screen.getByLabelText("Fecha inicial")).toHaveProperty(
       "value",
       "2026-07-20",

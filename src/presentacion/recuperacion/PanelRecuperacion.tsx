@@ -1,5 +1,6 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { BancoRecuperacionDto } from "../../aplicacion";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 import type { ServiciosRecuperacion } from "./ServiciosRecuperacion";
 
 interface PanelRecuperacionProps {
@@ -24,6 +25,9 @@ export function PanelRecuperacion({
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState<string>();
   const [error, setError] = useState<string>();
+  const errorRef = useRef<HTMLParagraphElement>(null);
+  const claveError = estado.tipo === "error" ? estado.mensaje : (error ?? "");
+  useEnfoqueError(errorRef, claveError);
 
   useEffect(() => {
     let activo = true;
@@ -97,7 +101,11 @@ export function PanelRecuperacion({
     return <p role="status">Cargando banco de recuperación…</p>;
   }
   if (estado.tipo === "error") {
-    return <p role="alert">{estado.mensaje}</p>;
+    return (
+      <p ref={errorRef} role="alert" tabIndex={-1}>
+        {estado.mensaje}
+      </p>
+    );
   }
 
   const { banco } = estado;
@@ -140,7 +148,12 @@ export function PanelRecuperacion({
         </p>
       )}
       {error && (
-        <p className="mensaje-error mensaje-formulario" role="alert">
+        <p
+          ref={errorRef}
+          className="mensaje-error mensaje-formulario"
+          role="alert"
+          tabIndex={-1}
+        >
           {error}
         </p>
       )}

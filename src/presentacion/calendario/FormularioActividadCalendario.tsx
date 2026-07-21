@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import type {
   ActividadDto,
   CampoCrearActividad,
@@ -6,6 +6,7 @@ import type {
   ResultadoCrearActividad,
 } from "../../aplicacion";
 import type { ServiciosCalendario } from "./ServiciosCalendario";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 interface FormularioActividadCalendarioProps {
   readonly crearActividad: ServiciosCalendario["crearActividad"];
@@ -44,6 +45,12 @@ export function FormularioActividadCalendario({
   >({});
   const [guardando, setGuardando] = useState(false);
   const intencionAsignar = useRef(false);
+  const formularioRef = useRef<HTMLFormElement>(null);
+  const tipoRef = useRef<HTMLSelectElement>(null);
+  const claveError = JSON.stringify(errores);
+
+  useEffect(() => tipoRef.current?.focus(), []);
+  useEnfoqueError(formularioRef, claveError);
 
   const enviar = async (evento: FormEvent<HTMLFormElement>) => {
     evento.preventDefault();
@@ -117,6 +124,7 @@ export function FormularioActividadCalendario({
         guardes además un bloque explícito.
       </p>
       <form
+        ref={formularioRef}
         className="formulario-contexto"
         onSubmit={(evento) => void enviar(evento)}
         noValidate
@@ -124,6 +132,7 @@ export function FormularioActividadCalendario({
         <div className="campo">
           <label htmlFor="tipo-actividad">Tipo</label>
           <select
+            ref={tipoRef}
             id="tipo-actividad"
             value={tipo}
             onChange={(evento) =>
@@ -144,9 +153,16 @@ export function FormularioActividadCalendario({
             value={titulo}
             onChange={(evento) => setTitulo(evento.target.value)}
             aria-invalid={Boolean(errores.titulo)}
+            aria-describedby={
+              errores.titulo ? "error-titulo-actividad" : undefined
+            }
             disabled={guardando}
           />
-          {errores.titulo && <p className="mensaje-error">{errores.titulo}</p>}
+          {errores.titulo && (
+            <p id="error-titulo-actividad" className="mensaje-error">
+              {errores.titulo}
+            </p>
+          )}
         </div>
         <div className="campo campo-ancho">
           <label htmlFor="descripcion-actividad">Descripción (opcional)</label>
@@ -166,10 +182,17 @@ export function FormularioActividadCalendario({
             value={minutos}
             onChange={(evento) => setMinutos(evento.target.value)}
             aria-invalid={Boolean(errores.tiempoNecesarioMinutos)}
+            aria-describedby={
+              errores.tiempoNecesarioMinutos
+                ? "error-minutos-actividad"
+                : undefined
+            }
             disabled={guardando}
           />
           {errores.tiempoNecesarioMinutos && (
-            <p className="mensaje-error">{errores.tiempoNecesarioMinutos}</p>
+            <p id="error-minutos-actividad" className="mensaje-error">
+              {errores.tiempoNecesarioMinutos}
+            </p>
           )}
         </div>
         {tipo !== "HABITO" && (
@@ -181,10 +204,15 @@ export function FormularioActividadCalendario({
               value={fechaLimite}
               onChange={(evento) => setFechaLimite(evento.target.value)}
               aria-invalid={Boolean(errores.fechaLimite)}
+              aria-describedby={
+                errores.fechaLimite ? "error-fecha-limite-actividad" : undefined
+              }
               disabled={guardando}
             />
             {errores.fechaLimite && (
-              <p className="mensaje-error">{errores.fechaLimite}</p>
+              <p id="error-fecha-limite-actividad" className="mensaje-error">
+                {errores.fechaLimite}
+              </p>
             )}
           </div>
         )}
@@ -199,15 +227,30 @@ export function FormularioActividadCalendario({
                   setFrecuencia(evento.target.value as typeof frecuencia)
                 }
                 aria-invalid={Boolean(errores.frecuencia)}
+                aria-describedby={
+                  errores.frecuencia ? "error-frecuencia-habito" : undefined
+                }
                 disabled={guardando}
               >
                 <option value="DIARIA">Diaria</option>
                 <option value="SEMANAL">Semanal</option>
                 <option value="PERSONALIZADA">Personalizada</option>
               </select>
+              {errores.frecuencia && (
+                <p id="error-frecuencia-habito" className="mensaje-error">
+                  {errores.frecuencia}
+                </p>
+              )}
             </div>
             {frecuencia !== "DIARIA" && (
-              <fieldset className="selector-dias campo-ancho">
+              <fieldset
+                className="selector-dias campo-ancho"
+                aria-invalid={Boolean(errores.diasSemana)}
+                aria-describedby={
+                  errores.diasSemana ? "error-dias-habito" : undefined
+                }
+                tabIndex={-1}
+              >
                 <legend>Días de la semana</legend>
                 {DIAS.map(([dia, nombre]) => (
                   <label key={dia}>
@@ -226,14 +269,20 @@ export function FormularioActividadCalendario({
                   </label>
                 ))}
                 {errores.diasSemana && (
-                  <p className="mensaje-error">{errores.diasSemana}</p>
+                  <p id="error-dias-habito" className="mensaje-error">
+                    {errores.diasSemana}
+                  </p>
                 )}
               </fieldset>
             )}
           </>
         )}
         {errores.general && (
-          <p className="mensaje-error mensaje-formulario" role="alert">
+          <p
+            className="mensaje-error mensaje-formulario"
+            role="alert"
+            tabIndex={-1}
+          >
             {errores.general}
           </p>
         )}

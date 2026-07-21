@@ -4,6 +4,7 @@ import type {
   CasoDeUsoSincronizarCortesPlanificacion,
   CortePlanificacionDto,
 } from "../../aplicacion";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 import { DialogoCorregirCorte } from "./DialogoCorregirCorte";
 
 interface PanelGraciaPlanificacionProps {
@@ -34,6 +35,8 @@ export function PanelGraciaPlanificacion({
   const [procesandoCorreccion, setProcesandoCorreccion] = useState(false);
   const [errorCorreccion, setErrorCorreccion] = useState<string>();
   const botonOrigenCorreccionRef = useRef<HTMLButtonElement | null>(null);
+  const errorRef = useRef<HTMLParagraphElement>(null);
+  useEnfoqueError(errorRef, error ?? "");
 
   useEffect(() => {
     let activo = true;
@@ -123,7 +126,12 @@ export function PanelGraciaPlanificacion({
         </p>
       )}
       {error && (
-        <p className="mensaje-error mensaje-formulario" role="alert">
+        <p
+          ref={errorRef}
+          className="mensaje-error mensaje-formulario"
+          role="alert"
+          tabIndex={-1}
+        >
           {error}
         </p>
       )}

@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { BilleteraPuntosDto } from "../../aplicacion";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 import type { ServiciosPuntos } from "./ServiciosPuntos";
 
 interface PanelBilleteraProps {
@@ -17,6 +18,8 @@ export function PanelBilletera({ servicios, revision }: PanelBilleteraProps) {
     tipo: "cargando",
   });
   const [reintento, setReintento] = useState(0);
+  const panelRef = useRef<HTMLElement>(null);
+  useEnfoqueError(panelRef, estado.tipo === "error" ? estado.mensaje : "");
 
   useEffect(() => {
     let activo = true;
@@ -42,6 +45,7 @@ export function PanelBilletera({ servicios, revision }: PanelBilleteraProps) {
 
   return (
     <section
+      ref={panelRef}
       className="panel-agenda panel-billetera"
       aria-labelledby="titulo-billetera"
     >
@@ -71,7 +75,7 @@ export function PanelBilletera({ servicios, revision }: PanelBilleteraProps) {
         </p>
       )}
       {estado.tipo === "error" && (
-        <div className="estado-billetera-error" role="alert">
+        <div className="estado-billetera-error" role="alert" tabIndex={-1}>
           <p>No fue posible reconstruir el saldo. {estado.mensaje}</p>
           <button
             className="boton-secundario"

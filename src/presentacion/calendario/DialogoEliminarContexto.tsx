@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ImpactoEliminacionContextoDto } from "../../aplicacion";
+import { useDialogoModal } from "../hooks/useDialogoModal";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 interface DialogoEliminarContextoProps {
   readonly impacto: ImpactoEliminacionContextoDto;
@@ -18,38 +20,21 @@ export function DialogoEliminarContexto({
   onTrasladarALibre,
   onEliminarBorradores,
 }: DialogoEliminarContextoProps) {
-  const dialogoRef = useRef<HTMLDivElement>(null);
   const cancelarRef = useRef<HTMLButtonElement>(null);
   const confirmacionRef = useRef<HTMLInputElement>(null);
   const [confirmacionReforzada, setConfirmacionReforzada] = useState(false);
   const [textoConfirmacion, setTextoConfirmacion] = useState("");
+  const { dialogoRef, gestionarTeclado } = useDialogoModal({
+    focoInicialRef: cancelarRef,
+    bloqueado: procesando,
+    onCerrar: onCancelar,
+  });
+  useEnfoqueError(dialogoRef, error ?? "");
 
   useEffect(() => {
     if (confirmacionReforzada) confirmacionRef.current?.focus();
     else cancelarRef.current?.focus();
   }, [confirmacionReforzada]);
-
-  const gestionarTeclado = (evento: KeyboardEvent<HTMLDivElement>) => {
-    if (evento.key === "Escape" && !procesando) {
-      evento.preventDefault();
-      onCancelar();
-      return;
-    }
-    if (evento.key !== "Tab") return;
-    const controles = dialogoRef.current?.querySelectorAll<HTMLElement>(
-      'button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
-    );
-    if (!controles || controles.length === 0) return;
-    const primero = controles[0];
-    const ultimo = controles[controles.length - 1];
-    if (evento.shiftKey && document.activeElement === primero) {
-      evento.preventDefault();
-      ultimo?.focus();
-    } else if (!evento.shiftKey && document.activeElement === ultimo) {
-      evento.preventDefault();
-      primero?.focus();
-    }
-  };
 
   return (
     <div className="fondo-dialogo" role="presentation">
@@ -89,7 +74,11 @@ export function DialogoEliminarContexto({
         </dl>
 
         {error && (
-          <p className="mensaje-error mensaje-formulario" role="alert">
+          <p
+            className="mensaje-error mensaje-formulario"
+            role="alert"
+            tabIndex={-1}
+          >
             {error}
           </p>
         )}

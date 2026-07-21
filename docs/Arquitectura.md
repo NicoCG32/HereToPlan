@@ -662,6 +662,30 @@ conserva el estado anterior completo. La presentación ofrece recargar la
 aplicación después de la confirmación técnica para reconstruir consultas y
 proyecciones, pero esa recarga no participa del límite transaccional.
 
+### 6.17. Navegación por teclado y gestión de foco
+
+La accesibilidad operativa pertenece al adaptador de presentación. No altera
+los puertos de aplicación ni incorpora decisiones visuales al dominio, pero sí
+constituye un contrato transversal entre componentes React: los controles
+nativos conservan su semántica, el orden del DOM coincide con el recorrido
+visual y un enlace de salto permite alcanzar directamente el contenido
+principal.
+
+Los cambios de contexto que insertan una tarea inmediata gestionan el foco de
+forma explícita. Un editor nuevo enfoca su primer control significativo; al
+cancelarlo, el foco vuelve al botón, día o bloque que lo abrió. Un resultado
+que reemplaza la acción anterior enfoca un encabezado o la siguiente acción
+estable. Los errores llevan el foco al primer campo inválido y, si no existe,
+al aviso con `role="alert"`. Estos avisos usan `tabindex="-1"`: pueden recibir
+foco programático sin añadir pasos artificiales al recorrido secuencial.
+
+Todos los diálogos comparten una política única: foco inicial sobre una acción
+segura, cierre mediante `Escape`, contención de `Tab` y `Shift+Tab`, y
+restauración del foco en el control de origen. Los errores del diálogo reciben
+foco sin romper esa contención. Esta política reside en hooks de presentación
+reutilizables para evitar que cada confirmación implemente variantes
+incompatibles.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 Los cortes confirmados, `BilleteraPuntos` y el historial de recompensas poseen

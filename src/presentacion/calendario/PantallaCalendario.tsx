@@ -20,6 +20,7 @@ import { FormularioContextoNombrado } from "./FormularioContextoNombrado";
 import { PanelGraciaPlanificacion } from "./PanelGraciaPlanificacion";
 import { ControlCronometroBloque } from "./ControlCronometroBloque";
 import type { ServiciosCalendario } from "./ServiciosCalendario";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 interface PantallaCalendarioProps {
   readonly servicios: ServiciosCalendario;
@@ -44,6 +45,8 @@ export function PantallaCalendario({
   const botonEliminarContextoRef = useRef<HTMLButtonElement>(null);
   const botonRevisarCorteRef = useRef<HTMLButtonElement>(null);
   const botonResolucionOrigenRef = useRef<HTMLButtonElement | null>(null);
+  const controlEditorOrigenRef = useRef<HTMLElement | null>(null);
+  const controlActividadOrigenRef = useRef<HTMLElement | null>(null);
   const selectorContextoRef = useRef<HTMLSelectElement>(null);
   const fechaInicialSincronizadaRef = useRef(false);
   const [estado, setEstado] = useState<EstadoCalendario>({ tipo: "cargando" });
@@ -85,6 +88,10 @@ export function PantallaCalendario({
   const [procesandoResolucion, setProcesandoResolucion] = useState(false);
   const [errorResolucion, setErrorResolucion] = useState<string>();
   const [revision, setRevision] = useState(0);
+  const panelRef = useRef<HTMLElement>(null);
+  const claveErrorVisible =
+    estado.tipo === "error" ? estado.mensaje : (errorAccion ?? "");
+  useEnfoqueError(panelRef, claveErrorVisible);
 
   useEffect(() => {
     let activa = true;
@@ -164,6 +171,34 @@ export function PantallaCalendario({
     setMensaje(
       `${actividad.titulo} quedó en Sin programar hasta que le asignes un bloque.`,
     );
+    requestAnimationFrame(() => controlActividadOrigenRef.current?.focus());
+  };
+
+  const cancelarActividad = () => {
+    setFormularioActividadVisible(false);
+    requestAnimationFrame(() => controlActividadOrigenRef.current?.focus());
+  };
+
+  const cancelarEditor = () => {
+    setDiaSeleccionado(undefined);
+    setBloqueEditado(undefined);
+    devolverFocoEditor(diaSeleccionado ?? bloqueEditado?.fecha);
+  };
+
+  const devolverFocoEditor = (fecha?: string) => {
+    requestAnimationFrame(() => {
+      const origen = controlEditorOrigenRef.current;
+      if (origen?.isConnected) {
+        origen.focus();
+        return;
+      }
+      const dia = fecha
+        ? panelRef.current?.querySelector<HTMLButtonElement>(
+            `button[aria-label="Seleccionar día ${fecha}"]`,
+          )
+        : undefined;
+      (dia ?? selectorContextoRef.current)?.focus();
+    });
   };
 
   const quitarBloque = async (bloque: BloqueCalendarioDto) => {
@@ -412,7 +447,12 @@ export function PantallaCalendario({
 
   if (estado.tipo === "error") {
     return (
-      <section className="panel-agenda estado-error" role="alert">
+      <section
+        ref={panelRef}
+        className="panel-agenda estado-error"
+        role="alert"
+        tabIndex={-1}
+      >
         <h2>No fue posible abrir el calendario</h2>
         <p>{estado.mensaje}</p>
         <button
@@ -440,6 +480,7 @@ export function PantallaCalendario({
 
   return (
     <section
+      ref={panelRef}
       className="panel-agenda panel-calendario"
       aria-labelledby="titulo-calendario"
     >
@@ -562,7 +603,7 @@ export function PantallaCalendario({
           {...(fechaDestinoActividad
             ? { fechaDestino: fechaDestinoActividad }
             : {})}
-          onCancelar={() => setFormularioActividadVisible(false)}
+          onCancelar={cancelarActividad}
           onCreada={actividadCreada}
         />
       )}
@@ -573,7 +614,11 @@ export function PantallaCalendario({
         </p>
       )}
       {errorAccion && (
-        <p className="mensaje-error mensaje-formulario" role="alert">
+        <p
+          className="mensaje-error mensaje-formulario"
+          role="alert"
+          tabIndex={-1}
+        >
           {errorAccion}
         </p>
       )}
@@ -581,7 +626,8 @@ export function PantallaCalendario({
       <VistaCalendario
         calendario={calendario}
         {...(diaSeleccionado ? { diaSeleccionado } : {})}
-        onSeleccionarDia={(fecha) => {
+        onSeleccionarDia={(fecha, origen) => {
+          controlEditorOrigenRef.current = origen;
           setDiaSeleccionado(fecha);
           setFechaDestinoActividad(fecha);
           setBloqueEditado(undefined);
@@ -600,12 +646,16 @@ export function PantallaCalendario({
             : {})}
           {...(bloqueEditado ? { bloque: bloqueEditado } : {})}
           servicios={servicios}
-          onCancelar={() => {
+          onCancelar={cancelarEditor}
+          onGuardado={(mensajeGuardado) => {
+            const fechaEditor = bloqueEditado?.fecha ?? diaSeleccionado;
             setDiaSeleccionado(undefined);
-            setBloqueEditado(undefined);
+            setFechaDestinoActividad(undefined);
+            actualizar(mensajeGuardado);
+            devolverFocoEditor(fechaEditor);
           }}
-          onGuardado={actualizar}
-          onNuevaActividad={() => {
+          onNuevaActividad={(origen) => {
+            controlActividadOrigenRef.current = origen;
             setFechaDestinoActividad(
               bloqueEditado?.fecha ?? diaSeleccionado ?? calendario.hoy,
             );
@@ -616,7 +666,8 @@ export function PantallaCalendario({
 
       <PanelSieteDias
         calendario={calendario}
-        onSeleccionar={(fecha) => {
+        onSeleccionar={(fecha, origen) => {
+          controlEditorOrigenRef.current = origen;
           setDiaSeleccionado(fecha);
           setFechaDestinoActividad(fecha);
           setBloqueEditado(undefined);
@@ -633,7 +684,8 @@ export function PantallaCalendario({
           <button
             className="boton-secundario"
             type="button"
-            onClick={() => {
+            onClick={(evento) => {
+              controlActividadOrigenRef.current = evento.currentTarget;
               setFechaDestinoActividad(undefined);
               setFormularioActividadVisible(true);
             }}
@@ -656,7 +708,8 @@ export function PantallaCalendario({
                 <button
                   className="boton-texto"
                   type="button"
-                  onClick={() => {
+                  onClick={(evento) => {
+                    controlEditorOrigenRef.current = evento.currentTarget;
                     setFechaAncla(calendario.hoy);
                     setDiaSeleccionado(calendario.hoy);
                     setFechaDestinoActividad(calendario.hoy);
@@ -678,7 +731,8 @@ export function PantallaCalendario({
         revisando={revisandoCorte}
         onAlternarSeleccion={alternarBloqueSeleccionado}
         onRevisar={() => void revisarSeleccion()}
-        onEditar={(bloque) => {
+        onEditar={(bloque, origen) => {
+          controlEditorOrigenRef.current = origen;
           setBloqueEditado(bloque);
           setDiaSeleccionado(bloque.fecha);
           setFormularioActividadVisible(false);
@@ -805,7 +859,7 @@ function VistaCalendario({
 }: {
   readonly calendario: CalendarioDto;
   readonly diaSeleccionado?: string;
-  readonly onSeleccionarDia: (fecha: string) => void;
+  readonly onSeleccionarDia: (fecha: string, origen: HTMLButtonElement) => void;
 }) {
   const fechas = enumerarFechas(
     calendario.rangoVisible.fechaInicio,
@@ -838,7 +892,9 @@ function VistaCalendario({
               <button
                 className="boton-dia-calendario"
                 type="button"
-                onClick={() => onSeleccionarDia(fecha)}
+                onClick={(evento) =>
+                  onSeleccionarDia(fecha, evento.currentTarget)
+                }
                 aria-pressed={diaSeleccionado === fecha}
                 aria-label={`Seleccionar día ${fecha}`}
               >
@@ -859,7 +915,7 @@ function PanelSieteDias({
   onSeleccionar,
 }: {
   readonly calendario: CalendarioDto;
-  readonly onSeleccionar: (fecha: string) => void;
+  readonly onSeleccionar: (fecha: string, origen: HTMLButtonElement) => void;
 }) {
   return (
     <section className="panel-siete-dias" aria-labelledby="proximos-siete-dias">
@@ -875,7 +931,9 @@ function PanelSieteDias({
             <button
               className="boton-dia-proximo"
               type="button"
-              onClick={() => onSeleccionar(dia.fecha)}
+              onClick={(evento) =>
+                onSeleccionar(dia.fecha, evento.currentTarget)
+              }
               aria-label={`Planificar ${dia.fecha}`}
             >
               <span>{dia.esHoy ? "Hoy" : formatearDia(dia.fecha)}</span>
@@ -938,7 +996,10 @@ function VistaListaBloques({
   readonly revisando: boolean;
   readonly onAlternarSeleccion: (bloqueId: string) => void;
   readonly onRevisar: () => void;
-  readonly onEditar: (bloque: BloqueCalendarioDto) => void;
+  readonly onEditar: (
+    bloque: BloqueCalendarioDto,
+    origen: HTMLButtonElement,
+  ) => void;
   readonly onQuitar: (bloque: BloqueCalendarioDto) => void;
   readonly onResolver: (
     bloque: BloqueCalendarioDto,
@@ -1031,7 +1092,7 @@ function VistaListaBloques({
                   <button
                     className="boton-texto"
                     type="button"
-                    onClick={() => onEditar(bloque)}
+                    onClick={(evento) => onEditar(bloque, evento.currentTarget)}
                   >
                     Editar {bloque.titulo}
                   </button>

@@ -72,6 +72,22 @@ describe("interfaz de contextos del calendario", () => {
     ).toHaveLength(7);
   });
 
+  it("ofrece un salto de teclado al contenido principal", async () => {
+    const usuario = userEvent.setup();
+    render(<App serviciosCalendario={await crearServicios()} />);
+    await screen.findByRole("heading", { name: "Calendario general" });
+
+    await usuario.tab();
+    const enlace = screen.getByRole("link", {
+      name: "Saltar al contenido principal",
+    });
+    expect(document.activeElement).toBe(enlace);
+    await usuario.click(enlace);
+    expect(document.activeElement).toBe(
+      document.getElementById("contenido-principal"),
+    );
+  });
+
   it("crea una agenda nombrada con propósito y rango, y la deja activa", async () => {
     const usuario = userEvent.setup();
     const entorno = await crearEntorno();
@@ -122,6 +138,9 @@ describe("interfaz de contextos del calendario", () => {
         "El contexto de planificación debe tener un nombre.",
       ),
     ).toBeTruthy();
+    await waitFor(() =>
+      expect(document.activeElement).toBe(screen.getByLabelText("Nombre")),
+    );
     await usuario.type(screen.getByLabelText("Nombre"), "Proyecto");
 
     fireEvent.change(screen.getByLabelText("Propósito (opcional)"), {
@@ -171,14 +190,17 @@ describe("interfaz de contextos del calendario", () => {
     render(<App serviciosCalendario={entorno.servicios} />);
     await screen.findByRole("heading", { name: "Calendario general" });
 
-    await usuario.click(
-      await screen.findByRole("button", {
-        name: "Seleccionar día 2026-07-20",
-      }),
+    const diaOrigen = await screen.findByRole("button", {
+      name: "Seleccionar día 2026-07-20",
+    });
+    await usuario.click(diaOrigen);
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "Crear primera actividad" }),
     );
     await usuario.click(
       screen.getByRole("button", { name: "Crear primera actividad" }),
     );
+    expect(document.activeElement).toBe(screen.getByLabelText("Tipo"));
     await usuario.type(screen.getByLabelText("Título"), "Preparar informe");
     await usuario.clear(screen.getByLabelText("Tiempo necesario (minutos)"));
     await usuario.type(
@@ -194,8 +216,12 @@ describe("interfaz de contextos del calendario", () => {
     expect(
       await screen.findByText(/Define ahora los minutos y la política/),
     ).toBeTruthy();
+    await waitFor(() =>
+      expect(document.activeElement).toBe(screen.getByLabelText("Actividad")),
+    );
     await usuario.click(screen.getByRole("button", { name: "Agregar bloque" }));
     expect(await screen.findByText(/fue asignada a 2026-07-20/)).toBeTruthy();
+    await waitFor(() => expect(document.activeElement).toBe(diaOrigen));
     expect(
       screen.getAllByText("Preparar informe").length,
     ).toBeGreaterThanOrEqual(3);

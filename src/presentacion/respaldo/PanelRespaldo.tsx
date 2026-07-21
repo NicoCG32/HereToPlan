@@ -1,10 +1,11 @@
-import { useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import type {
   PlanRestauracionRespaldo,
   ResultadoAnalisisRespaldo,
 } from "../../aplicacion";
 import { DialogoRestaurarRespaldo } from "./DialogoRestaurarRespaldo";
 import type { ServiciosRespaldo } from "./ServiciosRespaldo";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 interface PanelRespaldoProps {
   readonly servicios: ServiciosRespaldo;
@@ -19,6 +20,17 @@ export function PanelRespaldo({ servicios }: PanelRespaldoProps) {
   const [dialogoAbierto, setDialogoAbierto] = useState(false);
   const [restauracionCompletada, setRestauracionCompletada] = useState(false);
   const abrirRestauracionRef = useRef<HTMLButtonElement>(null);
+  const recargarRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const claveError =
+    error ??
+    (analisis && analisis.estado !== "VALIDO"
+      ? analisis.errores.join("|")
+      : "");
+  useEnfoqueError(panelRef, dialogoAbierto ? "" : claveError);
+  useEffect(() => {
+    if (restauracionCompletada) recargarRef.current?.focus();
+  }, [restauracionCompletada]);
 
   const exportar = async () => {
     setProcesando(true);
@@ -89,6 +101,7 @@ export function PanelRespaldo({ servicios }: PanelRespaldoProps) {
 
   return (
     <section
+      ref={panelRef}
       className="panel-agenda panel-respaldo"
       aria-labelledby="titulo-respaldo"
     >
@@ -113,7 +126,11 @@ export function PanelRespaldo({ servicios }: PanelRespaldoProps) {
         </p>
       )}
       {error && !dialogoAbierto && (
-        <p className="mensaje-error mensaje-formulario" role="alert">
+        <p
+          className="mensaje-error mensaje-formulario"
+          role="alert"
+          tabIndex={-1}
+        >
           {error}
         </p>
       )}
@@ -164,6 +181,7 @@ export function PanelRespaldo({ servicios }: PanelRespaldoProps) {
 
       {restauracionCompletada && (
         <button
+          ref={recargarRef}
           className="boton-primario"
           type="button"
           onClick={servicios.recargarAplicacion}
@@ -195,7 +213,10 @@ function InformeAnalisis({
       aria-labelledby="titulo-analisis-respaldo"
     >
       <h3 id="titulo-analisis-respaldo">Resultado del análisis</h3>
-      <p role={esValido ? "status" : "alert"}>
+      <p
+        role={esValido ? "status" : "alert"}
+        tabIndex={esValido ? undefined : -1}
+      >
         <strong>{etiquetaEstado(analisis.estado)}</strong>
         {analisis.versionFormato !== undefined &&
           ` · formato v${analisis.versionFormato}`}

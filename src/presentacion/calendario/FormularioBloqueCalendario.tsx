@@ -1,10 +1,11 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import type {
   ActividadDto,
   BloqueCalendarioDto,
   ResultadoGestionBloque,
 } from "../../aplicacion";
 import type { ServiciosCalendario } from "./ServiciosCalendario";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 interface FormularioBloqueCalendarioProps {
   readonly actividades: readonly ActividadDto[];
@@ -18,7 +19,7 @@ interface FormularioBloqueCalendarioProps {
   >;
   readonly onCancelar: () => void;
   readonly onGuardado: (mensaje: string) => void;
-  readonly onNuevaActividad: () => void;
+  readonly onNuevaActividad: (origen: HTMLButtonElement) => void;
 }
 
 export function FormularioBloqueCalendario({
@@ -54,6 +55,21 @@ export function FormularioBloqueCalendario({
   );
   const [error, setError] = useState<string>();
   const [guardando, setGuardando] = useState(false);
+  const seccionRef = useRef<HTMLElement>(null);
+  const actividadRef = useRef<HTMLSelectElement>(null);
+  const fechaRef = useRef<HTMLInputElement>(null);
+  const crearActividadRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (actividades.length === 0 && !bloque) {
+      crearActividadRef.current?.focus();
+    } else if (bloque) {
+      fechaRef.current?.focus();
+    } else {
+      actividadRef.current?.focus();
+    }
+  }, [actividades.length, bloque]);
+  useEnfoqueError(seccionRef, error ?? "");
 
   const enviar = async (evento: FormEvent<HTMLFormElement>) => {
     evento.preventDefault();
@@ -113,7 +129,11 @@ export function FormularioBloqueCalendario({
   };
 
   return (
-    <section className="editor-dia" aria-labelledby="titulo-editor-dia">
+    <section
+      ref={seccionRef}
+      className="editor-dia"
+      aria-labelledby="titulo-editor-dia"
+    >
       <div className="titulo-region">
         <div>
           <p className="sobrelinea">Asignación temporal</p>
@@ -123,9 +143,10 @@ export function FormularioBloqueCalendario({
         </div>
         {!bloque && (
           <button
+            ref={crearActividadRef}
             className="boton-texto"
             type="button"
-            onClick={onNuevaActividad}
+            onClick={(evento) => onNuevaActividad(evento.currentTarget)}
           >
             Nueva actividad
           </button>
@@ -135,9 +156,10 @@ export function FormularioBloqueCalendario({
         <div className="estado-vacio-bloques">
           <p>No hay actividades en el catálogo.</p>
           <button
+            ref={crearActividadRef}
             className="boton-primario"
             type="button"
-            onClick={onNuevaActividad}
+            onClick={(evento) => onNuevaActividad(evento.currentTarget)}
           >
             Crear primera actividad
           </button>
@@ -151,6 +173,7 @@ export function FormularioBloqueCalendario({
           <div className="campo campo-ancho">
             <label htmlFor="actividad-bloque">Actividad</label>
             <select
+              ref={actividadRef}
               id="actividad-bloque"
               value={actividadId}
               onChange={(evento) => {
@@ -178,6 +201,7 @@ export function FormularioBloqueCalendario({
           <div className="campo">
             <label htmlFor="fecha-bloque-calendario">Fecha</label>
             <input
+              ref={fechaRef}
               id="fecha-bloque-calendario"
               type="date"
               value={fechaBloque}
@@ -224,7 +248,11 @@ export function FormularioBloqueCalendario({
             </label>
           </fieldset>
           {error && (
-            <p className="mensaje-error mensaje-formulario" role="alert">
+            <p
+              className="mensaje-error mensaje-formulario"
+              role="alert"
+              tabIndex={-1}
+            >
               {error}
             </p>
           )}

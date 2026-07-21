@@ -4,6 +4,7 @@ import type {
   ResultadoCrearContextoNombrado,
 } from "../../aplicacion";
 import type { ServiciosCalendario } from "./ServiciosCalendario";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 type CampoFormulario = "nombre" | "proposito" | "fechaInicio" | "fechaFin";
 
@@ -29,10 +30,13 @@ export function FormularioContextoNombrado({
   >({});
   const [mensajeGeneral, setMensajeGeneral] = useState<string>();
   const [guardando, setGuardando] = useState(false);
+  const formularioRef = useRef<HTMLFormElement>(null);
+  const claveError = `${JSON.stringify(errores)}|${mensajeGeneral ?? ""}`;
 
   useEffect(() => {
     nombreRef.current?.focus();
   }, []);
+  useEnfoqueError(formularioRef, claveError);
 
   const enviar = async (evento: FormEvent<HTMLFormElement>) => {
     evento.preventDefault();
@@ -100,6 +104,7 @@ export function FormularioContextoNombrado({
       </p>
 
       <form
+        ref={formularioRef}
         className="formulario-contexto"
         onSubmit={(evento) => void enviar(evento)}
         noValidate
@@ -198,7 +203,11 @@ export function FormularioContextoNombrado({
         )}
 
         {mensajeGeneral && (
-          <p className="mensaje-error mensaje-formulario" role="alert">
+          <p
+            className="mensaje-error mensaje-formulario"
+            role="alert"
+            tabIndex={-1}
+          >
             {mensajeGeneral}
           </p>
         )}

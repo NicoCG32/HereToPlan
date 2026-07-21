@@ -144,6 +144,24 @@ body {
   background-attachment: fixed;
 }
 
+.enlace-saltar {
+  position: fixed;
+  z-index: 1000;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.7rem 1rem;
+  border: 2px solid rgb(var(--verde-profundo));
+  border-radius: 0.65rem;
+  background: rgb(var(--diamante-blanco));
+  color: rgb(var(--verde-profundo));
+  font-weight: 700;
+  transform: translateY(calc(-100% - 1rem));
+}
+
+.enlace-saltar:focus {
+  transform: translateY(0);
+}
+
 body::before,
 body::after {
   content: "";

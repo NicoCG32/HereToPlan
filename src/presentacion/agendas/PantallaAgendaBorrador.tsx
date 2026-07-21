@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { AgendaBorradorDto } from "../../aplicacion";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 import { EditorAgendaBorrador } from "./EditorAgendaBorrador";
 import type { EstadoPantallaAgendaBorrador } from "./EstadoPantallaAgendaBorrador";
 import { FormularioCrearAgenda } from "./FormularioCrearAgenda";
@@ -15,6 +16,8 @@ export function PantallaAgendaBorrador({
   const [estado, setEstado] = useState<EstadoPantallaAgendaBorrador>({
     tipo: "cargando",
   });
+  const errorRef = useRef<HTMLElement>(null);
+  useEnfoqueError(errorRef, estado.tipo === "error" ? estado.mensaje : "");
 
   const cargar = useCallback(async () => {
     try {
@@ -80,7 +83,12 @@ export function PantallaAgendaBorrador({
 
   if (estado.tipo === "error") {
     return (
-      <section className="panel-agenda estado-error" role="alert">
+      <section
+        ref={errorRef}
+        className="panel-agenda estado-error"
+        role="alert"
+        tabIndex={-1}
+      >
         <h2>No pudimos abrir la agenda</h2>
         <p>{estado.mensaje}</p>
         <button

@@ -1,5 +1,7 @@
-import { useEffect, useRef, type KeyboardEvent } from "react";
+import { useRef } from "react";
 import type { VistaPreviaDiaLibreDto } from "../../aplicacion";
+import { useDialogoModal } from "../hooks/useDialogoModal";
+import { useEnfoqueError } from "../hooks/useEnfoqueError";
 
 interface DialogoCanjeDiaLibreProps {
   readonly vistaPrevia: VistaPreviaDiaLibreDto;
@@ -16,31 +18,13 @@ export function DialogoCanjeDiaLibre({
   onCancelar,
   onConfirmar,
 }: DialogoCanjeDiaLibreProps) {
-  const dialogoRef = useRef<HTMLDivElement>(null);
   const cancelarRef = useRef<HTMLButtonElement>(null);
-  useEffect(() => cancelarRef.current?.focus(), []);
-
-  const gestionarTeclado = (evento: KeyboardEvent<HTMLDivElement>) => {
-    if (evento.key === "Escape" && !procesando) {
-      evento.preventDefault();
-      onCancelar();
-      return;
-    }
-    if (evento.key !== "Tab") return;
-    const controles = dialogoRef.current?.querySelectorAll<HTMLElement>(
-      'button:not(:disabled), [tabindex]:not([tabindex="-1"])',
-    );
-    if (!controles?.length) return;
-    const primero = controles[0];
-    const ultimo = controles[controles.length - 1];
-    if (evento.shiftKey && document.activeElement === primero) {
-      evento.preventDefault();
-      ultimo?.focus();
-    } else if (!evento.shiftKey && document.activeElement === ultimo) {
-      evento.preventDefault();
-      primero?.focus();
-    }
-  };
+  const { dialogoRef, gestionarTeclado } = useDialogoModal({
+    focoInicialRef: cancelarRef,
+    bloqueado: procesando,
+    onCerrar: onCancelar,
+  });
+  useEnfoqueError(dialogoRef, error ?? "");
 
   return (
     <div className="fondo-dialogo" role="presentation">
@@ -71,7 +55,11 @@ export function DialogoCanjeDiaLibre({
           </div>
         </dl>
         {error && (
-          <p className="mensaje-error mensaje-formulario" role="alert">
+          <p
+            className="mensaje-error mensaje-formulario"
+            role="alert"
+            tabIndex={-1}
+          >
             {error}
           </p>
         )}

@@ -133,6 +133,13 @@ describe("panel de respaldo", () => {
       expect(reemplazarEstadoCompleto).toHaveBeenCalledOnce(),
     );
     expect(await screen.findByText(/Restauración completada/)).toBeTruthy();
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByRole("button", {
+          name: "Recargar y usar los datos restaurados",
+        }),
+      ),
+    );
     await usuario.click(
       screen.getByRole("button", {
         name: "Recargar y usar los datos restaurados",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { PantallaAgendaBorrador } from "../presentacion/agendas/PantallaAgendaBorrador";
 import type { ServiciosAgendaBorrador } from "../presentacion/agendas/ServiciosAgendaBorrador";
@@ -40,6 +40,7 @@ export function App({
   serviciosRespaldo,
 }: AppProps) {
   useGradienteGlobal();
+  const contenidoRef = useRef<HTMLElement>(null);
   const [revisionDatos, setRevisionDatos] = useState(0);
   const serviciosPuntosEfectivos =
     serviciosPuntos ??
@@ -61,7 +62,19 @@ export function App({
       : undefined);
 
   return (
-    <main className="contenedor-principal">
+    <main
+      ref={contenidoRef}
+      id="contenido-principal"
+      className="contenedor-principal"
+      tabIndex={-1}
+    >
+      <a
+        className="enlace-saltar"
+        href="#contenido-principal"
+        onClick={() => contenidoRef.current?.focus()}
+      >
+        Saltar al contenido principal
+      </a>
       <header className="encabezado">
         <p className="etiqueta">Planificación personal consciente</p>
         <h1>

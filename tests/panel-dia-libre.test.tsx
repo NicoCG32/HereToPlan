@@ -98,6 +98,9 @@ describe("panel de Día libre", () => {
     expect(
       await screen.findByRole("heading", { name: "Canje confirmado" }),
     ).toBeTruthy();
+    expect(document.activeElement).toBe(
+      screen.getByRole("heading", { name: "Canje confirmado" }),
+    );
     expect(screen.getByRole("link", { name: "Ver canje" })).toHaveProperty(
       "hash",
       "#canje-canje-1",
