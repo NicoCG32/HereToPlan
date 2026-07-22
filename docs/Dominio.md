@@ -64,7 +64,7 @@ está referenciada por agendas, bloques editables o cortes históricos.
 
 `Tarea` especializa `Actividad` con estimación necesaria, fecha límite opcional, estado y composición. Una tarea simple no admite subtareas; las tareas compuestas y los proyectos forman un grafo dirigido acíclico. Terminar sus subtareas no completa automáticamente la tarea contenedora: su resolución requiere una decisión explícita y queda fechada.
 
-`Habito` especializa `Actividad` con frecuencia `DIARIA`, `SEMANAL` o `PERSONALIZADA`. Los días utilizan numeración ISO de 1 —lunes— a 7 —domingo—. Una frecuencia semanal declara exactamente un día y una personalizada al menos uno. `correspondeA(fecha)` calcula determinísticamente si debe proponerse una ocurrencia, pero cada ocurrencia real continúa siendo un bloque independiente.
+`Habito` especializa `Actividad` con frecuencia `DIARIA`, `SEMANAL` o `PERSONALIZADA`. Los días utilizan numeración ISO de 1 —lunes— a 7 —domingo—. Una frecuencia semanal declara exactamente un día y una personalizada al menos uno. `correspondeA(fecha)` determina las fechas aplicables. Al asignar un hábito sobre un rango finito, la aplicación materializa un bloque independiente por fecha compatible; la definición recurrente nunca se convierte en un bloque compartido.
 
 ### `contextos`
 
@@ -380,10 +380,12 @@ La recompensa `DIA_LIBRE`:
 20. Una unidad consumida identifica exactamente una aplicación y nunca vuelve a estar disponible.
 21. Un canje histórico migra como unidad consumida, nunca como unidad disponible.
 22. Preparar una aplicación no escribe; confirmar consume la unidad solo junto con todos sus ajustes.
-23. Arrastrar una actividad o recompensa no constituye un comando de dominio.
+23. Arrastrar no constituye un comando de dominio: presentación lo traduce en una asignación o preparación explícita de aplicación.
 24. Toda actividad posee un modo de seguimiento explícito y persistido.
 25. Una actividad heredada adquiere modo `MANUAL` sin modificar tipo, estado, política ni historia.
 26. El modo no cambia después de que exista un bloque que referencie la actividad.
+27. Una asignación recurrente omite la misma actividad ya programada en el mismo contexto y fecha.
+28. Todos los bloques nuevos de una asignación recurrente se publican juntos o no se publica ninguno.
 
 El reinicio de planificación no agrega una entidad al modelo ni altera estas
 invariantes. Es una política coordinada por aplicación que conserva hechos
@@ -395,7 +397,7 @@ Por esta razón no se representa como agregado en el modelo de dominio SVG.
 El modelo y sus adaptadores aún deben incorporar:
 
 - reglas internas de tareas compuestas y proyectos;
-- recurrencia completa de hábitos;
+- recurrencia abierta más allá del rango visible y administración posterior de series;
 - plantillas de agenda;
 - extensión de plazos;
 - calibración de la fórmula con observaciones de uso;

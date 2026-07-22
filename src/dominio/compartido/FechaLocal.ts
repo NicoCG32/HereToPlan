@@ -58,6 +58,24 @@ export class FechaLocal {
     return diaUtc === 0 ? 7 : diaUtc;
   }
 
+  public sumarDias(cantidad: number): FechaLocal {
+    if (!Number.isInteger(cantidad)) {
+      throw new ErrorDominio(
+        "DESPLAZAMIENTO_FECHA_INVALIDO",
+        "El desplazamiento de una fecha local debe expresarse en días enteros.",
+      );
+    }
+    const [anio, mes, dia] = this.valor.split("-").map(Number) as [
+      number,
+      number,
+      number,
+    ];
+    const fecha = new Date(Date.UTC(anio, mes - 1, dia + cantidad));
+    return FechaLocal.crear(
+      `${fecha.getUTCFullYear().toString().padStart(4, "0")}-${(fecha.getUTCMonth() + 1).toString().padStart(2, "0")}-${fecha.getUTCDate().toString().padStart(2, "0")}`,
+    );
+  }
+
   public toString(): string {
     return this.valor;
   }

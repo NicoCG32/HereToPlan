@@ -20,6 +20,7 @@ export class ErrorBloquePlanificacionNoEncontrado extends Error {
 
 export interface RepositorioBloquesPlanificacion {
   guardar(bloque: BloquePlanificacion): Promise<void>;
+  guardarTodos(bloques: readonly BloquePlanificacion[]): Promise<void>;
   actualizar(bloque: BloquePlanificacion): Promise<void>;
   obtenerPorId(id: Identificador): Promise<BloquePlanificacion | undefined>;
   listar(): Promise<readonly BloquePlanificacion[]>;

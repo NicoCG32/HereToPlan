@@ -45,7 +45,10 @@ export interface ServiciosCalendario {
   readonly crearActividad: Pick<CasoDeUsoCrearActividad, "ejecutar">;
   readonly editarActividad?: Pick<CasoDeUsoEditarActividad, "ejecutar">;
   readonly eliminarActividad?: Pick<CasoDeUsoEliminarActividad, "ejecutar">;
-  readonly asignarActividad: Pick<CasoDeUsoAsignarActividad, "ejecutar">;
+  readonly asignarActividad: Pick<
+    CasoDeUsoAsignarActividad,
+    "ejecutar" | "ejecutarRecurrencia"
+  >;
   readonly editarBloque: Pick<CasoDeUsoEditarBloquePlanificacion, "ejecutar">;
   readonly eliminarBloque: Pick<
     CasoDeUsoEliminarBloquePlanificacion,

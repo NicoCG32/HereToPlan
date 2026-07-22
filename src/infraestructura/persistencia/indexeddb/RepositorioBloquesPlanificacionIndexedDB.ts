@@ -62,6 +62,41 @@ export class RepositorioBloquesPlanificacionIndexedDB implements RepositorioBloq
     return this.escribir(bloque, "add");
   }
 
+  public async guardarTodos(
+    bloques: readonly BloquePlanificacion[],
+  ): Promise<void> {
+    if (bloques.length === 0) return;
+    const baseDatos = await this.abrirBaseDatos();
+    const registros = bloques.map(convertirBloquePlanificacionEnV1);
+    return new Promise((resolve, reject) => {
+      const transaccion = baseDatos.transaction(
+        ALMACEN_BLOQUES_PLANIFICACION,
+        "readwrite",
+      );
+      const almacen = transaccion.objectStore(ALMACEN_BLOQUES_PLANIFICACION);
+      const solicitudes = registros.map((registro) => almacen.add(registro));
+      transaccion.oncomplete = () => resolve();
+      transaccion.onabort = () => {
+        const indiceDuplicado = solicitudes.findIndex(
+          (solicitud) => solicitud.error?.name === "ConstraintError",
+        );
+        if (indiceDuplicado >= 0) {
+          reject(
+            new ErrorBloquePlanificacionDuplicado(bloques[indiceDuplicado]!.id),
+          );
+          return;
+        }
+        reject(
+          new ErrorRepositorioBloquesPlanificacionIndexedDB(
+            "ESCRITURA_INDEXEDDB_FALLIDA",
+            "No fue posible guardar la asignación recurrente del hábito.",
+            transaccion.error,
+          ),
+        );
+      };
+    });
+  }
+
   public async actualizar(bloque: BloquePlanificacion): Promise<void> {
     const existente = await this.obtenerPorId(bloque.id);
     if (!existente) {

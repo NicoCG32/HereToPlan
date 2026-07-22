@@ -16,6 +16,18 @@ export class RepositorioBloquesPlanificacionEnMemoria implements RepositorioBloq
     return Promise.resolve();
   }
 
+  public guardarTodos(bloques: readonly BloquePlanificacion[]): Promise<void> {
+    const identificadores = new Set<Identificador>();
+    for (const bloque of bloques) {
+      if (this.bloques.has(bloque.id) || identificadores.has(bloque.id)) {
+        return Promise.reject(new ErrorBloquePlanificacionDuplicado(bloque.id));
+      }
+      identificadores.add(bloque.id);
+    }
+    for (const bloque of bloques) this.bloques.set(bloque.id, bloque);
+    return Promise.resolve();
+  }
+
   public actualizar(bloque: BloquePlanificacion): Promise<void> {
     if (!this.bloques.has(bloque.id)) {
       return Promise.reject(

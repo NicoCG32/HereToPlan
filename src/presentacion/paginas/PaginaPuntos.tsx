@@ -6,6 +6,7 @@ import { PanelInventarioRecompensas } from "../recompensas/PanelInventarioRecomp
 import type { ServiciosInventarioRecompensas } from "../recompensas/ServiciosInventarioRecompensas";
 import { PanelRecuperacion } from "../recuperacion/PanelRecuperacion";
 import type { ServiciosRecuperacion } from "../recuperacion/ServiciosRecuperacion";
+import ilustracionPuntos from "../recursos/ilustraciones/paginas/ilustracion-pagina-puntos.svg";
 import { EncabezadoPagina } from "./EncabezadoPagina";
 import "./PaginaPuntos.css";
 
@@ -32,6 +33,7 @@ export function PaginaPuntos({
         sobrelinea="Economía y flexibilidad"
         titulo="Puntos"
         descripcion="Consulta movimientos trazables, prepara recompensas y administra recuperación sin confundir flexibilidad con eliminación de compromisos."
+        ilustracion={ilustracionPuntos}
       />
       {serviciosPuntos && (
         <PanelBilletera servicios={serviciosPuntos} revision={revisionDatos} />

@@ -6,6 +6,7 @@ import type {
   ContextoPlanificacionDto,
   ImpactoEliminacionContextoDto,
   InventarioRecompensasDto,
+  PoliticaBloquePlanificacionComando,
   RevisionCortePlanificacionDto,
   VistaPreviaAplicacionDiaLibreDto,
   VistaTemporalCalendario,
@@ -123,6 +124,8 @@ export function PantallaCalendario({
     }>
   >();
   const [procesandoAplicacion, setProcesandoAplicacion] = useState(false);
+  const [procesandoAsignacionRecurrente, setProcesandoAsignacionRecurrente] =
+    useState(false);
   const [errorAplicacion, setErrorAplicacion] = useState<string>();
   const panelRef = useRef<HTMLElement>(null);
   const claveErrorVisible =
@@ -595,10 +598,78 @@ export function PantallaCalendario({
   const recibirElementoEnFecha = (fecha: string, origen: HTMLElement) => {
     if (!elementoArrastrado) return;
     if (elementoArrastrado.tipo === "ACTIVIDAD") {
-      abrirEditorActividad(elementoArrastrado.id, fecha, origen);
+      asignarActividadDesdeBandeja(elementoArrastrado.id, fecha, origen);
       return;
     }
     void prepararAplicacion(elementoArrastrado.id, fecha, origen);
+  };
+
+  const asignarActividadDesdeBandeja = (
+    actividadId: string,
+    fecha: string,
+    origen: HTMLElement,
+  ) => {
+    if (estado.tipo !== "lista") return;
+    const actividad = estado.calendario.actividadesAsignables.find(
+      (candidata) => candidata.id === actividadId,
+    );
+    if (!actividad || actividad.tipo !== "HABITO") {
+      abrirEditorActividad(actividadId, fecha, origen);
+      return;
+    }
+    void asignarHabitoEnRango(actividad, fecha, origen);
+  };
+
+  const asignarHabitoEnRango = async (
+    actividad: Extract<ActividadDto, Readonly<{ tipo: "HABITO" }>>,
+    fechaInicio: string,
+    origen: HTMLElement,
+  ) => {
+    if (estado.tipo !== "lista" || procesandoAsignacionRecurrente) return;
+    setProcesandoAsignacionRecurrente(true);
+    setErrorAccion(undefined);
+    setElementoArrastrado(undefined);
+    try {
+      const resultado = await servicios.asignarActividad.ejecutarRecurrencia({
+        actividadId: actividad.id,
+        contextoId:
+          seleccion === SELECCION_TODAS ? ID_CONTEXTO_LIBRE : seleccion,
+        fechaInicio,
+        fechaFin: estado.calendario.rangoVisible.fechaFin,
+        minutosPlanificados: actividad.tiempoNecesarioMinutos,
+        politica: politicaPredeterminadaPara(actividad),
+      });
+      if (!resultado.exito) {
+        setErrorAccion(resultado.error.mensaje);
+        return;
+      }
+      const creados = resultado.bloques.length;
+      const omitidos = resultado.fechasOmitidas.length;
+      actualizar(
+        creados > 0
+          ? `${actividad.titulo} se asignó automáticamente a ${creados} ${creados === 1 ? "día" : "días"} del rango visible${omitidos > 0 ? `; ${omitidos} ya estaban asignados` : ""}.`
+          : `${actividad.titulo} ya estaba asignado en todos los días aplicables del rango visible.`,
+      );
+    } catch (error: unknown) {
+      setErrorAccion(
+        error instanceof Error
+          ? error.message
+          : "No fue posible asignar las ocurrencias del hábito.",
+      );
+    } finally {
+      setProcesandoAsignacionRecurrente(false);
+      requestAnimationFrame(() => {
+        if (origen.isConnected) {
+          origen.focus();
+          return;
+        }
+        panelRef.current
+          ?.querySelector<HTMLElement>(
+            `[data-actividad-asignable="${actividad.id}"]`,
+          )
+          ?.focus();
+      });
+    }
   };
 
   if (estado.tipo === "cargando") {
@@ -827,6 +898,7 @@ export function PantallaCalendario({
             )}
             {...(inventario ? { inventario } : {})}
             cargandoInventario={cargandoInventario || procesandoAplicacion}
+            procesandoAsignacion={procesandoAsignacionRecurrente}
             {...(errorInventario ? { errorInventario } : {})}
             onFecha={setFechaAsignable}
             onNuevaActividad={(origen) => {
@@ -834,7 +906,7 @@ export function PantallaCalendario({
               setFechaDestinoActividad(undefined);
               setFormularioActividadVisible(true);
             }}
-            onAsignarActividad={abrirEditorActividad}
+            onAsignarActividad={asignarActividadDesdeBandeja}
             onAplicarRecompensa={(unidadId, fecha, origen) =>
               void prepararAplicacion(unidadId, fecha, origen)
             }
@@ -1494,6 +1566,29 @@ function etiquetaTipoActividad(tipo: ActividadDto["tipo"]): string {
     PROYECTO: "Proyecto",
     HABITO: "Hábito",
   }[tipo];
+}
+
+function politicaPredeterminadaPara(
+  actividad: ActividadDto,
+): PoliticaBloquePlanificacionComando {
+  const politica = actividad.politicaPredeterminada;
+  if (politica) {
+    return {
+      rigidez: politica.rigidez,
+      autoridadPlazo: politica.autoridadPlazo,
+      ajustesPermitidos: [...politica.ajustesPermitidos],
+    };
+  }
+  return {
+    rigidez: "FLEXIBLE",
+    autoridadPlazo: "PERSONAL",
+    ajustesPermitidos: [
+      "EXCUSAR",
+      "REPROGRAMAR",
+      "EXTENDER_PLAZO",
+      "REDUCIR_CARGA",
+    ],
+  };
 }
 
 function etiquetaEstadoBloque(estado: BloqueCalendarioDto["estado"]): string {

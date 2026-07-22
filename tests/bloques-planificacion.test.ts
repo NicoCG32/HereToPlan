@@ -9,6 +9,7 @@ import {
   ContextoPlanificacion,
   CortePlanificacion,
   FechaLocal,
+  Habito,
   PoliticaCompromiso,
   Tarea,
 } from "../src/dominio";
@@ -88,6 +89,58 @@ describe("bloques editables de planificación", () => {
       { exito: true, bloqueId: "bloque-asignado" },
     );
     await expect(entorno.bloques.listar()).resolves.toHaveLength(0);
+  });
+
+  it("materializa hábitos diarios o personalizados en el rango y omite ocurrencias existentes", async () => {
+    const entorno = await crearEntorno();
+    const politica = {
+      rigidez: "FLEXIBLE" as const,
+      autoridadPlazo: "PERSONAL" as const,
+      ajustesPermitidos: ["EXCUSAR", "REPROGRAMAR"] as const,
+    };
+
+    const personalizada = await entorno.asignar.ejecutarRecurrencia({
+      actividadId: "habito-personalizado",
+      fechaInicio: "2026-07-20",
+      fechaFin: "2026-07-26",
+      minutosPlanificados: 25,
+      politica,
+    });
+    expect(personalizada).toMatchObject({
+      exito: true,
+      bloques: [
+        { fecha: "2026-07-20" },
+        { fecha: "2026-07-22" },
+        { fecha: "2026-07-24" },
+      ],
+      fechasOmitidas: [],
+    });
+
+    await expect(
+      entorno.asignar.ejecutarRecurrencia({
+        actividadId: "habito-personalizado",
+        fechaInicio: "2026-07-20",
+        fechaFin: "2026-07-26",
+        minutosPlanificados: 25,
+        politica,
+      }),
+    ).resolves.toMatchObject({
+      exito: true,
+      bloques: [],
+      fechasOmitidas: ["2026-07-20", "2026-07-22", "2026-07-24"],
+    });
+
+    const diaria = await entorno.asignar.ejecutarRecurrencia({
+      actividadId: "habito-diario",
+      fechaInicio: "2026-07-22",
+      fechaFin: "2026-07-25",
+      minutosPlanificados: 15,
+      politica,
+    });
+    expect(
+      diaria.exito && diaria.bloques.map((bloque) => bloque.fecha),
+    ).toEqual(["2026-07-22", "2026-07-23", "2026-07-24", "2026-07-25"]);
+    await expect(entorno.bloques.listar()).resolves.toHaveLength(7);
   });
 
   it("identifica actividad, contexto, rango y bloque ausentes", async () => {
@@ -218,6 +271,25 @@ async function crearEntorno() {
       creadaEn: INSTANTE,
     }),
   );
+  await actividades.guardar(
+    new Habito({
+      id: "habito-personalizado",
+      titulo: "Entrenar",
+      tiempoNecesarioMinutos: 25,
+      frecuencia: "PERSONALIZADA",
+      diasSemana: [1, 3, 5],
+      creadaEn: INSTANTE,
+    }),
+  );
+  await actividades.guardar(
+    new Habito({
+      id: "habito-diario",
+      titulo: "Leer",
+      tiempoNecesarioMinutos: 15,
+      frecuencia: "DIARIA",
+      creadaEn: INSTANTE,
+    }),
+  );
   return {
     bloques,
     actividades,
@@ -231,6 +303,12 @@ async function crearEntorno() {
       new GeneradorIdentificadoresPredefinidos([
         "bloque-asignado",
         "bloque-segundo",
+        "bloque-tercero",
+        "bloque-cuarto",
+        "bloque-quinto",
+        "bloque-sexto",
+        "bloque-septimo",
+        "bloque-octavo",
       ]),
     ),
     editar: new CasoDeUsoEditarBloquePlanificacion(bloques, contextos, cortes),

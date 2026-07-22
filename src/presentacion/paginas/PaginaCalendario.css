@@ -1,3 +1,15 @@
+.pagina-calendario > .encabezado-pagina {
+  background:
+    linear-gradient(
+      120deg,
+      rgb(var(--diamante-blanco) / 88%),
+      rgb(var(--plata-blanca) / 94%) 58%,
+      rgb(var(--plata-brillante) / 76%)
+    ),
+    url("../recursos/fondos/escritorio/fondo-calendario-platino.svg") center /
+      cover;
+}
+
 .pagina-calendario > .panel-agenda {
   padding: clamp(1rem, 2vw, 2rem);
 }
@@ -15,6 +27,16 @@
 }
 
 @media (max-width: 48rem) {
+  .pagina-calendario > .encabezado-pagina {
+    background:
+      linear-gradient(
+        120deg,
+        rgb(var(--diamante-blanco) / 88%),
+        rgb(var(--plata-blanca) / 94%)
+      ),
+      url("../recursos/fondos/movil/fondo-movil-calendario.svg") center / cover;
+  }
+
   .pagina-calendario > .panel-agenda {
     padding: 0.85rem;
   }

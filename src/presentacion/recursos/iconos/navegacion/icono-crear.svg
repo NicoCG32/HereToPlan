@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img">
+<title>Icono crear</title>
+
+    <defs>
+      <linearGradient id="gPlant" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#A9DB91"/><stop offset="0.5" stop-color="#4DA95F"/><stop offset="1" stop-color="#20744F"/>
+      </linearGradient>
+      <linearGradient id="gPlantDeep" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#4DA95F"/><stop offset="1" stop-color="#134834"/>
+      </linearGradient>
+      <linearGradient id="gDiamond" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#EBFAFF"/><stop offset="0.38" stop-color="#9ADEF1"/><stop offset="0.72" stop-color="#3997C9"/><stop offset="1" stop-color="#236797"/>
+      </linearGradient>
+      <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#F7DD97"/><stop offset="0.52" stop-color="#DAAE47"/><stop offset="1" stop-color="#7D5420"/>
+      </linearGradient>
+      <linearGradient id="gBronze" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#E7AE77"/><stop offset="0.55" stop-color="#B57041"/><stop offset="1" stop-color="#6F3F26"/>
+      </linearGradient>
+      <linearGradient id="gPlatinum" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FAFCFF"/><stop offset="0.42" stop-color="#DEE4EB"/><stop offset="0.75" stop-color="#B4BCC6"/><stop offset="1" stop-color="#697380"/>
+      </linearGradient>
+      <radialGradient id="rQuartz"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#F0F1F2"/></radialGradient>
+      <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#25343F" flood-opacity="0.16"/></filter>
+      <filter id="smallShadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#25343F" flood-opacity="0.18"/></filter>
+      <filter id="glow" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#393E46" stroke-opacity="0.055" stroke-width="1"/></pattern>
+      <pattern id="microGrid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#20744F" stroke-opacity="0.055" stroke-width="1"/></pattern>
+    </defs>
+
+<rect x="10" y="10" width="76" height="76" rx="12" fill="url(#rQuartz)" stroke="url(#gPlatinum)" stroke-width="3"/><g transform="translate(46 25) rotate(0) scale(0.34)">
+      <path d="M0 92 C2 58 6 30 14 0" fill="none" stroke="url(#gPlantDeep)" stroke-width="12" stroke-linecap="round"/>
+      <g transform="translate(9 22) rotate(-32) scale(0.48)" opacity="1.0">
+      <path d="M0 0 C28 -58 82 -62 112 -12 C78 18 32 30 0 0Z" fill="url(#gPlant)"/>
+      <path d="M8 -1 C42 -16 69 -27 101 -15" fill="none" stroke="#EFFFF0" stroke-opacity="0.55" stroke-width="3"/>
+      <path d="M10 0 C43 -12 74 -10 105 -12" fill="none" stroke="#134834" stroke-opacity="0.28" stroke-width="2"/>
+    </g>
+      <g transform="translate(12 34) rotate(155) scale(0.45)" opacity="1.0">
+      <path d="M0 0 C28 -58 82 -62 112 -12 C78 18 32 30 0 0Z" fill="url(#gPlant)"/>
+      <path d="M8 -1 C42 -16 69 -27 101 -15" fill="none" stroke="#EFFFF0" stroke-opacity="0.55" stroke-width="3"/>
+      <path d="M10 0 C43 -12 74 -10 105 -12" fill="none" stroke="#134834" stroke-opacity="0.28" stroke-width="2"/>
+    </g>
+    </g><circle cx="69" cy="68" r="13" fill="url(#gGold)"/><path d="M69 61V75M62 68H76" stroke="#fff" stroke-width="4"/>
+</svg>

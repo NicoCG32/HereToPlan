@@ -14,6 +14,11 @@ import { FormularioContextoNombrado } from "../calendario/FormularioContextoNomb
 import type { ServiciosCalendario } from "../calendario/ServiciosCalendario";
 import { DialogoEliminarActividad } from "../crear/DialogoEliminarActividad";
 import { etiquetaModoSeguimiento } from "../actividades/etiquetasActividad";
+import iconoActividad from "../recursos/iconos/dominio/icono-actividad.svg";
+import iconoAgenda from "../recursos/iconos/dominio/icono-agenda.svg";
+import estadoSinActividades from "../recursos/ilustraciones/estados-vacios/estado-vacio-sin-actividades.svg";
+import estadoSinAgendas from "../recursos/ilustraciones/estados-vacios/estado-vacio-sin-agendas.svg";
+import ilustracionCrear from "../recursos/ilustraciones/paginas/ilustracion-pagina-crear.svg";
 import "./PaginaCrear.css";
 import { EncabezadoPagina } from "./EncabezadoPagina";
 
@@ -189,6 +194,7 @@ export function PaginaCrear({
         sobrelinea="Elementos reutilizables"
         titulo="Crear"
         descripcion="Define y administra agendas y actividades. Programar siempre requiere un bloque explícito en el calendario."
+        ilustracion={ilustracionCrear}
       />
 
       {serviciosCalendario ? (
@@ -203,6 +209,7 @@ export function PaginaCrear({
               aria-expanded={editor?.tipo === "CREAR_AGENDA"}
               onClick={() => setEditor({ tipo: "CREAR_AGENDA" })}
             >
+              <img src={iconoAgenda} alt="" aria-hidden="true" />
               Crear agenda
             </button>
             <button
@@ -211,6 +218,7 @@ export function PaginaCrear({
               aria-expanded={editor?.tipo === "CREAR_ACTIVIDAD"}
               onClick={() => setEditor({ tipo: "CREAR_ACTIVIDAD" })}
             >
+              <img src={iconoActividad} alt="" aria-hidden="true" />
               Crear actividad
             </button>
           </section>
@@ -348,9 +356,10 @@ function CatalogoAgendas({
       <p className="sobrelinea">Catálogo</p>
       <h2 id="catalogo-agendas">Agendas existentes</h2>
       {agendas.length === 0 ? (
-        <p className="estado-vacio-lineal">
-          Todavía no existen agendas nombradas.
-        </p>
+        <EstadoVacioCatalogo
+          ilustracion={estadoSinAgendas}
+          mensaje="Todavía no existen agendas nombradas."
+        />
       ) : (
         <ul className="lista-catalogo-crear">
           {agendas.map((agenda) => (
@@ -411,7 +420,10 @@ function CatalogoActividades({
       <p className="sobrelinea">Catálogo</p>
       <h2 id="catalogo-actividades">Actividades existentes</h2>
       {actividades.length === 0 ? (
-        <p className="estado-vacio-lineal">Todavía no existen actividades.</p>
+        <EstadoVacioCatalogo
+          ilustracion={estadoSinActividades}
+          mensaje="Todavía no existen actividades."
+        />
       ) : (
         <ul className="lista-catalogo-crear">
           {actividades.map((actividad) => (
@@ -457,6 +469,31 @@ function CatalogoActividades({
         </ul>
       )}
     </section>
+  );
+}
+
+interface EstadoVacioCatalogoProps {
+  readonly ilustracion: string;
+  readonly mensaje: string;
+}
+
+function EstadoVacioCatalogo({
+  ilustracion,
+  mensaje,
+}: EstadoVacioCatalogoProps) {
+  return (
+    <div className="estado-vacio-catalogo" role="status">
+      <img
+        src={ilustracion}
+        width="1400"
+        height="800"
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+      />
+      <p>{mensaje}</p>
+    </div>
   );
 }
 

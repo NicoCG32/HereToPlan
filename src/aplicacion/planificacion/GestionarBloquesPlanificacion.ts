@@ -2,6 +2,7 @@ import {
   BloquePlanificacion,
   ErrorDominio,
   FechaLocal,
+  Habito,
   IDENTIFICADOR_CONTEXTO_LIBRE,
   PoliticaCompromiso,
   type ContextoPlanificacion,
@@ -36,6 +37,15 @@ export interface ComandoAsignarActividad {
   readonly politica: PoliticaBloquePlanificacionComando;
 }
 
+export interface ComandoAsignarHabitoEnRango {
+  readonly actividadId: string;
+  readonly contextoId?: string;
+  readonly fechaInicio: string;
+  readonly fechaFin: string;
+  readonly minutosPlanificados: number;
+  readonly politica: PoliticaBloquePlanificacionComando;
+}
+
 export interface ComandoEditarBloquePlanificacion {
   readonly bloqueId: string;
   readonly fecha: string;
@@ -61,6 +71,19 @@ export type ResultadoGestionBloque =
         campo?: CampoGestionBloque;
       }>;
     }>;
+
+type ResultadoGestionBloqueFallido = Extract<
+  ResultadoGestionBloque,
+  Readonly<{ exito: false }>
+>;
+
+export type ResultadoAsignarHabitoEnRango =
+  | Readonly<{
+      exito: true;
+      bloques: readonly BloquePlanificacionDto[];
+      fechasOmitidas: readonly string[];
+    }>
+  | ResultadoGestionBloqueFallido;
 
 export type ResultadoEliminarBloque =
   | Readonly<{ exito: true; bloqueId: string }>
@@ -118,6 +141,97 @@ export class CasoDeUsoAsignarActividad {
       return Object.freeze({
         exito: true,
         bloque: convertirBloquePlanificacionADto(bloque),
+      });
+    } catch (error: unknown) {
+      return traducirError(error);
+    }
+  }
+
+  public async ejecutarRecurrencia(
+    comando: ComandoAsignarHabitoEnRango,
+  ): Promise<ResultadoAsignarHabitoEnRango> {
+    const contextoId = comando.contextoId ?? IDENTIFICADOR_CONTEXTO_LIBRE;
+    const [actividad, contexto, existentes] = await Promise.all([
+      this.repositorioActividades.obtenerPorId(comando.actividadId),
+      this.repositorioContextos.obtenerPorId(contextoId),
+      this.repositorioBloques.listar(),
+    ]);
+    if (!actividad) {
+      return rechazar(
+        "ACTIVIDAD_NO_ENCONTRADA",
+        "La actividad seleccionada ya no está disponible.",
+        "actividadId",
+      );
+    }
+    if (!(actividad instanceof Habito)) {
+      return rechazar(
+        "ACTIVIDAD_NO_ES_HABITO",
+        "La asignación recurrente sólo corresponde a un hábito.",
+        "actividadId",
+      );
+    }
+    if (!contexto) {
+      return rechazar(
+        "CONTEXTO_NO_ENCONTRADO",
+        "El contexto seleccionado ya no está disponible.",
+        "contextoId",
+      );
+    }
+
+    try {
+      const fechaInicio = FechaLocal.crear(comando.fechaInicio);
+      const fechaFinSolicitada = FechaLocal.crear(comando.fechaFin);
+      if (fechaFinSolicitada.esAnteriorA(fechaInicio)) {
+        throw new ErrorDominio(
+          "RANGO_RECURRENCIA_INVALIDO",
+          "La fecha final de la recurrencia no puede ser anterior a la inicial.",
+        );
+      }
+      validarFechaEnContexto(fechaInicio, contexto);
+      const fechaFin =
+        contexto.fechaFin && fechaFinSolicitada.esPosteriorA(contexto.fechaFin)
+          ? contexto.fechaFin
+          : fechaFinSolicitada;
+      const fechasExistentes = new Set(
+        existentes
+          .filter(
+            (bloque) =>
+              bloque.actividadId === actividad.id &&
+              bloque.contextoId === contextoId,
+          )
+          .map((bloque) => bloque.fecha.toString()),
+      );
+      const fechasOmitidas: string[] = [];
+      const bloques: BloquePlanificacion[] = [];
+      const politica = crearPolitica(comando.politica);
+      for (
+        let fecha = fechaInicio;
+        !fecha.esPosteriorA(fechaFin);
+        fecha = fecha.sumarDias(1)
+      ) {
+        if (!actividad.correspondeA(fecha)) continue;
+        if (fechasExistentes.has(fecha.toString())) {
+          fechasOmitidas.push(fecha.toString());
+          continue;
+        }
+        bloques.push(
+          new BloquePlanificacion({
+            id: this.generadorIdentificadores.generar(),
+            contextoId,
+            actividadId: actividad.id,
+            titulo: actividad.titulo,
+            fecha,
+            minutosPlanificados: comando.minutosPlanificados,
+            politica,
+            creadoEn: this.reloj.ahora(),
+          }),
+        );
+      }
+      await this.repositorioBloques.guardarTodos(bloques);
+      return Object.freeze({
+        exito: true,
+        bloques: Object.freeze(bloques.map(convertirBloquePlanificacionADto)),
+        fechasOmitidas: Object.freeze(fechasOmitidas),
       });
     } catch (error: unknown) {
       return traducirError(error);
@@ -263,7 +377,7 @@ function validarFechaEnContexto(
   }
 }
 
-function traducirError(error: unknown): ResultadoGestionBloque {
+function traducirError(error: unknown): ResultadoGestionBloqueFallido {
   if (error instanceof ErrorBloquePlanificacionDuplicado) {
     return rechazar(error.codigo, error.message, "bloqueId");
   }
@@ -289,7 +403,7 @@ function rechazar(
   codigo: string,
   mensaje: string,
   campo?: CampoGestionBloque,
-): ResultadoGestionBloque {
+): ResultadoGestionBloqueFallido {
   return Object.freeze({
     exito: false,
     error: Object.freeze({ codigo, mensaje, ...(campo ? { campo } : {}) }),

@@ -1,5 +1,9 @@
 import { NavLink } from "react-router-dom";
 
+import iconoCalendario from "../recursos/iconos/navegacion/icono-calendario.svg";
+import iconoCrear from "../recursos/iconos/navegacion/icono-crear.svg";
+import iconoPuntos from "../recursos/iconos/navegacion/icono-puntos.svg";
+import iconoRespaldo from "../recursos/iconos/navegacion/icono-respaldo.svg";
 import logoHereToPlan from "../recursos/logos/HereToPlanLogo.svg";
 
 interface NavegacionPrincipalProps {
@@ -7,10 +11,10 @@ interface NavegacionPrincipalProps {
 }
 
 const ENLACES = [
-  ["/calendario", "Calendario"],
-  ["/crear", "Crear"],
-  ["/puntos", "Puntos"],
-  ["/respaldo", "Respaldo"],
+  { ruta: "/calendario", etiqueta: "Calendario", icono: iconoCalendario },
+  { ruta: "/crear", etiqueta: "Crear", icono: iconoCrear },
+  { ruta: "/puntos", etiqueta: "Puntos", icono: iconoPuntos },
+  { ruta: "/respaldo", etiqueta: "Respaldo", icono: iconoRespaldo },
 ] as const;
 
 export function NavegacionPrincipal({ onNavegar }: NavegacionPrincipalProps) {
@@ -21,7 +25,7 @@ export function NavegacionPrincipal({ onNavegar }: NavegacionPrincipalProps) {
       </div>
       <p className="etiqueta-navegacion">Planificación consciente</p>
       <div className="opciones-navegacion">
-        {ENLACES.map(([ruta, etiqueta]) => (
+        {ENLACES.map(({ ruta, etiqueta, icono }) => (
           <NavLink
             key={ruta}
             to={ruta}
@@ -36,7 +40,13 @@ export function NavegacionPrincipal({ onNavegar }: NavegacionPrincipalProps) {
                 .join(" ")
             }
           >
-            {etiqueta}
+            <img
+              className="icono-navegacion"
+              src={icono}
+              alt=""
+              aria-hidden="true"
+            />
+            <span>{etiqueta}</span>
           </NavLink>
         ))}
       </div>

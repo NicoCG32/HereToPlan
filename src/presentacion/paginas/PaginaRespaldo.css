@@ -1,3 +1,15 @@
+.pagina-respaldo > .encabezado-pagina {
+  background:
+    linear-gradient(
+      120deg,
+      rgb(var(--diamante-blanco) / 88%),
+      rgb(var(--plata-blanca) / 93%) 58%,
+      rgb(var(--bronce-luz) / 38%)
+    ),
+    url("../recursos/fondos/escritorio/fondo-respaldo-bronce.svg") center /
+      cover;
+}
+
 .pagina-respaldo > .panel-agenda {
   padding: clamp(1rem, 2vw, 2rem);
 }
@@ -7,6 +19,17 @@
 }
 
 @media (max-width: 48rem) {
+  .pagina-respaldo > .encabezado-pagina {
+    background:
+      linear-gradient(
+        120deg,
+        rgb(var(--diamante-blanco) / 88%),
+        rgb(var(--plata-blanca) / 93%)
+      ),
+      url("../recursos/fondos/movil/fondo-movil-respaldo-bronce.svg") center /
+        cover;
+  }
+
   .pagina-respaldo > .panel-agenda {
     padding: 0.85rem;
   }

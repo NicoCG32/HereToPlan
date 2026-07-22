@@ -86,7 +86,7 @@ describe("asignables del calendario", () => {
     expect(await screen.findByText(/Día libre fue aplicada/)).toBeTruthy();
   });
 
-  it("al soltar abre editor o vista previa sin guardar ni consumir", async () => {
+  it("al soltar abre tareas, materializa hábitos y prepara recompensas", async () => {
     const usuario = userEvent.setup();
     const entorno = crearServicios();
     render(<PantallaCalendario servicios={entorno.servicios} />);
@@ -109,6 +109,35 @@ describe("asignables del calendario", () => {
     expect(entorno.asignarActividad).not.toHaveBeenCalled();
     await usuario.click(screen.getByRole("button", { name: "Cancelar" }));
 
+    const habito = screen
+      .getByRole("button", { name: "Asignar Practicar lectura" })
+      .closest("li")!;
+    fireEvent.dragStart(habito);
+    fireEvent.dragOver(destino);
+    fireEvent.drop(destino);
+    await waitFor(() =>
+      expect(entorno.asignarRecurrencia).toHaveBeenCalledWith({
+        actividadId: "habito-diario",
+        contextoId: "contexto-libre",
+        fechaInicio: "2026-07-22",
+        fechaFin: "2026-07-22",
+        minutosPlanificados: 20,
+        politica: {
+          rigidez: "FLEXIBLE",
+          autoridadPlazo: "PERSONAL",
+          ajustesPermitidos: [
+            "EXCUSAR",
+            "REPROGRAMAR",
+            "EXTENDER_PLAZO",
+            "REDUCIR_CARGA",
+          ],
+        },
+      }),
+    );
+    expect(
+      await screen.findByText(/se asignó automáticamente a 1 día/),
+    ).toBeTruthy();
+
     const recompensa = screen
       .getByRole("button", { name: "Aplicar Día libre" })
       .closest("li")!;
@@ -128,6 +157,30 @@ describe("asignables del calendario", () => {
 
 function crearServicios() {
   const asignarActividad = vi.fn();
+  const asignarRecurrencia = vi.fn(() =>
+    Promise.resolve({
+      exito: true as const,
+      bloques: [
+        {
+          id: "bloque-habito",
+          contextoId: "contexto-libre",
+          actividadId: "habito-diario",
+          titulo: "Practicar lectura",
+          fecha: "2026-07-22",
+          minutosPlanificados: 20,
+          modoSeguimiento: "MANUAL" as const,
+          politica: {
+            versionEsquema: 1 as const,
+            rigidez: "FLEXIBLE" as const,
+            autoridadPlazo: "PERSONAL" as const,
+            ajustesPermitidos: ["EXCUSAR" as const],
+          },
+          creadoEn: "2026-07-20T10:00:00.000Z",
+        },
+      ],
+      fechasOmitidas: [],
+    }),
+  );
   const preparar = vi.fn((comando: { fechaObjetivo: string }) =>
     Promise.resolve(crearVistaPrevia(comando.fechaObjetivo)),
   );
@@ -185,11 +238,20 @@ function crearServicios() {
     },
     prepararAplicacionDiaLibre: { ejecutar: preparar },
     aplicarDiaLibre: { ejecutar: aplicar },
-    asignarActividad: { ejecutar: asignarActividad },
+    asignarActividad: {
+      ejecutar: asignarActividad,
+      ejecutarRecurrencia: asignarRecurrencia,
+    },
     editarBloque: { ejecutar: vi.fn() },
     generarOperacionId: () => "aplicacion-1",
   } as unknown as ServiciosCalendario;
-  return { servicios, asignarActividad, preparar, aplicar };
+  return {
+    servicios,
+    asignarActividad,
+    asignarRecurrencia,
+    preparar,
+    aplicar,
+  };
 }
 
 function crearCalendario(): CalendarioDto {
@@ -213,6 +275,16 @@ function crearCalendario(): CalendarioDto {
     subtareasIds: [],
     estado: "PENDIENTE" as const,
   };
+  const habito = {
+    id: "habito-diario",
+    tipo: "HABITO" as const,
+    titulo: "Practicar lectura",
+    creadaEn: "2026-07-20T08:30:00.000Z",
+    tiempoNecesarioMinutos: 20,
+    modoSeguimiento: "MANUAL" as const,
+    frecuencia: "DIARIA" as const,
+    diasSemana: [],
+  };
   const fechas = ["2026-07-20", "2026-07-21", "2026-07-22"];
   return {
     seleccion: { tipo: "TODAS", nombre: "Todas" },
@@ -228,8 +300,8 @@ function crearCalendario(): CalendarioDto {
         eliminable: false,
       },
     ],
-    actividadesAsignables: [sinProgramar, asignada],
-    actividadesSinProgramar: [sinProgramar],
+    actividadesAsignables: [sinProgramar, habito, asignada],
+    actividadesSinProgramar: [sinProgramar, habito],
     bloquesVisibles: [],
     proximosSieteDias: fechas.map((fecha, indice) => ({
       fecha,

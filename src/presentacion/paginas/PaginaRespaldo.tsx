@@ -1,5 +1,6 @@
 import { PanelRespaldo } from "../respaldo/PanelRespaldo";
 import type { ServiciosRespaldo } from "../respaldo/ServiciosRespaldo";
+import ilustracionRespaldo from "../recursos/ilustraciones/paginas/ilustracion-pagina-respaldo.svg";
 import { EncabezadoPagina } from "./EncabezadoPagina";
 import { useNavigate } from "react-router-dom";
 import "./PaginaRespaldo.css";
@@ -20,6 +21,7 @@ export function PaginaRespaldo({
         sobrelinea="Portabilidad y seguridad"
         titulo="Respaldo"
         descripcion="Exporta, analiza y restaura el estado local fuera del flujo cotidiano. Analizar un archivo nunca modifica la información vigente."
+        ilustracion={ilustracionRespaldo}
       />
       {serviciosRespaldo ? (
         <PanelRespaldo

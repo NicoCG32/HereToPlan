@@ -32,6 +32,9 @@ describe("hábitos", () => {
     expect(personalizado.correspondeA(FechaLocal.crear("2026-07-24"))).toBe(
       true,
     );
+    expect(FechaLocal.crear("2026-07-31").sumarDias(1).toString()).toBe(
+      "2026-08-01",
+    );
   });
 
   it("rechaza días inválidos y configuraciones ambiguas", () => {

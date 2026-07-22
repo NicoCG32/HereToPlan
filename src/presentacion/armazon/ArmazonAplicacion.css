@@ -63,13 +63,32 @@
 
 .enlace-navegacion {
   position: relative;
-  display: block;
+  display: flex;
   min-height: 2.75rem;
+  align-items: center;
+  gap: 0.7rem;
   padding: 0.8rem 1rem 0.8rem 1.35rem;
   border: 1px solid transparent;
   color: var(--texto);
   font-weight: 700;
   text-decoration: none;
+}
+
+.icono-navegacion {
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  object-fit: contain;
+  filter: saturate(0.78);
+  transition:
+    filter var(--duracion-media) var(--curva-principal),
+    transform var(--duracion-media) var(--curva-principal);
+}
+
+.enlace-navegacion:hover .icono-navegacion,
+.enlace-navegacion-activo .icono-navegacion {
+  filter: saturate(1);
+  transform: translateY(-1px);
 }
 
 .enlace-navegacion::before {
@@ -183,7 +202,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .navegacion-lateral {
+  .navegacion-lateral,
+  .icono-navegacion {
     transition: none;
   }
 }

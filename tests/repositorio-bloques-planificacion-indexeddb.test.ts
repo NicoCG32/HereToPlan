@@ -44,6 +44,27 @@ describe("RepositorioBloquesPlanificacionIndexedDB", () => {
       codigo: "BLOQUE_PLANIFICACION_NO_ENCONTRADO",
     });
   });
+
+  it("guarda una recurrencia de forma atómica", async () => {
+    const repositorio = crearRepositorio(new IDBFactory());
+    await repositorio.guardar(crearBloque("existente", "2026-07-20", 45));
+
+    await expect(
+      repositorio.guardarTodos([
+        crearBloque("nuevo", "2026-07-21", 45),
+        crearBloque("existente", "2026-07-22", 45),
+      ]),
+    ).rejects.toMatchObject({ codigo: "BLOQUE_PLANIFICACION_DUPLICADO" });
+    await expect(repositorio.listar()).resolves.toMatchObject([
+      { id: "existente" },
+    ]);
+
+    await repositorio.guardarTodos([
+      crearBloque("nuevo-1", "2026-07-21", 45),
+      crearBloque("nuevo-2", "2026-07-22", 45),
+    ]);
+    await expect(repositorio.listar()).resolves.toHaveLength(3);
+  });
 });
 
 function crearRepositorio(fabricaIndexedDB: IDBFactory) {

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 800" width="1400" height="800" role="img">
+<title>Ilustración de página crear</title>
+
+    <defs>
+      <linearGradient id="gPlant" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#A9DB91"/><stop offset="0.5" stop-color="#4DA95F"/><stop offset="1" stop-color="#20744F"/>
+      </linearGradient>
+      <linearGradient id="gPlantDeep" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#4DA95F"/><stop offset="1" stop-color="#134834"/>
+      </linearGradient>
+      <linearGradient id="gDiamond" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#EBFAFF"/><stop offset="0.38" stop-color="#9ADEF1"/><stop offset="0.72" stop-color="#3997C9"/><stop offset="1" stop-color="#236797"/>
+      </linearGradient>
+      <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#F7DD97"/><stop offset="0.52" stop-color="#DAAE47"/><stop offset="1" stop-color="#7D5420"/>
+      </linearGradient>
+      <linearGradient id="gBronze" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#E7AE77"/><stop offset="0.55" stop-color="#B57041"/><stop offset="1" stop-color="#6F3F26"/>
+      </linearGradient>
+      <linearGradient id="gPlatinum" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FAFCFF"/><stop offset="0.42" stop-color="#DEE4EB"/><stop offset="0.75" stop-color="#B4BCC6"/><stop offset="1" stop-color="#697380"/>
+      </linearGradient>
+      <radialGradient id="rQuartz"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#F0F1F2"/></radialGradient>
+      <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#25343F" flood-opacity="0.16"/></filter>
+      <filter id="smallShadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#25343F" flood-opacity="0.18"/></filter>
+      <filter id="glow" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#393E46" stroke-opacity="0.055" stroke-width="1"/></pattern>
+      <pattern id="microGrid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#20744F" stroke-opacity="0.055" stroke-width="1"/></pattern>
+    </defs>
+<rect width="1400" height="800" fill="url(#rQuartz)"/>
+<rect width="1400" height="800" fill="url(#rQuartz)"/><rect width="1400" height="800" fill="url(#grid)" opacity="0.72"/><ellipse cx="1020" cy="430" rx="390" ry="300" fill="#A9DB91" opacity=".12"/><g opacity="0.42">
+      <path d="M-50 650 C392.00000000000006 580 1008.0 720 1450 650" fill="none" stroke="url(#gGold)" stroke-width="11" stroke-linecap="round"/>
+      <path d="M-50 672 C392.00000000000006 685.0 1008.0 604.5 1450 668" fill="none" stroke="#F7DD97" stroke-opacity="0.7" stroke-width="3"/>
+      <path d="M-50 632 C392.00000000000006 632.5 1008.0 681.5 1450 638" fill="none" stroke="#DAAE47" stroke-opacity="0.42" stroke-width="2"/>
+    </g><g opacity="0.28">
+      <path d="M-30 700 C420.0 645 952.0000000000001 755 1430 700" fill="none" stroke="url(#gPlant)" stroke-width="15" stroke-linecap="round"/>
+      <path d="M-30 718 C350.0 744.0 979.9999999999999 667.0 1430 708" fill="none" stroke="#A9DB91" stroke-opacity="0.46" stroke-width="4"/>
+    </g><g transform="translate(920 220) rotate(0) scale(2.5)">
+      <path d="M0 92 C2 58 6 30 14 0" fill="none" stroke="url(#gPlantDeep)" stroke-width="12" stroke-linecap="round"/>
+      <g transform="translate(9 22) rotate(-32) scale(0.48)" opacity="1.0">
+      <path d="M0 0 C28 -58 82 -62 112 -12 C78 18 32 30 0 0Z" fill="url(#gPlant)"/>
+      <path d="M8 -1 C42 -16 69 -27 101 -15" fill="none" stroke="#EFFFF0" stroke-opacity="0.55" stroke-width="3"/>
+      <path d="M10 0 C43 -12 74 -10 105 -12" fill="none" stroke="#134834" stroke-opacity="0.28" stroke-width="2"/>
+    </g>
+      <g transform="translate(12 34) rotate(155) scale(0.45)" opacity="1.0">
+      <path d="M0 0 C28 -58 82 -62 112 -12 C78 18 32 30 0 0Z" fill="url(#gPlant)"/>
+      <path d="M8 -1 C42 -16 69 -27 101 -15" fill="none" stroke="#EFFFF0" stroke-opacity="0.55" stroke-width="3"/>
+      <path d="M10 0 C43 -12 74 -10 105 -12" fill="none" stroke="#134834" stroke-opacity="0.28" stroke-width="2"/>
+    </g>
+    </g><g filter="url(#smallShadow)">
+      <rect x="1040" y="440" width="230" height="210" rx="13.799999999999999" fill="url(#gPlatinum)" stroke="#fff" stroke-width="3"/>
+      <rect x="1053.8" y="471.5" width="202.4" height="159.6" rx="6.8999999999999995" fill="#FDFEFF" stroke="#697380" stroke-opacity="0.38" stroke-width="2"/>
+      <path d="M1081.4 444.2V482.0 M1205.6 444.2V482.0" stroke="#697380" stroke-width="12" stroke-linecap="round"/>
+      <rect x="1076.8" y="509.3" width="36.8" height="29.4" fill="#FFFFFF" stroke="#B4BCC6" stroke-width="2"/><rect x="1120.5" y="509.3" width="36.8" height="29.4" fill="#FFFFFF" stroke="#B4BCC6" stroke-width="2"/><rect x="1164.2" y="509.3" width="36.8" height="29.4" fill="#FFFFFF" stroke="#B4BCC6" stroke-width="2"/><rect x="1207.9" y="509.3" width="36.8" height="29.4" fill="#FFFFFF" stroke="#B4BCC6" stroke-width="2"/><rect x="1076.8" y="549.2" width="36.8" height="29.4" fill="#FFFFFF" stroke="#B4BCC6" stroke-width="2"/><rect x="1120.5" y="549.2" width="36.8" height="29.4" fill="#FFFFFF" stroke="#B4BCC6" stroke-width="2"/><rect x="1164.2" y="549.2" width="36.8" height="29.4" fill="url(#gPlant)" stroke="#20744F" stroke-width="2"/><rect x="1207.9" y="549.2" width="36.8" height="29.4" fill="#FFFFFF" stroke="#B4BCC6" stroke-width="2"/><rect x="1076.8" y="589.1" width="36.8" height="29.4" fill="#FFFFFF" stroke="#B4BCC6" stroke-width="2"/><rect x="1120.5" y="589.1" width="36.8" height="29.4" fill="#FFFFFF" stroke="#B4BCC6" stroke-width="2"/><rect x="1164.2" y="589.1" width="36.8" height="29.4" fill="#FFFFFF" stroke="#B4BCC6" stroke-width="2"/><rect x="1207.9" y="589.1" width="36.8" height="29.4" fill="#FFFFFF" stroke="#B4BCC6" stroke-width="2"/>
+      <g transform="translate(1187.2 538.7) rotate(0) scale(0.26)">
+      <path d="M0 92 C2 58 6 30 14 0" fill="none" stroke="url(#gPlantDeep)" stroke-width="12" stroke-linecap="round"/>
+      <g transform="translate(9 22) rotate(-32) scale(0.48)" opacity="1.0">
+      <path d="M0 0 C28 -58 82 -62 112 -12 C78 18 32 30 0 0Z" fill="url(#gPlant)"/>
+      <path d="M8 -1 C42 -16 69 -27 101 -15" fill="none" stroke="#EFFFF0" stroke-opacity="0.55" stroke-width="3"/>
+      <path d="M10 0 C43 -12 74 -10 105 -12" fill="none" stroke="#134834" stroke-opacity="0.28" stroke-width="2"/>
+    </g>
+      <g transform="translate(12 34) rotate(155) scale(0.45)" opacity="1.0">
+      <path d="M0 0 C28 -58 82 -62 112 -12 C78 18 32 30 0 0Z" fill="url(#gPlant)"/>
+      <path d="M8 -1 C42 -16 69 -27 101 -15" fill="none" stroke="#EFFFF0" stroke-opacity="0.55" stroke-width="3"/>
+      <path d="M10 0 C43 -12 74 -10 105 -12" fill="none" stroke="#134834" stroke-opacity="0.28" stroke-width="2"/>
+    </g>
+    </g>
+    </g><g filter="url(#softShadow)"><g transform="rotate(0.0 770 540)" opacity="0.62">
+          <path d="M770 500.1 C804.2 471.6 802.3 427.9 770 411.75 C737.7 427.9 735.8 471.6 770 500.1Z" fill="url(#gDiamond)" stroke="#EFFFFF" stroke-opacity="0.72" stroke-width="2"/>
+          <path d="M770 500.1 L770 411.75 L793.75 462.1Z" fill="#fff" opacity="0.22"/>
+        </g><g transform="rotate(45.0 770 540)" opacity="0.62">
+          <path d="M770 500.1 C804.2 471.6 802.3 427.9 770 411.75 C737.7 427.9 735.8 471.6 770 500.1Z" fill="url(#gDiamond)" stroke="#EFFFFF" stroke-opacity="0.72" stroke-width="2"/>
+          <path d="M770 500.1 L770 411.75 L793.75 462.1Z" fill="#fff" opacity="0.22"/>
+        </g><g transform="rotate(90.0 770 540)" opacity="0.62">
+          <path d="M770 500.1 C804.2 471.6 802.3 427.9 770 411.75 C737.7 427.9 735.8 471.6 770 500.1Z" fill="url(#gDiamond)" stroke="#EFFFFF" stroke-opacity="0.72" stroke-width="2"/>
+          <path d="M770 500.1 L770 411.75 L793.75 462.1Z" fill="#fff" opacity="0.22"/>
+        </g><g transform="rotate(135.0 770 540)" opacity="0.62">
+          <path d="M770 500.1 C804.2 471.6 802.3 427.9 770 411.75 C737.7 427.9 735.8 471.6 770 500.1Z" fill="url(#gDiamond)" stroke="#EFFFFF" stroke-opacity="0.72" stroke-width="2"/>
+          <path d="M770 500.1 L770 411.75 L793.75 462.1Z" fill="#fff" opacity="0.22"/>
+        </g><g transform="rotate(180.0 770 540)" opacity="0.62">
+          <path d="M770 500.1 C804.2 471.6 802.3 427.9 770 411.75 C737.7 427.9 735.8 471.6 770 500.1Z" fill="url(#gDiamond)" stroke="#EFFFFF" stroke-opacity="0.72" stroke-width="2"/>
+          <path d="M770 500.1 L770 411.75 L793.75 462.1Z" fill="#fff" opacity="0.22"/>
+        </g><g transform="rotate(225.0 770 540)" opacity="0.62">
+          <path d="M770 500.1 C804.2 471.6 802.3 427.9 770 411.75 C737.7 427.9 735.8 471.6 770 500.1Z" fill="url(#gDiamond)" stroke="#EFFFFF" stroke-opacity="0.72" stroke-width="2"/>
+          <path d="M770 500.1 L770 411.75 L793.75 462.1Z" fill="#fff" opacity="0.22"/>
+        </g><g transform="rotate(270.0 770 540)" opacity="0.62">
+          <path d="M770 500.1 C804.2 471.6 802.3 427.9 770 411.75 C737.7 427.9 735.8 471.6 770 500.1Z" fill="url(#gDiamond)" stroke="#EFFFFF" stroke-opacity="0.72" stroke-width="2"/>
+          <path d="M770 500.1 L770 411.75 L793.75 462.1Z" fill="#fff" opacity="0.22"/>
+        </g><g transform="rotate(315.0 770 540)" opacity="0.62">
+          <path d="M770 500.1 C804.2 471.6 802.3 427.9 770 411.75 C737.7 427.9 735.8 471.6 770 500.1Z" fill="url(#gDiamond)" stroke="#EFFFFF" stroke-opacity="0.72" stroke-width="2"/>
+          <path d="M770 500.1 L770 411.75 L793.75 462.1Z" fill="#fff" opacity="0.22"/>
+        </g><circle cx="770" cy="540" r="28.5" fill="url(#gDiamond)"/>
+      <circle cx="770" cy="540" r="11.4" fill="#FAFCFF" stroke="#236797" stroke-opacity="0.35"/>
+      <circle cx="777.6" cy="532.4" r="3.325" fill="#fff" filter="url(#glow)"/></g>
+</svg>

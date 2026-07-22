@@ -911,6 +911,25 @@ estado; reiniciar vuelve al estado inicial. El contrato no forma parte del
 perfil ni del dominio. La interfaz contextual y su puerto de persistencia son
 incrementos posteriores y no se anticipan mediante acceso directo al navegador.
 
+### 6.27. Materialización finita de hábitos
+
+La recurrencia de un hábito se resuelve en aplicación, no en React ni en el
+repositorio. `CasoDeUsoAsignarActividad.ejecutarRecurrencia` recibe actividad,
+contexto, fecha inicial, fecha final, carga y política. El dominio determina si
+cada `FechaLocal` corresponde a la frecuencia diaria, semanal o personalizada.
+
+El día donde se inicia la asignación es el límite inferior y el final del rango
+visible es el límite superior; un contexto nombrado puede recortar este último
+con su propia fecha final. Antes de crear se consultan los bloques existentes y
+se omite la misma actividad ya materializada en igual contexto y fecha. Cada
+ocurrencia conserva identidad y ciclo de vida independientes.
+
+`RepositorioBloquesPlanificacion.guardarTodos` expresa la frontera atómica. El
+adaptador en memoria valida todos los identificadores antes de mutar y el de
+IndexedDB usa una sola transacción `readwrite`: una colisión o fallo aborta la
+serie completa. La interfaz utiliza este contrato tanto para arrastre como para
+su botón equivalente por teclado.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 Los cortes confirmados, `BilleteraPuntos` y el historial de recompensas poseen

@@ -11,6 +11,7 @@ interface BandejaAsignablesCalendarioProps {
   readonly inventario?: InventarioRecompensasDto;
   readonly cargandoInventario: boolean;
   readonly errorInventario?: string;
+  readonly procesandoAsignacion: boolean;
   readonly onFecha: (fecha: string) => void;
   readonly onNuevaActividad: (origen: HTMLButtonElement) => void;
   readonly onAsignarActividad: (
@@ -33,6 +34,7 @@ export function BandejaAsignablesCalendario({
   inventario,
   cargandoInventario,
   errorInventario,
+  procesandoAsignacion,
   onFecha,
   onNuevaActividad,
   onAsignarActividad,
@@ -40,7 +42,11 @@ export function BandejaAsignablesCalendario({
   onArrastre,
 }: BandejaAsignablesCalendarioProps) {
   return (
-    <section className="bandeja-asignables" aria-labelledby="asignables">
+    <section
+      className="bandeja-asignables"
+      aria-labelledby="asignables"
+      aria-busy={procesandoAsignacion}
+    >
       <div className="titulo-region">
         <div>
           <p className="sobrelinea">Banco de actividades</p>
@@ -61,12 +67,18 @@ export function BandejaAsignablesCalendario({
         </div>
       </div>
       <div className="grupos-asignables">
+        {procesandoAsignacion && (
+          <p className="ayuda-campo" role="status">
+            Asignando las ocurrencias del hábito…
+          </p>
+        )}
         <GrupoActividades
           titulo="Sin programar"
           actividades={actividadesSinProgramar}
           fecha={fecha}
           onAsignar={onAsignarActividad}
           onArrastre={onArrastre}
+          procesandoAsignacion={procesandoAsignacion}
         />
         <GrupoActividades
           titulo="Ya asignadas"
@@ -74,6 +86,7 @@ export function BandejaAsignablesCalendario({
           fecha={fecha}
           onAsignar={onAsignarActividad}
           onArrastre={onArrastre}
+          procesandoAsignacion={procesandoAsignacion}
         />
         <div aria-labelledby="inventario-asignable">
           <div className="cabecera-grupo-asignables">
@@ -140,9 +153,10 @@ export function BandejaAsignablesCalendario({
         </div>
       </div>
       <p className="instruccion-arrastre">
-        Arrastrar es opcional: soltar sólo abre el editor o la vista previa; no
-        guarda ni consume nada. Los botones ofrecen el mismo recorrido por
-        teclado.
+        Arrastrar es opcional: una tarea abre el editor; un hábito crea sus
+        ocurrencias desde el día elegido hasta el final de la vista; y una
+        recompensa abre su vista previa. Los botones ofrecen los mismos
+        recorridos por teclado.
       </p>
       <button
         className="boton-secundario boton-nueva-actividad-bandeja"
@@ -161,12 +175,14 @@ function GrupoActividades({
   fecha,
   onAsignar,
   onArrastre,
+  procesandoAsignacion,
 }: Readonly<{
   titulo: string;
   actividades: readonly ActividadDto[];
   fecha: string;
   onAsignar: BandejaAsignablesCalendarioProps["onAsignarActividad"];
   onArrastre: BandejaAsignablesCalendarioProps["onArrastre"];
+  procesandoAsignacion: boolean;
 }>) {
   const id = `grupo-${titulo.toLowerCase().replaceAll(" ", "-")}`;
   return (
@@ -184,7 +200,7 @@ function GrupoActividades({
           {actividades.map((actividad) => (
             <li
               key={actividad.id}
-              draggable
+              draggable={!procesandoAsignacion}
               onDragStart={() =>
                 onArrastre({
                   tipo: "ACTIVIDAD",
@@ -206,7 +222,9 @@ function GrupoActividades({
               <button
                 className="boton-texto accion-asignable"
                 type="button"
+                data-actividad-asignable={actividad.id}
                 aria-label={`Asignar ${actividad.titulo}`}
+                disabled={procesandoAsignacion}
                 onClick={(evento) =>
                   onAsignar(actividad.id, fecha, evento.currentTarget)
                 }
