@@ -4,7 +4,7 @@ import {
   IDENTIFICADOR_FORMATO_RESPALDO,
   VERSION_FORMATO_RESPALDO,
   type ArchivoRespaldo,
-  type RespaldoHereToPlanV2,
+  type RespaldoHereToPlanV3,
 } from "./ContratoRespaldo";
 
 export type CodigoErrorExportacionRespaldo =
@@ -40,7 +40,7 @@ export class CasoDeUsoExportarRespaldo {
     }
 
     const creadoEn = this.reloj.ahora().toISOString();
-    const respaldo: RespaldoHereToPlanV2 = Object.freeze({
+    const respaldo: RespaldoHereToPlanV3 = Object.freeze({
       formato: IDENTIFICADOR_FORMATO_RESPALDO,
       versionFormato: VERSION_FORMATO_RESPALDO,
       creadoEn,

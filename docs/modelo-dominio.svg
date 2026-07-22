@@ -241,7 +241,7 @@
     <rect class="clase economia" width="320" height="132"/>
     <path class="cabecera-economia" d="M10 0 H310 A10 10 0 0 1 320 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
     <text class="estereotipo" x="16" y="18">«DEFINICIÓN»</text>
-    <text class="nombre" x="16" y="40">DefinicionRecompensa</text>
+    <text class="nombre" x="16" y="40">RecompensaDefinida</text>
     <text class="atributo" x="16" y="76">id · nombre · descripcion</text>
     <text class="atributo" x="16" y="99">costoPuntos: number</text>
     <text class="atributo" x="16" y="121">tipoEfecto: TipoEfectoRecompensa</text>
@@ -250,21 +250,21 @@
   <g transform="translate(1186 946)">
     <rect class="clase economia" width="340" height="132"/>
     <path class="cabecera-economia" d="M10 0 H330 A10 10 0 0 1 340 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
-    <text class="estereotipo" x="16" y="18">«ENTIDAD HISTÓRICA»</text>
-    <text class="nombre" x="16" y="40">CanjeRecompensa</text>
+    <text class="estereotipo" x="16" y="18">«AGREGADO DE INVENTARIO»</text>
+    <text class="nombre" x="16" y="40">RecompensaAdquirida</text>
     <text class="atributo" x="16" y="76">recompensaId · puntosGastados</text>
-    <text class="atributo" x="16" y="99">fechaObjetivo: FechaLocal</text>
-    <text class="atributo" x="16" y="121">canjeadoEn: Date</text>
+    <text class="atributo" x="16" y="99">DISPONIBLE | CONSUMIDA</text>
+    <text class="atributo" x="16" y="121">adquiridaEn · aplicacionId?</text>
   </g>
 
   <path class="composicion" d="M374 1012 H428"/>
   <text class="relacion-etiqueta" x="380" y="999">deriva saldo de 0..*</text>
   <path class="relacion" d="M1130 1012 H1184"/>
-  <text class="relacion-etiqueta" x="1128" y="999">materializa</text>
+  <text class="relacion-etiqueta" x="1128" y="999">define unidades</text>
   <path class="relacion" d="M1186 1056 V1095 H590 V1080"/>
-  <text class="relacion-etiqueta" x="848" y="1091">genera gasto</text>
-  <path class="relacion" d="M1356 944 V830 H1540 V499 H1527"/>
-  <text class="relacion-etiqueta" x="1368" y="856">autoriza ajustes</text>
+  <text class="relacion-etiqueta" x="848" y="1091">adquisición genera gasto</text>
+  <path class="relacion" d="M1528 1012 H1544 V1342 H1528"/>
+  <text class="relacion-etiqueta" x="1538" y="1188" text-anchor="end">consume mediante</text>
 
   <g transform="translate(72 1120)">
     <rect class="clase economia" width="300" height="134"/>
@@ -306,6 +306,18 @@
     <text class="atributo" x="16" y="122">maximoSemanalMinutos</text>
   </g>
 
+  <g transform="translate(1188 1274)">
+    <rect class="clase economia" width="338" height="134"/>
+    <path class="cabecera-economia" d="M10 0 H328 A10 10 0 0 1 338 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
+    <text class="estereotipo" x="16" y="18">«HECHO HISTÓRICO»</text>
+    <text class="nombre" x="16" y="40">AplicacionRecompensa</text>
+    <text class="atributo" x="16" y="76">recompensaAdquiridaId</text>
+    <text class="atributo" x="16" y="99">fechaObjetivo · bloquesAfectados</text>
+    <text class="atributo" x="16" y="122">aplicadaEn · puntosGastados</text>
+  </g>
+  <path class="relacion" d="M1528 1342 H1544 V830 H1527 V499"/>
+  <text class="relacion-etiqueta" x="1538" y="856" text-anchor="end">autoriza ajustes</text>
+
   <path class="composicion" d="M374 1187 H428"/>
   <text class="relacion-etiqueta" x="378" y="1174">deriva saldo</text>
   <path class="relacion" d="M754 1187 H808"/>
@@ -336,7 +348,7 @@
 
   <rect class="regla" x="72" y="1440" width="1454" height="90"/>
   <text class="regla-titulo" x="92" y="1466">Reglas transversales de ejecución, historia y economías</text>
-  <text class="regla-texto" x="92" y="1490">Completar publica resolución e ingreso juntos. Canjear publica recompensa, gasto y ajustes como una unidad.</text>
+  <text class="regla-texto" x="92" y="1490">Completar publica resolución e ingreso juntos. Adquirir publica unidad disponible y gasto como una unidad.</text>
   <text class="regla-texto" x="92" y="1512">Consumir recuperación publica movimiento y reducción juntos; conserva la estimación original y deriva la carga efectiva.</text>
 
   <line x1="60" y1="1610" x2="105" y2="1610" class="composicion"/>

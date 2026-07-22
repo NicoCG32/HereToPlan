@@ -1,6 +1,9 @@
 import { COLECCIONES_RESPALDO } from "../../../aplicacion/respaldo/ContratoRespaldo";
+import type { AplicacionRecompensaV1 } from "../registros/AplicacionRecompensaV1";
+import type { CanjeRecompensaV1 } from "../registros/CanjeRecompensaV1";
+import type { RecompensaAdquiridaV1 } from "../registros/RecompensaAdquiridaV1";
 
-export const VERSION_BASE_DATOS = 11;
+export const VERSION_BASE_DATOS = 12;
 export const ALMACEN_PERFIL_USUARIO = "perfil-usuario";
 export const ALMACEN_AGENDAS = "agendas";
 export const ALMACEN_ACTIVIDADES = "actividades";
@@ -13,6 +16,10 @@ export const INDICE_RESOLUCIONES_POR_OPERACION = "por-operacion-id";
 export const ALMACEN_TRANSACCIONES_PUNTOS = "transacciones-puntos";
 export const INDICE_TRANSACCIONES_POR_FUENTE = "por-fuente-semantica";
 export const ALMACEN_CANJES_RECOMPENSAS = "canjes-recompensas";
+export const ALMACEN_RECOMPENSAS_ADQUIRIDAS = "recompensas-adquiridas";
+export const ALMACEN_APLICACIONES_RECOMPENSAS = "aplicaciones-recompensas";
+export const INDICE_RECOMPENSAS_ADQUIRIDAS_POR_ESTADO = "por-estado";
+export const INDICE_APLICACIONES_POR_UNIDAD = "por-recompensa-adquirida-id";
 export const ALMACEN_AJUSTES_COMPROMISOS = "ajustes-compromisos";
 export const INDICE_AJUSTES_POR_BLOQUE = "por-bloque-id";
 export const INDICE_AJUSTES_POR_CANJE = "por-canje-id";
@@ -28,7 +35,10 @@ export const INDICE_REDUCCION_POR_BLOQUE = "por-bloque-id";
 export const INDICE_REDUCCION_POR_OPERACION = "por-operacion-id";
 export const ALMACENES_RESPALDABLES = COLECCIONES_RESPALDO;
 
-export function asegurarAlmacenes(baseDatos: IDBDatabase): void {
+export function asegurarAlmacenes(
+  baseDatos: IDBDatabase,
+  transaccionActualizacion?: IDBTransaction,
+): void {
   if (!baseDatos.objectStoreNames.contains(ALMACEN_PERFIL_USUARIO)) {
     baseDatos.createObjectStore(ALMACEN_PERFIL_USUARIO, { keyPath: "id" });
   }
@@ -78,6 +88,34 @@ export function asegurarAlmacenes(baseDatos: IDBDatabase): void {
     baseDatos.createObjectStore(ALMACEN_CANJES_RECOMPENSAS, {
       keyPath: "id",
     });
+  }
+  let inventarioCreado = false;
+  if (!baseDatos.objectStoreNames.contains(ALMACEN_RECOMPENSAS_ADQUIRIDAS)) {
+    const almacen = baseDatos.createObjectStore(
+      ALMACEN_RECOMPENSAS_ADQUIRIDAS,
+      {
+        keyPath: "id",
+      },
+    );
+    almacen.createIndex(INDICE_RECOMPENSAS_ADQUIRIDAS_POR_ESTADO, "estado", {
+      unique: false,
+    });
+    inventarioCreado = true;
+  }
+  if (!baseDatos.objectStoreNames.contains(ALMACEN_APLICACIONES_RECOMPENSAS)) {
+    const almacen = baseDatos.createObjectStore(
+      ALMACEN_APLICACIONES_RECOMPENSAS,
+      { keyPath: "id" },
+    );
+    almacen.createIndex(
+      INDICE_APLICACIONES_POR_UNIDAD,
+      "recompensaAdquiridaId",
+      { unique: true },
+    );
+    inventarioCreado = true;
+  }
+  if (inventarioCreado && transaccionActualizacion) {
+    migrarCanjesHistoricos(transaccionActualizacion);
   }
   if (!baseDatos.objectStoreNames.contains(ALMACEN_AJUSTES_COMPROMISOS)) {
     const almacen = baseDatos.createObjectStore(ALMACEN_AJUSTES_COMPROMISOS, {
@@ -130,4 +168,44 @@ export function asegurarAlmacenes(baseDatos: IDBDatabase): void {
       unique: true,
     });
   }
+}
+
+function migrarCanjesHistoricos(transaccion: IDBTransaction): void {
+  if (!transaccion.objectStoreNames.contains(ALMACEN_CANJES_RECOMPENSAS)) {
+    return;
+  }
+  const canjes = transaccion.objectStore(ALMACEN_CANJES_RECOMPENSAS);
+  const adquiridas = transaccion.objectStore(ALMACEN_RECOMPENSAS_ADQUIRIDAS);
+  const aplicaciones = transaccion.objectStore(
+    ALMACEN_APLICACIONES_RECOMPENSAS,
+  );
+  const cursor = canjes.openCursor();
+  cursor.onsuccess = () => {
+    const actual = cursor.result;
+    if (!actual) return;
+    const canje = actual.value as CanjeRecompensaV1;
+    const adquirida: RecompensaAdquiridaV1 = {
+      versionEsquema: 1,
+      id: canje.id,
+      recompensaId: canje.recompensaId,
+      puntosGastados: canje.puntosGastados,
+      adquiridaEn: canje.canjeadoEn,
+      estado: "CONSUMIDA",
+      aplicacionId: canje.id,
+      consumidaEn: canje.canjeadoEn,
+    };
+    const aplicacion: AplicacionRecompensaV1 = {
+      versionEsquema: 1,
+      id: canje.id,
+      recompensaAdquiridaId: canje.id,
+      recompensaId: canje.recompensaId,
+      puntosGastados: canje.puntosGastados,
+      aplicadaEn: canje.canjeadoEn,
+      fechaObjetivo: canje.fechaObjetivo,
+      bloquesAfectados: canje.bloquesAfectados,
+    };
+    adquiridas.put(adquirida);
+    aplicaciones.put(aplicacion);
+    actual.continue();
+  };
 }

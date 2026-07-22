@@ -360,6 +360,13 @@ y rechaza tanto una segunda creación como un estado persistido con múltiples
 perfiles. La actualización sólo incorpora el almacén y no transforma ninguna
 colección de planificación o economía.
 
+La versión 12 añade `recompensas-adquiridas` y
+`aplicaciones-recompensas`. Durante la actualización, cada registro legado de
+`canjes-recompensas` se proyecta dentro de la misma transacción como una unidad
+consumida y una aplicación histórica. La migración conserva identificador,
+definición, costo, instante, fecha objetivo y bloques; nunca convierte un canje
+ya aplicado en inventario disponible ni crea un segundo movimiento de puntos.
+
 `InicializarContextosPlanificacion` garantiza una sola instancia de `Libre` de
 forma idempotente. La raíz de composición ejecuta este caso de uso antes de
 montar React, por lo que la interfaz nunca comienza sobre una base inicializada
@@ -572,7 +579,30 @@ vacío, error y resultado; React vuelve a ejecutar la consulta después de un
 cumplimiento exitoso, pero no calcula el saldo ni accede directamente a la base
 de datos.
 
-### 6.13. Canje atómico de Día libre
+### 6.13. Adquisición atómica e inventario de recompensas
+
+`ConsultarCatalogoRecompensas` obtiene definiciones y saldo fuera de React;
+informa costo, disponibilidad y motivo cuando faltan puntos.
+`AdquirirRecompensa` crea una `RecompensaAdquirida` disponible y una
+`TransaccionPuntos(GASTO)` cuya fuente semántica es la unidad. El puerto
+`UnidadTrabajoAdquisicionRecompensa` confirma ambos hechos o ninguno.
+
+Los adaptadores en memoria e IndexedDB rehidratan la billetera dentro de la
+frontera exclusiva antes de gastar. La clave de operación identifica la unidad:
+un reintento equivalente recupera el resultado y uno contradictorio produce un
+conflicto. Dos adquisiciones concurrentes que compiten por el mismo saldo no
+pueden dejar saldo negativo ni unidades sin movimiento.
+
+`ConsultarInventarioRecompensas` separa unidades disponibles, consumidas y
+aplicaciones históricas. `PanelInventarioRecompensas` representa catálogo,
+inventario, historia y confirmación, pero no calcula saldo ni aplica unidades al
+calendario. Adquirir y aplicar son comandos diferentes.
+
+### 6.14. Aplicación histórica de Día libre
+
+El flujo siguiente permanece como contrato histórico mientras la aplicación de
+unidades desde Calendario se integra sobre el nuevo inventario. No se expone
+como compra en la composición vigente de Puntos.
 
 `PrepararCanjeDiaLibre` reúne instantáneas de cortes confirmados, resoluciones,
 ajustes, contextos y movimientos de puntos. `ServicioDiaLibrePlanificacion`
@@ -594,7 +624,7 @@ del canje: un reintento idéntico recupera el hecho ganador y uno contradictorio
 se informa como conflicto. React sólo abre la confirmación y representa el
 resultado; la atomicidad y la idempotencia permanecen fuera de presentación.
 
-### 6.14. Cronómetro recuperable e idempotente
+### 6.15. Cronómetro recuperable e idempotente
 
 `SesionCronometro` modela `ACTIVA`, `PAUSADA` y `FINALIZADA` mediante órdenes
 `INICIAR`, `PAUSAR`, `REANUDAR` y `DETENER`. No persiste un contador mutable:
@@ -613,7 +643,7 @@ duración autoritativa ni anuncia cada segundo a tecnologías de asistencia. Los
 controles disponibles dependen del estado recuperado. Detener sólo finaliza la
 medición: completar o incumplir continúa siendo una orden humana independiente.
 
-### 6.15. Banco de recuperación y reducción atómica
+### 6.16. Banco de recuperación y reducción atómica
 
 `ConsultarBancoRecuperacion`, `AcreditarRecuperacion` y
 `ConsumirRecuperacion` son puertos de entrada independientes de React. Su
@@ -633,19 +663,19 @@ invariante, una restricción única o una lectura concurrente, la operación se
 aborta. La proyección del calendario recibe las reducciones por el mismo puerto
 y deriva los minutos efectivos sin cambiar la instantánea original.
 
-### 6.16. Respaldo versionado y restauración atómica
+### 6.17. Respaldo versionado y restauración atómica
 
 `ExportarRespaldo`, `AnalizarImportacionRespaldo`,
 `PrepararRestauracionRespaldo` y `RestaurarRespaldo` son puertos de entrada de
 aplicación. La envolvente vigente `HereToPlan.respaldo` posee
-`versionFormato: 2`,
+`versionFormato: 3`,
 separada de `versionBaseDatos` y de la `versionEsquema` de cada registro. Esta
 separación evita interpretar una migración interna de IndexedDB como un cambio
 automático del formato portable.
 
 El puerto de salida `LectorEstadoPersistente` expone una única operación de
 lectura completa. `LectorEstadoPersistenteIndexedDB` la implementa abriendo una
-transacción `readonly` sobre los trece almacenes respaldables. El caso de uso
+transacción `readonly` sobre los quince almacenes respaldables. El caso de uso
 recibe así una instantánea coherente, la envuelve y la serializa; los errores de
 lectura y serialización se distinguen y nunca habilitan una escritura.
 
@@ -659,19 +689,21 @@ estado vigente. El contrato detallado y sus ejemplos se encuentran en
 Preparar y ejecutar también permanecen separados. La preparación sólo acepta un
 diagnóstico `VALIDO`, aplica una ruta explícita y produce un plan inmutable con
 el estado de destino. V1 conserva sus doce colecciones y migra con perfil vacío;
-V2 conserva también `perfil-usuario`. Una versión futura se rechaza antes de
+V2 conserva también `perfil-usuario`; ambas versiones proyectan sus canjes como
+unidades consumidas y aplicaciones históricas. V3 conserva las quince
+colecciones. Una versión futura se rechaza antes de
 disponer de capacidad de escritura. La ejecución exige la confirmación exacta
 `RESTAURAR` y delega una única sustitución completa al puerto
 `RestauradorEstadoPersistente`.
 
 `RestauradorEstadoPersistenteIndexedDB` abre una transacción `readwrite` sobre
-los trece almacenes. Todos los `clear` y `add` pertenecen a esa misma
+los quince almacenes. Todos los `clear` y `add` pertenecen a esa misma
 transacción: sólo `oncomplete` representa éxito; cualquier excepción o aborto
 conserva el estado anterior completo. La presentación ofrece recargar la
 aplicación después de la confirmación técnica para reconstruir consultas y
 proyecciones, pero esa recarga no participa del límite transaccional.
 
-### 6.17. Perfil local
+### 6.18. Perfil local
 
 `PerfilUsuario` es una entidad del dominio con identidad estable, nombre
 visible e instantes de creación y actualización. Su nombre se normaliza, admite
@@ -686,7 +718,7 @@ convertirse en fuente de verdad. La ausencia de perfil es un estado válido y
 distinto de un perfil con nombre vacío; presentación la representa mediante una
 bienvenida accesible que explica el alcance estrictamente local.
 
-### 6.18. Sesión de presentación y HUD
+### 6.19. Sesión de presentación y HUD
 
 `ProveedorSesionAplicacion` es una proyección compartida de presentación. Reúne
 perfil, estado de carga, saldo derivado, revisión de datos y comandos de
@@ -694,14 +726,14 @@ refresco; no calcula puntos ni introduce reglas del dominio. Sus lecturas
 atraviesan `ConsultarPerfilUsuario` y `ConsultarBilletera`, por lo que el saldo
 continúa teniendo como única fuente los movimientos persistidos.
 
-Completar, canjear o consumir recuperación incrementa la revisión y vuelve a
+Completar, adquirir o consumir recuperación incrementa la revisión y vuelve a
 consultar el saldo. Restaurar solicita además perfil y proyecciones de las
 páginas. El HUD consume este contrato sin persistir copias: muestra el nombre,
 un `output` de puntos y acceso al diálogo de edición. La frase motivacional se
 elige mediante un selector inyectable una sola vez al inicializar el proveedor;
 no se persiste ni cambia durante la navegación.
 
-### 6.19. Administración editable de definiciones
+### 6.20. Administración editable de definiciones
 
 La página Crear compone catálogos y reutiliza los formularios de contextos y
 actividades. `EditarContextoPlanificacion` y `EditarActividad` reconstruyen una
@@ -848,14 +880,14 @@ El consumo de recuperación aplica el mismo principio entre otras fronteras:
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                      |
-| --------------- | ---------------------------------------------------------------------------------- |
-| Dominio         | Planificación, ejecución, economías y perfil local protegidos por invariantes      |
-| Presentación    | SPA con cuatro rutas, perfil, sesión compartida, HUD y catálogos editables         |
-| Aplicación      | Casos de uso de perfil, edición segura, respaldo V2 y migraciones explícitas V1/V2 |
-| Infraestructura | Repositorios, unidades atómicas, instantánea y sustitución completa en IndexedDB   |
-| Composición     | Ensambla páginas y servicios sin introducir reglas de negocio                      |
-| Persistencia    | IndexedDB v11 respalda o reemplaza atómicamente los trece almacenes soportados     |
+| Elemento        | Estado actual                                                                    |
+| --------------- | -------------------------------------------------------------------------------- |
+| Dominio         | Planificación, ejecución, identidad e inventario protegidos por invariantes      |
+| Presentación    | SPA con perfil, HUD, catálogos editables e inventario separado                   |
+| Aplicación      | Casos de uso de adquisición, edición, respaldo V3 y migraciones V1/V2            |
+| Infraestructura | Repositorios, unidades atómicas, instantánea y sustitución completa en IndexedDB |
+| Composición     | Ensambla páginas y servicios sin introducir reglas de negocio                    |
+| Persistencia    | IndexedDB v12 respalda o reemplaza atómicamente los quince almacenes soportados  |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

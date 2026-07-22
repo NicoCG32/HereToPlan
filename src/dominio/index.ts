@@ -32,6 +32,9 @@ export * from "./puntos/tipos";
 
 export * from "./recompensas/CanjeRecompensa";
 export * from "./recompensas/DefinicionRecompensa";
+export * from "./recompensas/RecompensaDefinida";
+export * from "./recompensas/RecompensaAdquirida";
+export * from "./recompensas/AplicacionRecompensa";
 export * from "./recompensas/ServicioCanjeRecompensas";
 export * from "./recompensas/ServicioDiaLibrePlanificacion";
 export * from "./recompensas/tipos";

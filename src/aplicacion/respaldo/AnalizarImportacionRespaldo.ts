@@ -1,9 +1,11 @@
 import {
   COLECCIONES_RESPALDO,
   COLECCIONES_RESPALDO_V1,
+  COLECCIONES_RESPALDO_V2,
   IDENTIFICADOR_FORMATO_RESPALDO,
   VERSION_FORMATO_RESPALDO,
   VERSION_FORMATO_RESPALDO_ANTERIOR,
+  VERSION_FORMATO_RESPALDO_V1,
   type NombreColeccionRespaldo,
 } from "./ContratoRespaldo";
 
@@ -130,6 +132,22 @@ const CAMPOS_OBLIGATORIOS: Readonly<
     creadoEn: "cadena",
     actualizadoEn: "cadena",
   },
+  "recompensas-adquiridas": {
+    id: "cadena",
+    recompensaId: "cadena",
+    puntosGastados: "numero",
+    adquiridaEn: "cadena",
+    estado: "cadena",
+  },
+  "aplicaciones-recompensas": {
+    id: "cadena",
+    recompensaAdquiridaId: "cadena",
+    recompensaId: "cadena",
+    puntosGastados: "numero",
+    aplicadaEn: "cadena",
+    fechaObjetivo: "cadena",
+    bloquesAfectados: "arreglo",
+  },
 };
 
 export class CasoDeUsoAnalizarImportacionRespaldo {
@@ -177,6 +195,7 @@ export class CasoDeUsoAnalizarImportacionRespaldo {
       );
     }
     if (
+      versionFormato !== VERSION_FORMATO_RESPALDO_V1 &&
       versionFormato !== VERSION_FORMATO_RESPALDO_ANTERIOR &&
       versionFormato !== VERSION_FORMATO_RESPALDO
     ) {
@@ -185,7 +204,7 @@ export class CasoDeUsoAnalizarImportacionRespaldo {
         [],
         [],
         [
-          `La versión ${versionFormato} no es compatible; esta aplicación admite las versiones ${VERSION_FORMATO_RESPALDO_ANTERIOR} y ${VERSION_FORMATO_RESPALDO}.`,
+          `La versión ${versionFormato} no es compatible; esta aplicación admite las versiones ${VERSION_FORMATO_RESPALDO_V1}, ${VERSION_FORMATO_RESPALDO_ANTERIOR} y ${VERSION_FORMATO_RESPALDO}.`,
         ],
         versionFormato,
       );
@@ -193,13 +212,19 @@ export class CasoDeUsoAnalizarImportacionRespaldo {
 
     const errores: string[] = [];
     const advertencias: string[] = [];
-    const coleccionesEsperadas =
-      versionFormato === VERSION_FORMATO_RESPALDO_ANTERIOR
+    const coleccionesEsperadas: readonly NombreColeccionRespaldo[] =
+      versionFormato === VERSION_FORMATO_RESPALDO_V1
         ? COLECCIONES_RESPALDO_V1
-        : COLECCIONES_RESPALDO;
-    if (versionFormato === VERSION_FORMATO_RESPALDO_ANTERIOR) {
+        : versionFormato === VERSION_FORMATO_RESPALDO_ANTERIOR
+          ? COLECCIONES_RESPALDO_V2
+          : COLECCIONES_RESPALDO;
+    if (versionFormato === VERSION_FORMATO_RESPALDO_V1) {
       advertencias.push(
-        "El respaldo V1 se migrará al formato actual sin un perfil local.",
+        "El respaldo V1 se migrará sin perfil y sus canjes se conservarán como aplicaciones consumidas.",
+      );
+    } else if (versionFormato === VERSION_FORMATO_RESPALDO_ANTERIOR) {
+      advertencias.push(
+        "El respaldo V2 migrará sus canjes históricos como aplicaciones consumidas.",
       );
     }
     const creadoEn = validarInstante(valor.creadoEn, "creadoEn", errores);

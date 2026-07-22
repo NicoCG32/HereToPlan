@@ -36,10 +36,17 @@ import {
   CasoDeUsoPrepararRestauracionRespaldo,
   CasoDeUsoRestaurarRespaldo,
   CasoDeUsoActualizarPerfilUsuario,
+  CasoDeUsoAdquirirRecompensa,
+  CasoDeUsoConsultarCatalogoRecompensas,
+  CasoDeUsoConsultarInventarioRecompensas,
   CasoDeUsoConsultarPerfilUsuario,
   CasoDeUsoCrearPerfilUsuario,
 } from "../aplicacion";
-import { DefinicionRecompensa, FormulaPuntosBloque } from "../dominio";
+import {
+  DefinicionRecompensa,
+  FormulaPuntosBloque,
+  RecompensaDefinida,
+} from "../dominio";
 import { RepositorioActividadesIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioActividadesIndexedDB";
 import { RepositorioAgendasIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioAgendasIndexedDB";
 import { RepositorioBloquesPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioBloquesPlanificacionIndexedDB";
@@ -51,6 +58,7 @@ import { MigradorContextosDesdeAgendasIndexedDB } from "../infraestructura/persi
 import { TransaccionEliminacionContextoPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionEliminacionContextoPlanificacionIndexedDB";
 import { TransaccionCompletarBloqueConPuntosIndexedDB } from "../infraestructura/persistencia/indexeddb/TransaccionCompletarBloqueConPuntosIndexedDB";
 import { UnidadTrabajoCanjeDiaLibreIndexedDB } from "../infraestructura/persistencia/indexeddb/UnidadTrabajoCanjeDiaLibreIndexedDB";
+import { UnidadTrabajoAdquisicionRecompensaIndexedDB } from "../infraestructura/persistencia/indexeddb/UnidadTrabajoAdquisicionRecompensaIndexedDB";
 import { RepositorioSesionesCronometroIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioSesionesCronometroIndexedDB";
 import { RepositorioRecuperacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioRecuperacionIndexedDB";
 import { LectorEstadoPersistenteIndexedDB } from "../infraestructura/persistencia/indexeddb/LectorEstadoPersistenteIndexedDB";
@@ -67,6 +75,7 @@ import type { ServiciosAgendaBorrador } from "../presentacion/agendas/ServiciosA
 import type { ServiciosCalendario } from "../presentacion/calendario/ServiciosCalendario";
 import type { ServiciosPuntos } from "../presentacion/puntos/ServiciosPuntos";
 import type { ServiciosRecompensas } from "../presentacion/recompensas/ServiciosRecompensas";
+import type { ServiciosInventarioRecompensas } from "../presentacion/recompensas/ServiciosInventarioRecompensas";
 import type { ServiciosRecuperacion } from "../presentacion/recuperacion/ServiciosRecuperacion";
 import type { ServiciosRespaldo } from "../presentacion/respaldo/ServiciosRespaldo";
 import type { ServiciosPerfil } from "../presentacion/perfil/ServiciosPerfil";
@@ -76,6 +85,7 @@ let serviciosCalendario: ServiciosCalendario | undefined;
 let serviciosResolucionBloques: ServiciosResolucionBloques | undefined;
 let serviciosPuntos: ServiciosPuntos | undefined;
 let serviciosRecompensas: ServiciosRecompensas | undefined;
+let serviciosInventarioRecompensas: ServiciosInventarioRecompensas | undefined;
 let serviciosRecuperacion: ServiciosRecuperacion | undefined;
 let serviciosRespaldo: ServiciosRespaldo | undefined;
 let serviciosPerfil: ServiciosPerfil | undefined;
@@ -93,6 +103,8 @@ let repositorioTransaccionesPuntos:
 let transaccionEliminacion:
   TransaccionEliminacionContextoPlanificacionIndexedDB | undefined;
 let unidadTrabajoCanjeDiaLibre: UnidadTrabajoCanjeDiaLibreIndexedDB | undefined;
+let unidadTrabajoAdquisicion:
+  UnidadTrabajoAdquisicionRecompensaIndexedDB | undefined;
 let repositorioSesionesCronometro:
   RepositorioSesionesCronometroIndexedDB | undefined;
 let repositorioRecuperacion: RepositorioRecuperacionIndexedDB | undefined;
@@ -165,6 +177,34 @@ export function obtenerServiciosRecompensas(): ServiciosRecompensas {
     generarOperacionId: () => generador.generar(),
   });
   return serviciosRecompensas;
+}
+
+export function obtenerServiciosInventarioRecompensas(): ServiciosInventarioRecompensas {
+  if (serviciosInventarioRecompensas) return serviciosInventarioRecompensas;
+  const definiciones = crearCatalogoRecompensas();
+  const inventario = obtenerUnidadTrabajoAdquisicion();
+  const transacciones = obtenerRepositorioTransaccionesPuntos();
+  const generador = new GeneradorIdentificadoresUUID();
+  serviciosInventarioRecompensas = Object.freeze({
+    consultarCatalogo: new CasoDeUsoConsultarCatalogoRecompensas(
+      definiciones,
+      transacciones,
+    ),
+    consultarInventario: new CasoDeUsoConsultarInventarioRecompensas(
+      definiciones,
+      inventario,
+    ),
+    adquirir: new CasoDeUsoAdquirirRecompensa({
+      definiciones,
+      repositorioInventario: inventario,
+      repositorioTransacciones: transacciones,
+      unidadTrabajo: inventario,
+      reloj: new RelojSistema(),
+      generadorIdentificadores: generador,
+    }),
+    generarOperacionId: () => generador.generar(),
+  });
+  return serviciosInventarioRecompensas;
 }
 
 export function obtenerServiciosRecuperacion(): ServiciosRecuperacion {
@@ -421,6 +461,12 @@ function obtenerUnidadTrabajoCanjeDiaLibre(): UnidadTrabajoCanjeDiaLibreIndexedD
   return unidadTrabajoCanjeDiaLibre;
 }
 
+function obtenerUnidadTrabajoAdquisicion(): UnidadTrabajoAdquisicionRecompensaIndexedDB {
+  unidadTrabajoAdquisicion ??=
+    new UnidadTrabajoAdquisicionRecompensaIndexedDB();
+  return unidadTrabajoAdquisicion;
+}
+
 function obtenerRepositorioSesionesCronometro(): RepositorioSesionesCronometroIndexedDB {
   repositorioSesionesCronometro ??=
     new RepositorioSesionesCronometroIndexedDB();
@@ -446,4 +492,17 @@ function crearDefinicionDiaLibre(): DefinicionRecompensa {
     costoPuntos: 1500,
     tipoEfecto: "DIA_LIBRE",
   });
+}
+
+function crearCatalogoRecompensas(): readonly RecompensaDefinida[] {
+  return Object.freeze([
+    new RecompensaDefinida({
+      id: "dia-libre",
+      nombre: "Día libre",
+      descripcion:
+        "Permite excusar compromisos flexibles personales elegibles de una fecha futura cuando se aplica desde Calendario.",
+      costoPuntos: 1500,
+      tipoEfecto: "DIA_LIBRE",
+    }),
+  ]);
 }

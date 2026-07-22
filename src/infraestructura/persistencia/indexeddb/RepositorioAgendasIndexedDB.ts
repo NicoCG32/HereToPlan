@@ -209,7 +209,7 @@ export class RepositorioAgendasIndexedDB implements RepositorioAgendas {
       );
 
       solicitud.onupgradeneeded = () => {
-        asegurarAlmacenes(solicitud.result);
+        asegurarAlmacenes(solicitud.result, solicitud.transaction ?? undefined);
       };
       solicitud.onsuccess = () => resolve(solicitud.result);
       solicitud.onerror = () => {

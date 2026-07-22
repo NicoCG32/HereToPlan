@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import {
   CasoDeUsoPrepararRestauracionRespaldo,
   CasoDeUsoRestaurarRespaldo,
-  COLECCIONES_RESPALDO,
   COLECCIONES_RESPALDO_V1,
+  COLECCIONES_RESPALDO_V2,
   ErrorConfirmacionRestauracionRespaldo,
   ErrorPreparacionRestauracionRespaldo,
   ErrorRestauracionRespaldo,
@@ -47,7 +47,7 @@ describe("restauración de respaldos", () => {
     const documento = respaldoV1();
     documento.versionFormato = 2;
     documento.contenido = Object.fromEntries(
-      COLECCIONES_RESPALDO.map((coleccion) => [coleccion, []]),
+      COLECCIONES_RESPALDO_V2.map((coleccion) => [coleccion, []]),
     );
     documento.contenido["perfil-usuario"] = [
       {
@@ -58,6 +58,17 @@ describe("restauración de respaldos", () => {
         actualizadoEn: "2026-07-21T10:00:00.000Z",
       },
     ];
+    documento.contenido["canjes-recompensas"] = [
+      {
+        versionEsquema: 1,
+        id: "canje-historico",
+        recompensaId: "dia-libre",
+        puntosGastados: 1500,
+        canjeadoEn: "2026-07-20T15:30:00.000Z",
+        fechaObjetivo: "2026-07-22",
+        bloquesAfectados: ["bloque-1"],
+      },
+    ];
 
     const plan = new CasoDeUsoPrepararRestauracionRespaldo().ejecutar(
       JSON.stringify(documento),
@@ -65,11 +76,19 @@ describe("restauración de respaldos", () => {
 
     expect(plan.rutaMigracion).toBe(RUTA_MIGRACION_RESPALDO_V2);
     expect(plan.estadoDestino.colecciones["perfil-usuario"]).toHaveLength(1);
+    expect(
+      plan.estadoDestino.colecciones["recompensas-adquiridas"],
+    ).toMatchObject([{ id: "canje-historico", estado: "CONSUMIDA" }]);
+    expect(
+      plan.estadoDestino.colecciones["aplicaciones-recompensas"],
+    ).toMatchObject([
+      { id: "canje-historico", bloquesAfectados: ["bloque-1"] },
+    ]);
   });
 
   it("rechaza versiones futuras cuando no existe una ruta de migración", () => {
     const documento = respaldoV1();
-    documento.versionFormato = 3;
+    documento.versionFormato = 4;
 
     expect(() =>
       new CasoDeUsoPrepararRestauracionRespaldo().ejecutar(

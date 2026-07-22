@@ -22,8 +22,8 @@ Esta base permite explorar, entre otras, las siguientes reglas:
 - la flexibilidad de un compromiso se decide antes de conocer su resultado;
 - los compromisos estrictos y flexibles reaccionan de manera distinta a una recompensa;
 - los movimientos de puntos son trazables y no permiten un saldo negativo;
-- el canje de un día libre muestra su efecto antes de confirmar y persiste
-  gasto, ajustes e historial como una sola operación.
+- adquirir un Día libre descuenta puntos y crea una unidad de inventario en una
+  sola operación; aplicarla constituye un hecho posterior e independiente;
 - el cronómetro es opcional, conserva sus sesiones entre recargas y no sustituye
   la declaración humana que completa o incumple un bloque.
 - el sobretrabajo cronometrado puede convertirse, con tasa y topes explícitos,
@@ -169,15 +169,16 @@ reward `Día libre`. El recorrido principal permite:
   explícita, en la misma transacción que registra el cumplimiento;
 - reconstruir y mostrar la billetera desde movimientos persistidos, distinguiendo
   ingresos, gastos y la fuente semántica de cada operación;
-- previsualizar un Día libre, distinguir bloques afectados y protegidos, y
-  confirmar atómicamente el canje con enlaces a su origen histórico;
+- adquirir un Día libre desde un catálogo, conservarlo disponible en inventario
+  y consultar por separado las aplicaciones históricas;
 - iniciar, pausar, reanudar y detener sesiones opcionales cuya duración se
   deriva de instantes persistidos, sin completar automáticamente el bloque;
 - acreditar una sola vez el excedente de sesiones finalizadas y consumir el
   saldo del banco de recuperación sobre carga futura que lo permita;
 - descargar un respaldo JSON versionado de todo el estado persistente y
   analizar su compatibilidad sin escribir, o restaurarlo con confirmación y
-  reemplazo atómico de las trece colecciones y migración explícita desde V1;
+  reemplazo atómico de las quince colecciones y migración explícita desde V1 y
+  V2;
 - recorrer con teclado la navegación, los editores y los diálogos, con foco
   explícito ante errores y retorno al control de origen al cancelar;
 - comprender estados vacíos, recuperar lecturas fallidas y conocer el motivo

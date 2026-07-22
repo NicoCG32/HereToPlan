@@ -244,7 +244,8 @@ export class RepositorioActividadesIndexedDB implements RepositorioActividades {
         this.nombreBaseDatos,
         VERSION_BASE_DATOS,
       );
-      solicitud.onupgradeneeded = () => asegurarAlmacenes(solicitud.result);
+      solicitud.onupgradeneeded = () =>
+        asegurarAlmacenes(solicitud.result, solicitud.transaction ?? undefined);
       solicitud.onsuccess = () => resolve(solicitud.result);
       solicitud.onerror = () => {
         this.conexionPendiente = undefined;

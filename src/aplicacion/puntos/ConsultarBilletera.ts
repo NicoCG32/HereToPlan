@@ -7,7 +7,8 @@ export interface MovimientoPuntosDto {
   readonly cantidad: number;
   readonly variacion: number;
   readonly fuente: Readonly<{
-    tipo: "COMPROMISO_COMPLETADO" | "CANJE_RECOMPENSA";
+    tipo:
+      "COMPROMISO_COMPLETADO" | "CANJE_RECOMPENSA" | "ADQUISICION_RECOMPENSA";
     id: string;
   }>;
   readonly descripcion: string;

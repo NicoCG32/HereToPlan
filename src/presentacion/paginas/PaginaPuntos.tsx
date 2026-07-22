@@ -2,6 +2,8 @@ import { PanelBilletera } from "../puntos/PanelBilletera";
 import type { ServiciosPuntos } from "../puntos/ServiciosPuntos";
 import { PanelDiaLibre } from "../recompensas/PanelDiaLibre";
 import type { ServiciosRecompensas } from "../recompensas/ServiciosRecompensas";
+import { PanelInventarioRecompensas } from "../recompensas/PanelInventarioRecompensas";
+import type { ServiciosInventarioRecompensas } from "../recompensas/ServiciosInventarioRecompensas";
 import { PanelRecuperacion } from "../recuperacion/PanelRecuperacion";
 import type { ServiciosRecuperacion } from "../recuperacion/ServiciosRecuperacion";
 import { EncabezadoPagina } from "./EncabezadoPagina";
@@ -9,6 +11,7 @@ import { EncabezadoPagina } from "./EncabezadoPagina";
 interface PaginaPuntosProps {
   readonly serviciosPuntos?: ServiciosPuntos;
   readonly serviciosRecompensas?: ServiciosRecompensas;
+  readonly serviciosInventarioRecompensas?: ServiciosInventarioRecompensas;
   readonly serviciosRecuperacion?: ServiciosRecuperacion;
   readonly revisionDatos: number;
   readonly onDatosCambiados: () => void;
@@ -17,6 +20,7 @@ interface PaginaPuntosProps {
 export function PaginaPuntos({
   serviciosPuntos,
   serviciosRecompensas,
+  serviciosInventarioRecompensas,
   serviciosRecuperacion,
   revisionDatos,
   onDatosCambiados,
@@ -31,7 +35,14 @@ export function PaginaPuntos({
       {serviciosPuntos && (
         <PanelBilletera servicios={serviciosPuntos} revision={revisionDatos} />
       )}
-      {serviciosRecompensas && (
+      {serviciosInventarioRecompensas && (
+        <PanelInventarioRecompensas
+          servicios={serviciosInventarioRecompensas}
+          revision={revisionDatos}
+          onInventarioCambiado={onDatosCambiados}
+        />
+      )}
+      {serviciosRecompensas && !serviciosInventarioRecompensas && (
         <PanelDiaLibre
           servicios={serviciosRecompensas}
           onCanjeConfirmado={onDatosCambiados}
@@ -44,9 +55,12 @@ export function PaginaPuntos({
           onRecuperacionCambiada={onDatosCambiados}
         />
       )}
-      {!serviciosPuntos && !serviciosRecompensas && !serviciosRecuperacion && (
-        <p className="estado-vacio-lineal">La economía no está disponible.</p>
-      )}
+      {!serviciosPuntos &&
+        !serviciosRecompensas &&
+        !serviciosInventarioRecompensas &&
+        !serviciosRecuperacion && (
+          <p className="estado-vacio-lineal">La economía no está disponible.</p>
+        )}
     </div>
   );
 }

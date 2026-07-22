@@ -134,7 +134,7 @@
     <text class="detalle" x="18" y="106">RepositorioBloques · RepositorioCortes</text>
     <text class="detalle" x="18" y="130">Repositorios: perfil · resoluciones · sesiones · puntos · recuperación</text>
     <text class="detalle" x="18" y="154">TransaccionEliminacionContextoPlanificacion</text>
-    <text class="detalle" x="18" y="178">TransaccionCompletar · UnidadTrabajoCanje</text>
+    <text class="detalle" x="18" y="178">TransaccionCompletar · unidades de adquisición y aplicación</text>
     <text class="detalle" x="18" y="202">Lector/RestauradorEstado · Reloj · UUID</text>
     <text class="codigo" x="18" y="226">src/aplicacion/puertos</text>
   </g>
@@ -146,7 +146,7 @@
     <text class="nombre" x="18" y="42">Infraestructura del navegador</text>
     <text class="detalle" x="18" y="82">• repositorios IndexedDB</text>
     <text class="detalle" x="18" y="106">• migrador de contextos legados</text>
-    <text class="detalle" x="18" y="130">• unidades atómicas de cumplimiento, canje y recuperación</text>
+    <text class="detalle" x="18" y="130">• unidades atómicas de cumplimiento, adquisición y recuperación</text>
     <text class="detalle" x="18" y="154">• instantánea y restauración atómica en IndexedDB</text>
     <text class="detalle" x="18" y="178">• reloj, fecha local y UUID</text>
     <text class="detalle" x="18" y="202">Implementan contratos; no dictan reglas.</text>
@@ -157,13 +157,13 @@
     <rect class="componente datos" width="400" height="238"/>
     <path class="cabecera-datos" d="M12 0 H388 A12 12 0 0 1 400 12 V52 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«ALMACENAMIENTO LOCAL»</text>
-    <text class="nombre" x="18" y="42">IndexedDB v11 · here-to-plan</text>
+    <text class="nombre" x="18" y="42">IndexedDB v12 · here-to-plan</text>
     <text class="detalle" x="18" y="82">perfil · contextos · actividades · agendas</text>
     <text class="detalle" x="18" y="106">bloques-planificacion · cortes-planificacion</text>
     <text class="detalle" x="18" y="130">resoluciones-bloques · ResolucionV1</text>
     <text class="detalle" x="18" y="154">transacciones-puntos · TransaccionPuntosV1</text>
-    <text class="detalle" x="18" y="178">canjes · ajustes · sesiones-cronometro</text>
-    <text class="detalle" x="18" y="202">movimientos-recuperacion · reducciones-carga</text>
+    <text class="detalle" x="18" y="178">inventario · aplicaciones · canjes legados · ajustes</text>
+    <text class="detalle" x="18" y="202">sesiones · movimientos-recuperacion · reducciones-carga</text>
     <text class="detalle" x="18" y="226">Registros versionados rehidratables.</text>
   </g>
 
@@ -191,8 +191,8 @@
 
   <rect class="nota" x="300" y="958" width="1370" height="78"/>
   <text class="nota-titulo" x="322" y="985">Límite transaccional implementado</text>
-  <text class="nota-texto" x="322" y="1009">Completar une resolución e ingreso; canjear une gasto y ajustes; consumir recuperación une movimiento y reducción.</text>
-  <text class="nota-texto" x="322" y="1029">El respaldo V2 lee una instantánea readonly; restaurar reemplaza los trece almacenes en una única transacción readwrite.</text>
+  <text class="nota-texto" x="322" y="1009">Completar une resolución e ingreso; adquirir une unidad y gasto; consumir recuperación une movimiento y reducción.</text>
+  <text class="nota-texto" x="322" y="1029">El respaldo V3 lee una instantánea readonly; restaurar reemplaza los quince almacenes en una única transacción readwrite.</text>
 
   <line x1="270" y1="1072" x2="325" y2="1072" class="flujo"/>
   <text class="leyenda" x="337" y="1077">flujo de ejecución / datos</text>

@@ -4297,6 +4297,110 @@
   );
 }
 
+.panel-inventario-recompensas {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid rgb(var(--planta-profundo));
+}
+
+.panel-inventario-recompensas > section {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.panel-inventario-recompensas h3,
+.panel-inventario-recompensas h4 {
+  margin: 0;
+}
+
+.rejilla-catalogo-recompensas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 1rem;
+}
+
+.tarjeta-recompensa {
+  display: grid;
+  align-content: start;
+  gap: 0.85rem;
+  padding: 1.1rem;
+  border: 1px solid var(--borde-metalico);
+  border-radius: 1rem;
+  background: linear-gradient(
+    135deg,
+    rgb(var(--diamante-blanco) / 34%),
+    rgb(var(--plata-blanca) / 88%) 62%,
+    rgb(var(--planta-luz) / 12%)
+  );
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 92%) inset,
+    3px 4px 0 rgb(var(--plata-profunda) / 5%);
+}
+
+.tarjeta-recompensa > div {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.tarjeta-recompensa p {
+  margin: 0;
+}
+
+.tarjeta-recompensa .boton-primario {
+  align-self: end;
+  justify-self: start;
+}
+
+.costo-recompensa strong {
+  font-size: 1.45rem;
+}
+
+.lista-inventario-recompensas {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-inventario-recompensas li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--borde-metalico);
+  border-radius: 0.85rem;
+  background: var(--superficie-elevada);
+}
+
+.lista-inventario-recompensas li > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.lista-inventario-recompensas span,
+.lista-inventario-recompensas time {
+  color: var(--texto-secundario);
+  font-size: 0.85rem;
+}
+
+.dialogo-adquisicion-recompensa {
+  max-width: 38rem;
+}
+
+@media (max-width: 42rem) {
+  .lista-inventario-recompensas li {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tarjeta-recompensa .boton-primario {
+    width: 100%;
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 /* Movimiento reducido                                                        */
 /* -------------------------------------------------------------------------- */

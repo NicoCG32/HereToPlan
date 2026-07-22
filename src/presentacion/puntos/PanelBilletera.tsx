@@ -130,9 +130,9 @@ export function PanelBilletera({ servicios, revision }: PanelBilleteraProps) {
 function etiquetaFuente(
   tipo: BilleteraPuntosDto["movimientos"][number]["fuente"]["tipo"],
 ): string {
-  return tipo === "COMPROMISO_COMPLETADO"
-    ? "Bloque completado"
-    : "Canje de recompensa";
+  if (tipo === "COMPROMISO_COMPLETADO") return "Bloque completado";
+  if (tipo === "ADQUISICION_RECOMPENSA") return "Adquisición de recompensa";
+  return "Canje histórico de recompensa";
 }
 
 function formatearInstante(instante: string): string {

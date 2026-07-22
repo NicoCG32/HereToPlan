@@ -309,19 +309,26 @@ Reglas:
 
 Contiene:
 
-- `DefinicionRecompensa`: describe una recompensa y su costo;
-- `CanjeRecompensa`: registra una compra concreta;
+- `RecompensaDefinida`: describe una recompensa, su costo y efecto;
+- `RecompensaAdquirida`: representa una unidad comprada, disponible o
+  consumida, con costo histórico e identidad propios;
+- `AplicacionRecompensa`: conserva el uso confirmado de una unidad, su fecha y
+  sus bloques afectados;
+- `CanjeRecompensa`: conserva el contrato legado que compraba y aplicaba en el
+  mismo hecho;
 - `ServicioCanjeRecompensas`: conserva el contrato de las agendas legadas;
 - `ServicioDiaLibrePlanificacion`: evalúa instantáneas de cortes confirmados y
   prepara el canje del modelo de planificación vigente.
 
-El servicio de dominio no muta agendas ni billeteras. Devuelve:
+La adquisición nueva publica conjuntamente una unidad disponible y su gasto.
+No selecciona fecha ni altera bloques. El servicio legado no muta agendas ni
+billeteras y devuelve:
 
 1. el canje;
 2. la transacción de gasto;
 3. los ajustes agrupados por agenda.
 
-La capa de aplicación aplica y persiste esos hechos mediante una unidad de
+La capa de aplicación persiste esos hechos mediante una unidad de
 trabajo. El canje, el gasto y todos los ajustes se publican juntos o ninguno se
 vuelve visible.
 
@@ -329,8 +336,9 @@ vuelve visible.
 
 La recompensa `DIA_LIBRE`:
 
-- requiere saldo suficiente;
-- solo puede canjearse para una `FechaLocal` posterior al día local actual;
+- requiere saldo suficiente al adquirir una unidad;
+- adquirirla no selecciona fecha ni modifica compromisos;
+- solo puede aplicarse para una `FechaLocal` posterior al día local actual;
 - solo considera instantáneas pertenecientes a cortes confirmados;
 - afecta todos los bloques pendientes de la fecha seleccionada cuya política
   sea flexible, esté bajo autoridad `PERSONAL` y permita `EXCUSAR`;
@@ -338,7 +346,7 @@ La recompensa `DIA_LIBRE`:
 - registra cada bloque como `EXCUSADO` mediante un `AjusteCompromiso`;
 - conserva intactos los compromisos estrictos y los plazos de autoridad
   `EXTERNA`;
-- se rechaza sin gasto cuando no existe ningún bloque elegible.
+- una aplicación sin bloques elegibles se rechaza sin consumir la unidad.
 
 ## 4. Invariantes fundamentales
 
@@ -359,6 +367,10 @@ La recompensa `DIA_LIBRE`:
 15. Consumir recuperación y registrar la reducción de carga son una sola operación atómica.
 16. Una reducción conserva los minutos originales y sólo altera la carga efectiva proyectada.
 17. Existe como máximo un perfil local y una actualización nunca cambia su identidad ni su instante de creación.
+18. Adquirir una recompensa y aplicarla son hechos distintos.
+19. Una adquisición publica la unidad disponible y su gasto juntos o no publica ninguno.
+20. Una unidad consumida identifica exactamente una aplicación y nunca vuelve a estar disponible.
+21. Un canje histórico migra como unidad consumida, nunca como unidad disponible.
 
 ## 5. Capacidades todavía no implementadas
 
@@ -369,7 +381,6 @@ El modelo y sus adaptadores aún deben incorporar:
 - plantillas de agenda;
 - extensión de plazos;
 - calibración de la fórmula con observaciones de uso;
-- inventario separado de recompensas adquiridas y aplicadas.
 
 Estas capacidades forman parte de la evolución prevista. Su diseño definitivo puede ajustarse a partir de la evidencia obtenida durante el uso del producto.
 
@@ -382,8 +393,9 @@ La base permite crecer sin romper la regla central:
 - nuevos ajustes pueden implementarse dentro de `BloqueTrabajo.validarAjuste`;
 - nuevas recompensas pueden producir otros tipos de ajuste;
 - la capa de aplicación coordina transacciones atómicas entre agregados;
-- infraestructura rehidrata perfil, agendas, billeteras, canjes, ajustes, sesiones y movimientos de recuperación mediante
-  registros versionados;
+- infraestructura rehidrata perfil, agendas, billeteras, inventario,
+  aplicaciones, canjes, ajustes, sesiones y movimientos de recuperación
+  mediante registros versionados;
 - las vistas de los agregados pueden convertirse en DTO persistibles.
 
 La evolución se entiende como capacidad de extensión controlada, no como implementación anticipada de todas las funciones.

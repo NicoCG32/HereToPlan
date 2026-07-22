@@ -43,7 +43,8 @@ export class TransaccionPuntos {
     );
     if (
       datos.fuenteTipo !== "COMPROMISO_COMPLETADO" &&
-      datos.fuenteTipo !== "CANJE_RECOMPENSA"
+      datos.fuenteTipo !== "CANJE_RECOMPENSA" &&
+      datos.fuenteTipo !== "ADQUISICION_RECOMPENSA"
     ) {
       throw new ErrorDominio(
         "TIPO_FUENTE_PUNTOS_INVALIDO",

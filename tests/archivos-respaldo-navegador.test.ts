@@ -71,7 +71,7 @@ const archivoPrueba: ArchivoRespaldo = {
   contenido: "{}",
   respaldo: {
     formato: "HereToPlan.respaldo",
-    versionFormato: 2,
+    versionFormato: 3,
     creadoEn: "2026-07-20T15:30:00.000Z",
     origen: { aplicacion: "HereToPlan", versionBaseDatos: 11 },
     contenido: {
@@ -88,6 +88,8 @@ const archivoPrueba: ArchivoRespaldo = {
       "movimientos-recuperacion": [],
       "reducciones-carga": [],
       "perfil-usuario": [],
+      "recompensas-adquiridas": [],
+      "aplicaciones-recompensas": [],
     },
   },
 };

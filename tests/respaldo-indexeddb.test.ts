@@ -51,7 +51,7 @@ describe("instantánea de respaldo en IndexedDB", () => {
     const antes = await lector.leerEstadoCompleto();
     const documento = {
       formato: "HereToPlan.respaldo",
-      versionFormato: 2,
+      versionFormato: 3,
       creadoEn: "2026-07-20T15:30:00.000Z",
       origen: { aplicacion: "HereToPlan", versionBaseDatos: 10 },
       contenido: Object.fromEntries(

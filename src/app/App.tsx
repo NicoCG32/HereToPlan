@@ -11,6 +11,7 @@ import { PaginaRespaldo } from "../presentacion/paginas/PaginaRespaldo";
 import type { ServiciosPuntos } from "../presentacion/puntos/ServiciosPuntos";
 import type { ServiciosPerfil } from "../presentacion/perfil/ServiciosPerfil";
 import type { ServiciosRecompensas } from "../presentacion/recompensas/ServiciosRecompensas";
+import type { ServiciosInventarioRecompensas } from "../presentacion/recompensas/ServiciosInventarioRecompensas";
 import type { ServiciosRecuperacion } from "../presentacion/recuperacion/ServiciosRecuperacion";
 import type { ServiciosRespaldo } from "../presentacion/respaldo/ServiciosRespaldo";
 import { ProveedorSesionAplicacion } from "../presentacion/sesion/SesionAplicacion";
@@ -21,7 +22,7 @@ import {
   obtenerServiciosCalendario,
   obtenerServiciosPerfil,
   obtenerServiciosPuntos,
-  obtenerServiciosRecompensas,
+  obtenerServiciosInventarioRecompensas,
   obtenerServiciosRecuperacion,
   obtenerServiciosRespaldo,
 } from "./configurarAplicacion";
@@ -32,6 +33,7 @@ export interface AppProps {
   readonly serviciosPuntos?: ServiciosPuntos;
   readonly serviciosPerfil?: ServiciosPerfil;
   readonly serviciosRecompensas?: ServiciosRecompensas;
+  readonly serviciosInventarioRecompensas?: ServiciosInventarioRecompensas;
   readonly serviciosRecuperacion?: ServiciosRecuperacion;
   readonly serviciosRespaldo?: ServiciosRespaldo;
   readonly selectorFrase?: SelectorFraseMotivacional;
@@ -53,6 +55,7 @@ function AplicacionEnrutada({
   serviciosPuntos,
   serviciosPerfil,
   serviciosRecompensas,
+  serviciosInventarioRecompensas,
   serviciosRecuperacion,
   serviciosRespaldo,
   selectorFrase,
@@ -64,9 +67,10 @@ function AplicacionEnrutada({
   const puntos =
     serviciosPuntos ??
     (usaComposicionReal ? obtenerServiciosPuntos() : undefined);
-  const recompensas =
-    serviciosRecompensas ??
-    (usaComposicionReal ? obtenerServiciosRecompensas() : undefined);
+  const recompensas = serviciosRecompensas;
+  const inventarioRecompensas =
+    serviciosInventarioRecompensas ??
+    (usaComposicionReal ? obtenerServiciosInventarioRecompensas() : undefined);
   const recuperacion =
     serviciosRecuperacion ??
     (usaComposicionReal ? obtenerServiciosRecuperacion() : undefined);
@@ -88,6 +92,7 @@ function AplicacionEnrutada({
         {...(calendario ? { calendario } : {})}
         {...(puntos ? { puntos } : {})}
         {...(recompensas ? { recompensas } : {})}
+        {...(inventarioRecompensas ? { inventarioRecompensas } : {})}
         {...(recuperacion ? { recuperacion } : {})}
         {...(respaldo ? { respaldo } : {})}
       />
@@ -100,6 +105,7 @@ interface ContenidoAplicacionProps {
   readonly calendario?: ServiciosCalendario;
   readonly puntos?: ServiciosPuntos;
   readonly recompensas?: ServiciosRecompensas;
+  readonly inventarioRecompensas?: ServiciosInventarioRecompensas;
   readonly recuperacion?: ServiciosRecuperacion;
   readonly respaldo?: ServiciosRespaldo;
 }
@@ -109,6 +115,7 @@ function ContenidoAplicacion({
   calendario,
   puntos,
   recompensas,
+  inventarioRecompensas,
   recuperacion,
   respaldo,
 }: ContenidoAplicacionProps) {
@@ -138,6 +145,9 @@ function ContenidoAplicacion({
           <PaginaPuntos
             {...(puntos ? { serviciosPuntos: puntos } : {})}
             {...(recompensas ? { serviciosRecompensas: recompensas } : {})}
+            {...(inventarioRecompensas
+              ? { serviciosInventarioRecompensas: inventarioRecompensas }
+              : {})}
             {...(recuperacion ? { serviciosRecuperacion: recuperacion } : {})}
             revisionDatos={revisionDatos}
             onDatosCambiados={actualizarDatos}

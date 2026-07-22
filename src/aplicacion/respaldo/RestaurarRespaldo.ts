@@ -7,6 +7,7 @@ import {
   COLECCIONES_RESPALDO,
   VERSION_FORMATO_RESPALDO,
   VERSION_FORMATO_RESPALDO_ANTERIOR,
+  VERSION_FORMATO_RESPALDO_V1,
   type ContenidoRespaldo,
   type EstadoPersistenteRespaldable,
   type NombreColeccionRespaldo,
@@ -19,13 +20,19 @@ export const RUTA_MIGRACION_RESPALDO_V1 =
   "FORMATO_V1_A_ESTADO_PERSISTENTE_ACTUAL";
 export const RUTA_MIGRACION_RESPALDO_V2 =
   "FORMATO_V2_A_ESTADO_PERSISTENTE_ACTUAL";
+export const RUTA_MIGRACION_RESPALDO_V3 =
+  "FORMATO_V3_A_ESTADO_PERSISTENTE_ACTUAL";
 
 export type RutaMigracionRespaldo =
-  typeof RUTA_MIGRACION_RESPALDO_V1 | typeof RUTA_MIGRACION_RESPALDO_V2;
+  | typeof RUTA_MIGRACION_RESPALDO_V1
+  | typeof RUTA_MIGRACION_RESPALDO_V2
+  | typeof RUTA_MIGRACION_RESPALDO_V3;
 
 export interface PlanRestauracionRespaldo {
   readonly versionFormatoOrigen:
-    typeof VERSION_FORMATO_RESPALDO_ANTERIOR | typeof VERSION_FORMATO_RESPALDO;
+    | typeof VERSION_FORMATO_RESPALDO_V1
+    | typeof VERSION_FORMATO_RESPALDO_ANTERIOR
+    | typeof VERSION_FORMATO_RESPALDO;
   readonly versionBaseDatosOrigen: number;
   readonly creadoEn: string;
   readonly rutaMigracion: RutaMigracionRespaldo;
@@ -93,10 +100,7 @@ export class CasoDeUsoPrepararRestauracionRespaldo {
       versionFormatoOrigen: respaldo.versionFormato,
       versionBaseDatosOrigen: respaldo.origen.versionBaseDatos,
       creadoEn: respaldo.creadoEn,
-      rutaMigracion:
-        respaldo.versionFormato === VERSION_FORMATO_RESPALDO_ANTERIOR
-          ? RUTA_MIGRACION_RESPALDO_V1
-          : RUTA_MIGRACION_RESPALDO_V2,
+      rutaMigracion: seleccionarRutaMigracion(respaldo.versionFormato),
       totalRegistros,
       diagnostico,
       estadoDestino,
@@ -150,8 +154,73 @@ function obtenerRegistrosOrigen(
   if (respaldo.versionFormato === VERSION_FORMATO_RESPALDO) {
     return respaldo.contenido[coleccion];
   }
-  if (coleccion === "perfil-usuario") return [];
-  return respaldo.contenido[coleccion];
+  if (coleccion === "recompensas-adquiridas") {
+    return migrarCanjesHistoricos(respaldo.contenido["canjes-recompensas"])
+      .adquiridas;
+  }
+  if (coleccion === "aplicaciones-recompensas") {
+    return migrarCanjesHistoricos(respaldo.contenido["canjes-recompensas"])
+      .aplicaciones;
+  }
+  if (
+    respaldo.versionFormato === VERSION_FORMATO_RESPALDO_V1 &&
+    coleccion === "perfil-usuario"
+  ) {
+    return [];
+  }
+  return (
+    (
+      respaldo.contenido as Readonly<
+        Partial<Record<NombreColeccionRespaldo, readonly RegistroRespaldable[]>>
+      >
+    )[coleccion] ?? []
+  );
+}
+
+function seleccionarRutaMigracion(version: number): RutaMigracionRespaldo {
+  if (version === VERSION_FORMATO_RESPALDO_V1) {
+    return RUTA_MIGRACION_RESPALDO_V1;
+  }
+  if (version === VERSION_FORMATO_RESPALDO_ANTERIOR) {
+    return RUTA_MIGRACION_RESPALDO_V2;
+  }
+  return RUTA_MIGRACION_RESPALDO_V3;
+}
+
+function migrarCanjesHistoricos(
+  canjes: readonly RegistroRespaldable[],
+): Readonly<{
+  adquiridas: readonly RegistroRespaldable[];
+  aplicaciones: readonly RegistroRespaldable[];
+}> {
+  const adquiridas = canjes.map((canje) =>
+    Object.freeze({
+      versionEsquema: 1,
+      id: canje.id,
+      recompensaId: canje.recompensaId,
+      puntosGastados: canje.puntosGastados,
+      adquiridaEn: canje.canjeadoEn,
+      estado: "CONSUMIDA",
+      aplicacionId: canje.id,
+      consumidaEn: canje.canjeadoEn,
+    }),
+  );
+  const aplicaciones = canjes.map((canje) =>
+    Object.freeze({
+      versionEsquema: 1,
+      id: canje.id,
+      recompensaAdquiridaId: canje.id,
+      recompensaId: canje.recompensaId,
+      puntosGastados: canje.puntosGastados,
+      aplicadaEn: canje.canjeadoEn,
+      fechaObjetivo: canje.fechaObjetivo,
+      bloquesAfectados: canje.bloquesAfectados,
+    }),
+  );
+  return Object.freeze({
+    adquiridas: Object.freeze(adquiridas),
+    aplicaciones: Object.freeze(aplicaciones),
+  });
 }
 
 function congelarRegistros(
