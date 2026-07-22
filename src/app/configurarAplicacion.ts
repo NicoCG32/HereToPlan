@@ -41,6 +41,8 @@ import {
   CasoDeUsoConsultarInventarioRecompensas,
   CasoDeUsoConsultarPerfilUsuario,
   CasoDeUsoCrearPerfilUsuario,
+  CasoDeUsoPrepararAplicacionDiaLibre,
+  CasoDeUsoAplicarDiaLibre,
 } from "../aplicacion";
 import {
   DefinicionRecompensa,
@@ -308,6 +310,17 @@ function crearServiciosCalendario(): ServiciosCalendario {
   const eliminacion = obtenerTransaccionEliminacion();
   const sesionesCronometro = obtenerRepositorioSesionesCronometro();
   const ajustes = obtenerUnidadTrabajoCanjeDiaLibre();
+  const inventario = obtenerUnidadTrabajoAdquisicion();
+  const definicionesRecompensas = crearCatalogoRecompensas();
+  const dependenciasAplicacionDiaLibre = {
+    definiciones: definicionesRecompensas,
+    repositorioInventario: inventario,
+    repositorioCortes: cortes,
+    repositorioResoluciones: resoluciones,
+    repositorioAjustes: ajustes,
+    repositorioContextos: contextos,
+    calendarioLocal: new CalendarioLocalSistema(),
+  };
   return Object.freeze({
     crearContexto: new CasoDeUsoCrearContextoNombrado(
       contextos,
@@ -388,6 +401,19 @@ function crearServiciosCalendario(): ServiciosCalendario {
       repositorioCortes: cortes,
       repositorioResoluciones: resoluciones,
       repositorioAjustes: ajustes,
+      reloj,
+      generadorIdentificadores: generador,
+    }),
+    consultarInventarioRecompensas: new CasoDeUsoConsultarInventarioRecompensas(
+      definicionesRecompensas,
+      inventario,
+    ),
+    prepararAplicacionDiaLibre: new CasoDeUsoPrepararAplicacionDiaLibre(
+      dependenciasAplicacionDiaLibre,
+    ),
+    aplicarDiaLibre: new CasoDeUsoAplicarDiaLibre({
+      ...dependenciasAplicacionDiaLibre,
+      unidadTrabajo: inventario,
       reloj,
       generadorIdentificadores: generador,
     }),

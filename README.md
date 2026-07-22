@@ -23,7 +23,8 @@ Esta base permite explorar, entre otras, las siguientes reglas:
 - los compromisos estrictos y flexibles reaccionan de manera distinta a una recompensa;
 - los movimientos de puntos son trazables y no permiten un saldo negativo;
 - adquirir un Día libre descuenta puntos y crea una unidad de inventario en una
-  sola operación; aplicarla constituye un hecho posterior e independiente;
+  sola operación; aplicarla desde Calendario constituye un hecho posterior,
+  independiente y atómico;
 - el cronómetro es opcional, conserva sus sesiones entre recargas y no sustituye
   la declaración humana que completa o incumple un bloque.
 - el sobretrabajo cronometrado puede convertirse, con tasa y topes explícitos,
@@ -171,6 +172,8 @@ reward `Día libre`. El recorrido principal permite:
   ingresos, gastos y la fuente semántica de cada operación;
 - adquirir un Día libre desde un catálogo, conservarlo disponible en inventario
   y consultar por separado las aplicaciones históricas;
+- asignar actividades o aplicar unidades disponibles desde Calendario mediante
+  controles accesibles o arrastre, siempre pasando por editor o vista previa;
 - iniciar, pausar, reanudar y detener sesiones opcionales cuya duración se
   deriva de instantes persistidos, sin completar automáticamente el bloque;
 - acreditar una sola vez el excedente de sesiones finalizadas y consumir el

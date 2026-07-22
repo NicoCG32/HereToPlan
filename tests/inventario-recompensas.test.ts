@@ -7,6 +7,7 @@ import {
 } from "../src/aplicacion";
 import {
   AplicacionRecompensa,
+  AjusteCompromiso,
   BilleteraPuntos,
   FechaLocal,
   RecompensaAdquirida,
@@ -245,6 +246,85 @@ describe("inventario de recompensas", () => {
       },
     ]);
     await inventario.cerrar();
+  });
+
+  it("confirma aplicación, consumo y ajustes atómicamente en IndexedDB", async () => {
+    const fabricaIndexedDB = new IDBFactory();
+    const configuracion = {
+      fabricaIndexedDB,
+      nombreBaseDatos: "inventario-aplicacion",
+    };
+    const transacciones = new RepositorioTransaccionesPuntosIndexedDB(
+      configuracion,
+    );
+    await transacciones.guardar(crearIngreso("ingreso-aplicacion", 3));
+    const inventario = new UnidadTrabajoAdquisicionRecompensaIndexedDB(
+      configuracion,
+    );
+    const adquirida = crearAdquirida("unidad-aplicable");
+    await inventario.confirmarAdquisicion(
+      adquirida,
+      crearGasto("gasto-aplicacion", adquirida.id),
+    );
+    const aplicadaEn = new Date("2026-07-22T12:00:00.000Z");
+    const aplicacion = new AplicacionRecompensa({
+      id: "aplicacion-indexeddb",
+      recompensaAdquiridaId: adquirida.id,
+      recompensaId: adquirida.recompensaId,
+      puntosGastados: adquirida.puntosGastados,
+      aplicadaEn,
+      fechaObjetivo: FechaLocal.crear("2026-07-23"),
+      bloquesAfectados: ["bloque-aplicable"],
+    });
+    const ajuste = new AjusteCompromiso({
+      id: "ajuste-indexeddb",
+      bloqueId: "bloque-aplicable",
+      canjeRecompensaId: aplicacion.id,
+      tipo: "EXCUSAR",
+      aplicadoEn: aplicadaEn,
+    });
+
+    await inventario.confirmarAplicacion(
+      adquirida.consumir(aplicacion.id, aplicadaEn),
+      aplicacion,
+      [ajuste],
+    );
+
+    await expect(
+      inventario.obtenerAdquiridaPorId(adquirida.id),
+    ).resolves.toMatchObject({
+      estado: "CONSUMIDA",
+      aplicacionId: aplicacion.id,
+    });
+    await expect(
+      inventario.obtenerAplicacionPorId(aplicacion.id),
+    ).resolves.toMatchObject({ recompensaAdquiridaId: adquirida.id });
+    const conflicto = new AplicacionRecompensa({
+      id: "aplicacion-conflictiva",
+      recompensaAdquiridaId: adquirida.id,
+      recompensaId: adquirida.recompensaId,
+      puntosGastados: adquirida.puntosGastados,
+      aplicadaEn,
+      fechaObjetivo: FechaLocal.crear("2026-07-24"),
+      bloquesAfectados: ["otro-bloque"],
+    });
+    await expect(
+      inventario.confirmarAplicacion(
+        adquirida.consumir(conflicto.id, aplicadaEn),
+        conflicto,
+        [
+          new AjusteCompromiso({
+            id: "otro-ajuste",
+            bloqueId: "otro-bloque",
+            canjeRecompensaId: conflicto.id,
+            tipo: "EXCUSAR",
+            aplicadoEn: aplicadaEn,
+          }),
+        ],
+      ),
+    ).rejects.toMatchObject({ codigo: "APLICACION_RECOMPENSA_DUPLICADA" });
+    await expect(inventario.listarAplicaciones()).resolves.toHaveLength(1);
+    await Promise.all([inventario.cerrar(), transacciones.cerrar()]);
   });
 });
 

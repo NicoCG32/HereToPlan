@@ -19,6 +19,9 @@ import type {
   CasoDeUsoSincronizarCortesPlanificacion,
   CasoDeUsoConsultarCronometroBloque,
   CasoDeUsoGestionarSesionCronometro,
+  CasoDeUsoConsultarInventarioRecompensas,
+  CasoDeUsoPrepararAplicacionDiaLibre,
+  CasoDeUsoAplicarDiaLibre,
 } from "../../aplicacion";
 
 export interface ServiciosCalendario {
@@ -69,5 +72,14 @@ export interface ServiciosCalendario {
     CasoDeUsoGestionarSesionCronometro,
     "ejecutar"
   >;
+  readonly consultarInventarioRecompensas?: Pick<
+    CasoDeUsoConsultarInventarioRecompensas,
+    "ejecutar"
+  >;
+  readonly prepararAplicacionDiaLibre?: Pick<
+    CasoDeUsoPrepararAplicacionDiaLibre,
+    "ejecutar"
+  >;
+  readonly aplicarDiaLibre?: Pick<CasoDeUsoAplicarDiaLibre, "ejecutar">;
   readonly generarOperacionId: () => string;
 }

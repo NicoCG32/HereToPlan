@@ -598,11 +598,35 @@ aplicaciones históricas. `PanelInventarioRecompensas` representa catálogo,
 inventario, historia y confirmación, pero no calcula saldo ni aplica unidades al
 calendario. Adquirir y aplicar son comandos diferentes.
 
-### 6.14. Aplicación histórica de Día libre
+### 6.14. Aplicación atómica de Día libre
 
-El flujo siguiente permanece como contrato histórico mientras la aplicación de
-unidades desde Calendario se integra sobre el nuevo inventario. No se expone
-como compra en la composición vigente de Puntos.
+`PrepararAplicacionDiaLibre` obtiene una unidad disponible y reúne instantáneas
+de cortes confirmados, resoluciones, ajustes y contextos. El servicio de dominio
+clasifica los bloques de la fecha como excusables o protegidos sin producir
+escrituras. La consulta no vuelve a comprobar saldo: los puntos fueron gastados
+al adquirir la unidad.
+
+`AplicarDiaLibre` vuelve a evaluar la solicitud y prepara tres hechos
+coherentes: `AplicacionRecompensa`, la transición de
+`RecompensaAdquirida(DISPONIBLE)` a `CONSUMIDA` y un
+`AjusteCompromiso(EXCUSAR)` por bloque afectado. El puerto
+`UnidadTrabajoAplicacionRecompensa` los publica juntos o no publica ninguno.
+Los adaptadores de memoria e IndexedDB vuelven a comprobar dentro de la
+frontera exclusiva que la unidad continúa disponible y que ningún bloque fue
+resuelto o ajustado concurrentemente.
+
+El identificador de operación identifica la aplicación. Repetir la misma orden
+recupera el resultado persistido; reutilizarlo con otra unidad o fecha produce
+un conflicto. Un fallo conserva la unidad, las resoluciones y los ajustes
+previos. El historial enlaza aplicación, unidad, fecha, bloques y contextos.
+
+Calendario consulta solo unidades disponibles. Los botones accesibles y el
+arrastre convergen en los mismos casos de uso: una actividad abre el editor de
+bloque y una unidad abre la vista previa. Soltar nunca guarda ni consume por sí
+solo; cancelar no produce escrituras.
+
+El flujo de canje directo siguiente permanece únicamente como contrato
+histórico y no se expone como compra ni aplicación en la composición vigente.
 
 `PrepararCanjeDiaLibre` reúne instantáneas de cortes confirmados, resoluciones,
 ajustes, contextos y movimientos de puntos. `ServicioDiaLibrePlanificacion`

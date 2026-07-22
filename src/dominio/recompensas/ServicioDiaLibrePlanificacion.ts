@@ -7,7 +7,10 @@ import type { VistaPoliticaCompromiso } from "../compromisos/PoliticaCompromiso"
 import type { BilleteraPuntos } from "../puntos/BilleteraPuntos";
 import { TransaccionPuntos } from "../puntos/TransaccionPuntos";
 import { CanjeRecompensa } from "./CanjeRecompensa";
+import { AplicacionRecompensa } from "./AplicacionRecompensa";
 import type { DefinicionRecompensa } from "./DefinicionRecompensa";
+import type { RecompensaAdquirida } from "./RecompensaAdquirida";
+import type { RecompensaDefinida } from "./RecompensaDefinida";
 
 export type EstadoBloqueDiaLibre = "PENDIENTE" | "RESUELTO" | "EXCUSADO";
 
@@ -38,6 +41,15 @@ export interface EvaluacionDiaLibre {
   readonly puedeCanjear: boolean;
 }
 
+export interface EvaluacionAplicacionDiaLibre {
+  readonly afectados: readonly Identificador[];
+  readonly protegidos: readonly Readonly<{
+    bloqueId: Identificador;
+    motivo: MotivoProteccionDiaLibre;
+  }>[];
+  readonly puedeAplicar: boolean;
+}
+
 interface SolicitudEvaluacionDiaLibre {
   readonly recompensa: DefinicionRecompensa;
   readonly billetera: BilleteraPuntos;
@@ -53,6 +65,20 @@ interface SolicitudPreparacionDiaLibre extends SolicitudEvaluacionDiaLibre {
   readonly fechaCanje: Date;
 }
 
+interface SolicitudEvaluacionAplicacionDiaLibre {
+  readonly recompensa: RecompensaDefinida;
+  readonly bloques: readonly BloqueEvaluableDiaLibre[];
+  readonly fechaObjetivo: FechaLocal;
+  readonly fechaActual: FechaLocal;
+}
+
+interface SolicitudPreparacionAplicacionDiaLibre extends SolicitudEvaluacionAplicacionDiaLibre {
+  readonly idAplicacion: Identificador;
+  readonly adquirida: RecompensaAdquirida;
+  readonly crearIdAjuste: (bloqueId: Identificador) => Identificador;
+  readonly aplicadaEn: Date;
+}
+
 export interface ResultadoDiaLibrePreparado {
   readonly canje: CanjeRecompensa;
   readonly gasto: TransaccionPuntos;
@@ -60,22 +86,30 @@ export interface ResultadoDiaLibrePreparado {
   readonly evaluacion: EvaluacionDiaLibre;
 }
 
+export interface ResultadoAplicacionDiaLibrePreparada {
+  readonly aplicacion: AplicacionRecompensa;
+  readonly adquiridaConsumida: RecompensaAdquirida;
+  readonly ajustes: readonly AjusteCompromiso[];
+  readonly evaluacion: EvaluacionAplicacionDiaLibre;
+}
+
 export class ServicioDiaLibrePlanificacion {
+  public evaluarAplicacion(
+    solicitud: SolicitudEvaluacionAplicacionDiaLibre,
+  ): EvaluacionAplicacionDiaLibre {
+    this.validarTipoYFecha(solicitud);
+    this.validarUnicidad(solicitud.bloques);
+    const clasificacion = this.clasificarBloques(solicitud);
+    return Object.freeze({
+      ...clasificacion,
+      puedeAplicar: clasificacion.afectados.length > 0,
+    });
+  }
+
   public evaluar(solicitud: SolicitudEvaluacionDiaLibre): EvaluacionDiaLibre {
     this.validarRecompensaYFecha(solicitud);
     this.validarUnicidad(solicitud.bloques);
-
-    const afectados: Identificador[] = [];
-    const protegidos: Array<{
-      bloqueId: Identificador;
-      motivo: MotivoProteccionDiaLibre;
-    }> = [];
-    for (const bloque of solicitud.bloques) {
-      if (!bloque.fecha.esIgualA(solicitud.fechaObjetivo)) continue;
-      const motivo = determinarMotivoProteccion(bloque);
-      if (motivo) protegidos.push({ bloqueId: bloque.id, motivo });
-      else afectados.push(bloque.id);
-    }
+    const { afectados, protegidos } = this.clasificarBloques(solicitud);
 
     const saldoActual = solicitud.billetera.saldo;
     const saldoPosterior = saldoActual - solicitud.recompensa.costoPuntos;
@@ -148,6 +182,81 @@ export class ServicioDiaLibrePlanificacion {
     });
   }
 
+  public prepararAplicacion(
+    solicitud: SolicitudPreparacionAplicacionDiaLibre,
+  ): ResultadoAplicacionDiaLibrePreparada {
+    if (solicitud.adquirida.recompensaId !== solicitud.recompensa.id) {
+      throw new ErrorDominio(
+        "UNIDAD_RECOMPENSA_INCOMPATIBLE",
+        "La unidad adquirida no corresponde a la recompensa aplicada.",
+      );
+    }
+    const evaluacion = this.evaluarAplicacion(solicitud);
+    if (!evaluacion.puedeAplicar) {
+      throw new ErrorDominio(
+        "DIA_LIBRE_SIN_COMPROMISOS_ELEGIBLES",
+        "No existen compromisos flexibles elegibles en la fecha seleccionada.",
+      );
+    }
+    const aplicacion = new AplicacionRecompensa({
+      id: solicitud.idAplicacion,
+      recompensaAdquiridaId: solicitud.adquirida.id,
+      recompensaId: solicitud.recompensa.id,
+      puntosGastados: solicitud.adquirida.puntosGastados,
+      aplicadaEn: solicitud.aplicadaEn,
+      fechaObjetivo: solicitud.fechaObjetivo,
+      bloquesAfectados: evaluacion.afectados,
+    });
+    const adquiridaConsumida = solicitud.adquirida.consumir(
+      aplicacion.id,
+      solicitud.aplicadaEn,
+    );
+    const ajustes = evaluacion.afectados.map(
+      (bloqueId) =>
+        new AjusteCompromiso({
+          id: exigirIdentificador(
+            solicitud.crearIdAjuste(bloqueId),
+            "identificador generado de ajuste",
+          ),
+          bloqueId,
+          canjeRecompensaId: aplicacion.id,
+          tipo: "EXCUSAR",
+          aplicadoEn: solicitud.aplicadaEn,
+        }),
+    );
+    return Object.freeze({
+      aplicacion,
+      adquiridaConsumida,
+      ajustes: Object.freeze(ajustes),
+      evaluacion,
+    });
+  }
+
+  private clasificarBloques(
+    solicitud: Pick<
+      SolicitudEvaluacionAplicacionDiaLibre,
+      "bloques" | "fechaObjetivo"
+    >,
+  ): Pick<EvaluacionAplicacionDiaLibre, "afectados" | "protegidos"> {
+    const afectados: Identificador[] = [];
+    const protegidos: Array<{
+      bloqueId: Identificador;
+      motivo: MotivoProteccionDiaLibre;
+    }> = [];
+    for (const bloque of solicitud.bloques) {
+      if (!bloque.fecha.esIgualA(solicitud.fechaObjetivo)) continue;
+      const motivo = determinarMotivoProteccion(bloque);
+      if (motivo) protegidos.push({ bloqueId: bloque.id, motivo });
+      else afectados.push(bloque.id);
+    }
+    return Object.freeze({
+      afectados: Object.freeze(afectados),
+      protegidos: Object.freeze(
+        protegidos.map((protegido) => Object.freeze(protegido)),
+      ),
+    });
+  }
+
   private validarRecompensaYFecha(
     solicitud: SolicitudEvaluacionDiaLibre,
   ): void {
@@ -161,6 +270,23 @@ export class ServicioDiaLibrePlanificacion {
       throw new ErrorDominio(
         "DIA_LIBRE_FUERA_DE_VENTANA",
         "El día libre debe canjearse para una fecha local posterior al día actual.",
+      );
+    }
+  }
+
+  private validarTipoYFecha(
+    solicitud: SolicitudEvaluacionAplicacionDiaLibre,
+  ): void {
+    if (solicitud.recompensa.tipoEfecto !== "DIA_LIBRE") {
+      throw new ErrorDominio(
+        "RECOMPENSA_INCORRECTA",
+        "La recompensa indicada no corresponde a un día libre.",
+      );
+    }
+    if (!solicitud.fechaObjetivo.esPosteriorA(solicitud.fechaActual)) {
+      throw new ErrorDominio(
+        "DIA_LIBRE_FUERA_DE_VENTANA",
+        "El día libre debe aplicarse a una fecha local posterior al día actual.",
       );
     }
   }

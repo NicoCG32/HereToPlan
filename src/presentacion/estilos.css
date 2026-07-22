@@ -8,6 +8,113 @@
   padding: 5rem 0 6rem;
 }
 
+.bandeja-asignables {
+  display: grid;
+  gap: 1.25rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--color-borde, rgba(148, 163, 184, 0.28));
+  border-radius: 1.25rem;
+  background: var(--color-superficie, rgba(15, 23, 42, 0.72));
+}
+
+.bandeja-asignables > .titulo-region {
+  align-items: end;
+}
+
+.campo-fecha-asignable {
+  min-width: min(100%, 14rem);
+}
+
+.grupos-asignables {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.grupos-asignables > div {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.lista-asignables {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-asignables li {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-borde, rgba(148, 163, 184, 0.22));
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.035);
+  cursor: grab;
+}
+
+.lista-asignables li:active {
+  cursor: grabbing;
+}
+
+.lista-asignables li > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.lista-asignables span,
+.instruccion-arrastre {
+  color: var(--color-texto-secundario, #aebbd0);
+  font-size: 0.9rem;
+}
+
+.instruccion-arrastre {
+  margin: 0;
+}
+
+.dia-calendario.destino-arrastre {
+  outline: 2px dashed var(--color-acento, #8b5cf6);
+  outline-offset: -0.35rem;
+}
+
+.dialogo-aplicacion-dia-libre section {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.dialogo-aplicacion-dia-libre section ul {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding-inline-start: 1.25rem;
+}
+
+@media (max-width: 64rem) {
+  .grupos-asignables {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 48rem) {
+  .grupos-asignables {
+    grid-template-columns: 1fr;
+  }
+
+  .bandeja-asignables > .titulo-region {
+    align-items: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dia-calendario.destino-arrastre,
+  .lista-asignables li {
+    transition: none;
+  }
+}
+
 .contenedor-principal::before {
   content: "";
   position: absolute;

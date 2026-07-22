@@ -22,6 +22,7 @@ export * from "./planificacion/GestionarCortesPlanificacion";
 export * from "./planificacion/SincronizarCortesPlanificacion";
 export * from "./puntos/ConsultarBilletera";
 export * from "./recompensas/CanjearDiaLibre";
+export * from "./recompensas/AplicarDiaLibre";
 export * from "./recompensas/GestionarInventarioRecompensas";
 export * from "./cronometro/GestionarSesionCronometro";
 export * from "./recuperacion/GestionarRecuperacion";

@@ -1,16 +1,23 @@
 import {
+  ErrorAplicacionRecompensaDuplicada,
   ErrorAdquisicionRecompensaDuplicada,
   type RepositorioInventarioRecompensas,
   type UnidadTrabajoAdquisicionRecompensa,
+  type UnidadTrabajoAplicacionRecompensa,
 } from "../../../aplicacion";
 import {
   BilleteraPuntos,
+  type AjusteCompromiso,
   type AplicacionRecompensa,
   type Identificador,
   type RecompensaAdquirida,
   type TransaccionPuntos,
 } from "../../../dominio";
-import { rehidratarAplicacionRecompensaDesdeV1 } from "../mapeadores/MapeadorAplicacionRecompensaV1";
+import {
+  convertirAplicacionRecompensaEnV1,
+  rehidratarAplicacionRecompensaDesdeV1,
+} from "../mapeadores/MapeadorAplicacionRecompensaV1";
+import { convertirAjusteCompromisoEnV1 } from "../mapeadores/MapeadorAjusteCompromisoV1";
 import {
   convertirRecompensaAdquiridaEnV1,
   rehidratarRecompensaAdquiridaDesdeV1,
@@ -20,11 +27,14 @@ import {
   rehidratarTransaccionPuntosDesdeV1,
 } from "../mapeadores/MapeadorTransaccionPuntosV1";
 import type { AplicacionRecompensaV1 } from "../registros/AplicacionRecompensaV1";
+import type { AjusteCompromisoV1 } from "../registros/AjusteCompromisoV1";
 import type { RecompensaAdquiridaV1 } from "../registros/RecompensaAdquiridaV1";
 import type { TransaccionPuntosV1 } from "../registros/TransaccionPuntosV1";
 import {
   ALMACEN_APLICACIONES_RECOMPENSAS,
+  ALMACEN_AJUSTES_COMPROMISOS,
   ALMACEN_RECOMPENSAS_ADQUIRIDAS,
+  ALMACEN_RESOLUCIONES_BLOQUES_PLANIFICACION,
   ALMACEN_TRANSACCIONES_PUNTOS,
   VERSION_BASE_DATOS,
   asegurarAlmacenes,
@@ -35,6 +45,7 @@ const NOMBRE_BASE_DATOS_PREDETERMINADO = "here-to-plan";
 export class UnidadTrabajoAdquisicionRecompensaIndexedDB
   implements
     UnidadTrabajoAdquisicionRecompensa,
+    UnidadTrabajoAplicacionRecompensa,
     RepositorioInventarioRecompensas
 {
   private readonly fabricaIndexedDB: IDBFactory;
@@ -111,6 +122,107 @@ export class UnidadTrabajoAdquisicionRecompensaIndexedDB
     });
   }
 
+  public async confirmarAplicacion(
+    adquiridaConsumida: RecompensaAdquirida,
+    aplicacion: AplicacionRecompensa,
+    ajustes: readonly AjusteCompromiso[],
+  ): Promise<void> {
+    validarCoherenciaAplicacion(adquiridaConsumida, aplicacion, ajustes);
+    const baseDatos = await this.abrirBaseDatos();
+    return new Promise((resolve, reject) => {
+      const transaccion = baseDatos.transaction(
+        [
+          ALMACEN_RECOMPENSAS_ADQUIRIDAS,
+          ALMACEN_APLICACIONES_RECOMPENSAS,
+          ALMACEN_AJUSTES_COMPROMISOS,
+          ALMACEN_RESOLUCIONES_BLOQUES_PLANIFICACION,
+        ],
+        "readwrite",
+      );
+      const inventario = transaccion.objectStore(
+        ALMACEN_RECOMPENSAS_ADQUIRIDAS,
+      );
+      const adquiridaActual = inventario.get(adquiridaConsumida.id);
+      const ajustesActuales = transaccion
+        .objectStore(ALMACEN_AJUSTES_COMPROMISOS)
+        .getAll();
+      const resoluciones = aplicacion
+        .listarBloquesAfectados()
+        .map((bloqueId) =>
+          transaccion
+            .objectStore(ALMACEN_RESOLUCIONES_BLOQUES_PLANIFICACION)
+            .get(bloqueId),
+        );
+      const solicitudes: IDBRequest[] = [];
+      let lecturasPendientes = 2 + resoluciones.length;
+      let causa: unknown;
+      const intentarEscribir = () => {
+        lecturasPendientes -= 1;
+        if (lecturasPendientes > 0) return;
+        try {
+          const registroActual = adquiridaActual.result as
+            RecompensaAdquiridaV1 | undefined;
+          if (
+            !registroActual ||
+            rehidratarRecompensaAdquiridaDesdeV1(registroActual).estado !==
+              "DISPONIBLE" ||
+            resoluciones.some((solicitud) => solicitud.result)
+          ) {
+            throw new Error(
+              "La unidad o uno de los bloques cambió antes de confirmar.",
+            );
+          }
+          const bloques = new Set(ajustes.map((ajuste) => ajuste.bloqueId));
+          if (
+            (ajustesActuales.result as readonly AjusteCompromisoV1[]).some(
+              (ajuste) => bloques.has(ajuste.bloqueId),
+            )
+          ) {
+            throw new Error("Uno de los bloques ya posee un ajuste.");
+          }
+          solicitudes.push(
+            inventario.put(
+              convertirRecompensaAdquiridaEnV1(adquiridaConsumida),
+            ),
+            transaccion
+              .objectStore(ALMACEN_APLICACIONES_RECOMPENSAS)
+              .add(convertirAplicacionRecompensaEnV1(aplicacion)),
+          );
+          for (const ajuste of ajustes) {
+            solicitudes.push(
+              transaccion
+                .objectStore(ALMACEN_AJUSTES_COMPROMISOS)
+                .add(convertirAjusteCompromisoEnV1(ajuste)),
+            );
+          }
+        } catch (error: unknown) {
+          causa = error;
+          transaccion.abort();
+        }
+      };
+      adquiridaActual.onsuccess = intentarEscribir;
+      ajustesActuales.onsuccess = intentarEscribir;
+      for (const resolucion of resoluciones) {
+        resolucion.onsuccess = intentarEscribir;
+      }
+      transaccion.oncomplete = () => resolve();
+      transaccion.onabort = () => {
+        const error =
+          causa ??
+          transaccion.error ??
+          solicitudes.find((solicitud) => solicitud.error)?.error;
+        if (
+          causa ||
+          (error instanceof DOMException && error.name === "ConstraintError")
+        ) {
+          reject(new ErrorAplicacionRecompensaDuplicada(error));
+          return;
+        }
+        reject(comoError(error, "No fue posible confirmar la aplicación."));
+      };
+    });
+  }
+
   public async obtenerAdquiridaPorId(
     id: Identificador,
   ): Promise<RecompensaAdquirida | undefined> {
@@ -135,6 +247,18 @@ export class UnidadTrabajoAdquisicionRecompensaIndexedDB
       ALMACEN_APLICACIONES_RECOMPENSAS,
     );
     return registros.map(rehidratarAplicacionRecompensaDesdeV1);
+  }
+
+  public async obtenerAplicacionPorId(
+    id: Identificador,
+  ): Promise<AplicacionRecompensa | undefined> {
+    const registro = await this.leer<AplicacionRecompensaV1>(
+      ALMACEN_APLICACIONES_RECOMPENSAS,
+      id,
+    );
+    return registro
+      ? rehidratarAplicacionRecompensaDesdeV1(registro)
+      : undefined;
   }
 
   public async cerrar(): Promise<void> {
@@ -207,6 +331,34 @@ function validarCoherencia(
   ) {
     throw new Error(
       "La recompensa adquirida y el gasto no describen la misma operación.",
+    );
+  }
+}
+
+function validarCoherenciaAplicacion(
+  adquirida: RecompensaAdquirida,
+  aplicacion: AplicacionRecompensa,
+  ajustes: readonly AjusteCompromiso[],
+): void {
+  const afectados = [...aplicacion.listarBloquesAfectados()].sort();
+  const ajustesOrdenados = [...ajustes].sort((a, b) =>
+    a.bloqueId.localeCompare(b.bloqueId),
+  );
+  if (
+    adquirida.estado !== "CONSUMIDA" ||
+    adquirida.aplicacionId !== aplicacion.id ||
+    aplicacion.recompensaAdquiridaId !== adquirida.id ||
+    aplicacion.recompensaId !== adquirida.recompensaId ||
+    ajustesOrdenados.length !== afectados.length ||
+    ajustesOrdenados.some(
+      (ajuste, indice) =>
+        ajuste.bloqueId !== afectados[indice] ||
+        ajuste.canjeRecompensaId !== aplicacion.id ||
+        ajuste.tipo !== "EXCUSAR",
+    )
+  ) {
+    throw new Error(
+      "La unidad, la aplicación y los ajustes no describen la misma operación.",
     );
   }
 }

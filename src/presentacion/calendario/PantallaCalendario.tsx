@@ -5,7 +5,9 @@ import type {
   CalendarioDto,
   ContextoPlanificacionDto,
   ImpactoEliminacionContextoDto,
+  InventarioRecompensasDto,
   RevisionCortePlanificacionDto,
+  VistaPreviaAplicacionDiaLibreDto,
   VistaTemporalCalendario,
 } from "../../aplicacion";
 import { DialogoEliminarContexto } from "./DialogoEliminarContexto";
@@ -21,6 +23,11 @@ import { PanelGraciaPlanificacion } from "./PanelGraciaPlanificacion";
 import { ControlCronometroBloque } from "./ControlCronometroBloque";
 import type { ServiciosCalendario } from "./ServiciosCalendario";
 import { useEnfoqueError } from "../hooks/useEnfoqueError";
+import {
+  BandejaAsignablesCalendario,
+  type ElementoAsignableArrastrado,
+} from "./BandejaAsignablesCalendario";
+import { DialogoAplicarDiaLibre } from "./DialogoAplicarDiaLibre";
 
 interface PantallaCalendarioProps {
   readonly servicios: ServiciosCalendario;
@@ -51,6 +58,7 @@ export function PantallaCalendario({
   const botonResolucionOrigenRef = useRef<HTMLButtonElement | null>(null);
   const controlEditorOrigenRef = useRef<HTMLElement | null>(null);
   const controlActividadOrigenRef = useRef<HTMLElement | null>(null);
+  const controlAplicacionOrigenRef = useRef<HTMLElement | null>(null);
   const selectorContextoRef = useRef<HTMLSelectElement>(null);
   const fechaInicialSincronizadaRef = useRef(Boolean(fechaInicial));
   const [estado, setEstado] = useState<EstadoCalendario>({ tipo: "cargando" });
@@ -99,6 +107,22 @@ export function PantallaCalendario({
   const [procesandoResolucion, setProcesandoResolucion] = useState(false);
   const [errorResolucion, setErrorResolucion] = useState<string>();
   const [revision, setRevision] = useState(0);
+  const [fechaAsignable, setFechaAsignable] = useState<string>();
+  const [inventario, setInventario] = useState<InventarioRecompensasDto>();
+  const [cargandoInventario, setCargandoInventario] = useState(
+    Boolean(servicios.consultarInventarioRecompensas),
+  );
+  const [errorInventario, setErrorInventario] = useState<string>();
+  const [elementoArrastrado, setElementoArrastrado] =
+    useState<ElementoAsignableArrastrado>();
+  const [aplicacionPendiente, setAplicacionPendiente] = useState<
+    Readonly<{
+      vistaPrevia: VistaPreviaAplicacionDiaLibreDto;
+      operacionId: string;
+    }>
+  >();
+  const [procesandoAplicacion, setProcesandoAplicacion] = useState(false);
+  const [errorAplicacion, setErrorAplicacion] = useState<string>();
   const panelRef = useRef<HTMLElement>(null);
   const claveErrorVisible =
     estado.tipo === "error" ? estado.mensaje : (errorAccion ?? "");
@@ -150,6 +174,31 @@ export function PantallaCalendario({
     servicios,
     vista,
   ]);
+
+  useEffect(() => {
+    const consultar = servicios.consultarInventarioRecompensas;
+    if (!consultar) return;
+    let activa = true;
+    consultar.ejecutar().then(
+      (resultado) => {
+        if (!activa) return;
+        setInventario(resultado);
+        setCargandoInventario(false);
+      },
+      (error: unknown) => {
+        if (!activa) return;
+        setErrorInventario(
+          error instanceof Error
+            ? error.message
+            : "No fue posible consultar el inventario.",
+        );
+        setCargandoInventario(false);
+      },
+    );
+    return () => {
+      activa = false;
+    };
+  }, [revision, revisionExterna, servicios]);
 
   const actualizar = (mensajeActualizacion?: string) => {
     if (mensajeActualizacion) setMensaje(mensajeActualizacion);
@@ -448,6 +497,109 @@ export function PantallaCalendario({
     }
   };
 
+  const abrirEditorActividad = (
+    actividadId: string,
+    fecha: string,
+    origen: HTMLElement,
+  ) => {
+    controlEditorOrigenRef.current = origen;
+    setFechaAncla(fecha);
+    setDiaSeleccionado(fecha);
+    setFechaDestinoActividad(fecha);
+    setBloqueEditado(undefined);
+    setActividadPreseleccionadaId(actividadId);
+    setElementoArrastrado(undefined);
+  };
+
+  const prepararAplicacion = async (
+    unidadId: string,
+    fecha: string,
+    origen: HTMLElement,
+  ) => {
+    const preparar = servicios.prepararAplicacionDiaLibre;
+    if (!preparar) return;
+    controlAplicacionOrigenRef.current = origen;
+    setErrorAccion(undefined);
+    setErrorAplicacion(undefined);
+    setProcesandoAplicacion(true);
+    setElementoArrastrado(undefined);
+    try {
+      const vistaPrevia = await preparar.ejecutar({
+        recompensaAdquiridaId: unidadId,
+        fechaObjetivo: fecha,
+      });
+      setAplicacionPendiente({
+        vistaPrevia,
+        operacionId: servicios.generarOperacionId(),
+      });
+    } catch (error: unknown) {
+      setErrorAccion(
+        error instanceof Error
+          ? error.message
+          : "No fue posible preparar la aplicación de la recompensa.",
+      );
+      requestAnimationFrame(() => origen.focus());
+    } finally {
+      setProcesandoAplicacion(false);
+    }
+  };
+
+  const cancelarAplicacion = () => {
+    const unidadId = aplicacionPendiente?.vistaPrevia.unidad.id;
+    setAplicacionPendiente(undefined);
+    setErrorAplicacion(undefined);
+    requestAnimationFrame(() => {
+      const origen = controlAplicacionOrigenRef.current;
+      if (origen?.isConnected) {
+        origen.focus();
+        return;
+      }
+      const controles = panelRef.current?.querySelectorAll<HTMLButtonElement>(
+        "button[data-unidad-recompensa]",
+      );
+      [...(controles ?? [])]
+        .find((control) => control.dataset.unidadRecompensa === unidadId)
+        ?.focus();
+    });
+  };
+
+  const confirmarAplicacion = async () => {
+    const aplicar = servicios.aplicarDiaLibre;
+    if (!aplicacionPendiente || !aplicar) return;
+    setProcesandoAplicacion(true);
+    setErrorAplicacion(undefined);
+    try {
+      const resultado = await aplicar.ejecutar({
+        operacionId: aplicacionPendiente.operacionId,
+        recompensaAdquiridaId: aplicacionPendiente.vistaPrevia.unidad.id,
+        fechaObjetivo: aplicacionPendiente.vistaPrevia.fechaObjetivo,
+      });
+      setAplicacionPendiente(undefined);
+      actualizar(
+        `${resultado.nombre} fue aplicada a ${resultado.bloquesAfectados.length} bloques del ${resultado.fechaObjetivo}.`,
+      );
+      onPuntosCambiados?.();
+      requestAnimationFrame(() => controlAplicacionOrigenRef.current?.focus());
+    } catch (error: unknown) {
+      setErrorAplicacion(
+        error instanceof Error
+          ? error.message
+          : "No fue posible aplicar la recompensa sin comprometer sus datos.",
+      );
+    } finally {
+      setProcesandoAplicacion(false);
+    }
+  };
+
+  const recibirElementoEnFecha = (fecha: string, origen: HTMLElement) => {
+    if (!elementoArrastrado) return;
+    if (elementoArrastrado.tipo === "ACTIVIDAD") {
+      abrirEditorActividad(elementoArrastrado.id, fecha, origen);
+      return;
+    }
+    void prepararAplicacion(elementoArrastrado.id, fecha, origen);
+  };
+
   if (estado.tipo === "cargando") {
     return (
       <section className="panel-agenda estado-carga" aria-live="polite">
@@ -478,6 +630,8 @@ export function PantallaCalendario({
   }
 
   const calendario = estado.calendario;
+  const fechaAsignacionActual =
+    fechaAsignable ?? desplazarFechaDias(calendario.hoy, 1);
   const contextoAsignacionId =
     seleccion === SELECCION_TODAS ? ID_CONTEXTO_LIBRE : seleccion;
   const contextoAsignacion = calendario.contextos.find(
@@ -645,8 +799,36 @@ export function PantallaCalendario({
         </p>
       )}
 
+      {servicios.consultarInventarioRecompensas && (
+        <BandejaAsignablesCalendario
+          fecha={fechaAsignacionActual}
+          actividadesSinProgramar={calendario.actividadesSinProgramar}
+          actividadesAsignadas={calendario.actividadesAsignables.filter(
+            (actividad) =>
+              !calendario.actividadesSinProgramar.some(
+                (sinProgramar) => sinProgramar.id === actividad.id,
+              ),
+          )}
+          {...(inventario ? { inventario } : {})}
+          cargandoInventario={cargandoInventario || procesandoAplicacion}
+          {...(errorInventario ? { errorInventario } : {})}
+          onFecha={setFechaAsignable}
+          onNuevaActividad={(origen) => {
+            controlActividadOrigenRef.current = origen;
+            setFechaDestinoActividad(undefined);
+            setFormularioActividadVisible(true);
+          }}
+          onAsignarActividad={abrirEditorActividad}
+          onAplicarRecompensa={(unidadId, fecha, origen) =>
+            void prepararAplicacion(unidadId, fecha, origen)
+          }
+          onArrastre={setElementoArrastrado}
+        />
+      )}
+
       <VistaCalendario
         calendario={calendario}
+        {...(elementoArrastrado ? { elementoArrastrado } : {})}
         {...(diaSeleccionado ? { diaSeleccionado } : {})}
         onSeleccionarDia={(fecha, origen) => {
           controlEditorOrigenRef.current = origen;
@@ -655,6 +837,7 @@ export function PantallaCalendario({
           setBloqueEditado(undefined);
           setActividadPreseleccionadaId(undefined);
         }}
+        onRecibirElemento={recibirElementoEnFecha}
       />
 
       {editorVisible && !formularioActividadVisible && (
@@ -697,54 +880,59 @@ export function PantallaCalendario({
         }}
       />
 
-      <section className="bandeja-actividades" aria-labelledby="sin-programar">
-        <div className="titulo-region">
-          <div>
-            <p className="sobrelinea">Catálogo</p>
-            <h3 id="sin-programar">Sin programar</h3>
+      {!servicios.consultarInventarioRecompensas && (
+        <section
+          className="bandeja-actividades"
+          aria-labelledby="sin-programar"
+        >
+          <div className="titulo-region">
+            <div>
+              <p className="sobrelinea">Catálogo</p>
+              <h3 id="sin-programar">Sin programar</h3>
+            </div>
+            <button
+              className="boton-secundario"
+              type="button"
+              onClick={(evento) => {
+                controlActividadOrigenRef.current = evento.currentTarget;
+                setFechaDestinoActividad(undefined);
+                setFormularioActividadVisible(true);
+              }}
+            >
+              Nueva actividad sin fecha
+            </button>
           </div>
-          <button
-            className="boton-secundario"
-            type="button"
-            onClick={(evento) => {
-              controlActividadOrigenRef.current = evento.currentTarget;
-              setFechaDestinoActividad(undefined);
-              setFormularioActividadVisible(true);
-            }}
-          >
-            Nueva actividad sin fecha
-          </button>
-        </div>
-        {calendario.actividadesSinProgramar.length === 0 ? (
-          <p className="estado-vacio-lineal">
-            Todas las actividades poseen al menos un bloque explícito.
-          </p>
-        ) : (
-          <ul className="lista-actividades-sin-programar">
-            {calendario.actividadesSinProgramar.map((actividad) => (
-              <li key={actividad.id}>
-                <div>
-                  <strong>{actividad.titulo}</strong>
-                  <span>{etiquetaTipoActividad(actividad.tipo)}</span>
-                </div>
-                <button
-                  className="boton-texto"
-                  type="button"
-                  onClick={(evento) => {
-                    controlEditorOrigenRef.current = evento.currentTarget;
-                    setFechaAncla(calendario.hoy);
-                    setDiaSeleccionado(calendario.hoy);
-                    setFechaDestinoActividad(calendario.hoy);
-                    setActividadPreseleccionadaId(actividad.id);
-                  }}
-                >
-                  Agendar {actividad.titulo}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+          {calendario.actividadesSinProgramar.length === 0 ? (
+            <p className="estado-vacio-lineal">
+              Todas las actividades poseen al menos un bloque explícito.
+            </p>
+          ) : (
+            <ul className="lista-actividades-sin-programar">
+              {calendario.actividadesSinProgramar.map((actividad) => (
+                <li key={actividad.id}>
+                  <div>
+                    <strong>{actividad.titulo}</strong>
+                    <span>{etiquetaTipoActividad(actividad.tipo)}</span>
+                  </div>
+                  <button
+                    className="boton-texto"
+                    type="button"
+                    onClick={(evento) => {
+                      controlEditorOrigenRef.current = evento.currentTarget;
+                      setFechaAncla(calendario.hoy);
+                      setDiaSeleccionado(calendario.hoy);
+                      setFechaDestinoActividad(calendario.hoy);
+                      setActividadPreseleccionadaId(actividad.id);
+                    }}
+                  >
+                    Agendar {actividad.titulo}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       <VistaListaBloques
         bloques={calendario.listaEquivalente}
@@ -799,6 +987,16 @@ export function PantallaCalendario({
           {...(errorResolucion ? { error: errorResolucion } : {})}
           onCancelar={cancelarResolucion}
           onConfirmar={() => void resolverBloque()}
+        />
+      )}
+
+      {aplicacionPendiente && (
+        <DialogoAplicarDiaLibre
+          vistaPrevia={aplicacionPendiente.vistaPrevia}
+          procesando={procesandoAplicacion}
+          {...(errorAplicacion ? { error: errorAplicacion } : {})}
+          onCancelar={cancelarAplicacion}
+          onConfirmar={() => void confirmarAplicacion()}
         />
       )}
     </section>
@@ -887,11 +1085,15 @@ function BarraNavegacionCalendario({
 function VistaCalendario({
   calendario,
   diaSeleccionado,
+  elementoArrastrado,
   onSeleccionarDia,
+  onRecibirElemento,
 }: {
   readonly calendario: CalendarioDto;
   readonly diaSeleccionado?: string;
+  readonly elementoArrastrado?: ElementoAsignableArrastrado;
   readonly onSeleccionarDia: (fecha: string, origen: HTMLButtonElement) => void;
+  readonly onRecibirElemento: (fecha: string, origen: HTMLElement) => void;
 }) {
   const fechas = enumerarFechas(
     calendario.rangoVisible.fechaInicio,
@@ -919,7 +1121,18 @@ function VistaCalendario({
           return (
             <article
               key={fecha}
-              className={`dia-calendario${diaSeleccionado === fecha ? " seleccionado" : ""}`}
+              className={`dia-calendario${diaSeleccionado === fecha ? " seleccionado" : ""}${elementoArrastrado ? " destino-arrastre" : ""}`}
+              onDragOver={(evento) => {
+                if (elementoArrastrado) evento.preventDefault();
+              }}
+              onDrop={(evento) => {
+                evento.preventDefault();
+                onRecibirElemento(
+                  fecha,
+                  evento.currentTarget.querySelector("button") ??
+                    evento.currentTarget,
+                );
+              }}
             >
               <button
                 className="boton-dia-calendario"
@@ -1227,6 +1440,12 @@ function desplazarFecha(
     );
   }
   return serializarFecha(instante);
+}
+
+function desplazarFechaDias(fecha: string, dias: number): string {
+  const valor = convertirFecha(fecha);
+  valor.setUTCDate(valor.getUTCDate() + dias);
+  return serializarFecha(valor);
 }
 
 function enumerarFechas(inicio: string, fin: string): readonly string[] {

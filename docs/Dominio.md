@@ -318,7 +318,7 @@ Contiene:
   mismo hecho;
 - `ServicioCanjeRecompensas`: conserva el contrato de las agendas legadas;
 - `ServicioDiaLibrePlanificacion`: evalúa instantáneas de cortes confirmados y
-  prepara el canje del modelo de planificación vigente.
+  prepara tanto la aplicación vigente de una unidad como el canje legado.
 
 La adquisición nueva publica conjuntamente una unidad disponible y su gasto.
 No selecciona fecha ni altera bloques. El servicio legado no muta agendas ni
@@ -328,9 +328,9 @@ billeteras y devuelve:
 2. la transacción de gasto;
 3. los ajustes agrupados por agenda.
 
-La capa de aplicación persiste esos hechos mediante una unidad de
-trabajo. El canje, el gasto y todos los ajustes se publican juntos o ninguno se
-vuelve visible.
+La capa de aplicación usa dos fronteras transaccionales. La adquisición publica
+unidad y gasto. La aplicación publica unidad consumida, aplicación y ajustes.
+En ambos casos todos los hechos se vuelven visibles juntos o ninguno lo hace.
 
 ## 3. Regla del día libre
 
@@ -355,7 +355,7 @@ La recompensa `DIA_LIBRE`:
 3. La flexibilidad se decide antes de confirmar la agenda.
 4. Un bloque resuelto no admite otra operación; repetir la operación original es idempotente.
 5. Un bloque estricto no puede excusarse.
-6. Todo bloque excusado debe tener un ajuste asociado a un canje.
+6. Todo bloque excusado debe tener un ajuste asociado a una aplicación o a un canje histórico.
 7. La agenda controla sus bloques internos y solo expone vistas.
 8. El saldo de puntos nunca es negativo.
 9. El mismo hecho no genera dos movimientos de puntos.
@@ -371,6 +371,8 @@ La recompensa `DIA_LIBRE`:
 19. Una adquisición publica la unidad disponible y su gasto juntos o no publica ninguno.
 20. Una unidad consumida identifica exactamente una aplicación y nunca vuelve a estar disponible.
 21. Un canje histórico migra como unidad consumida, nunca como unidad disponible.
+22. Preparar una aplicación no escribe; confirmar consume la unidad solo junto con todos sus ajustes.
+23. Arrastrar una actividad o recompensa no constituye un comando de dominio.
 
 ## 5. Capacidades todavía no implementadas
 
