@@ -2,6 +2,7 @@ import { PanelRespaldo } from "../respaldo/PanelRespaldo";
 import type { ServiciosRespaldo } from "../respaldo/ServiciosRespaldo";
 import { EncabezadoPagina } from "./EncabezadoPagina";
 import { useNavigate } from "react-router-dom";
+import "./PaginaRespaldo.css";
 
 interface PaginaRespaldoProps {
   readonly serviciosRespaldo?: ServiciosRespaldo;

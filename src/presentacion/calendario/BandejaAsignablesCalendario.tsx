@@ -43,11 +43,11 @@ export function BandejaAsignablesCalendario({
     <section className="bandeja-asignables" aria-labelledby="asignables">
       <div className="titulo-region">
         <div>
-          <p className="sobrelinea">Asignación explícita</p>
-          <h3 id="asignables">Actividades e inventario</h3>
+          <p className="sobrelinea">Banco de actividades</p>
+          <h3 id="asignables">Actividades para asignar</h3>
           <p>
-            Elige una fecha y continúa al editor o a la vista previa. También
-            puedes arrastrar un elemento hasta un día del calendario.
+            Arrastra una actividad hasta el día que quieras planificar o usa su
+            botón para abrir el mismo editor.
           </p>
         </div>
         <div className="campo campo-fecha-asignable">
@@ -76,7 +76,14 @@ export function BandejaAsignablesCalendario({
           onArrastre={onArrastre}
         />
         <div aria-labelledby="inventario-asignable">
-          <h4 id="inventario-asignable">Inventario disponible</h4>
+          <div className="cabecera-grupo-asignables">
+            <h4 id="inventario-asignable">Inventario disponible</h4>
+            <span
+              aria-label={`${inventario?.disponibles.length ?? 0} unidades`}
+            >
+              {inventario?.disponibles.length ?? 0}
+            </span>
+          </div>
           {cargandoInventario ? (
             <p aria-live="polite">Cargando inventario…</p>
           ) : errorInventario ? (
@@ -102,14 +109,20 @@ export function BandejaAsignablesCalendario({
                   }
                   onDragEnd={() => onArrastre(undefined)}
                 >
-                  <div>
-                    <strong>{unidad.nombre}</strong>
-                    <span>Unidad disponible</span>
+                  <div className="resumen-asignable">
+                    <span className="indicador-arrastre" aria-hidden="true">
+                      ⠿
+                    </span>
+                    <div className="datos-asignable">
+                      <strong>{unidad.nombre}</strong>
+                      <span>Unidad disponible</span>
+                    </div>
                   </div>
                   <button
-                    className="boton-texto"
+                    className="boton-texto accion-asignable"
                     type="button"
                     data-unidad-recompensa={unidad.id}
+                    aria-label={`Aplicar ${unidad.nombre}`}
                     onClick={(evento) =>
                       onAplicarRecompensa(
                         unidad.id,
@@ -118,7 +131,7 @@ export function BandejaAsignablesCalendario({
                       )
                     }
                   >
-                    Aplicar {unidad.nombre}
+                    Aplicar
                   </button>
                 </li>
               ))}
@@ -132,7 +145,7 @@ export function BandejaAsignablesCalendario({
         teclado.
       </p>
       <button
-        className="boton-secundario"
+        className="boton-secundario boton-nueva-actividad-bandeja"
         type="button"
         onClick={(evento) => onNuevaActividad(evento.currentTarget)}
       >
@@ -158,7 +171,12 @@ function GrupoActividades({
   const id = `grupo-${titulo.toLowerCase().replaceAll(" ", "-")}`;
   return (
     <div aria-labelledby={id}>
-      <h4 id={id}>{titulo}</h4>
+      <div className="cabecera-grupo-asignables">
+        <h4 id={id}>{titulo}</h4>
+        <span aria-label={`${actividades.length} actividades`}>
+          {actividades.length}
+        </span>
+      </div>
       {actividades.length === 0 ? (
         <p className="estado-vacio-lineal">No hay actividades en este grupo.</p>
       ) : (
@@ -176,18 +194,24 @@ function GrupoActividades({
               }
               onDragEnd={() => onArrastre(undefined)}
             >
-              <div>
-                <strong>{actividad.titulo}</strong>
-                <span>{etiquetaTipoActividad(actividad.tipo)}</span>
+              <div className="resumen-asignable">
+                <span className="indicador-arrastre" aria-hidden="true">
+                  ⠿
+                </span>
+                <div className="datos-asignable">
+                  <strong>{actividad.titulo}</strong>
+                  <span>{etiquetaTipoActividad(actividad.tipo)}</span>
+                </div>
               </div>
               <button
-                className="boton-texto"
+                className="boton-texto accion-asignable"
                 type="button"
+                aria-label={`Asignar ${actividad.titulo}`}
                 onClick={(evento) =>
                   onAsignar(actividad.id, fecha, evento.currentTarget)
                 }
               >
-                Asignar {actividad.titulo}
+                Asignar
               </button>
             </li>
           ))}

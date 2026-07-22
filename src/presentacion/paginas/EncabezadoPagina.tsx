@@ -1,3 +1,5 @@
+import "./EncabezadoPagina.css";
+
 interface EncabezadoPaginaProps {
   readonly sobrelinea: string;
   readonly titulo: string;

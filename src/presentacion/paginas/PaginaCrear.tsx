@@ -14,6 +14,7 @@ import { FormularioContextoNombrado } from "../calendario/FormularioContextoNomb
 import type { ServiciosCalendario } from "../calendario/ServiciosCalendario";
 import { DialogoEliminarActividad } from "../crear/DialogoEliminarActividad";
 import { etiquetaModoSeguimiento } from "../actividades/etiquetasActividad";
+import "./PaginaCrear.css";
 import { EncabezadoPagina } from "./EncabezadoPagina";
 
 interface PaginaCrearProps {

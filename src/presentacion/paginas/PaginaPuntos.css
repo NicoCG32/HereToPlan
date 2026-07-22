@@ -1,0 +1,43 @@
+.pagina-puntos > .panel-agenda {
+  padding: clamp(1rem, 2vw, 2rem);
+}
+
+@media (min-width: 76.01rem) {
+  .pagina-puntos {
+    grid-template-columns: minmax(20rem, 0.8fr) minmax(28rem, 1.2fr);
+    align-items: start;
+  }
+
+  .pagina-puntos > .encabezado-pagina,
+  .pagina-puntos > .panel-recuperacion {
+    grid-column: 1 / -1;
+  }
+
+  .pagina-puntos > .panel-billetera {
+    grid-column: 1;
+  }
+
+  .pagina-puntos > .panel-inventario-recompensas,
+  .pagina-puntos > .panel-dia-libre {
+    grid-column: 2;
+  }
+
+  .pagina-puntos .cabecera-panel-agenda h2 {
+    font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+  }
+
+  .pagina-puntos > .panel-billetera .cabecera-billetera {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pagina-puntos > .panel-billetera .saldo-billetera {
+    text-align: left;
+  }
+}
+
+@media (max-width: 48rem) {
+  .pagina-puntos > .panel-agenda {
+    padding: 0.85rem;
+  }
+}

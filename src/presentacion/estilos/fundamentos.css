@@ -285,39 +285,3 @@ button:focus-visible {
   background: rgb(var(--celeste-diamante) / 32%);
   color: var(--texto);
 }
-
-[data-acento="verde"],
-.acento-verde {
-  --acento-a: var(--verde-planta);
-  --acento-b: var(--verde-esmeralda);
-  --acento-c: var(--verde-claro);
-  --acento-halo: var(--verde-planta);
-  --acento-sombra: 67 119 92;
-}
-
-[data-acento="dorado"],
-.acento-dorado {
-  --acento-a: var(--dorado);
-  --acento-b: var(--dorado-profundo);
-  --acento-c: var(--dorado-claro);
-  --acento-halo: var(--dorado);
-  --acento-sombra: 133 97 54;
-}
-
-[data-acento="bronce"],
-.acento-bronce {
-  --acento-a: var(--bronce);
-  --acento-b: var(--bronce-profundo);
-  --acento-c: var(--bronce-claro);
-  --acento-halo: var(--bronce);
-  --acento-sombra: 117 85 58;
-}
-
-[data-acento="celeste"],
-.acento-celeste {
-  --acento-a: var(--celeste-diamante);
-  --acento-b: var(--azul-diamante);
-  --acento-c: var(--celeste-claro);
-  --acento-halo: var(--celeste-diamante);
-  --acento-sombra: 57 109 140;
-}

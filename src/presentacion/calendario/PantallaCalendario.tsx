@@ -800,46 +800,48 @@ export function PantallaCalendario({
         </p>
       )}
 
-      {servicios.consultarInventarioRecompensas && (
-        <BandejaAsignablesCalendario
-          fecha={fechaAsignacionActual}
-          actividadesSinProgramar={calendario.actividadesSinProgramar}
-          actividadesAsignadas={calendario.actividadesAsignables.filter(
-            (actividad) =>
-              !calendario.actividadesSinProgramar.some(
-                (sinProgramar) => sinProgramar.id === actividad.id,
-              ),
-          )}
-          {...(inventario ? { inventario } : {})}
-          cargandoInventario={cargandoInventario || procesandoAplicacion}
-          {...(errorInventario ? { errorInventario } : {})}
-          onFecha={setFechaAsignable}
-          onNuevaActividad={(origen) => {
-            controlActividadOrigenRef.current = origen;
-            setFechaDestinoActividad(undefined);
-            setFormularioActividadVisible(true);
+      <div className="distribucion-planificacion-calendario">
+        <VistaCalendario
+          calendario={calendario}
+          {...(elementoArrastrado ? { elementoArrastrado } : {})}
+          {...(diaSeleccionado ? { diaSeleccionado } : {})}
+          onSeleccionarDia={(fecha, origen) => {
+            controlEditorOrigenRef.current = origen;
+            setDiaSeleccionado(fecha);
+            setFechaDestinoActividad(fecha);
+            setBloqueEditado(undefined);
+            setActividadPreseleccionadaId(undefined);
           }}
-          onAsignarActividad={abrirEditorActividad}
-          onAplicarRecompensa={(unidadId, fecha, origen) =>
-            void prepararAplicacion(unidadId, fecha, origen)
-          }
-          onArrastre={setElementoArrastrado}
+          onRecibirElemento={recibirElementoEnFecha}
         />
-      )}
 
-      <VistaCalendario
-        calendario={calendario}
-        {...(elementoArrastrado ? { elementoArrastrado } : {})}
-        {...(diaSeleccionado ? { diaSeleccionado } : {})}
-        onSeleccionarDia={(fecha, origen) => {
-          controlEditorOrigenRef.current = origen;
-          setDiaSeleccionado(fecha);
-          setFechaDestinoActividad(fecha);
-          setBloqueEditado(undefined);
-          setActividadPreseleccionadaId(undefined);
-        }}
-        onRecibirElemento={recibirElementoEnFecha}
-      />
+        {servicios.consultarInventarioRecompensas && (
+          <BandejaAsignablesCalendario
+            fecha={fechaAsignacionActual}
+            actividadesSinProgramar={calendario.actividadesSinProgramar}
+            actividadesAsignadas={calendario.actividadesAsignables.filter(
+              (actividad) =>
+                !calendario.actividadesSinProgramar.some(
+                  (sinProgramar) => sinProgramar.id === actividad.id,
+                ),
+            )}
+            {...(inventario ? { inventario } : {})}
+            cargandoInventario={cargandoInventario || procesandoAplicacion}
+            {...(errorInventario ? { errorInventario } : {})}
+            onFecha={setFechaAsignable}
+            onNuevaActividad={(origen) => {
+              controlActividadOrigenRef.current = origen;
+              setFechaDestinoActividad(undefined);
+              setFormularioActividadVisible(true);
+            }}
+            onAsignarActividad={abrirEditorActividad}
+            onAplicarRecompensa={(unidadId, fecha, origen) =>
+              void prepararAplicacion(unidadId, fecha, origen)
+            }
+            onArrastre={setElementoArrastrado}
+          />
+        )}
+      </div>
 
       {editorVisible && !formularioActividadVisible && (
         <FormularioBloqueCalendario

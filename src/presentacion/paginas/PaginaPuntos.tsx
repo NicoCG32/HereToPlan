@@ -7,6 +7,7 @@ import type { ServiciosInventarioRecompensas } from "../recompensas/ServiciosInv
 import { PanelRecuperacion } from "../recuperacion/PanelRecuperacion";
 import type { ServiciosRecuperacion } from "../recuperacion/ServiciosRecuperacion";
 import { EncabezadoPagina } from "./EncabezadoPagina";
+import "./PaginaPuntos.css";
 
 interface PaginaPuntosProps {
   readonly serviciosPuntos?: ServiciosPuntos;

@@ -4,6 +4,7 @@ import type { ServiciosAgendaBorrador } from "../agendas/ServiciosAgendaBorrador
 import { PantallaCalendario } from "../calendario/PantallaCalendario";
 import type { ServiciosCalendario } from "../calendario/ServiciosCalendario";
 import { EncabezadoPagina } from "./EncabezadoPagina";
+import "./PaginaCalendario.css";
 
 interface PaginaCalendarioProps {
   readonly serviciosAgenda?: ServiciosAgendaBorrador;

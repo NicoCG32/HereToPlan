@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useSesionAplicacion } from "./ContextoSesionAplicacion";
+import "./HudAplicacion.css";
 
 export function HudAplicacion() {
   const sesion = useSesionAplicacion();

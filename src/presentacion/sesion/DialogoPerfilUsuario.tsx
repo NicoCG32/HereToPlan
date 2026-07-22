@@ -1,6 +1,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import type { ResultadoGuardarPerfilUsuario } from "../../aplicacion";
 import { useDialogoModal } from "../hooks/useDialogoModal";
+import "./DialogoPerfilUsuario.css";
 
 interface DialogoPerfilUsuarioProps {
   readonly modo: "BIENVENIDA" | "EDICION";

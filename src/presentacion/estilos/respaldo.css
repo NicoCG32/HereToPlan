@@ -1,0 +1,302 @@
+.panel-respaldo {
+  display: grid;
+  gap: 1rem;
+}
+
+.aviso-respaldo {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgb(var(--plata-profunda) / 34%);
+  border-radius: 0.75rem;
+  background: rgb(var(--diamante-blanco) / 52%);
+}
+
+.acciones-respaldo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.selector-archivo-respaldo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.selector-archivo-respaldo:focus-within {
+  outline: 3px solid rgb(var(--dorado-profundo));
+  outline-offset: 3px;
+}
+
+.selector-archivo-respaldo input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.informe-respaldo {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgb(var(--plata-profunda) / 35%);
+  border-left-width: 0.35rem;
+  border-radius: 0.85rem;
+  background: rgb(var(--plata-blanca) / 72%);
+}
+
+.informe-respaldo h3,
+.informe-respaldo h4,
+.informe-respaldo p,
+.informe-respaldo ul {
+  margin: 0;
+}
+
+.informe-respaldo-valido {
+  border-left-color: rgb(var(--dorado-profundo));
+}
+
+.informe-respaldo-invalido,
+.informe-respaldo-incompatible {
+  border-left-color: rgb(var(--bronce-metal));
+}
+
+.preparacion-restauracion {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgb(var(--bronce-metal) / 48%);
+  border-radius: 0.85rem;
+  background: rgb(var(--dorado-claro) / 24%);
+}
+
+.preparacion-restauracion h3,
+.preparacion-restauracion p {
+  margin: 0;
+}
+
+.dialogo-restauracion {
+  width: min(42rem, calc(100vw - 2rem));
+}
+
+.dialogo-restauracion .confirmacion-reforzada {
+  margin-top: 0.5rem;
+}
+
+.conteos-respaldo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.4rem 1rem;
+  margin: 0;
+}
+
+.conteos-respaldo div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgb(var(--plata-profunda) / 20%);
+}
+
+.conteos-respaldo dt {
+  overflow-wrap: anywhere;
+}
+
+.conteos-respaldo dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+@media (max-width: 48rem) {
+  .acciones-respaldo {
+    align-items: stretch;
+  }
+}
+
+.aviso-respaldo,
+.informe-respaldo,
+.preparacion-restauracion {
+  border-radius: 0;
+}
+
+.aviso-respaldo,
+.informe-respaldo {
+  border-color: rgb(var(--plata-profunda) / 42%);
+  background:
+    linear-gradient(
+      112deg,
+      rgb(var(--diamante-blanco) / 36%),
+      transparent 37%,
+      rgb(var(--plata-brillante) / 28%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 94%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+  box-shadow: var(--sombra-metalica);
+}
+
+.preparacion-restauracion {
+  border-color: rgb(var(--oro-profundo) / 44%);
+  background:
+    linear-gradient(rgb(var(--oro-metal) / 12%), rgb(var(--oro-metal) / 12%)),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 93%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+  box-shadow: var(--sombra-oro);
+}
+
+.preparacion-restauracion:hover,
+.preparacion-restauracion:focus-within {
+  background:
+    linear-gradient(
+      125deg,
+      rgb(var(--oro-luz) / 29%),
+      rgb(var(--plata-blanca) / 73%) 48%,
+      rgb(var(--bronce-metal) / 14%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 95%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 95%) inset,
+    9px 10px 0 rgb(var(--oro-profundo) / 10%),
+    0 20px 42px rgb(var(--oro-metal) / 11%);
+}
+
+.informe-respaldo-invalido,
+.informe-respaldo-incompatible {
+  border-color: rgb(var(--bronce-sombra) / 45%);
+  background:
+    linear-gradient(
+      rgb(var(--bronce-metal) / 11%),
+      rgb(var(--bronce-metal) / 11%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 94%),
+      rgb(var(--plata-brillante) / 73%)
+    );
+  box-shadow: var(--sombra-bronce);
+}
+
+.aviso-respaldo {
+  border-left: 4px solid rgb(var(--diamante-azul));
+}
+
+.selector-archivo-respaldo:focus-within {
+  outline-color: rgb(var(--diamante-profundo));
+}
+
+.informe-respaldo {
+  border-left-width: 0.35rem;
+}
+
+.informe-respaldo-valido {
+  border-left-color: rgb(var(--planta-profundo));
+  background: linear-gradient(
+    110deg,
+    rgb(var(--planta-luz) / 23%),
+    rgb(var(--plata-blanca) / 80%) 58%,
+    rgb(var(--diamante-hielo) / 8%)
+  );
+}
+
+.informe-respaldo-invalido,
+.informe-respaldo-incompatible {
+  border-left-color: rgb(var(--bronce-metal));
+}
+
+.preparacion-restauracion {
+  border-left: 4px solid rgb(var(--oro-metal));
+}
+
+.dialogo-restauracion {
+  border-top-color: rgb(var(--oro-metal));
+}
+
+.dialogo-restauracion {
+  border-top-color: rgb(var(--oro-metal));
+  background:
+    linear-gradient(
+      120deg,
+      rgb(var(--oro-luz) / 27%),
+      rgb(var(--diamante-blanco) / 53%) 48%,
+      rgb(var(--bronce-luz) / 12%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 98%),
+      rgb(var(--plata-brillante) / 84%)
+    );
+}
+
+.conteos-respaldo {
+  border-color: rgb(var(--plata-profunda) / 38%);
+  background:
+    linear-gradient(
+      110deg,
+      rgb(var(--diamante-blanco) / 56%),
+      transparent 48%,
+      rgb(var(--bronce-luz) / 10%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 89%),
+      rgb(var(--plata-brillante) / 68%)
+    );
+}
+
+.selector-archivo-respaldo:focus-within {
+  outline-color: rgb(var(--diamante-profundo));
+}
+
+@media (min-width: 76.01rem) {
+  .panel-respaldo {
+    display: grid;
+    grid-template-columns: minmax(20rem, 0.78fr) minmax(0, 1.22fr);
+    gap: var(--separacion-interna);
+    align-items: start;
+  }
+
+  .panel-respaldo > .cabecera-panel-agenda {
+    grid-column: 1 / -1;
+  }
+
+  .panel-respaldo > .aviso-respaldo,
+  .panel-respaldo > .acciones-respaldo,
+  .panel-respaldo > .mensaje-exito,
+  .panel-respaldo > .mensaje-formulario {
+    grid-column: 1;
+  }
+
+  .panel-respaldo > .informe-respaldo,
+  .panel-respaldo > .preparacion-restauracion,
+  .panel-respaldo > .boton-primario {
+    grid-column: 2;
+  }
+
+  .panel-respaldo > .informe-respaldo,
+  .panel-respaldo > .preparacion-restauracion {
+    margin: 0;
+  }
+
+  .panel-respaldo > .boton-primario {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 76rem) {
+  .panel-respaldo {
+    display: block;
+  }
+}

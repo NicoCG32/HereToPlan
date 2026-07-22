@@ -895,6 +895,22 @@ versión, pasos, severidad, decisión y estado. El protocolo distingue defectos
 bloqueantes de preferencias visuales y evita que una mejora estética rebaje un
 contrato operativo ya comprobado.
 
+### 6.26. Contrato del recorrido tutorial
+
+`RecorridoTutorial` pertenece a presentación. Define ocho pasos ordenados con
+propósito, condición de entrada, término y ruta estable: navegación, Libre,
+agenda opcional, actividad, asignación, revisión, confirmación y ejecución. No
+invoca casos de uso ni interpreta que mostrar una indicación autorice una
+escritura.
+
+`EstadoTutorialV1` contiene únicamente versión, situación y paso actual. Sus
+situaciones son `NO_INICIADO`, `EN_CURSO`, `POSPUESTO`, `OMITIDO` y
+`COMPLETADO`. Posponer conserva el paso; continuar lo retoma; omitir termina la
+guía sin crear datos; cerrar sólo oculta la representación y no altera el
+estado; reiniciar vuelve al estado inicial. El contrato no forma parte del
+perfil ni del dominio. La interfaz contextual y su puerto de persistencia son
+incrementos posteriores y no se anticipan mediante acceso directo al navegador.
+
 ## 7. Operaciones entre agregados y atomicidad
 
 Los cortes confirmados, `BilleteraPuntos` y el historial de recompensas poseen

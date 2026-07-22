@@ -25,7 +25,7 @@ describe("asignables del calendario", () => {
     render(<PantallaCalendario servicios={entorno.servicios} />);
 
     await screen.findByRole("heading", {
-      name: "Actividades e inventario",
+      name: "Actividades para asignar",
     });
     expect(
       screen.getByRole("heading", { name: "Sin programar", level: 4 }),
@@ -91,7 +91,7 @@ describe("asignables del calendario", () => {
     const entorno = crearServicios();
     render(<PantallaCalendario servicios={entorno.servicios} />);
     await screen.findByRole("heading", {
-      name: "Actividades e inventario",
+      name: "Actividades para asignar",
     });
     const destino = screen
       .getByRole("button", { name: "Seleccionar día 2026-07-22" })

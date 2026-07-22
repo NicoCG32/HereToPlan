@@ -28,8 +28,8 @@ global. Ninguna decisión depende exclusivamente del color.
 
 ## 3. Arquitectura CSS
 
-`src/presentacion/estilos.css` es el punto de entrada transitorio de los estilos.
-Importa `src/presentacion/estilos/fundamentos.css`, módulo que concentra:
+`src/presentacion/estilos.css` es un agregador de ocho importaciones y no
+contiene reglas. `src/presentacion/estilos/fundamentos.css` concentra:
 
 - propiedades animables y tokens;
 - normalización y tipografía base;
@@ -37,12 +37,15 @@ Importa `src/presentacion/estilos/fundamentos.css`, módulo que concentra:
 - foco compartido;
 - utilidades cromáticas transversales.
 
-La extracción posterior debe producir módulos independientes para:
+Las responsabilidades se distribuyen en módulos independientes:
 
-1. armazón, navegación y HUD;
-2. páginas Calendario, Crear, Puntos y Respaldo;
-3. capacidades reutilizables, como formularios, diálogos, calendario y
-   economías.
+1. `armazon/ArmazonAplicacion.css` contiene únicamente estructura y navegación;
+2. `sesion/HudAplicacion.css` y `sesion/DialogoPerfilUsuario.css` acompañan sus
+   componentes;
+3. `paginas/` contiene encabezado y composición propia de Calendario, Crear,
+   Puntos y Respaldo;
+4. `estilos/` separa componentes compartidos, agendas, calendario, economías,
+   recompensas y respaldo.
 
 Cada módulo conserva junto a su responsabilidad los puntos de quiebre que la
 modifican. No se creará una segunda hoja global monolítica ni se usarán
@@ -68,10 +71,16 @@ contexto, la navegación Día/Semana/Mes, el calendario principal, el editor del
 día seleccionado, los próximos siete días, las actividades asignables, las
 recompensas disponibles y la lista accesible equivalente.
 
-En escritorio, calendario y editor forman la primera fila de contenido;
-próximos días y elementos asignables forman la segunda. La lista equivalente
-ocupa el ancho completo. En móvil, el mismo orden semántico se representa en
-una columna.
+En escritorio, el calendario ocupa la columna principal izquierda y el banco de
+actividades asignables una columna auxiliar derecha que permanece disponible
+mientras se recorre el mes. Cada ficha muestra su indicador de arrastre, nombre,
+tipo y una acción equivalente por teclado. El editor, los próximos días y la
+lista accesible equivalente continúan el flujo de planificación.
+
+En móvil, calendario y banco se apilan sin cambiar su orden semántico; la vista
+mensual usa dos columnas desde 22 rem para reducir recorrido vertical y vuelve a
+una columna bajo ese límite. El banco deja de ser fijo y no introduce
+desplazamiento horizontal global.
 
 ### 4.2. Crear
 
@@ -116,7 +125,9 @@ regla se validan las mismas rutas, recorridos y tamaños representativos. Un
 cambio de ubicación que altere especificidad, orden de cascada o resultado
 perceptible debe tratarse como un cambio visual independiente.
 
-Las verificaciones mínimas son `npm run format`, `npm run lint`,
-`npm run test:a11y`, `npm test` y `npm run build`. Los gradientes, reflejos y
-posiciones se revisan visualmente en navegador real; no se convierten en pruebas
-frágiles de píxeles.
+Las verificaciones mínimas son `npm run audit:css`, `npm run format`,
+`npm run lint`, `npm run test:a11y`, `npm test` y `npm run build`.
+`audit:css` exige que el agregador sólo importe módulos y que no existan
+comentarios CSS; además informa reglas, consultas responsivas y posibles clases
+huérfanas. Los gradientes, reflejos y posiciones se revisan visualmente en
+navegador real; no se convierten en pruebas frágiles de píxeles.

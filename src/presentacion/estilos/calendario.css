@@ -1,0 +1,1529 @@
+.distribucion-planificacion-calendario {
+  display: grid;
+  grid-template-columns: minmax(0, 2.15fr) minmax(19rem, 0.85fr);
+  grid-column: 1 / -1;
+  gap: 1.25rem;
+  align-items: start;
+  min-width: 0;
+  margin-top: 1.5rem;
+}
+
+.distribucion-planificacion-calendario > .superficie-calendario {
+  min-width: 0;
+  margin-top: 0;
+}
+
+@media (min-width: 48.01rem) {
+  .distribucion-planificacion-calendario .rejilla-calendario.vista-mes,
+  .distribucion-planificacion-calendario .rejilla-calendario.vista-semana {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    overflow-x: visible;
+  }
+}
+
+.bandeja-asignables {
+  display: grid;
+  position: sticky;
+  top: 1rem;
+  gap: 1rem;
+  max-height: calc(100vh - 2rem);
+  min-width: 0;
+  padding: 1rem;
+  overflow-y: auto;
+  border: 1px solid rgb(var(--oro-profundo) / 44%);
+  border-left: 4px solid rgb(var(--oro-metal));
+  border-radius: 0;
+  background:
+    linear-gradient(
+      135deg,
+      rgb(var(--oro-luz) / 22%),
+      transparent 44%,
+      rgb(var(--bronce-luz) / 9%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 96%),
+      rgb(var(--plata-brillante) / 78%)
+    );
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 92%) inset,
+    7px 8px 0 rgb(var(--oro-profundo) / 9%),
+    0 18px 36px rgb(var(--oro-metal) / 10%);
+  scrollbar-gutter: stable;
+}
+
+.bandeja-asignables > .titulo-region {
+  display: grid;
+  align-items: start;
+  gap: 0.85rem;
+}
+
+.bandeja-asignables > .titulo-region h3 {
+  font-size: 1.15rem;
+}
+
+.bandeja-asignables > .titulo-region p:not(.sobrelinea) {
+  max-width: 36ch;
+  margin-top: 0.35rem;
+  color: var(--texto-secundario);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.campo-fecha-asignable {
+  width: 100%;
+  min-width: 0;
+}
+
+.grupos-asignables {
+  display: grid;
+  gap: 1rem;
+}
+
+.grupos-asignables > div {
+  display: grid;
+  align-content: start;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.cabecera-grupo-asignables {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgb(var(--plata-profunda) / 32%);
+}
+
+.cabecera-grupo-asignables h4 {
+  margin: 0;
+  color: var(--texto);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.cabecera-grupo-asignables > span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  border: 1px solid rgb(var(--oro-profundo) / 34%);
+  background: rgb(var(--oro-luz) / 24%);
+  color: rgb(var(--oro-profundo));
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.lista-asignables {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-asignables li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.65rem;
+  border: 1px solid rgb(var(--plata-profunda) / 34%);
+  border-left: 3px solid rgb(var(--oro-metal));
+  border-radius: 0;
+  background:
+    linear-gradient(
+      110deg,
+      rgb(var(--diamante-blanco) / 42%),
+      transparent 54%,
+      rgb(var(--oro-luz) / 12%)
+    ),
+    rgb(var(--plata-blanca) / 82%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 90%) inset,
+    3px 4px 0 rgb(var(--oro-profundo) / 6%);
+  cursor: grab;
+  transition:
+    transform var(--duracion-rapida) ease,
+    border-color var(--duracion-rapida) ease,
+    box-shadow var(--duracion-rapida) ease;
+}
+
+.lista-asignables li:hover,
+.lista-asignables li:focus-within {
+  transform: translateX(-2px);
+  border-color: rgb(var(--oro-profundo) / 62%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 94%) inset,
+    5px 5px 0 rgb(var(--oro-profundo) / 10%),
+    0 10px 22px rgb(var(--oro-metal) / 9%);
+}
+
+.lista-asignables li:active {
+  cursor: grabbing;
+}
+
+.resumen-asignable {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.indicador-arrastre {
+  display: inline-grid;
+  flex: 0 0 1.35rem;
+  place-items: center;
+  align-self: stretch;
+  border-right: 1px solid rgb(var(--oro-profundo) / 24%);
+  color: rgb(var(--oro-profundo));
+  font-size: 1rem;
+}
+
+.datos-asignable {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.datos-asignable strong {
+  overflow-wrap: anywhere;
+  color: var(--texto);
+  font-size: 0.8rem;
+  line-height: 1.25;
+}
+
+.datos-asignable span,
+.instruccion-arrastre {
+  color: var(--texto-secundario);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.accion-asignable {
+  min-height: 2.75rem;
+  padding-inline: 0.5rem;
+  border-left: 1px solid rgb(var(--plata-profunda) / 26%);
+  font-size: 0.72rem;
+}
+
+.instruccion-arrastre {
+  margin: 0;
+  padding-block: 0.7rem;
+  border-block: 1px solid rgb(var(--plata-profunda) / 28%);
+}
+
+.boton-nueva-actividad-bandeja {
+  justify-content: center;
+  width: 100%;
+}
+
+.dia-calendario.destino-arrastre {
+  outline: 3px dashed rgb(var(--oro-profundo));
+  outline-offset: -0.4rem;
+  background:
+    linear-gradient(rgb(var(--oro-luz) / 28%), rgb(var(--oro-luz) / 28%)),
+    rgb(var(--plata-blanca) / 90%);
+}
+
+@media (max-width: 70rem) {
+  .distribucion-planificacion-calendario {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bandeja-asignables {
+    position: static;
+    max-height: none;
+  }
+
+  .grupos-asignables {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 48rem) {
+  .grupos-asignables {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 26rem) {
+  .lista-asignables li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .accion-asignable {
+    justify-content: center;
+    width: 100%;
+    border-top: 1px solid rgb(var(--plata-profunda) / 26%);
+    border-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dia-calendario.destino-arrastre,
+  .lista-asignables li {
+    transition: none;
+  }
+
+  .lista-asignables li:hover,
+  .lista-asignables li:focus-within {
+    transform: none;
+  }
+}
+
+.formulario-contexto {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+.lista-cortes-gracia {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-cortes-gracia li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgb(var(--dorado-profundo) / 24%);
+  background: rgb(255 255 255 / 68%);
+  box-shadow: 4px 5px 0 rgb(var(--dorado-profundo) / 5%);
+}
+
+.lista-cortes-gracia li > div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.lista-cortes-gracia strong {
+  color: var(--texto);
+  font-size: 0.9rem;
+}
+
+.lista-cortes-gracia span:not(.cuenta-regresiva) {
+  color: var(--texto-secundario);
+  font-size: 0.76rem;
+}
+
+.acciones-corte-gracia {
+  justify-items: end;
+}
+
+.acciones-corte-gracia .boton-texto {
+  color: rgb(var(--dorado-profundo));
+  font-size: 0.76rem;
+}
+
+.mensaje-confirmacion-corte {
+  margin: 0 0 1.5rem;
+}
+
+.barra-contextos {
+  display: grid;
+  grid-template-columns: minmax(13rem, 0.7fr) minmax(18rem, 1.3fr);
+  align-items: end;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--linea);
+  background:
+    linear-gradient(
+      90deg,
+      rgb(var(--verde-planta) / 8%),
+      transparent 42%,
+      rgb(var(--celeste-diamante) / 8%)
+    ),
+    rgb(255 255 255 / 58%);
+  box-shadow: 6px 7px 0 rgb(var(--cuarzo-grafito) / 4%);
+}
+
+.contexto-asignacion {
+  margin: 0;
+  color: var(--texto-secundario);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.contexto-asignacion strong {
+  color: rgb(var(--verde-esmeralda));
+}
+
+.panel-contexto {
+  position: relative;
+  overflow: hidden;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--linea-fuerte);
+  border-left: 4px solid rgb(var(--celeste-diamante));
+  background:
+    radial-gradient(
+      circle 18rem at 100% 0%,
+      rgb(var(--celeste-diamante) / 15%),
+      transparent 64%
+    ),
+    linear-gradient(
+      135deg,
+      rgb(var(--celeste-diamante) / 7%),
+      rgb(var(--cuarzo-claro) / 48%)
+    );
+  box-shadow: 7px 8px 0 rgb(var(--azul-diamante) / 7%);
+}
+
+.descripcion-panel-contexto {
+  max-width: 48rem;
+  margin: 0.85rem 0 1.3rem;
+  color: var(--texto-secundario);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.superficie-calendario {
+  position: relative;
+  overflow: hidden;
+  min-height: 18rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--linea-fuerte);
+  background:
+    radial-gradient(
+      circle 24rem at 100% 0%,
+      rgb(var(--celeste-diamante) / 11%),
+      transparent 62%
+    ),
+    radial-gradient(
+      circle 18rem at 0% 100%,
+      rgb(var(--verde-planta) / 8%),
+      transparent 64%
+    ),
+    rgb(255 255 255 / 58%);
+  box-shadow:
+    8px 9px 0 rgb(var(--azul-diamante) / 6%),
+    0 20px 45px rgb(var(--cuarzo-grafito) / 7%);
+}
+
+.superficie-calendario::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    rgb(var(--celeste-diamante)),
+    rgb(var(--azul-diamante)),
+    rgb(var(--verde-planta)),
+    transparent
+  );
+}
+
+.superficie-calendario h3 {
+  margin: 0;
+  color: var(--texto);
+  font-size: 1.35rem;
+  letter-spacing: -0.025em;
+}
+
+.navegacion-calendario {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-block: 1px solid var(--linea);
+  background: linear-gradient(
+    90deg,
+    rgb(var(--celeste-diamante) / 6%),
+    transparent 55%
+  );
+}
+
+.grupo-vistas,
+.grupo-navegacion-fecha {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.55rem;
+}
+
+.grupo-vistas button[aria-pressed="true"] {
+  border-color: rgb(var(--verde-esmeralda));
+  background: linear-gradient(
+    135deg,
+    rgb(var(--verde-claro) / 28%),
+    rgb(var(--celeste-diamante) / 9%)
+  );
+  color: rgb(var(--verde-esmeralda));
+  box-shadow:
+    inset 0 -2px 0 rgb(var(--verde-esmeralda)),
+    3px 3px 0 rgb(var(--verde-planta) / 10%);
+}
+
+.campo-fecha-ancla {
+  min-width: 10rem;
+}
+
+.encabezado-superficie-calendario {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.encabezado-superficie-calendario > p {
+  margin: 0;
+  color: var(--texto-secundario);
+  font-size: 0.78rem;
+}
+
+.rejilla-calendario {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  border-top: 1px solid var(--linea);
+  border-left: 1px solid var(--linea);
+  box-shadow: 6px 7px 0 rgb(var(--cuarzo-grafito) / 4%);
+}
+
+.rejilla-calendario.vista-mes {
+  grid-template-columns: repeat(7, minmax(8rem, 1fr));
+}
+
+.rejilla-calendario.vista-semana {
+  grid-template-columns: repeat(7, minmax(7rem, 1fr));
+}
+
+.rejilla-calendario.vista-dia {
+  grid-template-columns: minmax(16rem, 1fr);
+}
+
+.dia-calendario {
+  position: relative;
+  min-height: 9rem;
+  padding: 0.55rem;
+  border-right: 1px solid var(--linea);
+  border-bottom: 1px solid var(--linea);
+  background: linear-gradient(
+    145deg,
+    rgb(255 255 255 / 76%),
+    rgb(var(--cuarzo-claro) / 36%)
+  );
+  transition:
+    background-color var(--duracion-rapida) ease,
+    box-shadow var(--duracion-rapida) ease,
+    transform var(--duracion-rapida) ease;
+}
+
+.dia-calendario:hover {
+  z-index: 1;
+  background: linear-gradient(
+    145deg,
+    rgb(255 255 255 / 90%),
+    rgb(var(--celeste-diamante) / 10%)
+  );
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--celeste-diamante) / 30%),
+    5px 6px 0 rgb(var(--azul-diamante) / 8%);
+}
+
+.dia-calendario.seleccionado {
+  background:
+    linear-gradient(
+      145deg,
+      rgb(var(--celeste-diamante) / 18%),
+      rgb(var(--verde-planta) / 7%)
+    ),
+    rgb(255 255 255 / 82%);
+  box-shadow:
+    inset 0 0 0 3px rgb(var(--celeste-diamante) / 62%),
+    inset 5px 0 0 rgb(var(--azul-diamante)),
+    6px 7px 0 rgb(var(--azul-diamante) / 10%);
+}
+
+.boton-dia-calendario,
+.boton-dia-proximo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.35rem;
+  border: 0;
+  background: transparent;
+  color: var(--texto-secundario);
+  text-align: left;
+  cursor: pointer;
+}
+
+.boton-dia-calendario strong {
+  color: var(--texto);
+  font-size: 1.1rem;
+}
+
+.bloques-compactos,
+.lista-actividades-sin-programar,
+.vista-lista-calendario ul {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.55rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bloques-compactos li {
+  display: grid;
+  gap: 0.12rem;
+  padding: 0.45rem;
+  border-left: 3px solid rgb(var(--verde-esmeralda));
+  background: linear-gradient(
+    90deg,
+    rgb(var(--verde-claro) / 20%),
+    rgb(var(--celeste-diamante) / 5%)
+  );
+  box-shadow: 3px 3px 0 rgb(var(--verde-planta) / 7%);
+}
+
+.bloques-compactos strong,
+.bloques-compactos span,
+.bloques-compactos small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bloques-compactos strong {
+  color: var(--texto);
+  font-size: 0.72rem;
+}
+
+.bloques-compactos span,
+.bloques-compactos small,
+.dia-sin-bloques {
+  color: var(--texto-secundario);
+  font-size: 0.64rem;
+}
+
+.dia-sin-bloques {
+  margin: 0.75rem 0.35rem;
+}
+
+.editor-dia,
+.panel-siete-dias,
+.bandeja-actividades,
+.vista-lista-calendario {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--linea);
+  background: linear-gradient(
+    145deg,
+    rgb(255 255 255 / 66%),
+    rgb(var(--cuarzo-claro) / 30%)
+  );
+  box-shadow: 6px 7px 0 rgb(var(--cuarzo-grafito) / 4%);
+}
+
+.editor-dia {
+  border-left: 4px solid rgb(var(--celeste-diamante));
+}
+
+.panel-siete-dias {
+  border-left: 4px solid rgb(var(--verde-planta));
+}
+
+.bandeja-actividades {
+  border-left: 4px solid rgb(var(--dorado));
+}
+
+.vista-lista-calendario {
+  border-left: 4px solid rgb(var(--bronce));
+}
+
+.rejilla-siete-dias {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(8rem, 1fr));
+  overflow-x: auto;
+  min-width: 100%;
+  margin-top: 1rem;
+}
+
+.dia-proximo {
+  min-height: 10rem;
+  padding: 0.55rem;
+  border: 1px solid var(--linea);
+  border-right: 0;
+  background: linear-gradient(
+    145deg,
+    rgb(255 255 255 / 76%),
+    rgb(var(--verde-planta) / 5%)
+  );
+}
+
+.dia-proximo:last-child {
+  border-right: 1px solid var(--linea);
+}
+
+.boton-dia-proximo {
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.boton-dia-proximo strong {
+  color: var(--texto);
+  font-size: 0.76rem;
+}
+
+.boton-dia-proximo small {
+  color: rgb(var(--verde-esmeralda));
+}
+
+.lista-actividades-sin-programar li,
+.vista-lista-calendario li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem;
+  border: 1px solid var(--linea);
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 78%),
+    rgb(var(--cuarzo-claro) / 34%)
+  );
+  box-shadow: 4px 5px 0 rgb(var(--cuarzo-grafito) / 4%);
+  transition:
+    transform var(--duracion-rapida) ease,
+    border-color var(--duracion-rapida) ease,
+    box-shadow var(--duracion-rapida) ease;
+}
+
+.lista-actividades-sin-programar li:hover,
+.vista-lista-calendario li:hover {
+  transform: translateY(-2px);
+  border-color: rgb(var(--celeste-diamante) / 62%);
+  box-shadow:
+    5px 7px 0 rgb(var(--azul-diamante) / 7%),
+    0 12px 24px rgb(var(--azul-diamante) / 7%);
+}
+
+.lista-actividades-sin-programar li > div,
+.vista-lista-calendario li > div:first-child {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.lista-actividades-sin-programar span,
+.vista-lista-calendario span,
+.vista-lista-calendario time {
+  color: var(--texto-secundario);
+  font-size: 0.75rem;
+}
+
+.vista-lista-calendario time {
+  color: rgb(var(--azul-diamante));
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.seleccion-bloque-corte {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  color: rgb(var(--verde-esmeralda));
+  font-size: 0.74rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.seleccion-bloque-corte input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: rgb(var(--verde-esmeralda));
+}
+
+.estado-proteccion-bloque {
+  width: fit-content;
+  margin-top: 0.35rem;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid rgb(var(--dorado-profundo) / 28%);
+  background: rgb(var(--dorado-claro) / 20%);
+  color: rgb(var(--dorado-profundo)) !important;
+  font-weight: 750;
+}
+
+.control-cronometro {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.8rem;
+  border: 1px solid var(--borde-metalico, rgb(120 125 135 / 36%));
+  border-radius: 0.8rem;
+  background: linear-gradient(
+    120deg,
+    rgb(var(--diamante-blanco) / 62%),
+    rgb(var(--plata-brillante) / 44%)
+  );
+}
+
+.control-cronometro > div:first-child,
+.acciones-cronometro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+}
+
+.control-cronometro output {
+  min-width: 7.5ch;
+  color: var(--texto);
+  font:
+    700 1.05rem/1 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  letter-spacing: 0.06em;
+  text-align: right;
+}
+
+.estado-cronometro,
+.mensaje-cronometro,
+.control-cronometro .ayuda-campo {
+  margin: 0;
+  color: var(--texto-secundario);
+  font-size: 0.82rem;
+}
+
+.acciones-cronometro {
+  justify-content: flex-start;
+}
+
+.dialogo-revision-corte {
+  border-top-color: rgb(var(--dorado));
+  background:
+    radial-gradient(
+      circle 20rem at 100% 0%,
+      rgb(var(--dorado-claro) / 18%),
+      transparent 66%
+    ),
+    linear-gradient(145deg, rgb(255 255 255 / 98%), rgb(var(--cuarzo-claro)));
+}
+
+.dialogo-corregir-corte {
+  border-top-color: rgb(var(--dorado));
+  background:
+    radial-gradient(
+      circle 20rem at 100% 0%,
+      rgb(var(--dorado-claro) / 18%),
+      transparent 66%
+    ),
+    linear-gradient(145deg, rgb(255 255 255 / 98%), rgb(var(--cuarzo-claro)));
+}
+
+.resumen-revision-corte {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 1.5rem 0;
+  border: 1px solid var(--linea);
+  background: rgb(255 255 255 / 62%);
+}
+
+.resumen-revision-corte div {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem;
+  border-right: 1px solid var(--linea);
+}
+
+.resumen-revision-corte div:last-child {
+  border-right: 0;
+}
+
+.resumen-revision-corte dt,
+.rango-revision-corte,
+.lista-revision-corte span {
+  color: var(--texto-secundario);
+  font-size: 0.74rem;
+}
+
+.resumen-revision-corte dd {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.rango-revision-corte {
+  margin: 0 0 1rem;
+}
+
+.lista-revision-corte {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-revision-corte li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem;
+  border-left: 3px solid rgb(var(--dorado));
+  background: rgb(255 255 255 / 64%);
+}
+
+.lista-revision-corte li > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+@media (max-width: 55rem) {
+  .navegacion-calendario,
+  .grupo-navegacion-fecha {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .grupo-vistas {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 40rem) {
+  .formulario-contexto,
+  .barra-contextos {
+    grid-template-columns: 1fr;
+  }
+
+  .lista-cortes-gracia li,
+  .encabezado-superficie-calendario,
+  .lista-actividades-sin-programar li,
+  .vista-lista-calendario li {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .grupo-vistas .boton-secundario,
+  .grupo-navegacion-fecha .boton-secundario {
+    flex: 1;
+  }
+
+  .resumen-revision-corte {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .resumen-revision-corte div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .resumen-revision-corte div:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--linea);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dia-calendario,
+  .lista-actividades-sin-programar li,
+  .vista-lista-calendario li {
+    transition: none;
+  }
+
+  .lista-actividades-sin-programar li:hover,
+  .vista-lista-calendario li:hover {
+    transform: none;
+  }
+}
+
+.acceso-lista-calendario {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0.75rem 0 0;
+}
+
+.acceso-lista-calendario a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: 0.65rem;
+  color: rgb(var(--azul-diamante));
+  font-size: 0.78rem;
+  font-weight: 750;
+  text-underline-offset: 0.2rem;
+}
+
+.vista-lista-calendario {
+  scroll-margin-top: 1rem;
+}
+
+@media (max-width: 48rem) {
+  .panel-contexto,
+  .superficie-calendario,
+  .editor-dia,
+  .panel-siete-dias,
+  .bandeja-actividades,
+  .vista-lista-calendario,
+  .barra-contextos,
+  .navegacion-calendario,
+  .grupo-vistas,
+  .grupo-navegacion-fecha,
+  .campo-fecha-ancla,
+  .control-cronometro {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .grupo-vistas,
+  .grupo-navegacion-fecha {
+    width: 100%;
+  }
+
+  .grupo-vistas > button,
+  .grupo-navegacion-fecha > button {
+    flex: 1 1 8rem;
+  }
+
+  .campo-fecha-ancla {
+    width: 100%;
+  }
+
+  .vista-lista-calendario .titulo-region {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .vista-lista-calendario .titulo-region > button {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .rejilla-calendario,
+  .rejilla-siete-dias {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-width: 0;
+    overflow-x: visible;
+  }
+
+  .rejilla-calendario.vista-mes,
+  .rejilla-calendario.vista-semana,
+  .rejilla-calendario.vista-dia {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dia-calendario,
+  .dia-proximo {
+    min-width: 0;
+    min-height: 8rem;
+  }
+
+  .dia-proximo {
+    border-right: 1px solid var(--linea);
+  }
+
+  .boton-dia-calendario,
+  .boton-dia-proximo,
+  .seleccion-bloque-corte {
+    min-height: 2.75rem;
+  }
+
+  .bloques-compactos strong,
+  .bloques-compactos span,
+  .bloques-compactos small {
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .vista-lista-calendario li,
+  .lista-actividades-sin-programar li,
+  .lista-cortes-gracia li,
+  .control-cronometro {
+    overflow-wrap: anywhere;
+  }
+
+  .acceso-lista-calendario {
+    justify-content: stretch;
+  }
+
+  .acceso-lista-calendario a {
+    justify-content: center;
+    width: 100%;
+    border: 1px solid var(--linea);
+    background: rgb(255 255 255 / 52%);
+  }
+}
+
+@media (max-width: 32rem) {
+  .rejilla-siete-dias,
+  .rejilla-calendario.vista-semana,
+  .rejilla-calendario.vista-dia {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rejilla-calendario.vista-mes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .superficie-calendario,
+  .editor-dia,
+  .panel-siete-dias,
+  .bandeja-actividades,
+  .vista-lista-calendario {
+    padding: 1rem;
+  }
+
+  .dia-calendario,
+  .dia-proximo {
+    min-height: 0;
+  }
+
+  .boton-dia-proximo {
+    align-items: center;
+    flex-flow: row wrap;
+  }
+
+  .boton-dia-proximo small {
+    flex-basis: 100%;
+  }
+
+  .lista-actividades-sin-programar button {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 22rem) {
+  .rejilla-calendario.vista-mes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.panel-contexto,
+.superficie-calendario,
+.editor-dia,
+.panel-siete-dias,
+.bandeja-actividades,
+.vista-lista-calendario,
+.barra-contextos,
+.control-cronometro,
+.lista-cortes-gracia li,
+.lista-actividades-sin-programar li,
+.vista-lista-calendario li,
+.dia-calendario,
+.dia-proximo {
+  border-radius: 0;
+}
+
+.seleccion-bloque-corte input {
+  accent-color: rgb(var(--planta-profundo));
+}
+
+.barra-contextos,
+.control-cronometro {
+  border-color: rgb(var(--plata-profunda) / 42%);
+  background:
+    linear-gradient(
+      112deg,
+      rgb(var(--diamante-blanco) / 36%),
+      transparent 37%,
+      rgb(var(--plata-brillante) / 28%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 94%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+  box-shadow: var(--sombra-metalica);
+}
+
+.panel-contexto,
+.superficie-calendario,
+.editor-dia {
+  border-color: rgb(var(--diamante-azul) / 43%);
+  background:
+    linear-gradient(
+      rgb(var(--diamante-hielo) / 12%),
+      rgb(var(--diamante-hielo) / 12%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 93%),
+      rgb(var(--plata-brillante) / 76%)
+    );
+  box-shadow: var(--sombra-diamante);
+  transition:
+    background var(--duracion-media) ease,
+    border-color var(--duracion-media) ease,
+    box-shadow var(--duracion-media) ease;
+}
+
+.panel-contexto:hover,
+.panel-contexto:focus-within,
+.superficie-calendario:hover,
+.superficie-calendario:focus-within,
+.editor-dia:hover,
+.editor-dia:focus-within {
+  border-color: rgb(var(--diamante-azul) / 70%);
+  background:
+    linear-gradient(
+      125deg,
+      rgb(var(--diamante-blanco) / 67%),
+      rgb(var(--diamante-hielo) / 19%) 46%,
+      rgb(var(--diamante-azul) / 14%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 95%),
+      rgb(var(--plata-brillante) / 74%)
+    );
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 96%) inset,
+    9px 10px 0 rgb(var(--diamante-profundo) / 10%),
+    0 22px 48px rgb(var(--diamante-hielo) / 12%);
+}
+
+.panel-siete-dias {
+  border-color: rgb(var(--planta-profundo) / 38%);
+  background:
+    linear-gradient(
+      rgb(var(--planta-metal) / 12%),
+      rgb(var(--planta-metal) / 12%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 93%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+  box-shadow: var(--sombra-verde);
+}
+
+.panel-siete-dias:hover,
+.panel-siete-dias:focus-within {
+  background:
+    linear-gradient(
+      125deg,
+      rgb(var(--planta-luz) / 27%),
+      rgb(var(--plata-blanca) / 73%) 48%,
+      rgb(var(--planta-metal) / 15%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 95%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 95%) inset,
+    9px 10px 0 rgb(var(--planta-profundo) / 9%),
+    0 20px 42px rgb(var(--planta-metal) / 10%);
+}
+
+.bandeja-actividades {
+  border-color: rgb(var(--oro-profundo) / 44%);
+  background:
+    linear-gradient(rgb(var(--oro-metal) / 12%), rgb(var(--oro-metal) / 12%)),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 93%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+  box-shadow: var(--sombra-oro);
+}
+
+.bandeja-actividades:hover,
+.bandeja-actividades:focus-within {
+  background:
+    linear-gradient(
+      125deg,
+      rgb(var(--oro-luz) / 29%),
+      rgb(var(--plata-blanca) / 73%) 48%,
+      rgb(var(--bronce-metal) / 14%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 95%),
+      rgb(var(--plata-brillante) / 72%)
+    );
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 95%) inset,
+    9px 10px 0 rgb(var(--oro-profundo) / 10%),
+    0 20px 42px rgb(var(--oro-metal) / 11%);
+}
+
+.vista-lista-calendario {
+  border-color: rgb(var(--bronce-sombra) / 45%);
+  background:
+    linear-gradient(
+      rgb(var(--bronce-metal) / 11%),
+      rgb(var(--bronce-metal) / 11%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 94%),
+      rgb(var(--plata-brillante) / 73%)
+    );
+  box-shadow: var(--sombra-bronce);
+}
+
+.dia-calendario,
+.dia-proximo {
+  border-color: rgb(var(--plata-profunda) / 31%);
+  background:
+    linear-gradient(
+      rgb(var(--plata-brillante) / 22%),
+      rgb(var(--plata-brillante) / 22%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 94%),
+      rgb(var(--plata-brillante) / 68%)
+    );
+}
+
+.dia-calendario:hover,
+.dia-proximo:hover {
+  border-color: rgb(var(--diamante-azul) / 47%);
+  background: linear-gradient(
+    130deg,
+    rgb(var(--diamante-blanco) / 80%),
+    rgb(var(--diamante-hielo) / 19%) 54%,
+    rgb(var(--plata-blanca) / 89%)
+  );
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--diamante-hielo) / 39%),
+    5px 6px 0 rgb(var(--diamante-profundo) / 8%),
+    0 12px 26px rgb(var(--diamante-hielo) / 9%);
+}
+
+.dia-calendario.seleccionado {
+  border-color: rgb(var(--diamante-azul) / 80%);
+  background:
+    linear-gradient(
+      125deg,
+      rgb(var(--diamante-blanco) / 93%),
+      rgb(var(--diamante-hielo) / 33%) 45%,
+      rgb(var(--planta-metal) / 12%)
+    ),
+    rgb(var(--plata-blanca) / 93%);
+  box-shadow:
+    inset 0 0 0 2px rgb(var(--diamante-hielo) / 68%),
+    inset 5px 0 0 rgb(var(--diamante-profundo)),
+    6px 7px 0 rgb(var(--diamante-profundo) / 12%),
+    0 0 24px rgb(var(--diamante-hielo) / 13%);
+}
+
+.grupo-vistas button[aria-pressed="true"] {
+  border-color: rgb(var(--planta-profundo));
+  background:
+    linear-gradient(
+      120deg,
+      rgb(var(--planta-luz) / 31%),
+      rgb(var(--diamante-blanco) / 66%) 52%,
+      rgb(var(--diamante-hielo) / 13%)
+    ),
+    rgb(var(--plata-blanca) / 82%);
+  color: rgb(var(--planta-profundo));
+  box-shadow:
+    inset 0 -3px 0 rgb(var(--planta-profundo)),
+    4px 5px 0 rgb(var(--planta-metal) / 10%);
+}
+
+.bloques-compactos li {
+  border-left-color: rgb(var(--planta-profundo));
+  background:
+    linear-gradient(
+      90deg,
+      rgb(var(--planta-luz) / 27%),
+      rgb(var(--diamante-blanco) / 43%) 58%,
+      rgb(var(--planta-metal) / 10%)
+    ),
+    rgb(var(--plata-blanca) / 72%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 84%) inset,
+    3px 3px 0 rgb(var(--planta-profundo) / 8%);
+}
+
+.lista-actividades-sin-programar li,
+.lista-cortes-gracia li {
+  border-color: rgb(var(--plata-profunda) / 32%);
+  background:
+    linear-gradient(
+      110deg,
+      rgb(var(--diamante-blanco) / 30%),
+      transparent 42%,
+      rgb(var(--plata-brillante) / 24%)
+    ),
+    rgb(var(--plata-blanca) / 78%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 90%) inset,
+    4px 5px 0 rgb(var(--plata-profunda) / 6%);
+}
+
+.control-cronometro {
+  border-color: rgb(var(--diamante-azul) / 38%);
+}
+
+.control-cronometro output {
+  color: rgb(var(--diamante-profundo));
+  text-shadow:
+    0 1px 0 rgb(255 255 255 / 90%),
+    0 0 12px rgb(var(--diamante-hielo) / 18%);
+}
+
+.estado-cronometro {
+  color: rgb(var(--planta-profundo));
+  font-weight: 750;
+}
+
+.estado-proteccion-bloque {
+  border-color: rgb(var(--oro-profundo) / 38%);
+  background: linear-gradient(
+    110deg,
+    rgb(var(--oro-luz) / 34%),
+    rgb(var(--diamante-blanco) / 45%)
+  );
+  color: rgb(var(--oro-profundo)) !important;
+}
+
+.dialogo-revision-corte,
+.dialogo-corregir-corte {
+  border-top-color: rgb(var(--oro-metal));
+  background:
+    linear-gradient(
+      120deg,
+      rgb(var(--oro-luz) / 27%),
+      rgb(var(--diamante-blanco) / 53%) 48%,
+      rgb(var(--bronce-luz) / 12%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 98%),
+      rgb(var(--plata-brillante) / 84%)
+    );
+}
+
+.resumen-revision-corte {
+  border-color: rgb(var(--plata-profunda) / 38%);
+  background:
+    linear-gradient(
+      110deg,
+      rgb(var(--diamante-blanco) / 56%),
+      transparent 48%,
+      rgb(var(--bronce-luz) / 10%)
+    ),
+    linear-gradient(
+      180deg,
+      rgb(var(--plata-blanca) / 89%),
+      rgb(var(--plata-brillante) / 68%)
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-contexto,
+  .superficie-calendario,
+  .editor-dia,
+  .panel-siete-dias,
+  .bandeja-actividades {
+    transition: none;
+  }
+}
+
+@media (min-width: 76.01rem) {
+  .panel-calendario {
+    display: grid;
+    grid-template-columns: minmax(0, 2.15fr) minmax(20rem, 0.85fr);
+    gap: var(--separacion-interna);
+    align-items: start;
+  }
+
+  .panel-calendario > .cabecera-panel-agenda,
+  .panel-calendario > .panel-gracia-planificacion,
+  .panel-calendario > .barra-contextos,
+  .panel-calendario > .navegacion-calendario,
+  .panel-calendario > .acceso-lista-calendario,
+  .panel-calendario > #panel-nueva-agenda,
+  .panel-calendario > .panel-contexto,
+  .panel-calendario > .mensaje-exito,
+  .panel-calendario > .mensaje-formulario,
+  .panel-calendario > .vista-lista-calendario {
+    grid-column: 1 / -1;
+  }
+
+  .panel-calendario > .superficie-calendario {
+    grid-column: 1;
+    margin-top: 0;
+  }
+
+  .panel-calendario:not(:has(> .editor-dia)) > .superficie-calendario {
+    grid-column: 1 / -1;
+  }
+
+  .panel-calendario > .editor-dia {
+    grid-column: 2;
+    margin-top: 0;
+  }
+
+  .panel-calendario > .panel-siete-dias {
+    grid-column: 1;
+    margin-top: 0;
+  }
+
+  .panel-calendario > .bandeja-actividades {
+    grid-column: 2;
+    margin-top: 0;
+  }
+
+  .panel-calendario > .vista-lista-calendario {
+    margin-top: 0;
+  }
+
+  .panel-calendario > .acceso-lista-calendario {
+    margin-block: 0;
+  }
+
+  .panel-calendario > #panel-nueva-agenda > .panel-contexto,
+  .panel-calendario > .panel-contexto {
+    margin-top: 0;
+  }
+
+  .panel-calendario > .navegacion-calendario {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: end;
+  }
+
+  .panel-calendario .grupo-vistas {
+    justify-content: flex-start;
+  }
+
+  .panel-calendario .grupo-navegacion-fecha {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 76rem) {
+  .panel-calendario {
+    display: block;
+  }
+
+  .panel-calendario > .superficie-calendario,
+  .panel-calendario > .editor-dia,
+  .panel-calendario > .panel-siete-dias,
+  .panel-calendario > .bandeja-actividades,
+  .panel-calendario > .vista-lista-calendario {
+    margin-top: 1.5rem;
+  }
+}

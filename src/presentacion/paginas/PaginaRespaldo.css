@@ -1,0 +1,13 @@
+.pagina-respaldo > .panel-agenda {
+  padding: clamp(1rem, 2vw, 2rem);
+}
+
+.pagina-respaldo .panel-reinicio-planificacion {
+  border-color: rgb(var(--bronce-metal) / 42%);
+}
+
+@media (max-width: 48rem) {
+  .pagina-respaldo > .panel-agenda {
+    padding: 0.85rem;
+  }
+}

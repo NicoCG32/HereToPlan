@@ -146,6 +146,8 @@ aplicarlo se utiliza `npm run format`. Finalmente, `npm run build` ejecuta la
 comprobación de TypeScript y genera la aplicación de producción.
 `npm run verify:pages` comprueba que el HTML apunte a recursos JavaScript y CSS
 existentes bajo `/HereToPlan/`; debe ejecutarse después del build.
+`npm run audit:css` comprueba la modularidad de la entrada global, la ausencia
+de comentarios CSS y reporta posibles selectores huérfanos.
 
 ## Capacidades implementadas
 

@@ -1,0 +1,21 @@
+.pagina-calendario > .panel-agenda {
+  padding: clamp(1rem, 2vw, 2rem);
+}
+
+.pagina-calendario > .panel-calendario {
+  overflow: clip;
+}
+
+.pagina-calendario .cabecera-panel-agenda {
+  padding-bottom: 1rem;
+}
+
+.pagina-calendario .navegacion-calendario {
+  gap: 0.75rem;
+}
+
+@media (max-width: 48rem) {
+  .pagina-calendario > .panel-agenda {
+    padding: 0.85rem;
+  }
+}
