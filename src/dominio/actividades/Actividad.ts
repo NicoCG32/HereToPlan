@@ -5,7 +5,12 @@ import {
   exigirTexto,
 } from "../compartido/validaciones";
 import { ErrorDominio } from "../compartido/ErrorDominio";
-import { esTipoActividad, type TipoActividad } from "./tipos";
+import {
+  esModoSeguimiento,
+  esTipoActividad,
+  type ModoSeguimiento,
+  type TipoActividad,
+} from "./tipos";
 import type {
   PoliticaCompromiso,
   VistaPoliticaCompromiso,
@@ -15,6 +20,7 @@ export interface DatosActividad {
   id: Identificador;
   titulo: string;
   tipo: TipoActividad;
+  modoSeguimiento?: ModoSeguimiento;
   descripcion?: string;
   creadaEn: Date;
   politicaPredeterminada?: PoliticaCompromiso;
@@ -24,6 +30,7 @@ export abstract class Actividad {
   public readonly id: Identificador;
   public readonly titulo: string;
   public readonly tipo: TipoActividad;
+  public readonly modoSeguimiento: ModoSeguimiento;
   public readonly descripcion: string | undefined;
   private readonly _creadaEn: Date;
   private readonly politicaPredeterminada: PoliticaCompromiso | undefined;
@@ -42,6 +49,14 @@ export abstract class Actividad {
       );
     }
     this.tipo = datos.tipo;
+    const modoSeguimiento = datos.modoSeguimiento ?? "MANUAL";
+    if (!esModoSeguimiento(modoSeguimiento)) {
+      throw new ErrorDominio(
+        "MODO_SEGUIMIENTO_INVALIDO",
+        "El modo de seguimiento debe ser manual o cronometrado.",
+      );
+    }
+    this.modoSeguimiento = modoSeguimiento;
     this.descripcion = datos.descripcion?.trim() || undefined;
     this._creadaEn = copiarFecha(datos.creadaEn, "fecha de creación");
     this.politicaPredeterminada = datos.politicaPredeterminada;

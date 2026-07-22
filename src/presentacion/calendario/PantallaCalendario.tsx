@@ -28,6 +28,7 @@ import {
   type ElementoAsignableArrastrado,
 } from "./BandejaAsignablesCalendario";
 import { DialogoAplicarDiaLibre } from "./DialogoAplicarDiaLibre";
+import { etiquetaModoSeguimiento } from "../actividades/etiquetasActividad";
 
 interface PantallaCalendarioProps {
   readonly servicios: ServiciosCalendario;
@@ -480,7 +481,7 @@ export function PantallaCalendario({
       const titulo = resolucionPendiente.bloque.titulo;
       const completado = resolucionPendiente.accion === "COMPLETAR";
       setResolucionPendiente(undefined);
-      if (completado) onPuntosCambiados?.();
+      onPuntosCambiados?.();
       actualizar(
         completado
           ? `${titulo} quedó completado y registrado en su historial.`
@@ -912,7 +913,10 @@ export function PantallaCalendario({
                 <li key={actividad.id}>
                   <div>
                     <strong>{actividad.titulo}</strong>
-                    <span>{etiquetaTipoActividad(actividad.tipo)}</span>
+                    <span>
+                      {etiquetaTipoActividad(actividad.tipo)} ·{" "}
+                      {etiquetaModoSeguimiento(actividad.modoSeguimiento)}
+                    </span>
                   </div>
                   <button
                     className="boton-texto"
@@ -1311,7 +1315,8 @@ function VistaListaBloques({
                   ·{" "}
                   {bloque.politica.rigidez === "ESTRICTO"
                     ? "Estricta"
-                    : "Flexible"}
+                    : "Flexible"}{" "}
+                  · {etiquetaModoSeguimiento(bloque.modoSeguimiento)}
                 </span>
                 {bloque.editable ? (
                   <label className="seleccion-bloque-corte">
@@ -1371,14 +1376,16 @@ function VistaListaBloques({
               {!bloque.editable &&
                 bloque.proteccion?.estado === "CONFIRMADA" && (
                   <div className="ejecucion-bloque">
-                    <ControlCronometroBloque
-                      bloqueId={bloque.id}
-                      titulo={bloque.titulo}
-                      permitirInicio={bloque.estado === "PENDIENTE"}
-                      servicios={servicios}
-                      revision={revisionCronometro}
-                      onCambio={onCronometroCambio}
-                    />
+                    {bloque.modoSeguimiento === "CRONOMETRADO" && (
+                      <ControlCronometroBloque
+                        bloqueId={bloque.id}
+                        titulo={bloque.titulo}
+                        permitirInicio={bloque.estado === "PENDIENTE"}
+                        servicios={servicios}
+                        revision={revisionCronometro}
+                        onCambio={onCronometroCambio}
+                      />
+                    )}
                     {bloque.estado === "PENDIENTE" && (
                       <div className="acciones-bloque acciones-resolucion-bloque">
                         <button

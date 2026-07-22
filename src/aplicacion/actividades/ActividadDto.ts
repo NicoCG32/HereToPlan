@@ -6,8 +6,11 @@ interface ActividadBaseDto {
   readonly descripcion?: string;
   readonly creadaEn: string;
   readonly tiempoNecesarioMinutos: number;
+  readonly modoSeguimiento: ModoSeguimientoDto;
   readonly politicaPredeterminada?: PoliticaActividadDto;
 }
+
+export type ModoSeguimientoDto = "MANUAL" | "CRONOMETRADO";
 
 export interface PoliticaActividadDto {
   readonly versionEsquema: 1;
@@ -42,6 +45,7 @@ export function convertirActividadADto(actividad: Actividad): ActividadDto {
     titulo: actividad.titulo,
     ...(actividad.descripcion ? { descripcion: actividad.descripcion } : {}),
     creadaEn: actividad.creadaEn.toISOString(),
+    modoSeguimiento: actividad.modoSeguimiento,
     ...(politicaPredeterminada
       ? {
           politicaPredeterminada: Object.freeze({

@@ -151,6 +151,9 @@ function obtenerRegistrosOrigen(
   respaldo: RespaldoHereToPlan,
   coleccion: NombreColeccionRespaldo,
 ): readonly RegistroRespaldable[] {
+  if (coleccion === "actividades") {
+    return migrarRegistrosActividad(respaldo.contenido.actividades);
+  }
   if (respaldo.versionFormato === VERSION_FORMATO_RESPALDO) {
     return respaldo.contenido[coleccion];
   }
@@ -175,6 +178,19 @@ function obtenerRegistrosOrigen(
       >
     )[coleccion] ?? []
   );
+}
+
+function migrarRegistrosActividad(
+  actividades: readonly RegistroRespaldable[],
+): readonly RegistroRespaldable[] {
+  return actividades.map((actividad) => {
+    if (actividad.versionEsquema === 2) return actividad;
+    return Object.freeze({
+      ...actividad,
+      versionEsquema: 2,
+      modoSeguimiento: "MANUAL",
+    });
+  });
 }
 
 function seleccionarRutaMigracion(version: number): RutaMigracionRespaldo {

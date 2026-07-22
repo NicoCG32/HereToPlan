@@ -149,7 +149,16 @@ async function crearBaseVersionCuatro(
     ];
     const transaccion = baseDatos.transaction(almacenes, "readwrite");
     transaccion.objectStore("agendas").add({ id: "agenda-legada" });
-    transaccion.objectStore("actividades").add({ id: "actividad-legada" });
+    transaccion.objectStore("actividades").add({
+      versionEsquema: 1,
+      id: "actividad-legada",
+      titulo: "Actividad legada",
+      tipo: "TAREA_SIMPLE",
+      tiempoNecesarioMinutos: 30,
+      subtareasIds: [],
+      estado: "PENDIENTE",
+      creadaEn: "2026-07-20T10:00:00.000Z",
+    });
     transaccion
       .objectStore("contextos-planificacion")
       .add({ id: "contexto-legado" });

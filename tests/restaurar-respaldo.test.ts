@@ -86,6 +86,34 @@ describe("restauración de respaldos", () => {
     ]);
   });
 
+  it("migra actividades heredadas a seguimiento manual", () => {
+    const documento = respaldoV1();
+    documento.contenido.actividades = [
+      {
+        versionEsquema: 1,
+        id: "actividad-legada",
+        titulo: "Actividad legada",
+        tipo: "TAREA_SIMPLE",
+        creadaEn: "2026-07-20T10:00:00.000Z",
+        tiempoNecesarioMinutos: 30,
+        subtareasIds: [],
+        estado: "PENDIENTE",
+      },
+    ];
+
+    const plan = new CasoDeUsoPrepararRestauracionRespaldo().ejecutar(
+      JSON.stringify(documento),
+    );
+
+    expect(plan.estadoDestino.colecciones.actividades).toMatchObject([
+      {
+        versionEsquema: 2,
+        id: "actividad-legada",
+        modoSeguimiento: "MANUAL",
+      },
+    ]);
+  });
+
   it("rechaza versiones futuras cuando no existe una ruta de migración", () => {
     const documento = respaldoV1();
     documento.versionFormato = 4;

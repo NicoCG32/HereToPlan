@@ -33,6 +33,7 @@ const ACTIVIDAD: ActividadDto = {
   titulo: "Preparar informe",
   creadaEn: "2026-07-21T10:00:00.000Z",
   tiempoNecesarioMinutos: 45,
+  modoSeguimiento: "MANUAL",
   subtareasIds: [],
   estado: "PENDIENTE",
 };
@@ -129,12 +130,20 @@ describe("página Crear", () => {
       screen.getByRole("textbox", { name: "Título" }),
       "Lectura",
     );
+    expect(screen.getByRole("radio", { name: /Manual/ })).toHaveProperty(
+      "checked",
+      true,
+    );
+    await usuario.click(screen.getByRole("radio", { name: /Cronometrado/ }));
     await usuario.click(
       screen.getByRole("button", { name: /Guardar y asignar a/ }),
     );
 
     expect(await screen.findByText(/actividad=actividad-nueva/)).toBeTruthy();
     expect(screen.getByText(/fecha=\d{4}-\d{2}-\d{2}/)).toBeTruthy();
+    expect(crearActividad).toHaveBeenCalledWith(
+      expect.objectContaining({ modoSeguimiento: "CRONOMETRADO" }),
+    );
   });
 });
 

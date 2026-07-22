@@ -50,6 +50,13 @@ La actividad no se calendariza directamente. Sus ejecuciones concretas se repres
 
 El catálogo de actividades posee persistencia independiente de las agendas. Crear una actividad no crea un bloque ni le asigna una fecha. La consulta `Sin programar` es una proyección de aplicación: devuelve las actividades cuyo identificador no aparece en ningún bloque existente.
 
+Cada actividad declara además un `modoSeguimiento` independiente de su tipo:
+
+- `MANUAL` permite resolver el bloque mediante una declaración humana sin mostrar controles temporales;
+- `CRONOMETRADO` habilita sesiones persistentes de inicio, pausa, reanudación y detención, pero conserva las mismas resoluciones humanas.
+
+El modo no se infiere desde el título, la duración ni la clase de actividad. Las definiciones heredadas se migran determinísticamente a `MANUAL`. Puede editarse mientras la actividad no posea bloques; desde su primera programación queda estable para evitar que un cambio posterior reinterprete sesiones o compromisos históricos.
+
 Editar una definición conserva su identificador y fecha de creación. Una tarea
 conserva además su estado y sus subtareas; la edición no permite convertir una
 tarea en hábito ni un hábito en tarea. Una actividad solo puede eliminarse si no
@@ -239,9 +246,10 @@ recargar la aplicación no altera la medición. Una orden idéntica es idempoten
 reutilizar su identificador para otra transición se rechaza.
 
 Sólo puede existir una sesión abierta en la aplicación, aunque esté pausada.
-Cada bloque puede acumular varias sesiones finalizadas. Detener una sesión no
-crea una `ResolucionBloquePlanificacion`: completar o incumplir sigue siendo una
-declaración humana separada y el cronómetro nunca es obligatorio.
+Cada bloque cronometrado puede acumular varias sesiones finalizadas. Detener una
+sesión no crea una `ResolucionBloquePlanificacion`: completar o incumplir sigue
+siendo una declaración humana separada. Una actividad manual no expone el
+cronómetro y una cronometrada tampoco exige una duración mínima para resolver.
 
 ### `recuperacion`
 
@@ -373,6 +381,9 @@ La recompensa `DIA_LIBRE`:
 21. Un canje histórico migra como unidad consumida, nunca como unidad disponible.
 22. Preparar una aplicación no escribe; confirmar consume la unidad solo junto con todos sus ajustes.
 23. Arrastrar una actividad o recompensa no constituye un comando de dominio.
+24. Toda actividad posee un modo de seguimiento explícito y persistido.
+25. Una actividad heredada adquiere modo `MANUAL` sin modificar tipo, estado, política ni historia.
+26. El modo no cambia después de que exista un bloque que referencie la actividad.
 
 ## 5. Capacidades todavía no implementadas
 

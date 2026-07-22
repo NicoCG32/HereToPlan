@@ -6,6 +6,7 @@ import {
   PoliticaCompromiso,
   Tarea,
   type Actividad,
+  type ModoSeguimiento,
   type TipoFrecuenciaHabito,
   type TipoTarea,
 } from "../../dominio";
@@ -21,6 +22,7 @@ interface ComandoActividadBase {
   readonly titulo: string;
   readonly descripcion?: string;
   readonly tiempoNecesarioMinutos: number;
+  readonly modoSeguimiento?: ModoSeguimiento;
   readonly politicaPredeterminada?: ComandoPoliticaActividad;
 }
 
@@ -63,6 +65,7 @@ export type CodigoErrorCrearActividad =
   | "HABITO_SIN_DIAS"
   | "COMPROMISO_ESTRICTO_CON_AJUSTES"
   | "PLAZO_EXTERNO_EXTENDIBLE"
+  | "MODO_SEGUIMIENTO_INVALIDO"
   | "IDENTIFICADOR_ACTIVIDAD_DUPLICADO";
 
 export type CampoCrearActividad =
@@ -72,7 +75,8 @@ export type CampoCrearActividad =
   | "subtareasIds"
   | "frecuencia"
   | "diasSemana"
-  | "politicaPredeterminada";
+  | "politicaPredeterminada"
+  | "modoSeguimiento";
 
 export type ResultadoCrearActividad =
   | Readonly<{ exito: true; actividad: ActividadDto }>
@@ -108,6 +112,7 @@ const CAMPOS_POR_ERROR: Partial<
   HABITO_SIN_DIAS: "diasSemana",
   COMPROMISO_ESTRICTO_CON_AJUSTES: "politicaPredeterminada",
   PLAZO_EXTERNO_EXTENDIBLE: "politicaPredeterminada",
+  MODO_SEGUIMIENTO_INVALIDO: "modoSeguimiento",
 };
 
 export class CasoDeUsoCrearActividad implements CrearActividad {
@@ -166,6 +171,7 @@ export class CasoDeUsoCrearActividad implements CrearActividad {
         ? { descripcion: comando.descripcion }
         : {}),
       tiempoNecesarioMinutos: comando.tiempoNecesarioMinutos,
+      modoSeguimiento: comando.modoSeguimiento ?? "MANUAL",
       creadaEn: this.reloj.ahora(),
       ...(comando.politicaPredeterminada
         ? {

@@ -3,11 +3,13 @@ import type {
   ActividadDto,
   CampoCrearActividad,
   ComandoCrearActividad,
+  ModoSeguimientoDto,
   ResultadoCrearActividad,
   ResultadoEditarActividad,
 } from "../../aplicacion";
 import type { ServiciosCalendario } from "./ServiciosCalendario";
 import { useEnfoqueError } from "../hooks/useEnfoqueError";
+import { SelectorModoSeguimiento } from "../actividades/SelectorModoSeguimiento";
 
 interface FormularioActividadCalendarioProps {
   readonly crearActividad: ServiciosCalendario["crearActividad"];
@@ -45,6 +47,9 @@ export function FormularioActividadCalendario({
   const [descripcion, setDescripcion] = useState(actividad?.descripcion ?? "");
   const [minutos, setMinutos] = useState(
     String(actividad?.tiempoNecesarioMinutos ?? 30),
+  );
+  const [modoSeguimiento, setModoSeguimiento] = useState<ModoSeguimientoDto>(
+    actividad?.modoSeguimiento ?? "MANUAL",
   );
   const [fechaLimite, setFechaLimite] = useState(
     actividad && actividad.tipo !== "HABITO"
@@ -99,6 +104,7 @@ export function FormularioActividadCalendario({
       titulo,
       ...(descripcion ? { descripcion } : {}),
       tiempoNecesarioMinutos: Number(minutos),
+      modoSeguimiento,
     };
     if (tipo === "HABITO") {
       return {
@@ -186,6 +192,14 @@ export function FormularioActividadCalendario({
             </small>
           )}
         </div>
+        <SelectorModoSeguimiento
+          valor={modoSeguimiento}
+          deshabilitado={guardando}
+          {...(errores.modoSeguimiento
+            ? { error: errores.modoSeguimiento }
+            : {})}
+          onCambiar={setModoSeguimiento}
+        />
         <div className="campo">
           <label htmlFor="titulo-actividad-campo">Título</label>
           <input

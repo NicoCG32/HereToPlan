@@ -193,6 +193,51 @@ describe("eliminación de actividades", () => {
   });
 });
 
+describe("protección del modo de seguimiento", () => {
+  it("rechaza cambiarlo cuando la actividad ya posee historia planificada", async () => {
+    const actividades = new RepositorioActividadesEnMemoria();
+    const bloques = new RepositorioBloquesPlanificacionEnMemoria();
+    await actividades.guardar(crearTarea("actividad", "Preparar entrega"));
+    await bloques.guardar(
+      new BloquePlanificacion({
+        id: "bloque",
+        contextoId: "contexto-libre",
+        actividadId: "actividad",
+        titulo: "Preparar entrega",
+        fecha: FechaLocal.crear("2026-07-22"),
+        minutosPlanificados: 30,
+        politica: new PoliticaCompromiso({
+          rigidez: "FLEXIBLE",
+          autoridadPlazo: "PERSONAL",
+        }),
+        creadoEn: CREADA_EN,
+      }),
+    );
+
+    const resultado = await new CasoDeUsoEditarActividad(
+      actividades,
+      bloques,
+    ).ejecutar({
+      actividadId: "actividad",
+      tipo: "TAREA_SIMPLE",
+      titulo: "Preparar entrega",
+      tiempoNecesarioMinutos: 30,
+      modoSeguimiento: "CRONOMETRADO",
+    });
+
+    expect(resultado).toMatchObject({
+      exito: false,
+      error: {
+        codigo: "MODO_SEGUIMIENTO_CON_HISTORIA",
+        campo: "modoSeguimiento",
+      },
+    });
+    await expect(actividades.obtenerPorId("actividad")).resolves.toMatchObject({
+      modoSeguimiento: "MANUAL",
+    });
+  });
+});
+
 function crearTarea(id: string, titulo: string): Tarea {
   return new Tarea({
     id,

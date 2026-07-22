@@ -262,11 +262,28 @@ export class CasoDeUsoAnalizarImportacionRespaldo {
           }
           if (registro.versionEsquema === undefined) {
             errores.push(`${ruta}.versionEsquema es obligatorio.`);
-          } else if (registro.versionEsquema !== 1) {
+          } else if (
+            registro.versionEsquema !== 1 &&
+            !(coleccion === "actividades" && registro.versionEsquema === 2)
+          ) {
             versionRegistroIncompatible = true;
-            errores.push(`${ruta}.versionEsquema debe ser 1.`);
+            errores.push(
+              coleccion === "actividades"
+                ? `${ruta}.versionEsquema no corresponde a una versión soportada.`
+                : `${ruta}.versionEsquema debe ser 1.`,
+            );
           }
           validarCamposRegistro(coleccion, registro, ruta, errores);
+          if (
+            coleccion === "actividades" &&
+            registro.versionEsquema === 2 &&
+            registro.modoSeguimiento !== "MANUAL" &&
+            registro.modoSeguimiento !== "CRONOMETRADO"
+          ) {
+            errores.push(
+              `${ruta}.modoSeguimiento debe ser MANUAL o CRONOMETRADO.`,
+            );
+          }
           const campoClave =
             coleccion === "resoluciones-bloques-planificacion"
               ? "bloqueId"
@@ -349,6 +366,15 @@ function validarCamposRegistro(
         `${ruta}.${campo} es obligatorio y debe ser de tipo ${tipo}.`,
       );
     }
+  }
+  if (
+    coleccion === "actividades" &&
+    registro.versionEsquema === 2 &&
+    typeof registro.modoSeguimiento !== "string"
+  ) {
+    errores.push(
+      `${ruta}.modoSeguimiento es obligatorio y debe ser de tipo cadena.`,
+    );
   }
 }
 

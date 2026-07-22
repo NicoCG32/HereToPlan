@@ -54,14 +54,15 @@
   <text class="grupo-subtitulo" x="64" y="164">Definiciones reutilizables, independientes del calendario</text>
 
   <g transform="translate(72 190)">
-    <rect class="clase actividad" width="390" height="142"/>
+    <rect class="clase actividad" width="390" height="162"/>
     <path class="cabecera-actividad" d="M10 0 H380 A10 10 0 0 1 390 10 V49 H0 V10 A10 10 0 0 1 10 0"/>
     <text class="estereotipo" x="16" y="18">«ENTIDAD BASE»</text>
     <text class="nombre" x="16" y="40">Actividad</text>
     <text class="atributo" x="16" y="72">id: Identificador</text>
     <text class="atributo" x="16" y="92">titulo: string</text>
     <text class="atributo" x="16" y="112">tipo: TipoActividad</text>
-    <text class="atributo" x="16" y="132">creadaEn: Date</text>
+    <text class="atributo" x="16" y="132">modoSeguimiento: ModoSeguimiento</text>
+    <text class="atributo" x="16" y="152">creadaEn: Date</text>
   </g>
 
   <g transform="translate(72 382)">

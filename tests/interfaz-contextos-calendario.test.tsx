@@ -35,6 +35,7 @@ import {
   FechaLocal,
   FormulaPuntosBloque,
   PoliticaCompromiso,
+  Tarea,
 } from "../src/dominio";
 import { RepositorioActividadesEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioActividadesEnMemoria";
 import { RepositorioAgendasEnMemoria } from "../src/infraestructura/persistencia/memoria/RepositorioAgendasEnMemoria";
@@ -668,6 +669,27 @@ describe("interfaz de contextos del calendario", () => {
   }, 15_000);
 });
 
+describe("modos de ejecución del calendario", () => {
+  it("ofrece cronómetro sólo al modo cronometrado y conserva la resolución humana", async () => {
+    const entorno = await crearEntorno();
+    await prepararBloquesConfirmados(entorno, true);
+
+    render(<App serviciosCalendario={entorno.servicios} />);
+
+    expect(
+      await screen.findByRole("button", { name: "Iniciar cronómetro" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Completar Sesión terminada" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", {
+        name: "Marcar incumplido Sesión pendiente",
+      }),
+    ).toBeTruthy();
+  });
+});
+
 async function crearServicios(): Promise<ServiciosCalendario> {
   return (await crearEntorno()).servicios;
 }
@@ -804,7 +826,7 @@ async function crearEntorno() {
     generarOperacionId: () => generadorOperaciones.generar(),
   };
 
-  return { repositorio, bloques, cortes, resoluciones, servicios };
+  return { repositorio, actividades, bloques, cortes, resoluciones, servicios };
 }
 
 async function prepararAgendaEliminable(
@@ -839,11 +861,34 @@ async function prepararAgendaEliminable(
 
 async function prepararBloquesConfirmados(
   entorno: Awaited<ReturnType<typeof crearEntorno>>,
+  definirModos = false,
 ): Promise<void> {
   const bloques = [
     crearBloqueConfirmado("bloque-completo", "Sesión terminada", 45),
     crearBloqueConfirmado("bloque-incumplido", "Sesión pendiente", 30),
   ];
+  if (definirModos) {
+    await entorno.actividades.guardar(
+      new Tarea({
+        id: "actividad-bloque-completo",
+        titulo: "Sesión terminada",
+        tipo: "TAREA_SIMPLE",
+        modoSeguimiento: "CRONOMETRADO",
+        tiempoNecesarioMinutos: 45,
+        creadaEn: new Date("2026-07-20T09:00:00.000Z"),
+      }),
+    );
+    await entorno.actividades.guardar(
+      new Tarea({
+        id: "actividad-bloque-incumplido",
+        titulo: "Sesión pendiente",
+        tipo: "TAREA_SIMPLE",
+        modoSeguimiento: "MANUAL",
+        tiempoNecesarioMinutos: 30,
+        creadaEn: new Date("2026-07-20T09:00:00.000Z"),
+      }),
+    );
+  }
   for (const bloque of bloques) await entorno.bloques.guardar(bloque);
   const corte = CortePlanificacion.crear({
     id: "corte-confirmado",

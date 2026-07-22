@@ -29,6 +29,7 @@ describe("RepositorioActividadesIndexedDB", () => {
     ).resolves.toMatchObject({
       id: "actividad-recargada",
       tipo: "PROYECTO",
+      modoSeguimiento: "CRONOMETRADO",
       tiempoNecesarioMinutos: 120,
       creadaEn: new Date("2026-07-20T10:00:00.000Z"),
     });
@@ -54,6 +55,31 @@ describe("RepositorioActividadesIndexedDB", () => {
   });
 });
 
+describe("migración del modo de seguimiento", () => {
+  it("convierte registros V1 a modo manual", async () => {
+    const fabricaIndexedDB = new IDBFactory();
+    await crearBaseVersionDoceConActividad(fabricaIndexedDB);
+
+    const repositorio = crearRepositorio(fabricaIndexedDB);
+    await expect(
+      repositorio.obtenerPorId("actividad-legada"),
+    ).resolves.toMatchObject({
+      id: "actividad-legada",
+      tipo: "TAREA_SIMPLE",
+      modoSeguimiento: "MANUAL",
+    });
+    await repositorio.cerrar();
+
+    await expect(
+      leerRegistroActividad(fabricaIndexedDB, "actividad-legada"),
+    ).resolves.toMatchObject({
+      versionEsquema: 2,
+      modoSeguimiento: "MANUAL",
+      estado: "PENDIENTE",
+    });
+  });
+});
+
 function crearRepositorio(
   fabricaIndexedDB: IDBFactory,
 ): RepositorioActividadesIndexedDB {
@@ -68,10 +94,63 @@ function crearActividad(id: string): Tarea {
     id,
     titulo: "Proyecto persistente",
     tipo: "PROYECTO",
+    modoSeguimiento: "CRONOMETRADO",
     tiempoNecesarioMinutos: 120,
     descripcion: "Se conserva después de recargar",
     creadaEn: new Date("2026-07-20T10:00:00.000Z"),
   });
+}
+
+async function crearBaseVersionDoceConActividad(
+  fabricaIndexedDB: IDBFactory,
+): Promise<void> {
+  const baseDatos = await new Promise<IDBDatabase>((resolve, reject) => {
+    const solicitud = fabricaIndexedDB.open(NOMBRE_BASE_DATOS, 12);
+    solicitud.onupgradeneeded = () => {
+      solicitud.result.createObjectStore("actividades", { keyPath: "id" });
+    };
+    solicitud.onsuccess = () => resolve(solicitud.result);
+    solicitud.onerror = () =>
+      reject(solicitud.error ?? new Error("Falló la apertura de IndexedDB."));
+  });
+  await new Promise<void>((resolve, reject) => {
+    const transaccion = baseDatos.transaction("actividades", "readwrite");
+    transaccion.objectStore("actividades").add({
+      versionEsquema: 1,
+      id: "actividad-legada",
+      titulo: "Actividad legada",
+      tipo: "TAREA_SIMPLE",
+      tiempoNecesarioMinutos: 30,
+      subtareasIds: [],
+      estado: "PENDIENTE",
+      creadaEn: "2026-07-20T10:00:00.000Z",
+    });
+    transaccion.oncomplete = () => resolve();
+    transaccion.onabort = () =>
+      reject(transaccion.error ?? new Error("Falló la escritura legada."));
+  });
+  baseDatos.close();
+}
+
+async function leerRegistroActividad(
+  fabricaIndexedDB: IDBFactory,
+  id: string,
+): Promise<unknown> {
+  const baseDatos = await new Promise<IDBDatabase>((resolve, reject) => {
+    const solicitud = fabricaIndexedDB.open(NOMBRE_BASE_DATOS, 13);
+    solicitud.onsuccess = () => resolve(solicitud.result);
+    solicitud.onerror = () =>
+      reject(solicitud.error ?? new Error("Falló la apertura de IndexedDB."));
+  });
+  const registro = await new Promise<unknown>((resolve, reject) => {
+    const transaccion = baseDatos.transaction("actividades", "readonly");
+    const solicitud = transaccion.objectStore("actividades").get(id);
+    solicitud.onsuccess = () => resolve(solicitud.result);
+    solicitud.onerror = () =>
+      reject(solicitud.error ?? new Error("Falló la lectura de IndexedDB."));
+  });
+  baseDatos.close();
+  return registro;
 }
 
 async function crearBaseVersionUnoConAgenda(

@@ -17,6 +17,7 @@ import type {
   ComandoCrearActividad,
   ComandoPoliticaActividad,
 } from "./CrearActividad";
+import type { RepositorioBloquesPlanificacion } from "../puertos/RepositorioBloquesPlanificacion";
 
 export type ComandoEditarActividad = ComandoCrearActividad &
   Readonly<{ actividadId: string }>;
@@ -33,7 +34,10 @@ export type ResultadoEditarActividad =
     }>;
 
 export class CasoDeUsoEditarActividad {
-  constructor(private readonly repositorio: RepositorioActividades) {}
+  constructor(
+    private readonly repositorio: RepositorioActividades,
+    private readonly repositorioBloques?: RepositorioBloquesPlanificacion,
+  ) {}
 
   public async ejecutar(
     comando: ComandoEditarActividad,
@@ -43,6 +47,16 @@ export class CasoDeUsoEditarActividad {
         comando.actividadId,
       );
       if (!existente) throw new ErrorActividadNoEncontrada(comando.actividadId);
+      if (
+        comando.modoSeguimiento !== undefined &&
+        comando.modoSeguimiento !== existente.modoSeguimiento &&
+        (await this.actividadPoseeHistoria(existente.id))
+      ) {
+        throw new ErrorDominio(
+          "MODO_SEGUIMIENTO_CON_HISTORIA",
+          "El modo de seguimiento no puede cambiarse después de programar la actividad.",
+        );
+      }
       const actualizada = await this.reconstruir(existente, comando);
       await this.repositorio.actualizar(actualizada);
       return Object.freeze({
@@ -62,6 +76,13 @@ export class CasoDeUsoEditarActividad {
       }
       throw error;
     }
+  }
+
+  private async actividadPoseeHistoria(actividadId: string): Promise<boolean> {
+    if (!this.repositorioBloques) return false;
+    return (await this.repositorioBloques.listar()).some(
+      (bloque) => bloque.actividadId === actividadId,
+    );
   }
 
   private async reconstruir(
@@ -84,6 +105,7 @@ export class CasoDeUsoEditarActividad {
         ? { descripcion: comando.descripcion }
         : {}),
       tiempoNecesarioMinutos: comando.tiempoNecesarioMinutos,
+      modoSeguimiento: comando.modoSeguimiento ?? existente.modoSeguimiento,
       creadaEn: existente.creadaEn,
       ...(politica ? { politicaPredeterminada: politica } : {}),
     };
@@ -148,6 +170,8 @@ function campoPorError(codigo: string): CampoCrearActividad | undefined {
   if (codigo.includes("COMPROMISO") || codigo.includes("PLAZO_EXTERNO")) {
     return "politicaPredeterminada";
   }
+  if (codigo === "MODO_SEGUIMIENTO_INVALIDO") return "modoSeguimiento";
+  if (codigo === "MODO_SEGUIMIENTO_CON_HISTORIA") return "modoSeguimiento";
   return undefined;
 }
 

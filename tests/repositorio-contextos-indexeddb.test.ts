@@ -125,8 +125,14 @@ async function crearBaseVersionDos(
       nombre: "Agenda legada",
     });
     transaccion.objectStore("actividades").add({
+      versionEsquema: 1,
       id: "actividad-legada",
       titulo: "Actividad legada",
+      tipo: "TAREA_SIMPLE",
+      tiempoNecesarioMinutos: 30,
+      subtareasIds: [],
+      estado: "PENDIENTE",
+      creadaEn: "2026-07-20T10:00:00.000Z",
     });
     transaccion.oncomplete = () => resolve();
     transaccion.onabort = () =>

@@ -199,6 +199,7 @@ function crearCalendario(): CalendarioDto {
     titulo: "Leer paper",
     creadaEn: "2026-07-20T08:00:00.000Z",
     tiempoNecesarioMinutos: 30,
+    modoSeguimiento: "MANUAL" as const,
     subtareasIds: [],
     estado: "PENDIENTE" as const,
   };
@@ -208,6 +209,7 @@ function crearCalendario(): CalendarioDto {
     titulo: "Proyecto editorial",
     creadaEn: "2026-07-19T08:00:00.000Z",
     tiempoNecesarioMinutos: 60,
+    modoSeguimiento: "MANUAL" as const,
     subtareasIds: [],
     estado: "PENDIENTE" as const,
   };

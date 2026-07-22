@@ -13,6 +13,7 @@ import { FormularioActividadCalendario } from "../calendario/FormularioActividad
 import { FormularioContextoNombrado } from "../calendario/FormularioContextoNombrado";
 import type { ServiciosCalendario } from "../calendario/ServiciosCalendario";
 import { DialogoEliminarActividad } from "../crear/DialogoEliminarActividad";
+import { etiquetaModoSeguimiento } from "../actividades/etiquetasActividad";
 import { EncabezadoPagina } from "./EncabezadoPagina";
 
 interface PaginaCrearProps {
@@ -416,7 +417,10 @@ function CatalogoActividades({
             <li key={actividad.id}>
               <div>
                 <strong>{actividad.titulo}</strong>
-                <span>{actividad.tipo.replaceAll("_", " ")}</span>
+                <span>
+                  {actividad.tipo.replaceAll("_", " ")} ·{" "}
+                  {etiquetaModoSeguimiento(actividad.modoSeguimiento)}
+                </span>
               </div>
               <div className="acciones-item-catalogo">
                 <button

@@ -7,12 +7,20 @@ export const TIPOS_ACTIVIDAD = [
 
 export type TipoActividad = (typeof TIPOS_ACTIVIDAD)[number];
 
+export const MODOS_SEGUIMIENTO = ["MANUAL", "CRONOMETRADO"] as const;
+
+export type ModoSeguimiento = (typeof MODOS_SEGUIMIENTO)[number];
+
 export type TipoTarea = Exclude<TipoActividad, "HABITO">;
 export type EstadoTarea = "PENDIENTE" | "COMPLETADA" | "NO_COMPLETADA";
 export type TipoFrecuenciaHabito = "DIARIA" | "SEMANAL" | "PERSONALIZADA";
 
 export function esTipoActividad(valor: unknown): valor is TipoActividad {
   return TIPOS_ACTIVIDAD.some((tipo) => tipo === valor);
+}
+
+export function esModoSeguimiento(valor: unknown): valor is ModoSeguimiento {
+  return MODOS_SEGUIMIENTO.some((modo) => modo === valor);
 }
 
 export function esTipoTarea(valor: unknown): valor is TipoTarea {

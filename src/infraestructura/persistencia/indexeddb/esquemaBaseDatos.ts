@@ -2,8 +2,14 @@ import { COLECCIONES_RESPALDO } from "../../../aplicacion/respaldo/ContratoRespa
 import type { AplicacionRecompensaV1 } from "../registros/AplicacionRecompensaV1";
 import type { CanjeRecompensaV1 } from "../registros/CanjeRecompensaV1";
 import type { RecompensaAdquiridaV1 } from "../registros/RecompensaAdquiridaV1";
+import type { ActividadV1 } from "../registros/ActividadV1";
+import type { ActividadV2 } from "../registros/ActividadV2";
+import {
+  migrarActividadV1AV2,
+  rehidratarActividadDesdeV2,
+} from "../mapeadores/MapeadorActividadV2";
 
-export const VERSION_BASE_DATOS = 12;
+export const VERSION_BASE_DATOS = 13;
 export const ALMACEN_PERFIL_USUARIO = "perfil-usuario";
 export const ALMACEN_AGENDAS = "agendas";
 export const ALMACEN_ACTIVIDADES = "actividades";
@@ -168,6 +174,29 @@ export function asegurarAlmacenes(
       unique: true,
     });
   }
+  if (transaccionActualizacion) {
+    migrarActividadesASegundaVersion(transaccionActualizacion);
+  }
+}
+
+function migrarActividadesASegundaVersion(transaccion: IDBTransaction): void {
+  if (!transaccion.objectStoreNames.contains(ALMACEN_ACTIVIDADES)) return;
+  const solicitud = transaccion.objectStore(ALMACEN_ACTIVIDADES).openCursor();
+  solicitud.onsuccess = () => {
+    const cursor = solicitud.result;
+    if (!cursor) return;
+    try {
+      const registro = cursor.value as ActividadV1 | ActividadV2;
+      if (Number(registro.versionEsquema) === 1) {
+        cursor.update(migrarActividadV1AV2(registro as ActividadV1));
+      } else {
+        rehidratarActividadDesdeV2(registro as ActividadV2);
+      }
+      cursor.continue();
+    } catch {
+      transaccion.abort();
+    }
+  };
 }
 
 function migrarCanjesHistoricos(transaccion: IDBTransaction): void {

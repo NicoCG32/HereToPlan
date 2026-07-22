@@ -102,6 +102,7 @@ export class CasoDeUsoConsultarCalendario {
           agendas,
           contextosOrdenados,
           consulta.seleccion,
+          actividades,
         ),
         ...this.proyectarBloquesPlanificacion(
           bloquesPlanificacion,
@@ -113,6 +114,7 @@ export class CasoDeUsoConsultarCalendario {
           new Map(
             reducciones.map((reduccion) => [reduccion.bloqueId, reduccion]),
           ),
+          actividades,
         ),
       ].sort(
         (a, b) => a.fecha.localeCompare(b.fecha) || a.id.localeCompare(b.id),
@@ -208,9 +210,13 @@ export class CasoDeUsoConsultarCalendario {
     agendas: readonly Agenda[],
     contextos: readonly ContextoPlanificacion[],
     seleccion: SeleccionContextoCalendario,
+    actividades: readonly import("../../dominio").Actividad[],
   ): readonly BloqueCalendarioDto[] {
     const contextosPorId = new Map(
       contextos.map((contexto) => [contexto.id, contexto] as const),
+    );
+    const modosPorActividad = new Map(
+      actividades.map((actividad) => [actividad.id, actividad.modoSeguimiento]),
     );
     const bloques = agendas.flatMap((agenda) => {
       const contexto = contextosPorId.get(agenda.id);
@@ -235,6 +241,8 @@ export class CasoDeUsoConsultarCalendario {
           titulo: bloque.titulo,
           fecha: bloque.fecha.toString(),
           minutosPlanificados: bloque.minutosPlanificados,
+          modoSeguimiento:
+            modosPorActividad.get(bloque.actividadId) ?? "MANUAL",
           estado: bloque.estado,
           origen,
           politica: Object.freeze({
@@ -281,9 +289,13 @@ export class CasoDeUsoConsultarCalendario {
       string,
       import("../../dominio").ReduccionCarga
     >,
+    actividades: readonly import("../../dominio").Actividad[],
   ): readonly BloqueCalendarioDto[] {
     const contextosPorId = new Map(
       contextos.map((contexto) => [contexto.id, contexto] as const),
+    );
+    const modosPorActividad = new Map(
+      actividades.map((actividad) => [actividad.id, actividad.modoSeguimiento]),
     );
     return Object.freeze(
       bloques.flatMap((bloque) => {
@@ -311,6 +323,8 @@ export class CasoDeUsoConsultarCalendario {
             titulo: bloque.titulo,
             fecha: bloque.fecha.toString(),
             minutosPlanificados: bloque.minutosPlanificados,
+            modoSeguimiento:
+              modosPorActividad.get(bloque.actividadId) ?? "MANUAL",
             ...(reduccion
               ? {
                   reduccionCarga: Object.freeze({

@@ -25,8 +25,9 @@ Esta base permite explorar, entre otras, las siguientes reglas:
 - adquirir un Día libre descuenta puntos y crea una unidad de inventario en una
   sola operación; aplicarla desde Calendario constituye un hecho posterior,
   independiente y atómico;
-- el cronómetro es opcional, conserva sus sesiones entre recargas y no sustituye
-  la declaración humana que completa o incumple un bloque.
+- cada actividad declara seguimiento manual o cronometrado; el cronómetro
+  conserva sus sesiones entre recargas y nunca sustituye la declaración humana
+  que completa o incumple un bloque;
 - el sobretrabajo cronometrado puede convertirse, con tasa y topes explícitos,
   en minutos para reducir atómicamente carga flexible futura.
 

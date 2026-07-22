@@ -5,10 +5,10 @@ import {
 } from "../../../aplicacion";
 import type { Actividad, Identificador } from "../../../dominio";
 import {
-  convertirActividadEnV1,
-  rehidratarActividadDesdeV1,
-} from "../mapeadores/MapeadorActividadV1";
-import type { ActividadV1 } from "../registros/ActividadV1";
+  convertirActividadEnV2,
+  rehidratarActividadDesdeV2,
+} from "../mapeadores/MapeadorActividadV2";
+import type { ActividadV2 } from "../registros/ActividadV2";
 import {
   ALMACEN_ACTIVIDADES,
   asegurarAlmacenes,
@@ -62,7 +62,7 @@ export class RepositorioActividadesIndexedDB implements RepositorioActividades {
 
   public async guardar(actividad: Actividad): Promise<void> {
     const baseDatos = await this.abrirBaseDatos();
-    const registro = convertirActividadEnV1(actividad);
+    const registro = convertirActividadEnV2(actividad);
 
     return new Promise<void>((resolve, reject) => {
       const transaccion = baseDatos.transaction(
@@ -97,13 +97,13 @@ export class RepositorioActividadesIndexedDB implements RepositorioActividades {
         "readonly",
       );
       const solicitud = transaccion.objectStore(ALMACEN_ACTIVIDADES).get(id);
-      let registro: ActividadV1 | undefined;
+      let registro: ActividadV2 | undefined;
       solicitud.onsuccess = () => {
-        registro = solicitud.result as ActividadV1 | undefined;
+        registro = solicitud.result as ActividadV2 | undefined;
       };
       transaccion.oncomplete = () => {
         try {
-          resolve(registro ? rehidratarActividadDesdeV1(registro) : undefined);
+          resolve(registro ? rehidratarActividadDesdeV2(registro) : undefined);
         } catch (error: unknown) {
           reject(
             error instanceof Error
@@ -127,7 +127,7 @@ export class RepositorioActividadesIndexedDB implements RepositorioActividades {
 
   public async actualizar(actividad: Actividad): Promise<void> {
     const baseDatos = await this.abrirBaseDatos();
-    const registro = convertirActividadEnV1(actividad);
+    const registro = convertirActividadEnV2(actividad);
     return new Promise<void>((resolve, reject) => {
       const transaccion = baseDatos.transaction(
         ALMACEN_ACTIVIDADES,
@@ -169,13 +169,13 @@ export class RepositorioActividadesIndexedDB implements RepositorioActividades {
         "readonly",
       );
       const solicitud = transaccion.objectStore(ALMACEN_ACTIVIDADES).getAll();
-      let registros: readonly ActividadV1[] = [];
+      let registros: readonly ActividadV2[] = [];
       solicitud.onsuccess = () => {
-        registros = solicitud.result as readonly ActividadV1[];
+        registros = solicitud.result as readonly ActividadV2[];
       };
       transaccion.oncomplete = () => {
         try {
-          resolve(registros.map(rehidratarActividadDesdeV1));
+          resolve(registros.map(rehidratarActividadDesdeV2));
         } catch (error: unknown) {
           reject(
             error instanceof Error

@@ -1316,6 +1316,33 @@
   accent-color: rgb(var(--verde-esmeralda));
 }
 
+.selector-modo-seguimiento {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.selector-modo-seguimiento > label {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+}
+
+.selector-modo-seguimiento label small {
+  grid-column: 2;
+  line-height: 1.45;
+}
+
+.selector-modo-seguimiento > small,
+.selector-modo-seguimiento > .mensaje-error {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 44rem) {
+  .selector-modo-seguimiento {
+    grid-template-columns: 1fr;
+  }
+}
+
 .rejilla-siete-dias {
   display: grid;
   grid-template-columns: repeat(7, minmax(8rem, 1fr));

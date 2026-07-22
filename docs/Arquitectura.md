@@ -272,23 +272,31 @@ adaptadores en memoria e IndexedDB cumplen una misma suite contractual: ausencia
 como `undefined`, rechazo de identificadores duplicados y conservación del
 registro original.
 
-`ActividadV1` es un contrato discriminado. Las tareas persisten estimación,
+`ActividadV2` es el contrato discriminado vigente. Las tareas persisten estimación,
 fecha límite, composición, estado y resolución; los hábitos persisten duración,
 frecuencia y días ISO. Ambos conservan metadatos comunes y una política
-predeterminada opcional. No contienen fecha de ejecución, agenda ni bloque; esta
+predeterminada opcional, además de `modoSeguimiento` como `MANUAL` o
+`CRONOMETRADO`. No contienen fecha de ejecución, agenda ni bloque; esta
 ausencia expresa la separación del dominio, no una limitación del adaptador. Los
 casos de uso convierten las entidades a `ActividadDto`, por lo que presentación
 no recibe agregados ni registros de infraestructura.
+
+`ActividadV1` permanece como contrato histórico de lectura. La actualización a
+la versión 13 de IndexedDB recorre el almacén `actividades` dentro de la misma
+transacción de cambio de esquema, conserva todos sus campos y añade
+`modoSeguimiento: MANUAL`. Un modo desconocido aborta la actualización completa;
+no se publican migraciones parciales. La importación de respaldos aplica la misma
+normalización antes de reemplazar el estado persistente.
 
 Cada política efectiva incluida en un bloque se escribe con
 `versionEsquema: 1`. El lector admite registros históricos de `AgendaV1` que no
 declaraban esa versión y los normaliza como versión 1; una versión futura
 desconocida se rechaza sin rehidratar parcialmente la agenda.
 
-La base IndexedDB utiliza la versión 2 para añadir el almacén `actividades`. La
-actualización crea el nuevo almacén sin reemplazar `agendas`; una prueba de
-migración abre una base versión 1, incorpora el catálogo y comprueba que la
-agenda anterior continúa siendo rehidratable.
+La base IndexedDB añadió el almacén `actividades` en su versión 2 y versiona el
+modo de seguimiento en la versión 13. Las actualizaciones crean o migran el
+catálogo sin reemplazar los demás almacenes; las pruebas cubren tanto la
+conservación de una agenda legada como la conversión exacta de una actividad V1.
 
 ### 6.6. Contextos de planificación persistentes
 

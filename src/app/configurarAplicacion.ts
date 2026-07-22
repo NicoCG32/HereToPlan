@@ -353,7 +353,7 @@ function crearServiciosCalendario(): ServiciosCalendario {
       reloj,
     ),
     crearActividad: new CasoDeUsoCrearActividad(actividades, reloj, generador),
-    editarActividad: new CasoDeUsoEditarActividad(actividades),
+    editarActividad: new CasoDeUsoEditarActividad(actividades, bloques),
     eliminarActividad: new CasoDeUsoEliminarActividad(
       actividades,
       agendas,

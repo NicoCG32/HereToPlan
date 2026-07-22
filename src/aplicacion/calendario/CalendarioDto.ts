@@ -45,6 +45,7 @@ export interface BloqueCalendarioDto {
   readonly titulo: string;
   readonly fecha: string;
   readonly minutosPlanificados: number;
+  readonly modoSeguimiento: "MANUAL" | "CRONOMETRADO";
   readonly reduccionCarga?: Readonly<{
     minutosReducidos: number;
     minutosEfectivos: number;
