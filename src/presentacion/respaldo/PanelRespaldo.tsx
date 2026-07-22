@@ -6,15 +6,18 @@ import type {
 import { DialogoRestaurarRespaldo } from "./DialogoRestaurarRespaldo";
 import type { ServiciosRespaldo } from "./ServiciosRespaldo";
 import { useEnfoqueError } from "../hooks/useEnfoqueError";
+import { PanelReinicioPlanificacion } from "./PanelReinicioPlanificacion";
 
 interface PanelRespaldoProps {
   readonly servicios: ServiciosRespaldo;
   readonly onDatosRestaurados?: () => void;
+  readonly onPlanificacionReiniciada?: () => void;
 }
 
 export function PanelRespaldo({
   servicios,
   onDatosRestaurados,
+  onPlanificacionReiniciada,
 }: PanelRespaldoProps) {
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState<string>();
@@ -195,6 +198,17 @@ export function PanelRespaldo({
           Recargar y usar los datos restaurados
         </button>
       )}
+
+      {servicios.consultarImpactoReinicio &&
+        servicios.reiniciarPlanificacion &&
+        servicios.generarOperacionIdReinicio && (
+          <PanelReinicioPlanificacion
+            servicios={servicios}
+            {...(onPlanificacionReiniciada
+              ? { onReiniciada: onPlanificacionReiniciada }
+              : {})}
+          />
+        )}
 
       {dialogoAbierto && plan && (
         <DialogoRestaurarRespaldo

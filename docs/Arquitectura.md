@@ -735,7 +735,29 @@ conserva el estado anterior completo. La presentación ofrece recargar la
 aplicación después de la confirmación técnica para reconstruir consultas y
 proyecciones, pero esa recarga no participa del límite transaccional.
 
-### 6.18. Perfil local
+### 6.18. Reinicio selectivo de planificación
+
+El reinicio no es una restauración ni un borrado integral. La consulta
+`ConsultarImpactoReinicioPlanificacion` obtiene una instantánea de las quince
+colecciones y clasifica cada dato como eliminado, conservado o transformado. Su
+resultado contiene cantidades, incidencias y una huella estable; consultar no
+otorga capacidad de escritura.
+
+La política retira agendas editables, bloques pendientes, cortes no confirmados
+y sesiones abiertas. Conserva el catálogo de actividades, los contextos, el
+perfil, los movimientos y saldos derivados, el inventario, las aplicaciones y
+los hechos históricos. Agendas y cortes históricos se transforman únicamente
+para retirar referencias activas sin reescribir resoluciones ni economía.
+
+`ReiniciarPlanificacion` exige la confirmación exacta `REINICIAR` y delega en
+`UnidadTrabajoReinicioPlanificacion`. El adaptador IndexedDB vuelve a calcular
+la huella dentro de una única transacción `readwrite` sobre todos los almacenes:
+si cambió, aborta como impacto desactualizado; si cualquier escritura falla,
+preserva el estado previo. Los reintentos sobre un estado ya limpio son
+idempotentes. React sólo presenta el impacto y llama al caso de uso; tras el
+éxito solicita el refresco de proyecciones y navega a Calendario.
+
+### 6.19. Perfil local
 
 `PerfilUsuario` es una entidad del dominio con identidad estable, nombre
 visible e instantes de creación y actualización. Su nombre se normaliza, admite
@@ -750,7 +772,7 @@ convertirse en fuente de verdad. La ausencia de perfil es un estado válido y
 distinto de un perfil con nombre vacío; presentación la representa mediante una
 bienvenida accesible que explica el alcance estrictamente local.
 
-### 6.19. Sesión de presentación y HUD
+### 6.20. Sesión de presentación y HUD
 
 `ProveedorSesionAplicacion` es una proyección compartida de presentación. Reúne
 perfil, estado de carga, saldo derivado, revisión de datos y comandos de
@@ -765,7 +787,7 @@ un `output` de puntos y acceso al diálogo de edición. La frase motivacional se
 elige mediante un selector inyectable una sola vez al inicializar el proveedor;
 no se persiste ni cambia durante la navegación.
 
-### 6.20. Administración editable de definiciones
+### 6.21. Administración editable de definiciones
 
 La página Crear compone catálogos y reutiliza los formularios de contextos y
 actividades. `EditarContextoPlanificacion` y `EditarActividad` reconstruyen una
@@ -780,7 +802,7 @@ una agenda reutiliza la transacción de impacto vigente. `Guardar sin programar`
 solo actualiza el catálogo; `Guardar y agendar` navega al calendario con
 actividad y fecha explícitas, donde el bloque continúa siendo una orden distinta.
 
-### 6.20. Navegación por teclado y gestión de foco
+### 6.22. Navegación por teclado y gestión de foco
 
 La accesibilidad operativa pertenece al adaptador de presentación. No altera
 los puertos de aplicación ni incorpora decisiones visuales al dominio, pero sí
@@ -804,7 +826,7 @@ foco sin romper esa contención. Esta política reside en hooks de presentación
 reutilizables para evitar que cada confirmación implemente variantes
 incompatibles.
 
-### 6.21. Estados explícitos y recuperación de la interfaz
+### 6.23. Estados explícitos y recuperación de la interfaz
 
 La presentación modela `cargando`, `vacío`, `lista` y `error` como resultados
 observables, no como ausencia accidental de elementos. Un estado vacío explica
@@ -826,7 +848,7 @@ Esta distinción permite comprender si corresponde cambiar datos, completar un
 prerrequisito o simplemente esperar, sin replicar las invariantes del dominio
 en React.
 
-### 6.22. Adaptación móvil y equivalencia temporal
+### 6.24. Adaptación móvil y equivalencia temporal
 
 La adaptación a pantallas estrechas pertenece al adaptador de presentación y
 no introduce una segunda consulta de calendario. Las vistas diaria, semanal,
@@ -854,7 +876,7 @@ contratos de operabilidad de presentación; las decisiones cromáticas y el
 acabado visual pueden evolucionar sin reducir el área táctil ni ocultar una
 operación existente en escritorio.
 
-### 6.23. Auditoría reproducible de la presentación
+### 6.25. Auditoría reproducible de la presentación
 
 La accesibilidad se protege mediante dos niveles complementarios. Vitest y
 `axe-core` inspeccionan estados representativos del calendario, formularios,
@@ -912,14 +934,14 @@ El consumo de recuperación aplica el mismo principio entre otras fronteras:
 
 La arquitectura es un contrato de evolución; no debe confundirse con el grado actual de implementación.
 
-| Elemento        | Estado actual                                                                    |
-| --------------- | -------------------------------------------------------------------------------- |
-| Dominio         | Planificación, ejecución, identidad e inventario protegidos por invariantes      |
-| Presentación    | SPA con perfil, HUD, catálogos editables e inventario separado                   |
-| Aplicación      | Casos de uso de adquisición, edición, respaldo V3 y migraciones V1/V2            |
-| Infraestructura | Repositorios, unidades atómicas, instantánea y sustitución completa en IndexedDB |
-| Composición     | Ensambla páginas y servicios sin introducir reglas de negocio                    |
-| Persistencia    | IndexedDB v12 respalda o reemplaza atómicamente los quince almacenes soportados  |
+| Elemento        | Estado actual                                                                   |
+| --------------- | ------------------------------------------------------------------------------- |
+| Dominio         | Planificación, ejecución, identidad e inventario protegidos por invariantes     |
+| Presentación    | SPA con perfil, HUD, catálogos editables e inventario separado                  |
+| Aplicación      | Casos de uso de adquisición, edición, respaldo V3 y reinicio selectivo          |
+| Infraestructura | Repositorios, unidades atómicas, respaldo y reinicio transaccional en IndexedDB |
+| Composición     | Ensambla páginas y servicios sin introducir reglas de negocio                   |
+| Persistencia    | IndexedDB v13 opera atómicamente sobre los quince almacenes soportados          |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes

@@ -385,6 +385,11 @@ La recompensa `DIA_LIBRE`:
 25. Una actividad heredada adquiere modo `MANUAL` sin modificar tipo, estado, política ni historia.
 26. El modo no cambia después de que exista un bloque que referencie la actividad.
 
+El reinicio de planificación no agrega una entidad al modelo ni altera estas
+invariantes. Es una política coordinada por aplicación que conserva hechos
+históricos y economías, y retira únicamente estado operativo no consolidado.
+Por esta razón no se representa como agregado en el modelo de dominio SVG.
+
 ## 5. Capacidades todavía no implementadas
 
 El modelo y sus adaptadores aún deben incorporar:

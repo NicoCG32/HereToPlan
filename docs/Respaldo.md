@@ -74,7 +74,7 @@ adicional.
   "creadoEn": "2026-07-21T15:30:00.000Z",
   "origen": {
     "aplicacion": "HereToPlan",
-    "versionBaseDatos": 12
+    "versionBaseDatos": 13
   },
   "contenido": {
     "agendas": [],
@@ -132,3 +132,17 @@ instante, fecha y bloques. No crean una unidad disponible ni duplican el gasto.
 
 Una versión futura, por ejemplo V4, es `INCOMPATIBLE` hasta que exista una ruta
 probada. No se degrada ni se interpreta por conjetura.
+
+## 8. Reinicio selectivo de planificación
+
+Reiniciar planificación es distinto de restaurar. No reemplaza el estado desde
+un archivo: calcula sobre el estado vigente qué registros activos se retirarán
+y qué información permanecerá. La consulta muestra cantidades y una huella sin
+abrir capacidad de escritura; se recomienda exportar antes de confirmar.
+
+La ejecución exige escribir `REINICIAR`. En una única transacción se retiran
+agendas editables, bloques pendientes, cortes no confirmados y sesiones
+abiertas. Se conservan actividades, contextos, perfil, movimientos, saldo
+derivado, inventario, aplicaciones, resoluciones y demás hechos históricos. Si
+el estado cambió después del cálculo, la huella deja de coincidir y la
+operación se rechaza completa para presentar un impacto actualizado.

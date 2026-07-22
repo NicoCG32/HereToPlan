@@ -183,6 +183,9 @@ reward `Día libre`. El recorrido principal permite:
   analizar su compatibilidad sin escribir, o restaurarlo con confirmación y
   reemplazo atómico de las quince colecciones y migración explícita desde V1 y
   V2;
+- calcular el impacto de un reinicio de planificación antes de confirmarlo,
+  retirar atómicamente el trabajo activo y conservar perfil, catálogos,
+  economía e historia;
 - recorrer con teclado la navegación, los editores y los diálogos, con foco
   explícito ante errores y retorno al control de origen al cancelar;
 - comprender estados vacíos, recuperar lecturas fallidas y conocer el motivo

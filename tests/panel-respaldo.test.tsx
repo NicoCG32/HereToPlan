@@ -1,15 +1,19 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import {
   CasoDeUsoAnalizarImportacionRespaldo,
   CasoDeUsoExportarRespaldo,
   CasoDeUsoPrepararRestauracionRespaldo,
   CasoDeUsoRestaurarRespaldo,
+  CasoDeUsoConsultarImpactoReinicioPlanificacion,
+  CasoDeUsoReiniciarPlanificacion,
   COLECCIONES_RESPALDO,
   type ContenidoRespaldo,
 } from "../src/aplicacion";
 import { PanelRespaldo } from "../src/presentacion/respaldo/PanelRespaldo";
+import { PaginaRespaldo } from "../src/presentacion/paginas/PaginaRespaldo";
 import type { ServiciosRespaldo } from "../src/presentacion/respaldo/ServiciosRespaldo";
 import { comprobarAccesibilidad } from "./comprobarAccesibilidad";
 
@@ -150,6 +154,183 @@ describe("panel de respaldo", () => {
     expect(recargarAplicacion).toHaveBeenCalledOnce();
   });
 });
+
+describe("reinicio desde Respaldo", () => {
+  it("expone el impacto, exige REINICIAR y notifica el refresco tras el éxito", async () => {
+    const usuario = userEvent.setup();
+    const ejecutarReinicio = vi.fn().mockResolvedValue({
+      operacionId: "reinicio-1",
+      eliminados: 5,
+      yaReiniciada: false,
+    });
+    const onPlanificacionReiniciada = vi.fn();
+    const servicios = crearServicios({
+      consultarImpactoReinicio:
+        new CasoDeUsoConsultarImpactoReinicioPlanificacion({
+          consultarImpacto: () => Promise.resolve(impactoReinicio()),
+        }),
+      reiniciarPlanificacion: new CasoDeUsoReiniciarPlanificacion({
+        reiniciar: ejecutarReinicio,
+      }),
+      generarOperacionIdReinicio: () => "reinicio-1",
+    });
+    render(
+      <PanelRespaldo
+        servicios={servicios}
+        onPlanificacionReiniciada={onPlanificacionReiniciada}
+      />,
+    );
+
+    expect(await screen.findByText("Planificación a retirar")).toBeTruthy();
+    const abrir = screen.getByRole("button", {
+      name: "Revisar y reiniciar",
+    });
+    await usuario.click(abrir);
+    const confirmar = screen.getByRole("button", {
+      name: "Reiniciar planificación",
+    });
+    expect(confirmar).toHaveProperty("disabled", true);
+    await comprobarAccesibilidad();
+    await usuario.keyboard("{Escape}");
+    await waitFor(() => expect(document.activeElement).toBe(abrir));
+
+    await usuario.click(abrir);
+    await usuario.type(
+      screen.getByLabelText(/Escribe REINICIAR/i),
+      "REINICIAR",
+    );
+    await usuario.click(
+      screen.getByRole("button", { name: "Reiniciar planificación" }),
+    );
+
+    await waitFor(() => expect(ejecutarReinicio).toHaveBeenCalledOnce());
+    expect(ejecutarReinicio).toHaveBeenCalledWith({
+      operacionId: "reinicio-1",
+      huellaEsperada: "reinicio-prueba",
+    });
+    expect(onPlanificacionReiniciada).toHaveBeenCalledOnce();
+  });
+
+  it("conserva el diálogo y explica un fallo sin simular éxito", async () => {
+    const usuario = userEvent.setup();
+    const onPlanificacionReiniciada = vi.fn();
+    const servicios = crearServicios({
+      consultarImpactoReinicio:
+        new CasoDeUsoConsultarImpactoReinicioPlanificacion({
+          consultarImpacto: () => Promise.resolve(impactoReinicio()),
+        }),
+      reiniciarPlanificacion: new CasoDeUsoReiniciarPlanificacion({
+        reiniciar: () => Promise.reject(new Error("transacción abortada")),
+      }),
+      generarOperacionIdReinicio: () => "reinicio-fallido",
+    });
+    render(
+      <PanelRespaldo
+        servicios={servicios}
+        onPlanificacionReiniciada={onPlanificacionReiniciada}
+      />,
+    );
+
+    await usuario.click(
+      await screen.findByRole("button", { name: "Revisar y reiniciar" }),
+    );
+    await usuario.type(
+      screen.getByLabelText(/Escribe REINICIAR/i),
+      "REINICIAR",
+    );
+    await usuario.click(
+      screen.getByRole("button", { name: "Reiniciar planificación" }),
+    );
+
+    expect((await screen.findByRole("alert")).textContent).toContain(
+      "transacción abortada",
+    );
+    expect(
+      screen.getByRole("dialog", { name: "Reiniciar planificación" }),
+    ).toBeTruthy();
+    expect(onPlanificacionReiniciada).not.toHaveBeenCalled();
+  });
+
+  it("refresca los datos y navega al calendario después del reinicio", async () => {
+    const usuario = userEvent.setup();
+    const onDatosRestaurados = vi.fn();
+    const servicios = crearServicios({
+      consultarImpactoReinicio:
+        new CasoDeUsoConsultarImpactoReinicioPlanificacion({
+          consultarImpacto: () => Promise.resolve(impactoReinicio()),
+        }),
+      reiniciarPlanificacion: new CasoDeUsoReiniciarPlanificacion({
+        reiniciar: () =>
+          Promise.resolve({
+            operacionId: "reinicio-navegacion",
+            eliminados: 5,
+            yaReiniciada: false,
+          }),
+      }),
+      generarOperacionIdReinicio: () => "reinicio-navegacion",
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/respaldo"]}>
+        <Routes>
+          <Route
+            path="/respaldo"
+            element={
+              <PaginaRespaldo
+                serviciosRespaldo={servicios}
+                onDatosRestaurados={onDatosRestaurados}
+              />
+            }
+          />
+          <Route path="/calendario" element={<h1>Calendario actualizado</h1>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await usuario.click(
+      await screen.findByRole("button", { name: "Revisar y reiniciar" }),
+    );
+    await usuario.type(
+      screen.getByLabelText(/Escribe REINICIAR/i),
+      "REINICIAR",
+    );
+    await usuario.click(
+      screen.getByRole("button", { name: "Reiniciar planificación" }),
+    );
+
+    expect(await screen.findByText("Calendario actualizado")).toBeTruthy();
+    expect(onDatosRestaurados).toHaveBeenCalledOnce();
+  });
+});
+
+function impactoReinicio() {
+  return {
+    huella: "reinicio-prueba",
+    eliminar: {
+      agendasActivas: 1,
+      bloquesAgendaPendientes: 1,
+      bloquesPlanificacionActivos: 1,
+      cortesActivos: 1,
+      sesionesAbiertas: 1,
+    },
+    conservar: {
+      actividades: 2,
+      contextos: 2,
+      bloquesHistoricos: 1,
+      cortesHistoricos: 1,
+      sesionesFinalizadas: 1,
+      resoluciones: 1,
+      movimientosPuntos: 1,
+      recompensasAdquiridas: 1,
+      aplicacionesRecompensas: 1,
+      movimientosRecuperacion: 1,
+      perfil: 1,
+    },
+    totalEliminaciones: 5,
+    totalConservados: 13,
+    incidencias: [],
+  };
+}
 
 function crearServicios(
   cambios: Partial<ServiciosRespaldo> = {},

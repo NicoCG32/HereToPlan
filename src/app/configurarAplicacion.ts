@@ -43,6 +43,8 @@ import {
   CasoDeUsoCrearPerfilUsuario,
   CasoDeUsoPrepararAplicacionDiaLibre,
   CasoDeUsoAplicarDiaLibre,
+  CasoDeUsoConsultarImpactoReinicioPlanificacion,
+  CasoDeUsoReiniciarPlanificacion,
 } from "../aplicacion";
 import {
   DefinicionRecompensa,
@@ -65,6 +67,7 @@ import { RepositorioSesionesCronometroIndexedDB } from "../infraestructura/persi
 import { RepositorioRecuperacionIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioRecuperacionIndexedDB";
 import { LectorEstadoPersistenteIndexedDB } from "../infraestructura/persistencia/indexeddb/LectorEstadoPersistenteIndexedDB";
 import { RestauradorEstadoPersistenteIndexedDB } from "../infraestructura/persistencia/indexeddb/RestauradorEstadoPersistenteIndexedDB";
+import { UnidadTrabajoReinicioPlanificacionIndexedDB } from "../infraestructura/persistencia/indexeddb/UnidadTrabajoReinicioPlanificacionIndexedDB";
 import { RepositorioPerfilUsuarioIndexedDB } from "../infraestructura/persistencia/indexeddb/RepositorioPerfilUsuarioIndexedDB";
 import {
   descargarArchivoRespaldo,
@@ -232,7 +235,10 @@ export function obtenerServiciosRecuperacion(): ServiciosRecuperacion {
 }
 
 export function obtenerServiciosRespaldo(): ServiciosRespaldo {
-  serviciosRespaldo ??= Object.freeze({
+  if (serviciosRespaldo) return serviciosRespaldo;
+  const reinicio = new UnidadTrabajoReinicioPlanificacionIndexedDB();
+  const generador = new GeneradorIdentificadoresUUID();
+  serviciosRespaldo = Object.freeze({
     exportar: new CasoDeUsoExportarRespaldo(
       new LectorEstadoPersistenteIndexedDB(),
       new RelojSistema(),
@@ -242,6 +248,10 @@ export function obtenerServiciosRespaldo(): ServiciosRespaldo {
     restaurar: new CasoDeUsoRestaurarRespaldo(
       new RestauradorEstadoPersistenteIndexedDB(),
     ),
+    consultarImpactoReinicio:
+      new CasoDeUsoConsultarImpactoReinicioPlanificacion(reinicio),
+    reiniciarPlanificacion: new CasoDeUsoReiniciarPlanificacion(reinicio),
+    generarOperacionIdReinicio: () => generador.generar(),
     descargar: descargarArchivoRespaldo,
     leerArchivo: leerArchivoRespaldo,
     recargarAplicacion: () => globalThis.location.reload(),

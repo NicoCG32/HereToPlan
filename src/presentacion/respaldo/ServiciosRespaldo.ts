@@ -4,6 +4,8 @@ import type {
   CasoDeUsoExportarRespaldo,
   CasoDeUsoPrepararRestauracionRespaldo,
   CasoDeUsoRestaurarRespaldo,
+  CasoDeUsoConsultarImpactoReinicioPlanificacion,
+  CasoDeUsoReiniciarPlanificacion,
 } from "../../aplicacion";
 
 export interface ServiciosRespaldo {
@@ -11,6 +13,9 @@ export interface ServiciosRespaldo {
   readonly analizarImportacion: CasoDeUsoAnalizarImportacionRespaldo;
   readonly prepararRestauracion: CasoDeUsoPrepararRestauracionRespaldo;
   readonly restaurar: CasoDeUsoRestaurarRespaldo;
+  readonly consultarImpactoReinicio?: CasoDeUsoConsultarImpactoReinicioPlanificacion;
+  readonly reiniciarPlanificacion?: CasoDeUsoReiniciarPlanificacion;
+  readonly generarOperacionIdReinicio?: () => string;
   readonly descargar: (archivo: ArchivoRespaldo) => void;
   readonly leerArchivo: (archivo: File) => Promise<string>;
   readonly recargarAplicacion: () => void;
