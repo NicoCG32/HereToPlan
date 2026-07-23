@@ -8,7 +8,7 @@ recursos/
 │   ├── escritorio/
 │   └── movil/
 ├── iconos/
-│   ├── dominio/
+│   ├── conceptos/
 │   └── navegacion/
 ├── ilustraciones/
 │   ├── estados-vacios/
@@ -20,7 +20,7 @@ recursos/
 
 - `logos/`: logotipo principal, isotipos y variantes cromáticas.
 - `iconos/navegacion/`: orientación persistente entre rutas.
-- `iconos/dominio/`: conceptos del producto usados en controles funcionales.
+- `iconos/conceptos/`: conceptos del producto usados en controles funcionales; el nombre evita confundir recursos visuales con la capa arquitectónica `dominio`.
 - `ilustraciones/paginas/`: apoyo visual de cabeceras con baja densidad.
 - `ilustraciones/estados-vacios/`: explicación visual de ausencia de datos.
 - `fondos/`: variantes adaptativas y específicas de cada ruta.

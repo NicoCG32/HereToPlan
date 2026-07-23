@@ -14,8 +14,8 @@ import { FormularioContextoNombrado } from "../calendario/FormularioContextoNomb
 import type { ServiciosCalendario } from "../calendario/ServiciosCalendario";
 import { DialogoEliminarActividad } from "../crear/DialogoEliminarActividad";
 import { etiquetaModoSeguimiento } from "../actividades/etiquetasActividad";
-import iconoActividad from "../recursos/iconos/dominio/icono-actividad.svg";
-import iconoAgenda from "../recursos/iconos/dominio/icono-agenda.svg";
+import iconoActividad from "../recursos/iconos/conceptos/icono-actividad.svg";
+import iconoAgenda from "../recursos/iconos/conceptos/icono-agenda.svg";
 import estadoSinActividades from "../recursos/ilustraciones/estados-vacios/estado-vacio-sin-actividades.svg";
 import estadoSinAgendas from "../recursos/ilustraciones/estados-vacios/estado-vacio-sin-agendas.svg";
 import ilustracionCrear from "../recursos/ilustraciones/paginas/ilustracion-pagina-crear.svg";
