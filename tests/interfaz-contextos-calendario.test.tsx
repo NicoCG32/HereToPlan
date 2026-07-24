@@ -456,6 +456,63 @@ describe("interfaz de contextos del calendario", () => {
     );
   }, 15_000);
 
+  it("selecciona en conjunto todos los bloques editables del rango visible", async () => {
+    const usuario = userEvent.setup();
+    const entorno = await crearEntorno();
+    for (const [id, titulo, fecha] of [
+      ["bloque-habito-lunes", "Rutina de lectura", "2026-07-20"],
+      ["bloque-habito-miercoles", "Rutina de lectura", "2026-07-22"],
+    ] as const) {
+      await entorno.bloques.guardar(
+        new BloquePlanificacion({
+          id,
+          contextoId: "contexto-libre",
+          actividadId: "actividad-habito",
+          titulo,
+          fecha: FechaLocal.crear(fecha),
+          minutosPlanificados: 30,
+          politica: new PoliticaCompromiso({
+            rigidez: "FLEXIBLE",
+            autoridadPlazo: "PERSONAL",
+            ajustesPermitidos: ["REPROGRAMAR"],
+          }),
+          creadoEn: new Date("2026-07-20T10:00:00.000Z"),
+        }),
+      );
+    }
+
+    render(<App serviciosCalendario={entorno.servicios} />);
+    await screen.findByRole("heading", { name: "Calendario general" });
+
+    const seleccionarTodos = screen.getByRole("button", {
+      name: "Seleccionar todos para revisión (2)",
+    });
+    expect(seleccionarTodos.getAttribute("aria-pressed")).toBe("false");
+    await usuario.click(seleccionarTodos);
+
+    const bloques = screen.getAllByRole("checkbox", {
+      name: "Seleccionar Rutina de lectura para revisión",
+    });
+    expect(bloques).toHaveLength(2);
+    bloques.forEach((bloque) => expect(bloque).toHaveProperty("checked", true));
+    expect(
+      screen.getByRole("button", { name: "Revisar selección (2)" }),
+    ).toHaveProperty("disabled", false);
+
+    const quitarTodos = screen.getByRole("button", {
+      name: "Quitar selección visible (2)",
+    });
+    expect(quitarTodos.getAttribute("aria-pressed")).toBe("true");
+    await usuario.click(quitarTodos);
+
+    bloques.forEach((bloque) =>
+      expect(bloque).toHaveProperty("checked", false),
+    );
+    expect(
+      screen.getByRole("button", { name: "Revisar selección (0)" }),
+    ).toHaveProperty("disabled", true);
+  });
+
   it("confirma resultados diferenciados y muestra el historial sin cronómetro", async () => {
     const usuario = userEvent.setup();
     const entorno = await crearEntorno();

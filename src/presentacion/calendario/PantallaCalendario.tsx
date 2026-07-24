@@ -374,6 +374,20 @@ export function PantallaCalendario({
     setErrorAccion(undefined);
   };
 
+  const cambiarSeleccionBloquesVisibles = (
+    bloqueIds: readonly string[],
+    incluir: boolean,
+  ) => {
+    const idsVisibles = new Set(bloqueIds);
+    setBloquesSeleccionados((actuales) => {
+      if (!incluir) {
+        return actuales.filter((id) => !idsVisibles.has(id));
+      }
+      return [...new Set([...actuales, ...bloqueIds])];
+    });
+    setErrorAccion(undefined);
+  };
+
   const revisarSeleccion = async () => {
     setRevisandoCorte(true);
     setErrorAccion(undefined);
@@ -1018,6 +1032,7 @@ export function PantallaCalendario({
         botonRevisarRef={botonRevisarCorteRef}
         revisando={revisandoCorte}
         onAlternarSeleccion={alternarBloqueSeleccionado}
+        onCambiarSeleccionVisibles={cambiarSeleccionBloquesVisibles}
         onRevisar={() => void revisarSeleccion()}
         onEditar={(bloque, origen) => {
           controlEditorOrigenRef.current = origen;
@@ -1305,6 +1320,7 @@ function VistaListaBloques({
   botonRevisarRef,
   revisando,
   onAlternarSeleccion,
+  onCambiarSeleccionVisibles,
   onRevisar,
   onEditar,
   onQuitar,
@@ -1318,6 +1334,10 @@ function VistaListaBloques({
   readonly botonRevisarRef: RefObject<HTMLButtonElement | null>;
   readonly revisando: boolean;
   readonly onAlternarSeleccion: (bloqueId: string) => void;
+  readonly onCambiarSeleccionVisibles: (
+    bloqueIds: readonly string[],
+    incluir: boolean,
+  ) => void;
   readonly onRevisar: () => void;
   readonly onEditar: (
     bloque: BloqueCalendarioDto,
@@ -1333,6 +1353,12 @@ function VistaListaBloques({
   readonly revisionCronometro: number;
   readonly onCronometroCambio: (mensaje: string) => void;
 }) {
+  const bloquesEditables = bloques.filter((bloque) => bloque.editable);
+  const idsBloquesEditables = bloquesEditables.map((bloque) => bloque.id);
+  const todosVisiblesSeleccionados =
+    idsBloquesEditables.length > 0 &&
+    idsBloquesEditables.every((id) => bloquesSeleccionados.includes(id));
+
   return (
     <section
       className="vista-lista-calendario"
@@ -1347,30 +1373,48 @@ function VistaListaBloques({
             acciones disponibles.
           </p>
         </div>
-        <button
-          ref={botonRevisarRef}
-          className="boton-primario"
-          type="button"
-          onClick={onRevisar}
-          disabled={bloquesSeleccionados.length === 0 || revisando}
-          aria-describedby={
-            bloquesSeleccionados.length === 0
-              ? "motivo-revisar-seleccion"
-              : undefined
-          }
-        >
-          {revisando
-            ? "Preparando revisión…"
-            : `Revisar selección (${bloquesSeleccionados.length})`}
-        </button>
-        {bloquesSeleccionados.length === 0 && (
-          <p
-            id="motivo-revisar-seleccion"
-            className="motivo-control-inhabilitado"
+        <div className="acciones-revision-lista">
+          <button
+            className="boton-secundario"
+            type="button"
+            onClick={() =>
+              onCambiarSeleccionVisibles(
+                idsBloquesEditables,
+                !todosVisiblesSeleccionados,
+              )
+            }
+            disabled={idsBloquesEditables.length === 0 || revisando}
+            aria-pressed={todosVisiblesSeleccionados}
           >
-            Selecciona al menos un bloque editable para preparar la revisión.
-          </p>
-        )}
+            {todosVisiblesSeleccionados
+              ? `Quitar selección visible (${idsBloquesEditables.length})`
+              : `Seleccionar todos para revisión (${idsBloquesEditables.length})`}
+          </button>
+          <button
+            ref={botonRevisarRef}
+            className="boton-primario"
+            type="button"
+            onClick={onRevisar}
+            disabled={bloquesSeleccionados.length === 0 || revisando}
+            aria-describedby={
+              bloquesSeleccionados.length === 0
+                ? "motivo-revisar-seleccion"
+                : undefined
+            }
+          >
+            {revisando
+              ? "Preparando revisión…"
+              : `Revisar selección (${bloquesSeleccionados.length})`}
+          </button>
+          {bloquesSeleccionados.length === 0 && (
+            <p
+              id="motivo-revisar-seleccion"
+              className="motivo-control-inhabilitado"
+            >
+              Selecciona al menos un bloque editable para preparar la revisión.
+            </p>
+          )}
+        </div>
       </div>
       {bloques.length === 0 ? (
         <p className="estado-vacio-lineal">

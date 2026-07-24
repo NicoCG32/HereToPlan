@@ -969,6 +969,18 @@
   scroll-margin-top: 1rem;
 }
 
+.acciones-revision-lista {
+  display: grid;
+  gap: 0.55rem;
+  justify-items: end;
+}
+
+.acciones-revision-lista .motivo-control-inhabilitado {
+  max-width: 24rem;
+  margin: 0;
+  text-align: right;
+}
+
 @media (max-width: 48rem) {
   .panel-contexto,
   .superficie-calendario,
@@ -1005,9 +1017,19 @@
     flex-direction: column;
   }
 
-  .vista-lista-calendario .titulo-region > button {
+  .acciones-revision-lista {
+    width: 100%;
+    justify-items: stretch;
+  }
+
+  .acciones-revision-lista > button {
     justify-content: center;
     width: 100%;
+  }
+
+  .acciones-revision-lista .motivo-control-inhabilitado {
+    max-width: none;
+    text-align: left;
   }
 
   .rejilla-calendario,
