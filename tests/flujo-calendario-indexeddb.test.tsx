@@ -1,7 +1,7 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { IDBFactory } from "fake-indexeddb";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CasoDeUsoAsignarActividad,
   CasoDeUsoAsignarCortePlanificacion,
@@ -37,81 +37,179 @@ import {
   RelojFijo,
 } from "./doblesAplicacion";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});
 
 describe("flujo persistente del calendario", () => {
-  it("recupera contextos, actividades y bloques desde una composición nueva", async () => {
-    const usuario = userEvent.setup();
-    const fabricaIndexedDB = new IDBFactory();
-    const nombreBaseDatos = "flujo-calendario-recarga";
-    const primeraCarga = await crearEntorno(
-      fabricaIndexedDB,
-      nombreBaseDatos,
+  it.each(["2026-07-20T12:00:00", "2026-09-30T12:00:00"])(
+    "recupera contextos, actividades y bloques con fecha del sistema %s",
+    async (fechaSistema) => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date(fechaSistema));
+      const usuario = userEvent.setup();
+      const fabricaIndexedDB = new IDBFactory();
+      const nombreBaseDatos = "flujo-calendario-recarga";
+      const primeraCarga = await crearEntorno(
+        fabricaIndexedDB,
+        nombreBaseDatos,
+        ["contexto-semestre"],
+        ["actividad-entrega", "actividad-libre", "actividad-pendiente"],
+        ["bloque-entrega", "bloque-libre"],
+      );
+
+      await prepararPlanificacion(primeraCarga.servicios);
+      const primeraVista = render(
+        <App serviciosCalendario={primeraCarga.servicios} />,
+      );
+      await comprobarPlanificacionRecuperada();
+
+      primeraVista.unmount();
+      const segundaCarga = await crearEntorno(
+        fabricaIndexedDB,
+        nombreBaseDatos,
+        ["contexto-no-utilizado"],
+        ["actividad-no-utilizada"],
+        ["bloque-no-utilizado"],
+      );
+      const segundaVista = render(
+        <App serviciosCalendario={segundaCarga.servicios} />,
+      );
+
+      await comprobarPlanificacionRecuperada();
+      expect(screen.getByLabelText("Contexto visible")).toHaveProperty(
+        "value",
+        "TODAS",
+      );
+      expect(
+        screen.getAllByRole("button", { name: /Planificar 2026-07-/ }),
+      ).toHaveLength(7);
+      expect(
+        screen.getByRole("button", { name: "Agendar Idea sin fecha" }),
+      ).toBeTruthy();
+      expect(
+        screen.getByRole("button", { name: "Editar Preparar entrega" }),
+      ).toBeTruthy();
+      expect(
+        screen.getByRole("button", { name: "Editar Rutina libre" }),
+      ).toBeTruthy();
+
+      await usuario.selectOptions(
+        screen.getByLabelText("Contexto visible"),
+        "contexto-semestre",
+      );
+      await waitFor(() =>
+        expect(
+          screen.getByRole("button", { name: "Editar Preparar entrega" }),
+        ).toBeTruthy(),
+      );
+      expect(
+        screen.queryByRole("button", { name: "Editar Rutina libre" }),
+      ).toBeNull();
+
+      await usuario.selectOptions(
+        screen.getByLabelText("Contexto visible"),
+        "contexto-libre",
+      );
+      await waitFor(() =>
+        expect(
+          screen.getByRole("button", { name: "Editar Rutina libre" }),
+        ).toBeTruthy(),
+      );
+      expect(
+        screen.queryByRole("button", { name: "Editar Preparar entrega" }),
+      ).toBeNull();
+
+      await usuario.click(
+        screen.getByRole("button", { name: "Editar Rutina libre" }),
+      );
+      expect(screen.getByLabelText("Minutos planificados")).toHaveProperty(
+        "value",
+        "30",
+      );
+      await usuario.clear(screen.getByLabelText("Minutos planificados"));
+      await usuario.type(screen.getByLabelText("Minutos planificados"), "45");
+      await usuario.click(
+        screen.getByRole("button", { name: "Guardar cambios" }),
+      );
+      await screen.findByText("El bloque Rutina libre fue actualizado.");
+
+      segundaVista.unmount();
+      const terceraCarga = await crearEntorno(
+        fabricaIndexedDB,
+        nombreBaseDatos,
+        ["otro-contexto-no-utilizado"],
+        ["otra-actividad-no-utilizada"],
+        ["otro-bloque-no-utilizado"],
+      );
+      render(<App serviciosCalendario={terceraCarga.servicios} />);
+      await comprobarPlanificacionRecuperada();
+      await usuario.click(
+        screen.getByRole("button", { name: "Editar Rutina libre" }),
+      );
+      expect(screen.getByLabelText("Minutos planificados")).toHaveProperty(
+        "value",
+        "45",
+      );
+      expect(screen.getByLabelText("Fecha")).toHaveProperty(
+        "value",
+        "2026-07-20",
+      );
+    },
+    15_000,
+  );
+
+  it("espera los bloques visibles mientras se sincroniza el mes inicial", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-09-30T12:00:00"));
+    const entorno = await crearEntorno(
+      new IDBFactory(),
+      "flujo-calendario-sincronizacion",
       ["contexto-semestre"],
       ["actividad-entrega", "actividad-libre", "actividad-pendiente"],
       ["bloque-entrega", "bloque-libre"],
     );
-
-    await prepararPlanificacion(primeraCarga.servicios);
-    const primeraVista = render(
-      <App serviciosCalendario={primeraCarga.servicios} />,
+    await prepararPlanificacion(entorno.servicios);
+    let liberarConsulta!: () => void;
+    const consultaPendiente = new Promise<void>((resolve) => {
+      liberarConsulta = resolve;
+    });
+    const consultar = entorno.servicios.consultarCalendario.ejecutar.bind(
+      entorno.servicios.consultarCalendario,
     );
-    await comprobarPlanificacionRecuperada();
-
-    primeraVista.unmount();
-    const segundaCarga = await crearEntorno(
-      fabricaIndexedDB,
-      nombreBaseDatos,
-      ["contexto-no-utilizado"],
-      ["actividad-no-utilizada"],
-      ["bloque-no-utilizado"],
-    );
-    render(<App serviciosCalendario={segundaCarga.servicios} />);
-
-    await comprobarPlanificacionRecuperada();
-    expect(screen.getByLabelText("Contexto visible")).toHaveProperty(
-      "value",
-      "TODAS",
-    );
-    expect(
-      screen.getAllByRole("button", { name: /Planificar 2026-07-/ }),
-    ).toHaveLength(7);
-    expect(
-      screen.getByRole("button", { name: "Agendar Idea sin fecha" }),
-    ).toBeTruthy();
+    vi.spyOn(
+      entorno.servicios.consultarCalendario,
+      "ejecutar",
+    ).mockImplementation(async (consulta) => {
+      if (consulta.fechaAncla === "2026-07-20") await consultaPendiente;
+      return consultar(consulta);
+    });
+    render(<App serviciosCalendario={entorno.servicios} />);
+    let recuperada = false;
+    const recuperacion = comprobarPlanificacionRecuperada().then(() => {
+      recuperada = true;
+    });
+    try {
+      await screen.findByRole("heading", { name: "Calendario general" });
+      await screen.findByRole("button", { name: "Agendar Idea sin fecha" });
+      expect(screen.getAllByText("Preparar entrega").length).toBeGreaterThan(0);
+      expect(
+        screen.queryByRole("button", { name: "Editar Preparar entrega" }),
+      ).toBeNull();
+      expect(recuperada).toBe(false);
+    } finally {
+      liberarConsulta();
+    }
+    await recuperacion;
     expect(
       screen.getByRole("button", { name: "Editar Preparar entrega" }),
     ).toBeTruthy();
     expect(
       screen.getByRole("button", { name: "Editar Rutina libre" }),
     ).toBeTruthy();
-
-    await usuario.selectOptions(
-      screen.getByLabelText("Contexto visible"),
-      "contexto-semestre",
-    );
-    await waitFor(() =>
-      expect(
-        screen.getByRole("button", { name: "Editar Preparar entrega" }),
-      ).toBeTruthy(),
-    );
-    expect(
-      screen.queryByRole("button", { name: "Editar Rutina libre" }),
-    ).toBeNull();
-
-    await usuario.selectOptions(
-      screen.getByLabelText("Contexto visible"),
-      "contexto-libre",
-    );
-    await waitFor(() =>
-      expect(
-        screen.getByRole("button", { name: "Editar Rutina libre" }),
-      ).toBeTruthy(),
-    );
-    expect(
-      screen.queryByRole("button", { name: "Editar Preparar entrega" }),
-    ).toBeNull();
-  }, 15_000);
+  });
 });
 
 async function prepararPlanificacion(
@@ -186,6 +284,17 @@ async function comprobarPlanificacionRecuperada(): Promise<void> {
   expect(screen.getAllByText("Preparar entrega").length).toBeGreaterThan(0);
   expect(screen.getAllByText("Rutina libre").length).toBeGreaterThan(0);
   expect(screen.getByText("Idea sin fecha")).toBeTruthy();
+  await waitFor(
+    () => {
+      expect(
+        screen.getByRole("button", { name: "Editar Preparar entrega" }),
+      ).toBeTruthy();
+      expect(
+        screen.getByRole("button", { name: "Editar Rutina libre" }),
+      ).toBeTruthy();
+    },
+    { timeout: 5_000 },
+  );
 }
 
 async function crearEntorno(

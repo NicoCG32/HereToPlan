@@ -371,7 +371,7 @@ describe("interfaz de contextos del calendario", () => {
     await screen.findByRole("heading", { name: "Calendario general" });
 
     await usuario.click(
-      screen.getByRole("checkbox", {
+      await screen.findByRole("checkbox", {
         name: "Seleccionar Preparar informe para revisión",
       }),
     );
@@ -484,7 +484,7 @@ describe("interfaz de contextos del calendario", () => {
     render(<App serviciosCalendario={entorno.servicios} />);
     await screen.findByRole("heading", { name: "Calendario general" });
 
-    const seleccionarTodos = screen.getByRole("button", {
+    const seleccionarTodos = await screen.findByRole("button", {
       name: "Seleccionar todos para revisión (2)",
     });
     expect(seleccionarTodos.getAttribute("aria-pressed")).toBe("false");
