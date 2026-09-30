@@ -12,6 +12,7 @@ const SELECTOR_CONTROLES = [
   'input:not(:disabled):not([type="hidden"])',
   "select:not(:disabled)",
   "textarea:not(:disabled)",
+  "summary",
   '[tabindex]:not([tabindex="-1"])',
 ].join(", ");
 
@@ -19,18 +20,22 @@ interface ConfiguracionDialogoModal {
   readonly focoInicialRef: RefObject<HTMLElement | null>;
   readonly bloqueado: boolean;
   readonly onCerrar: () => void;
+  readonly evitarDesplazamientoInicial?: boolean;
 }
 
 export function useDialogoModal({
   focoInicialRef,
   bloqueado,
   onCerrar,
+  evitarDesplazamientoInicial = false,
 }: ConfiguracionDialogoModal) {
   const dialogoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    focoInicialRef.current?.focus();
-  }, [focoInicialRef]);
+    focoInicialRef.current?.focus({
+      preventScroll: evitarDesplazamientoInicial,
+    });
+  }, [focoInicialRef, evitarDesplazamientoInicial]);
 
   const gestionarTeclado = useCallback(
     (evento: KeyboardEvent<HTMLDivElement>) => {

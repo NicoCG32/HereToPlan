@@ -405,7 +405,7 @@ describe("interfaz de contextos del calendario", () => {
 
     await usuario.click(
       within(dialogo).getByRole("button", {
-        name: "Asignar planificación",
+        name: "Confirmar revisión",
       }),
     );
 

@@ -59,6 +59,9 @@ export function PantallaCalendario({
   const botonRevisarCorteRef = useRef<HTMLButtonElement>(null);
   const botonResolucionOrigenRef = useRef<HTMLButtonElement | null>(null);
   const controlEditorOrigenRef = useRef<HTMLElement | null>(null);
+  const focoGuardadoPendienteRef = useRef<{
+    origen: HTMLElement | null;
+  } | null>(null);
   const controlActividadOrigenRef = useRef<HTMLElement | null>(null);
   const controlAplicacionOrigenRef = useRef<HTMLElement | null>(null);
   const selectorContextoRef = useRef<HTMLSelectElement>(null);
@@ -131,6 +134,41 @@ export function PantallaCalendario({
   const claveErrorVisible =
     estado.tipo === "error" ? estado.mensaje : (errorAccion ?? "");
   useEnfoqueError(panelRef, claveErrorVisible);
+
+  useEffect(() => {
+    const pendiente = focoGuardadoPendienteRef.current;
+    if (!pendiente || estado.tipo !== "lista") return;
+    focoGuardadoPendienteRef.current = null;
+    const actividadId = pendiente.origen?.getAttribute(
+      "data-actividad-asignable",
+    );
+    const reemplazo = actividadId
+      ? [
+          ...(panelRef.current?.querySelectorAll<HTMLElement>(
+            "[data-actividad-asignable]",
+          ) ?? []),
+        ].find(
+          (control) =>
+            control.getAttribute("data-actividad-asignable") === actividadId,
+        )
+      : undefined;
+    const destino = pendiente.origen?.isConnected
+      ? pendiente.origen
+      : reemplazo;
+    const rectangulo = destino?.getBoundingClientRect();
+    if (
+      destino &&
+      rectangulo &&
+      rectangulo.top >= 0 &&
+      rectangulo.bottom <= window.innerHeight
+    ) {
+      destino.focus({ preventScroll: true });
+    } else {
+      panelRef.current
+        ?.querySelector<HTMLButtonElement>('[aria-label="Cerrar aviso"]')
+        ?.focus({ preventScroll: true });
+    }
+  }, [estado]);
 
   useEffect(() => {
     let activa = true;
@@ -235,12 +273,18 @@ export function PantallaCalendario({
     setMensaje(
       `${actividad.titulo} quedó en Sin programar hasta que le asignes un bloque.`,
     );
-    requestAnimationFrame(() => controlActividadOrigenRef.current?.focus());
+    requestAnimationFrame(() =>
+      controlActividadOrigenRef.current?.focus({ preventScroll: true }),
+    );
   };
 
   const cancelarActividad = () => {
     setFormularioActividadVisible(false);
-    requestAnimationFrame(() => controlActividadOrigenRef.current?.focus());
+    if (!diaSeleccionado && !bloqueEditado) {
+      requestAnimationFrame(() =>
+        controlActividadOrigenRef.current?.focus({ preventScroll: true }),
+      );
+    }
   };
 
   const cancelarEditor = () => {
@@ -253,7 +297,7 @@ export function PantallaCalendario({
     requestAnimationFrame(() => {
       const origen = controlEditorOrigenRef.current;
       if (origen?.isConnected) {
-        origen.focus();
+        origen.focus({ preventScroll: true });
         return;
       }
       const dia = fecha
@@ -261,7 +305,7 @@ export function PantallaCalendario({
             `button[aria-label="Seleccionar día ${fecha}"]`,
           )
         : undefined;
-      (dia ?? selectorContextoRef.current)?.focus();
+      (dia ?? selectorContextoRef.current)?.focus({ preventScroll: true });
     });
   };
 
@@ -521,7 +565,6 @@ export function PantallaCalendario({
     origen: HTMLElement,
   ) => {
     controlEditorOrigenRef.current = origen;
-    setFechaAncla(fecha);
     setDiaSeleccionado(fecha);
     setFechaDestinoActividad(fecha);
     setBloqueEditado(undefined);
@@ -861,6 +904,7 @@ export function PantallaCalendario({
 
       {formularioActividadVisible && (
         <FormularioActividadCalendario
+          enDialogo
           crearActividad={servicios.crearActividad}
           {...(fechaDestinoActividad
             ? { fechaDestino: fechaDestinoActividad }
@@ -871,8 +915,19 @@ export function PantallaCalendario({
       )}
 
       {mensaje && (
-        <p className="mensaje-exito" role="status">
+        <p
+          className="mensaje-exito mensaje-asignacion-calendario"
+          role="status"
+        >
           {mensaje}
+          <button
+            type="button"
+            className="boton-texto"
+            aria-label="Cerrar aviso"
+            onClick={() => setMensaje(undefined)}
+          >
+            Cerrar
+          </button>
         </p>
       )}
       {errorAccion && (
@@ -934,6 +989,14 @@ export function PantallaCalendario({
           key={`${bloqueEditado?.id ?? "nuevo"}-${actividadPreseleccionadaId ?? "sin-preseleccion"}-${diaSeleccionado ?? "sin-dia"}`}
           actividades={calendario.actividadesAsignables}
           contextoId={bloqueEditado?.origen.contextoId ?? contextoAsignacionId}
+          nombreContexto={
+            bloqueEditado?.origen.nombreContexto ??
+            contextoAsignacion?.nombre ??
+            "Libre"
+          }
+          {...(seleccion !== SELECCION_TODAS
+            ? { contextoVisibleId: seleccion }
+            : {})}
           fecha={bloqueEditado?.fecha ?? diaSeleccionado ?? calendario.hoy}
           {...(actividadPreseleccionadaId
             ? { actividadPreseleccionadaId }
@@ -942,11 +1005,12 @@ export function PantallaCalendario({
           servicios={servicios}
           onCancelar={cancelarEditor}
           onGuardado={(mensajeGuardado) => {
-            const fechaEditor = bloqueEditado?.fecha ?? diaSeleccionado;
+            focoGuardadoPendienteRef.current = {
+              origen: controlEditorOrigenRef.current,
+            };
             setDiaSeleccionado(undefined);
             setFechaDestinoActividad(undefined);
             actualizar(mensajeGuardado);
-            devolverFocoEditor(fechaEditor);
           }}
           onNuevaActividad={(origen) => {
             controlActividadOrigenRef.current = origen;
@@ -1009,9 +1073,9 @@ export function PantallaCalendario({
                   <button
                     className="boton-texto"
                     type="button"
+                    data-actividad-asignable={actividad.id}
                     onClick={(evento) => {
                       controlEditorOrigenRef.current = evento.currentTarget;
-                      setFechaAncla(calendario.hoy);
                       setDiaSeleccionado(calendario.hoy);
                       setFechaDestinoActividad(calendario.hoy);
                       setActividadPreseleccionadaId(actividad.id);
@@ -1235,9 +1299,21 @@ function VistaCalendario({
                 }
                 aria-pressed={diaSeleccionado === fecha}
                 aria-label={`Seleccionar día ${fecha}`}
+                aria-describedby={
+                  bloques.length > 0 ? `resumen-dia-${fecha}` : undefined
+                }
               >
                 <span>{formatearDia(fecha)}</span>
                 <strong>{fecha.slice(8)}</strong>
+                {bloques.length > 0 && (
+                  <small
+                    id={`resumen-dia-${fecha}`}
+                    className="resumen-dia-movil"
+                  >
+                    {bloques.length}{" "}
+                    {bloques.length === 1 ? "bloque" : "bloques"}
+                  </small>
+                )}
               </button>
               <ListaCompactaBloques bloques={bloques} />
             </article>

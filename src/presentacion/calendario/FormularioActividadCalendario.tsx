@@ -10,6 +10,7 @@ import type {
 import type { ServiciosCalendario } from "./ServiciosCalendario";
 import { useEnfoqueError } from "../hooks/useEnfoqueError";
 import { SelectorModoSeguimiento } from "../actividades/SelectorModoSeguimiento";
+import { DialogoPlanificacion } from "./DialogoPlanificacion";
 
 interface FormularioActividadCalendarioProps {
   readonly crearActividad: ServiciosCalendario["crearActividad"];
@@ -18,6 +19,7 @@ interface FormularioActividadCalendarioProps {
   >;
   readonly actividad?: ActividadDto;
   readonly fechaDestino?: string;
+  readonly enDialogo?: boolean;
   readonly onCancelar: () => void;
   readonly onCreada: (actividad: ActividadDto, asignar: boolean) => void;
 }
@@ -37,6 +39,7 @@ export function FormularioActividadCalendario({
   editarActividad,
   actividad,
   fechaDestino,
+  enDialogo = false,
   onCancelar,
   onCreada,
 }: FormularioActividadCalendarioProps) {
@@ -71,7 +74,9 @@ export function FormularioActividadCalendario({
   const tipoRef = useRef<HTMLSelectElement>(null);
   const claveError = JSON.stringify(errores);
 
-  useEffect(() => tipoRef.current?.focus(), []);
+  useEffect(() => {
+    if (!enDialogo) tipoRef.current?.focus();
+  }, [enDialogo]);
   useEnfoqueError(formularioRef, claveError);
 
   const enviar = async (evento: FormEvent<HTMLFormElement>) => {
@@ -146,7 +151,7 @@ export function FormularioActividadCalendario({
     );
   };
 
-  return (
+  const contenido = (
     <section className="panel-contexto" aria-labelledby="titulo-actividad">
       <p className="sobrelinea">Catálogo de actividades</p>
       <h3 id="titulo-actividad">
@@ -374,5 +379,18 @@ export function FormularioActividadCalendario({
         </div>
       </form>
     </section>
+  );
+
+  return enDialogo ? (
+    <DialogoPlanificacion
+      tituloId="titulo-actividad"
+      focoInicialRef={tipoRef}
+      bloqueado={guardando}
+      onCerrar={onCancelar}
+    >
+      {contenido}
+    </DialogoPlanificacion>
+  ) : (
+    contenido
   );
 }

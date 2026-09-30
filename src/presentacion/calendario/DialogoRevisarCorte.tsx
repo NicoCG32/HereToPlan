@@ -38,11 +38,12 @@ export function DialogoRevisarCorte({
         aria-describedby="consecuencias-revisar-corte"
         onKeyDown={gestionarTeclado}
       >
-        <p className="sobrelinea">Decisión de planificación</p>
+        <p className="sobrelinea">2 · Revisar antes de confirmar</p>
         <h2 id="titulo-revisar-corte">Revisar planificación</h2>
         <p id="consecuencias-revisar-corte">
-          Al asignarla comenzará una gracia de diez minutos. Después del
-          vencimiento, esta selección quedará confirmada y protegida.
+          Al confirmar esta revisión comenzará una gracia de diez minutos.
+          Después del vencimiento, esta selección quedará confirmada y
+          protegida.
         </p>
 
         <dl className="resumen-revision-corte">
@@ -109,7 +110,7 @@ export function DialogoRevisarCorte({
             onClick={onAsignar}
             disabled={procesando}
           >
-            {procesando ? "Asignando…" : "Asignar planificación"}
+            {procesando ? "Confirmando revisión…" : "Confirmar revisión"}
           </button>
         </div>
       </div>

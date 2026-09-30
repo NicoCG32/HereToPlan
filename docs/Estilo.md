@@ -74,13 +74,24 @@ recompensas disponibles y la lista accesible equivalente.
 En escritorio, el calendario ocupa la columna principal izquierda y el banco de
 actividades asignables una columna auxiliar derecha que permanece disponible
 mientras se recorre el mes. Cada ficha muestra su indicador de arrastre, nombre,
-tipo y una acción equivalente por teclado. El editor, los próximos días y la
-lista accesible equivalente continúan el flujo de planificación.
+tipo y una acción equivalente por teclado. Asignar o editar abre un diálogo
+con actividad, fecha y agenda, sin cambiar el mes visible. El diálogo contiene
+el detalle consultado del día elegido, incluso fuera del rango mensual.
 
 En móvil, calendario y banco se apilan sin cambiar su orden semántico; la vista
-mensual usa dos columnas desde 22 rem para reducir recorrido vertical y vuelve a
-una columna bajo ese límite. El banco deja de ser fijo y no introduce
-desplazamiento horizontal global.
+mensual resume los días en cuatro columnas, con su día de semana explícito y
+cantidad de bloques. Los detalles se consultan desde el diálogo del día y la
+lista equivalente conserva las acciones del rango visible. Los próximos siete
+días muestran fecha y minutos, sin repetir cada bloque. El banco deja de ser
+fijo y no introduce desplazamiento horizontal global.
+
+El diálogo bloquea temporalmente el fondo y conserva la posición de la página;
+su propio contenido puede desplazarse. `Escape` cancela y devuelve el foco al
+origen. Al guardar, el foco vuelve al control visible después de actualizar los
+datos; si desapareció o quedó fuera de pantalla, pasa al aviso de resultado.
+La creación de una actividad desde Calendario usa el mismo patrón. La revisión
+posterior distingue «Asignar un bloque», «Revisar» y «Confirmar revisión», con
+explicación del período de gracia previo a la confirmación definitiva.
 
 ### 4.2. Crear
 
