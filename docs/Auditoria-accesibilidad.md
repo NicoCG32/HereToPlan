@@ -78,3 +78,28 @@ La auditoría debe repetirse cuando cambien la paleta, la jerarquía de foco, un
 diálogo, un control personalizado o la estructura del calendario. Una prueba
 automática aprobada no reemplaza la revisión manual de contraste, ampliación ni
 comprensión del flujo.
+
+## 6. Candidato de asignación compacta — #107
+
+La revisión de este incremento añade un diálogo para asignar, editar y crear
+actividades desde Calendario. El fondo queda inerte mientras está abierto y el
+foco recorre sus controles, incluido el resumen desplegable del día. Se comprobó
+en navegador la vuelta de `Tab` y `Shift+Tab` entre sus extremos, cancelación con
+`Escape` y retorno al origen; guardar conserva la posición y recupera el control
+después de la consulta, incluso cuando la actividad cambia de grupo.
+
+Las pruebas con axe cubren la apertura del editor. La suite también verifica
+consulta de una fecha fuera del mes, actualización del nombre del diálogo y
+descarte del detalle anterior ante un error de consulta.
+
+En el candidato local, a 360, 390 y 430 px no se detectó desbordamiento horizontal.
+Los botones de día miden respectivamente 54, 61,5 y 71,5 px de ancho, con 72 px de
+alto. Los campos, botones y etiquetas de política del diálogo conservan un área
+de al menos 44 px. A 320 px, usado como comprobación de reflujo, los botones de
+día miden 44 × 72 px y el foco inicial queda visible dentro del diálogo.
+
+La superficie mensual pasó de aproximadamente 1.638 a 822 px de alto a 390 px,
+con el detalle disponible en el editor y la lista equivalente. No se añaden
+animaciones al patrón. La lectura con un lector de pantalla, la ampliación real
+en navegador y la comprensión final del usuario siguen pendientes de revisión;
+el árbol accesible y el reflujo medido no sustituyen esas comprobaciones.

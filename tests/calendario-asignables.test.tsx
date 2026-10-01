@@ -19,6 +19,175 @@ import { comprobarAccesibilidad } from "./comprobarAccesibilidad";
 afterEach(cleanup);
 
 describe("asignables del calendario", () => {
+  it("consulta el detalle de otra fecha sin mover el mes y descarta el detalle anterior si falla", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearServicios();
+    const consultar = vi.fn(
+      (
+        consulta: Parameters<
+          ServiciosCalendario["consultarCalendario"]["ejecutar"]
+        >[0],
+      ) => {
+        if (consulta.vistaTemporal !== "DIA") {
+          return Promise.resolve(crearCalendario());
+        }
+        if (consulta.fechaAncla === "2026-08-02") {
+          return Promise.reject(new Error("Consulta indisponible"));
+        }
+        return Promise.resolve({
+          ...crearCalendario(),
+          bloquesVisibles: [
+            {
+              id: "bloque-agosto",
+              actividadId: "actividad-libre",
+              titulo: "Lectura de agosto",
+              fecha: "2026-08-01",
+              minutosPlanificados: 30,
+              modoSeguimiento: "MANUAL" as const,
+              estado: "PENDIENTE" as const,
+              origen: {
+                contextoId: "contexto-libre",
+                nombreContexto: "Libre",
+                tipoContexto: "LIBRE" as const,
+              },
+              politica: {
+                rigidez: "FLEXIBLE" as const,
+                autoridadPlazo: "PERSONAL" as const,
+                ajustesPermitidos: [],
+              },
+              editable: true,
+              historial: [],
+            },
+          ],
+        });
+      },
+    );
+    entorno.servicios.consultarCalendario.ejecutar = consultar;
+    render(
+      <PantallaCalendario
+        servicios={entorno.servicios}
+        fechaInicial="2026-07-20"
+      />,
+    );
+    await screen.findByRole("heading", { name: "Actividades para asignar" });
+    await usuario.click(screen.getByRole("button", { name: "Cancelar" }));
+    fireEvent.change(screen.getByLabelText("Fecha de asignación"), {
+      target: { value: "2026-08-01" },
+    });
+    await usuario.click(
+      screen.getByRole("button", { name: "Asignar Leer paper" }),
+    );
+    await usuario.click(screen.getByText("Ya planificado para 2026-08-01"));
+    expect(await screen.findByText("Lectura de agosto")).toBeTruthy();
+    expect(consultar).toHaveBeenCalledWith({
+      seleccion: { tipo: "TODAS" },
+      vistaTemporal: "DIA",
+      fechaAncla: "2026-08-01",
+    });
+    fireEvent.change(screen.getByLabelText("Fecha"), {
+      target: { value: "2026-08-02" },
+    });
+    expect(
+      screen.getByRole("dialog", { name: "Planificar 2026-08-02" }),
+    ).toBeTruthy();
+    expect(
+      await screen.findByText(
+        "No fue posible consultar los bloques de esta fecha.",
+      ),
+    ).toBeTruthy();
+    expect(screen.queryByText("Lectura de agosto")).toBeNull();
+    expect(screen.getByLabelText("Fecha de referencia")).toHaveProperty(
+      "value",
+      "2026-07-20",
+    );
+    expect(entorno.asignarActividad).not.toHaveBeenCalled();
+  });
+
+  it("mantiene la vista al asignar otra fecha y permite cerrar por teclado", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearServicios();
+    const overflowAnterior = document.body.style.overflow;
+    render(
+      <PantallaCalendario
+        servicios={entorno.servicios}
+        fechaInicial="2026-07-20"
+      />,
+    );
+    await screen.findByRole("heading", { name: "Actividades para asignar" });
+    await usuario.click(screen.getByRole("button", { name: "Cancelar" }));
+    await usuario.clear(screen.getByLabelText("Fecha de asignación"));
+    fireEvent.change(screen.getByLabelText("Fecha de asignación"), {
+      target: { value: "2026-08-01" },
+    });
+    const origen = screen.getByRole("button", { name: "Asignar Leer paper" });
+    await usuario.click(origen);
+    const dialogo = screen.getByRole("dialog", {
+      name: "Planificar 2026-08-01",
+    });
+    expect(screen.getByLabelText("Fecha de referencia")).toHaveProperty(
+      "value",
+      "2026-07-20",
+    );
+    expect(within(dialogo).getByText(/Agenda:/).textContent).toContain("Libre");
+    expect(document.body.style.overflow).toBe("hidden");
+    await comprobarAccesibilidad();
+    await usuario.click(
+      within(dialogo).getByRole("button", {
+        name: "Nueva actividad",
+      }),
+    );
+    await usuario.keyboard("{Escape}");
+    expect(
+      screen.getByRole("dialog", { name: "Planificar 2026-08-01" }),
+    ).toBeTruthy();
+    expect(document.body.style.overflow).toBe("hidden");
+    await usuario.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(entorno.asignarActividad).not.toHaveBeenCalled();
+    expect(document.body.style.overflow).toBe(overflowAnterior);
+    await waitFor(() => expect(document.activeElement).toBe(origen));
+  });
+
+  it("devuelve el foco al botón nuevo cuando la actividad cambia de grupo al guardar", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearServicios();
+    let asignada = false;
+    entorno.servicios.consultarCalendario.ejecutar = vi.fn(() => {
+      const calendario = crearCalendario();
+      return Promise.resolve(
+        asignada
+          ? {
+              ...calendario,
+              actividadesSinProgramar:
+                calendario.actividadesSinProgramar.filter(
+                  (actividad) => actividad.id !== "actividad-libre",
+                ),
+            }
+          : calendario,
+      );
+    });
+    entorno.asignarActividad.mockImplementation(() => {
+      asignada = true;
+      return Promise.resolve({ exito: true, bloque: { titulo: "Leer paper" } });
+    });
+    render(<PantallaCalendario servicios={entorno.servicios} />);
+    const origen = await screen.findByRole("button", {
+      name: "Asignar Leer paper",
+    });
+    await usuario.click(origen);
+    await usuario.click(screen.getByRole("button", { name: "Agregar bloque" }));
+    await screen.findByText(
+      "La actividad Leer paper fue asignada a 2026-07-21.",
+    );
+    await waitFor(() => {
+      const destino = screen.getByRole("button", {
+        name: "Asignar Leer paper",
+      });
+      expect(destino).not.toBe(origen);
+      expect(document.activeElement).toBe(destino);
+    });
+  });
+
   it("distingue actividades, muestra sólo inventario disponible y abre cada comando", async () => {
     const usuario = userEvent.setup();
     const entorno = crearServicios();

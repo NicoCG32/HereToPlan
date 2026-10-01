@@ -1549,3 +1549,137 @@
     margin-top: 1.5rem;
   }
 }
+
+.fondo-planificacion {
+  z-index: 60;
+}
+
+.dialogo-planificacion {
+  width: min(40rem, 100%);
+  padding: 1.25rem;
+  overscroll-behavior: contain;
+}
+
+.dialogo-planificacion > .editor-dia,
+.dialogo-planificacion > .panel-contexto {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.contexto-editor {
+  margin-block: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.detalle-dia-editor {
+  margin-bottom: 1rem;
+  border-block: 1px solid var(--linea);
+  font-size: 0.85rem;
+}
+
+.detalle-dia-editor summary {
+  min-height: 2.75rem;
+  padding-block: 0.75rem;
+  cursor: pointer;
+}
+
+.detalle-dia-editor li {
+  margin-block: 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+.dialogo-planificacion .selector-politica label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+}
+
+.mensaje-asignacion-calendario {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 19;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: min(32rem, calc(100% - 2rem));
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgb(var(--planta-profundo));
+  background: rgb(var(--plata-blanca));
+  box-shadow: 0 6px 24px rgb(var(--cuarzo-grafito) / 18%);
+}
+
+.mensaje-asignacion-calendario button {
+  flex-shrink: 0;
+  min-height: 2.75rem;
+}
+
+.resumen-dia-movil {
+  display: none;
+}
+
+@media (max-width: 48rem) {
+  .rejilla-calendario.vista-mes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .vista-mes .dia-calendario {
+    min-height: 0;
+    padding: 0.25rem;
+  }
+
+  .vista-mes .boton-dia-calendario {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-height: 4.5rem;
+    padding: 0.2rem;
+  }
+
+  .vista-mes .boton-dia-calendario strong {
+    font-size: 1.15rem;
+  }
+
+  .vista-mes .boton-dia-calendario span {
+    font-size: 0.8rem;
+  }
+
+  .vista-mes .resumen-dia-movil {
+    display: block;
+    font-size: 0.75rem;
+    line-height: 1.25;
+  }
+
+  .vista-mes .bloques-compactos,
+  .vista-mes .dia-sin-bloques,
+  .dia-proximo .bloques-compactos,
+  .dia-proximo .dia-sin-bloques {
+    display: none;
+  }
+
+  .dia-proximo {
+    min-height: 0;
+    padding: 0.35rem;
+  }
+
+  .boton-dia-proximo {
+    min-height: 2.75rem;
+    padding: 0.35rem;
+  }
+
+  .dialogo-planificacion {
+    max-height: calc(100dvh - 1rem);
+    padding: 1rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
