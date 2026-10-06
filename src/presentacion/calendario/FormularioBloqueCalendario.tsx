@@ -7,6 +7,7 @@ import type {
 import type { ServiciosCalendario } from "./ServiciosCalendario";
 import { useEnfoqueError } from "../hooks/useEnfoqueError";
 import { DialogoPlanificacion } from "./DialogoPlanificacion";
+import { AyudaTutorialContextual } from "../tutorial/AyudaTutorialContextual";
 
 interface FormularioBloqueCalendarioProps {
   readonly actividades: readonly ActividadDto[];
@@ -210,6 +211,7 @@ export function FormularioBloqueCalendario({
           Agenda: <strong>{nombreContexto}</strong>. Después podrás revisar y
           confirmar la planificación.
         </p>
+        <AyudaTutorialContextual pasos={["ASIGNACION"]} />
         <details className="detalle-dia-editor">
           <summary>Ya planificado para {fechaBloque}</summary>
           {cargandoDia ? (

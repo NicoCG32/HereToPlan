@@ -21,6 +21,8 @@ import estadoSinAgendas from "../recursos/ilustraciones/estados-vacios/estado-va
 import ilustracionCrear from "../recursos/ilustraciones/paginas/ilustracion-pagina-crear.svg";
 import "./PaginaCrear.css";
 import { EncabezadoPagina } from "./EncabezadoPagina";
+import { atributosDestinoTutorial } from "../tutorial/DestinosTutorial";
+import { useTutorial } from "../tutorial/ContextoTutorial";
 
 interface PaginaCrearProps {
   readonly serviciosCalendario?: ServiciosCalendario;
@@ -38,6 +40,7 @@ export function PaginaCrear({
   serviciosAgenda,
 }: PaginaCrearProps) {
   const navegar = useNavigate();
+  const tutorial = useTutorial();
   const [editor, setEditor] = useState<EditorVisible>();
   const [catalogo, setCatalogo] = useState<CalendarioDto>();
   const [error, setError] = useState<string>();
@@ -86,6 +89,7 @@ export function PaginaCrear({
   };
 
   const registrarActividad = (actividad: ActividadDto, asignar: boolean) => {
+    tutorial?.informarHito("ACTIVIDAD_CREADA");
     setEditor(undefined);
     setRevision((actual) => actual + 1);
     if (asignar) {
@@ -207,6 +211,7 @@ export function PaginaCrear({
               className="boton-primario"
               type="button"
               aria-expanded={editor?.tipo === "CREAR_AGENDA"}
+              {...atributosDestinoTutorial("CREAR_AGENDA")}
               onClick={() => setEditor({ tipo: "CREAR_AGENDA" })}
             >
               <img src={iconoAgenda} alt="" aria-hidden="true" />
@@ -216,6 +221,12 @@ export function PaginaCrear({
               className="boton-secundario"
               type="button"
               aria-expanded={editor?.tipo === "CREAR_ACTIVIDAD"}
+              {...atributosDestinoTutorial(
+                "CREAR_ACTIVIDAD",
+                catalogo?.actividadesAsignables.length
+                  ? ["CREAR_ACTIVIDAD"]
+                  : [],
+              )}
               onClick={() => setEditor({ tipo: "CREAR_ACTIVIDAD" })}
             >
               <img src={iconoActividad} alt="" aria-hidden="true" />

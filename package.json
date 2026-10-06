@@ -11,7 +11,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:a11y": "vitest run tests/interfaz-contextos-calendario.test.tsx tests/panel-dia-libre.test.tsx tests/panel-respaldo.test.tsx",
+    "test:a11y": "vitest run tests/interfaz-contextos-calendario.test.tsx tests/panel-dia-libre.test.tsx tests/panel-respaldo.test.tsx tests/guia-tutorial.test.tsx",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier . --write --ignore-unknown",

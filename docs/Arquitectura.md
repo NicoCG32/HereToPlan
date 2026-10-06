@@ -908,8 +908,25 @@ situaciones son `NO_INICIADO`, `EN_CURSO`, `POSPUESTO`, `OMITIDO` y
 `COMPLETADO`. Posponer conserva el paso; continuar lo retoma; omitir termina la
 guía sin crear datos; cerrar sólo oculta la representación y no altera el
 estado; reiniciar vuelve al estado inicial. El contrato no forma parte del
-perfil ni del dominio. La interfaz contextual y su puerto de persistencia son
-incrementos posteriores y no se anticipan mediante acceso directo al navegador.
+perfil ni del dominio.
+
+`ProveedorTutorial` conserva ese estado y los hitos observados durante la sesión.
+`GuiaTutorial` presenta una oferta opcional tras la bienvenida de perfil; puede
+cerrarse, posponerse, omitirse y retomarse al cambiar de ruta. El progreso se
+mantiene en memoria en este incremento; el puerto de persistencia corresponde
+al siguiente corte.
+
+`atributosDestinoTutorial` declara destinos tipados junto a los controles reales.
+Un observador de presentación centraliza su disponibilidad, contexto y evidencia
+de término. `useSyncExternalStore` sincroniza esas observaciones sin buscar clases
+o textos dispersos. Los pasos operativos sólo se habilitan con datos existentes
+o hitos comunicados después de un resultado exitoso de la interfaz normal.
+Las acciones de la guía modifican exclusivamente presentación y navegación.
+
+La guía conserva su espacio y queda inerte mientras hay un diálogo modal, para
+evitar cambios de altura por esconderla. Los editores y la revisión muestran una
+indicación breve dentro de su propio recorrido de foco. Localizar un destino es
+una acción explícita; la aparición de la oferta no enfoca ni desplaza controles.
 
 ### 6.27. Materialización finita de hábitos
 
