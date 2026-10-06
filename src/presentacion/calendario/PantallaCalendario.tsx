@@ -30,6 +30,8 @@ import {
 } from "./BandejaAsignablesCalendario";
 import { DialogoAplicarDiaLibre } from "./DialogoAplicarDiaLibre";
 import { etiquetaModoSeguimiento } from "../actividades/etiquetasActividad";
+import { atributosDestinoTutorial } from "../tutorial/DestinosTutorial";
+import { useTutorial } from "../tutorial/ContextoTutorial";
 
 interface PantallaCalendarioProps {
   readonly servicios: ServiciosCalendario;
@@ -54,6 +56,7 @@ export function PantallaCalendario({
   actividadInicialId,
   fechaInicial,
 }: PantallaCalendarioProps) {
+  const tutorial = useTutorial();
   const botonCrearContextoRef = useRef<HTMLButtonElement>(null);
   const botonEliminarContextoRef = useRef<HTMLButtonElement>(null);
   const botonRevisarCorteRef = useRef<HTMLButtonElement>(null);
@@ -260,6 +263,7 @@ export function PantallaCalendario({
   };
 
   const actividadCreada = (actividad: ActividadDto, asignar: boolean) => {
+    tutorial?.informarHito("ACTIVIDAD_CREADA");
     setFormularioActividadVisible(false);
     setRevision((actual) => actual + 1);
     if (asignar && fechaDestinoActividad) {
@@ -445,6 +449,7 @@ export function PantallaCalendario({
         return;
       }
       setRevisionCorte(resultado.revision);
+      tutorial?.informarHito("REVISION_PREPARADA");
       setErrorCorte(undefined);
     } catch (error: unknown) {
       setErrorAccion(
@@ -478,6 +483,7 @@ export function PantallaCalendario({
       }
       setRevisionCorte(undefined);
       setBloquesSeleccionados([]);
+      tutorial?.informarHito("CORTE_ASIGNADO");
       setCorteBorradorId(undefined);
       actualizar(
         `La planificación entró en gracia y se confirmará automáticamente a las ${formatearHora(resultado.corte.confirmarAutomaticamenteEn!)}.`,
@@ -540,6 +546,7 @@ export function PantallaCalendario({
         return;
       }
       const titulo = resolucionPendiente.bloque.titulo;
+      tutorial?.informarHito("BLOQUE_RESUELTO");
       const completado = resolucionPendiente.accion === "COMPLETAR";
       setResolucionPendiente(undefined);
       onPuntosCambiados?.();
@@ -701,6 +708,7 @@ export function PantallaCalendario({
         return;
       }
       const creados = resultado.bloques.length;
+      if (creados > 0) tutorial?.informarHito("BLOQUE_ASIGNADO");
       const omitidos = resultado.fechasOmitidas.length;
       actualizar(
         creados > 0
@@ -829,6 +837,8 @@ export function PantallaCalendario({
           <select
             ref={selectorContextoRef}
             id="selector-contexto"
+            {...atributosDestinoTutorial("CONTEXTO")}
+            data-tutorial-contexto={calendario.seleccion.nombre}
             value={seleccion}
             onChange={(evento) => {
               setSeleccion(evento.target.value);
@@ -957,6 +967,7 @@ export function PantallaCalendario({
 
         {servicios.consultarInventarioRecompensas && (
           <BandejaAsignablesCalendario
+            hayBloques={calendario.bloquesVisibles.length > 0}
             fecha={fechaAsignacionActual}
             actividadesSinProgramar={calendario.actividadesSinProgramar}
             actividadesAsignadas={calendario.actividadesAsignables.filter(
@@ -1005,6 +1016,7 @@ export function PantallaCalendario({
           servicios={servicios}
           onCancelar={cancelarEditor}
           onGuardado={(mensajeGuardado) => {
+            if (!bloqueEditado) tutorial?.informarHito("BLOQUE_ASIGNADO");
             focoGuardadoPendienteRef.current = {
               origen: controlEditorOrigenRef.current,
             };
@@ -1036,6 +1048,10 @@ export function PantallaCalendario({
       {!servicios.consultarInventarioRecompensas && (
         <section
           className="bandeja-actividades"
+          {...atributosDestinoTutorial(
+            "ASIGNABLES",
+            calendario.bloquesVisibles.length ? ["ASIGNABLES"] : [],
+          )}
           aria-labelledby="sin-programar"
         >
           <div className="titulo-region">
@@ -1438,6 +1454,17 @@ function VistaListaBloques({
   return (
     <section
       className="vista-lista-calendario"
+      {...atributosDestinoTutorial(
+        ["REVISION", "EJECUCION"],
+        [
+          ...(bloques.some((bloque) => bloque.proteccion)
+            ? ["REVISION" as const]
+            : []),
+          ...(bloques.some((bloque) => bloque.estado !== "PENDIENTE")
+            ? ["EJECUCION" as const]
+            : []),
+        ],
+      )}
       aria-labelledby="lista-equivalente"
     >
       <div className="titulo-region">

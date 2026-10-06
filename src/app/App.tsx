@@ -18,6 +18,7 @@ import { ProveedorSesionAplicacion } from "../presentacion/sesion/SesionAplicaci
 import { useSesionAplicacion } from "../presentacion/sesion/ContextoSesionAplicacion";
 import type { SelectorFraseMotivacional } from "../presentacion/sesion/frasesMotivacionales";
 import { RutasAplicacion } from "./rutas/RutasAplicacion";
+import { ProveedorTutorial } from "../presentacion/tutorial/ProveedorTutorial";
 import {
   obtenerServiciosCalendario,
   obtenerServiciosPerfil,
@@ -87,15 +88,17 @@ function AplicacionEnrutada({
       {...(puntos ? { serviciosPuntos: puntos } : {})}
       {...(selectorFrase ? { selectorFrase } : {})}
     >
-      <ContenidoAplicacion
-        {...(servicios ? { servicios } : {})}
-        {...(calendario ? { calendario } : {})}
-        {...(puntos ? { puntos } : {})}
-        {...(recompensas ? { recompensas } : {})}
-        {...(inventarioRecompensas ? { inventarioRecompensas } : {})}
-        {...(recuperacion ? { recuperacion } : {})}
-        {...(respaldo ? { respaldo } : {})}
-      />
+      <ProveedorTutorial habilitado={Boolean(calendario)}>
+        <ContenidoAplicacion
+          {...(servicios ? { servicios } : {})}
+          {...(calendario ? { calendario } : {})}
+          {...(puntos ? { puntos } : {})}
+          {...(recompensas ? { recompensas } : {})}
+          {...(inventarioRecompensas ? { inventarioRecompensas } : {})}
+          {...(recuperacion ? { recuperacion } : {})}
+          {...(respaldo ? { respaldo } : {})}
+        />
+      </ProveedorTutorial>
     </ProveedorSesionAplicacion>
   );
 }

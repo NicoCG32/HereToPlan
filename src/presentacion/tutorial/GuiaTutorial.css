@@ -1,0 +1,65 @@
+.acceso-guia-tutorial {
+  display: flex;
+  justify-content: flex-end;
+  margin-block: 0.5rem;
+}
+
+.guia-tutorial {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--linea-fuerte);
+  border-left: 4px solid rgb(var(--planta-profundo));
+  background: rgb(var(--plata-blanca));
+  overflow-wrap: anywhere;
+}
+
+.guia-tutorial h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.2rem;
+}
+
+.guia-tutorial p {
+  margin-block: 0.5rem;
+}
+
+.estado-guia-tutorial {
+  color: var(--texto-secundario);
+  font-size: 0.85rem;
+}
+
+.acciones-guia-tutorial {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.acciones-guia-tutorial button,
+.acceso-guia-tutorial button {
+  min-height: 2.75rem;
+}
+
+[data-tutorial-resaltado="true"] {
+  outline: 3px solid rgb(var(--diamante-profundo));
+  outline-offset: 4px;
+}
+
+.ayuda-tutorial-contextual {
+  padding: 0.75rem;
+  border-left: 3px solid rgb(var(--planta-profundo));
+  background: rgb(var(--plata-blanca));
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 32rem) {
+  .acciones-guia-tutorial {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .acciones-guia-tutorial button {
+    width: 100%;
+    white-space: normal;
+  }
+}

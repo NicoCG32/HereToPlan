@@ -125,6 +125,16 @@ La aplicación utiliza navegación hash para conservar compatibilidad con el
 alojamiento estático de GitHub Pages. Calendario, Crear, Puntos y Respaldo poseen
 rutas propias sin depender de reescrituras del servidor.
 
+## Guía de primeros pasos
+
+Después de la bienvenida se ofrece una guía opcional de ocho pasos. Puedes
+iniciarla, elegir «Más tarde», omitirla o retomarla desde «Continuar guía».
+«Ver control» señala el destino de cada paso; crear, asignar y resolver siguen
+requiriendo tus acciones habituales y la guía espera sus resultados.
+
+En este incremento el progreso se conserva durante la sesión. Guardarlo entre
+recargas y ofrecer su reinicio forman parte de la siguiente tarea del roadmap.
+
 ## Verificación
 
 ```bash

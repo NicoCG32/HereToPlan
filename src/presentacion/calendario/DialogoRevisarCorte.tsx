@@ -2,6 +2,7 @@ import { useRef } from "react";
 import type { RevisionCortePlanificacionDto } from "../../aplicacion";
 import { useDialogoModal } from "../hooks/useDialogoModal";
 import { useEnfoqueError } from "../hooks/useEnfoqueError";
+import { AyudaTutorialContextual } from "../tutorial/AyudaTutorialContextual";
 
 interface DialogoRevisarCorteProps {
   readonly revision: RevisionCortePlanificacionDto;
@@ -46,6 +47,7 @@ export function DialogoRevisarCorte({
           protegida.
         </p>
 
+        <AyudaTutorialContextual pasos={["REVISION", "CONFIRMACION"]} />
         <dl className="resumen-revision-corte">
           <div>
             <dt>Bloques</dt>

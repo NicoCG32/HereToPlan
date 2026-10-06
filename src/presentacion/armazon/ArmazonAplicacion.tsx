@@ -9,6 +9,8 @@ import {
 
 import { NavegacionPrincipal } from "./NavegacionPrincipal";
 import { HudAplicacion } from "../sesion/HudAplicacion";
+import { GuiaTutorial } from "../tutorial/GuiaTutorial";
+import { atributosDestinoTutorial } from "../tutorial/DestinosTutorial";
 import "./ArmazonAplicacion.css";
 
 interface ArmazonAplicacionProps {
@@ -59,6 +61,7 @@ export function ArmazonAplicacion({ children }: ArmazonAplicacionProps) {
 
       <button
         ref={botonAbrirRef}
+        {...atributosDestinoTutorial("ABRIR_NAVEGACION")}
         className="boton-abrir-navegacion"
         type="button"
         aria-expanded={navegacionAbierta}
@@ -79,6 +82,7 @@ export function ArmazonAplicacion({ children }: ArmazonAplicacionProps) {
 
       <aside
         id="navegacion-lateral"
+        {...atributosDestinoTutorial("NAVEGACION")}
         className="navegacion-lateral"
         data-abierta={navegacionAbierta ? "true" : "false"}
       >
@@ -101,6 +105,7 @@ export function ArmazonAplicacion({ children }: ArmazonAplicacionProps) {
           className="contenido-aplicacion"
           tabIndex={-1}
         >
+          <GuiaTutorial />
           {children}
         </main>
       </div>

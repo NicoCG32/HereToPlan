@@ -6,6 +6,7 @@ import type {
 } from "../../aplicacion";
 import { useEnfoqueError } from "../hooks/useEnfoqueError";
 import { DialogoCorregirCorte } from "./DialogoCorregirCorte";
+import { atributosDestinoTutorial } from "../tutorial/DestinosTutorial";
 
 interface PanelGraciaPlanificacionProps {
   readonly sincronizarCortes: Pick<
@@ -149,6 +150,7 @@ export function PanelGraciaPlanificacion({
       {activos.length > 0 && (
         <section
           className="panel-gracia-planificacion"
+          {...atributosDestinoTutorial("GRACIA", ["GRACIA"])}
           aria-labelledby="titulo-periodo-gracia"
         >
           <div className="titulo-region">

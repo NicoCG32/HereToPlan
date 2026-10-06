@@ -1,4 +1,5 @@
 import type { ActividadDto, InventarioRecompensasDto } from "../../aplicacion";
+import { atributosDestinoTutorial } from "../tutorial/DestinosTutorial";
 
 export type ElementoAsignableArrastrado =
   | Readonly<{ tipo: "ACTIVIDAD"; id: string; nombre: string }>
@@ -6,6 +7,7 @@ export type ElementoAsignableArrastrado =
 
 interface BandejaAsignablesCalendarioProps {
   readonly fecha: string;
+  readonly hayBloques?: boolean;
   readonly actividadesSinProgramar: readonly ActividadDto[];
   readonly actividadesAsignadas: readonly ActividadDto[];
   readonly inventario?: InventarioRecompensasDto;
@@ -29,6 +31,7 @@ interface BandejaAsignablesCalendarioProps {
 
 export function BandejaAsignablesCalendario({
   fecha,
+  hayBloques = false,
   actividadesSinProgramar,
   actividadesAsignadas,
   inventario,
@@ -44,6 +47,10 @@ export function BandejaAsignablesCalendario({
   return (
     <section
       className="bandeja-asignables"
+      {...atributosDestinoTutorial(
+        "ASIGNABLES",
+        hayBloques ? ["ASIGNABLES"] : [],
+      )}
       aria-labelledby="asignables"
       aria-busy={procesandoAsignacion}
     >

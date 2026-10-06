@@ -112,6 +112,18 @@ Aísla exportación, análisis, restauración y reinicio de planificación del f
 cotidiano. Las operaciones destructivas usan bronce, confirmación explícita y
 una explicación previa del impacto.
 
+### 4.5. Guía opcional
+
+Una tarjeta junto al contenido ofrece iniciar, posponer u omitir el recorrido.
+Mientras está activa, presenta un paso y permite localizar su control, avanzar,
+posponer o cerrar. No cubre ni bloquea las páginas; al cambiar de ruta conserva
+el paso y ofrece ir a su destino mediante una acción explícita.
+
+El destino se resalta sin animaciones. Localizarlo mueve el foco por petición del
+usuario. Al abrir un diálogo, la tarjeta conserva su espacio, queda fuera del
+recorrido accesible y el diálogo incorpora la indicación pertinente. En móvil
+las acciones se distribuyen en dos columnas con una altura mínima de 44 px.
+
 ## 5. Adaptación y accesibilidad
 
 En escritorio, la navegación lateral permanece visible sin cubrir el contenido.

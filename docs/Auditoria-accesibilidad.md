@@ -100,6 +100,26 @@ día miden 44 × 72 px y el foco inicial queda visible dentro del diálogo.
 
 La superficie mensual pasó de aproximadamente 1.638 a 822 px de alto a 390 px,
 con el detalle disponible en el editor y la lista equivalente. No se añaden
-animaciones al patrón. La lectura con un lector de pantalla, la ampliación real
-en navegador y la comprensión final del usuario siguen pendientes de revisión;
-el árbol accesible y el reflujo medido no sustituyen esas comprobaciones.
+animaciones al patrón. El usuario aceptó la mejora visual y el funcionamiento.
+Las comprobaciones adicionales con lector de pantalla y ampliación real se
+pospusieron y se conservan en #109; no se declaran realizadas a partir del árbol
+accesible o del reflujo medido.
+
+## 7. Tutorial contextual — #82
+
+La oferta inicial no toma el foco y espera la bienvenida del perfil. Cerrar con
+`Escape`, posponer y continuar conservan el paso; omitir permite seguir usando
+las cuatro rutas. El control explícito para ir al destino devuelve el foco a la
+indicación, y «Ver control» enfoca el elemento señalado. La guía sólo permite
+avanzar cuando el destino y las condiciones del paso están disponibles.
+
+Las pruebas axe incluyen oferta inicial, diálogo de revisión con indicación
+contextual y recorrido completado. También se comprueban cambios de ruta y
+contexto, actividad guardada, asignación cancelada o fallida, revisión fallida,
+confirmación y uso de datos existentes sin operaciones iniciadas por la guía.
+
+El candidato se comprueba en el navegador integrado a 320, 360, 390, 430 y
+1.265 px. La guía no presenta desbordamiento horizontal y sus acciones conservan
+una altura mínima de 44 px. A 390 px, el paso de actividad mide aproximadamente
+347 px de alto; puede cerrarse o posponerse. No añade animaciones. Estas pruebas
+no se presentan como validación de Brave, lector de pantalla o zoom real.
