@@ -18,6 +18,11 @@
   font-size: 1.2rem;
 }
 
+.guia-tutorial h2:focus-visible {
+  outline: 3px solid rgb(var(--diamante-profundo));
+  outline-offset: 4px;
+}
+
 .guia-tutorial p {
   margin-block: 0.5rem;
 }
