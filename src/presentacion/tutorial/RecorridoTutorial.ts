@@ -1,17 +1,16 @@
-export const VERSION_ESTADO_TUTORIAL = 1 as const;
-
-export type IdPasoTutorial =
-  | "NAVEGACION"
-  | "LIBRE"
-  | "AGENDA_OPCIONAL"
-  | "ACTIVIDAD"
-  | "ASIGNACION"
-  | "REVISION"
-  | "CONFIRMACION"
-  | "EJECUCION";
-
-export type SituacionTutorial =
-  "NO_INICIADO" | "EN_CURSO" | "POSPUESTO" | "OMITIDO" | "COMPLETADO";
+import {
+  crearEstadoTutorialInicial,
+  VERSION_ESTADO_TUTORIAL,
+  type EstadoTutorialV1,
+  type IdPasoTutorial,
+  type SituacionTutorial,
+} from "../../aplicacion/tutorial/EstadoTutorialV1";
+export {
+  VERSION_ESTADO_TUTORIAL,
+  type EstadoTutorialV1,
+  type IdPasoTutorial,
+  type SituacionTutorial,
+} from "../../aplicacion/tutorial/EstadoTutorialV1";
 
 export interface PasoTutorial {
   readonly id: IdPasoTutorial;
@@ -19,12 +18,6 @@ export interface PasoTutorial {
   readonly condicionEntrada: string;
   readonly termino: string;
   readonly destino: "/calendario" | "/crear";
-}
-
-export interface EstadoTutorialV1 {
-  readonly version: typeof VERSION_ESTADO_TUTORIAL;
-  readonly situacion: SituacionTutorial;
-  readonly pasoActual: IdPasoTutorial | null;
 }
 
 export const RECORRIDO_TUTORIAL: readonly PasoTutorial[] = Object.freeze([
@@ -88,11 +81,7 @@ export const RECORRIDO_TUTORIAL: readonly PasoTutorial[] = Object.freeze([
 ]);
 
 export function crearEstadoTutorial(): EstadoTutorialV1 {
-  return {
-    version: VERSION_ESTADO_TUTORIAL,
-    situacion: "NO_INICIADO",
-    pasoActual: null,
-  };
+  return crearEstadoTutorialInicial();
 }
 
 export function iniciarTutorial(estado: EstadoTutorialV1): EstadoTutorialV1 {

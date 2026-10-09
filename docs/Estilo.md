@@ -119,6 +119,13 @@ Mientras está activa, presenta un paso y permite localizar su control, avanzar,
 posponer o cerrar. No cubre ni bloquea las páginas; al cambiar de ruta conserva
 el paso y ofrece ir a su destino mediante una acción explícita.
 
+El acceso muestra si el avance se conserva en el navegador o sólo durante la
+sesión. «Reiniciar guía» permanece visible cuando hay progreso, omisión, término
+o una recuperación pendiente. Un registro ilegible ofrece reintentar lectura,
+usar la guía sin guardar o cerrar el aviso; el reinicio afecta sólo a la guía.
+Consultar una guía omitida o completada muestra ese estado. Un guardado fallido
+explica qué avance es temporal y permite reintentar sin bloquear las páginas.
+
 El destino se resalta sin animaciones. Localizarlo mueve el foco por petición del
 usuario. Al abrir un diálogo, la tarjeta conserva su espacio, queda fuera del
 recorrido accesible y el diálogo incorpora la indicación pertinente. En móvil

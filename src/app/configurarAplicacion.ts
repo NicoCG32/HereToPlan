@@ -77,6 +77,8 @@ import { CalendarioLocalSistema } from "../infraestructura/sistema/CalendarioLoc
 import { GeneradorIdentificadoresUUID } from "../infraestructura/sistema/GeneradorIdentificadoresUUID";
 import { RelojSistema } from "../infraestructura/sistema/RelojSistema";
 import type { ServiciosAgendaBorrador } from "../presentacion/agendas/ServiciosAgendaBorrador";
+import type { PreferenciasTutorial } from "../aplicacion/puertos/PreferenciasTutorial";
+import { PreferenciasTutorialLocalStorage } from "../infraestructura/persistencia/preferencias/PreferenciasTutorialLocalStorage";
 import type { ServiciosCalendario } from "../presentacion/calendario/ServiciosCalendario";
 import type { ServiciosPuntos } from "../presentacion/puntos/ServiciosPuntos";
 import type { ServiciosRecompensas } from "../presentacion/recompensas/ServiciosRecompensas";
@@ -94,6 +96,12 @@ let serviciosInventarioRecompensas: ServiciosInventarioRecompensas | undefined;
 let serviciosRecuperacion: ServiciosRecuperacion | undefined;
 let serviciosRespaldo: ServiciosRespaldo | undefined;
 let serviciosPerfil: ServiciosPerfil | undefined;
+let preferenciasTutorial: PreferenciasTutorial | undefined;
+
+export function obtenerPreferenciasTutorial(): PreferenciasTutorial {
+  preferenciasTutorial ??= new PreferenciasTutorialLocalStorage();
+  return preferenciasTutorial;
+}
 let inicializacionPendiente: Promise<void> | undefined;
 let repositorioContextos:
   RepositorioContextosPlanificacionIndexedDB | undefined;

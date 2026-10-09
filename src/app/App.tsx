@@ -1,4 +1,5 @@
 import { HashRouter } from "react-router-dom";
+import type { PreferenciasTutorial } from "../aplicacion/puertos/PreferenciasTutorial";
 
 import type { ServiciosAgendaBorrador } from "../presentacion/agendas/ServiciosAgendaBorrador";
 import { ArmazonAplicacion } from "../presentacion/armazon/ArmazonAplicacion";
@@ -26,6 +27,7 @@ import {
   obtenerServiciosInventarioRecompensas,
   obtenerServiciosRecuperacion,
   obtenerServiciosRespaldo,
+  obtenerPreferenciasTutorial,
 } from "./configurarAplicacion";
 
 export interface AppProps {
@@ -38,6 +40,7 @@ export interface AppProps {
   readonly serviciosRecuperacion?: ServiciosRecuperacion;
   readonly serviciosRespaldo?: ServiciosRespaldo;
   readonly selectorFrase?: SelectorFraseMotivacional;
+  readonly preferenciasTutorial?: PreferenciasTutorial;
 }
 
 export function App(props: AppProps) {
@@ -60,6 +63,7 @@ function AplicacionEnrutada({
   serviciosRecuperacion,
   serviciosRespaldo,
   selectorFrase,
+  preferenciasTutorial,
 }: AppProps) {
   const usaComposicionReal = !servicios && !serviciosCalendario;
   const calendario =
@@ -81,6 +85,9 @@ function AplicacionEnrutada({
   const perfil =
     serviciosPerfil ??
     (usaComposicionReal ? obtenerServiciosPerfil() : undefined);
+  const preferencias =
+    preferenciasTutorial ??
+    (usaComposicionReal ? obtenerPreferenciasTutorial() : undefined);
 
   return (
     <ProveedorSesionAplicacion
@@ -88,7 +95,10 @@ function AplicacionEnrutada({
       {...(puntos ? { serviciosPuntos: puntos } : {})}
       {...(selectorFrase ? { selectorFrase } : {})}
     >
-      <ProveedorTutorial habilitado={Boolean(calendario)}>
+      <ProveedorTutorial
+        habilitado={Boolean(calendario)}
+        {...(preferencias ? { preferencias } : {})}
+      >
         <ContenidoAplicacion
           {...(servicios ? { servicios } : {})}
           {...(calendario ? { calendario } : {})}

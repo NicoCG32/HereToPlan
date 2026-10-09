@@ -57,3 +57,6 @@ export * from "./perfil/ConsultarPerfilUsuario";
 export * from "./perfil/CrearPerfilUsuario";
 export * from "./perfil/ActualizarPerfilUsuario";
 export * from "./puertos/RepositorioPerfilUsuario";
+export * from "./puertos/PreferenciasTutorial";
+export * from "./tutorial/EstadoTutorialV1";
+export * from "./tutorial/GestionarPreferenciasTutorial";
