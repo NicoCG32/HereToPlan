@@ -37,6 +37,7 @@ export function GuiaTutorial() {
   useEffect(() => {
     if (
       !tutorial?.visible ||
+      tutorial.recuperacion ||
       tutorial.estado.situacion !== "EN_CURSO" ||
       !enRuta ||
       destino.hayDialogo ||
@@ -48,6 +49,7 @@ export function GuiaTutorial() {
     return () => elemento.removeAttribute("data-tutorial-resaltado");
   }, [
     tutorial?.visible,
+    tutorial?.recuperacion,
     tutorial?.estado.situacion,
     enRuta,
     destino.elemento,
@@ -78,7 +80,7 @@ export function GuiaTutorial() {
   };
   const enfocarTitulo = () =>
     requestAnimationFrame(() => {
-      const titulo = tituloRef.current;
+      const titulo = tituloRef.current ?? ayudaRef.current;
       const rect = titulo?.getBoundingClientRect();
       titulo?.focus({
         preventScroll: Boolean(
@@ -87,28 +89,135 @@ export function GuiaTutorial() {
       });
     });
   const abrir = () => {
-    if (estado.situacion === "EN_CURSO" || estado.situacion === "POSPUESTO")
+    if (
+      tutorial.recuperacion ||
+      estado.situacion === "OMITIDO" ||
+      estado.situacion === "COMPLETADO"
+    )
+      tutorial.mostrar();
+    else if (
+      estado.situacion === "EN_CURSO" ||
+      estado.situacion === "POSPUESTO"
+    )
       tutorial.continuar();
     else tutorial.iniciar();
     enfocarTitulo();
   };
   const cabecera = (
-    <div className="acceso-guia-tutorial">
-      <button
-        ref={ayudaRef}
-        type="button"
-        className="boton-texto"
-        aria-expanded={visible}
-        aria-controls="guia-tutorial"
-        onClick={abrir}
-      >
-        {estado.situacion === "EN_CURSO" || estado.situacion === "POSPUESTO"
-          ? "Continuar guía"
-          : "Guía de primeros pasos"}
-      </button>
+    <div>
+      <div className="acceso-guia-tutorial">
+        {!tutorial.recuperacion && (
+          <span className="estado-persistencia-tutorial" role="status">
+            {tutorial.persistencia === "LOCAL"
+              ? "Se guarda en este navegador"
+              : "Progreso de esta sesión"}
+          </span>
+        )}
+        <button
+          ref={ayudaRef}
+          type="button"
+          className="boton-texto"
+          aria-expanded={visible}
+          aria-controls="guia-tutorial"
+          onClick={abrir}
+        >
+          {tutorial.recuperacion
+            ? "Recuperar guía"
+            : estado.situacion === "OMITIDO"
+              ? "Guía omitida"
+              : estado.situacion === "COMPLETADO"
+                ? "Guía completada"
+                : estado.situacion === "EN_CURSO" ||
+                    estado.situacion === "POSPUESTO"
+                  ? "Continuar guía"
+                  : "Guía de primeros pasos"}
+        </button>
+        {(estado.situacion !== "NO_INICIADO" || tutorial.recuperacion) && (
+          <button
+            className="boton-secundario"
+            type="button"
+            onClick={() => {
+              tutorial.reiniciar();
+              enfocarTitulo();
+            }}
+          >
+            Reiniciar guía
+          </button>
+        )}
+      </div>
+      {tutorial.errorGuardado && (
+        <div className="aviso-preferencias-tutorial" role="alert">
+          <p>{tutorial.errorGuardado}</p>
+          <button
+            type="button"
+            className="boton-secundario"
+            onClick={() => {
+              tutorial.reintentarGuardado();
+              requestAnimationFrame(() =>
+                ayudaRef.current?.focus({ preventScroll: true }),
+              );
+            }}
+          >
+            Reintentar guardado
+          </button>
+        </div>
+      )}
     </div>
   );
   if (!visible) return presentar(cabecera);
+  if (tutorial.recuperacion)
+    return presentar(
+      <>
+        {cabecera}
+        <section
+          id="guia-tutorial"
+          className="guia-tutorial"
+          aria-labelledby="titulo-guia"
+          onKeyDown={teclado}
+        >
+          <h2 id="titulo-guia" ref={tituloRef} tabIndex={-1}>
+            Recuperar la guía
+          </h2>
+          <p role="alert">
+            {tutorial.recuperacion === "INCOMPATIBLE"
+              ? "El progreso guardado pertenece a otra versión de la guía y no se puede leer."
+              : tutorial.recuperacion === "INVALIDO"
+                ? "El progreso guardado de la guía no tiene un formato válido."
+                : "No se pudo acceder al progreso guardado de la guía."}
+          </p>
+          <p>
+            Reiniciar cambia únicamente la guía. También puedes continuar sin
+            guardar y conservar el registro anterior. Tus actividades,
+            planificación y puntos no se modifican.
+          </p>
+          <div className="acciones-guia-tutorial">
+            <button
+              type="button"
+              className="boton-secundario"
+              onClick={() => {
+                tutorial.reintentarLectura();
+                enfocarTitulo();
+              }}
+            >
+              Reintentar lectura
+            </button>
+            <button
+              type="button"
+              className="boton-primario"
+              onClick={() => {
+                tutorial.usarTemporal();
+                enfocarTitulo();
+              }}
+            >
+              Usar guía sin guardar
+            </button>
+            <button type="button" className="boton-texto" onClick={cerrar}>
+              Cerrar guía
+            </button>
+          </div>
+        </section>
+      </>,
+    );
   if (estado.situacion === "NO_INICIADO")
     return presentar(
       <>
@@ -174,6 +283,29 @@ export function GuiaTutorial() {
           <p>
             Ya conoces el recorrido de planificación. Puedes seguir trabajando a
             tu ritmo.
+          </p>
+          <button type="button" className="boton-texto" onClick={cerrar}>
+            Cerrar guía
+          </button>
+        </section>
+      </>,
+    );
+  if (estado.situacion === "OMITIDO")
+    return presentar(
+      <>
+        {cabecera}
+        <section
+          id="guia-tutorial"
+          className="guia-tutorial"
+          aria-labelledby="titulo-guia"
+          onKeyDown={teclado}
+        >
+          <h2 id="titulo-guia" ref={tituloRef} tabIndex={-1}>
+            Guía omitida
+          </h2>
+          <p>
+            Puedes seguir usando HereToPlan a tu ritmo. Si quieres hacer el
+            recorrido, elige Reiniciar guía.
           </p>
           <button type="button" className="boton-texto" onClick={cerrar}>
             Cerrar guía

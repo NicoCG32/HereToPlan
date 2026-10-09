@@ -11,6 +11,7 @@ export function AyudaTutorialContextual({
   const paso = tutorial?.estado.pasoActual;
   if (
     !tutorial?.visible ||
+    tutorial.recuperacion ||
     tutorial.estado.situacion !== "EN_CURSO" ||
     !paso ||
     !pasos.includes(paso)

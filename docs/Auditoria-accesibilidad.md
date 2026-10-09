@@ -123,3 +123,22 @@ El candidato se comprueba en el navegador integrado a 320, 360, 390, 430 y
 una altura mínima de 44 px. A 390 px, el paso de actividad mide aproximadamente
 347 px de alto; puede cerrarse o posponerse. No añade animaciones. Estas pruebas
 no se presentan como validación de Brave, lector de pantalla o zoom real.
+
+## 8. Progreso persistente — #83
+
+La oferta se decide después de leer el progreso: pausa, omisión y término no
+producen una oferta nueva al recargar. El reinicio es una acción nombrada y
+visible, independiente del reinicio de planificación. Recuperar una lectura
+de un paso pospuesto devuelve el foco a «Continuar guía» cuando se oculta la
+tarjeta; los estados de recuperación y error de guardado se comprueban con axe.
+
+Se verifican con pruebas de App reconstrucciones mediante adaptadores nuevos,
+avance activo, pausa, omisión, término, reinicio, registros incompatibles o
+ilegibles, bloqueo de lectura, fallo de guardado, reintento del avance reciente
+y ausencia de escrituras o comandos duplicados al renderizar en StrictMode.
+
+En el navegador integrado se comprobaron recargas reales del paso 2 activo y
+pospuesto, omisión y reinicio. A 320, 360, 390, 430 y 1.280 px no se detectó
+desbordamiento horizontal, y acceso, reinicio y acciones de la guía conservaron
+al menos 44 px de alto. La consola no mostró errores. Lector de pantalla,
+Brave y ampliación real adicionales mantienen su seguimiento pospuesto en #109.

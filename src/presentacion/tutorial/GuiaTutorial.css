@@ -1,7 +1,26 @@
 .acceso-guia-tutorial {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
   justify-content: flex-end;
   margin-block: 0.5rem;
+}
+
+.estado-persistencia-tutorial {
+  color: var(--texto-secundario);
+  font-size: 0.8rem;
+}
+
+.aviso-preferencias-tutorial {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-left: 3px solid rgb(var(--bronce-profundo));
+  background: rgb(var(--plata-blanca));
+}
+
+.aviso-preferencias-tutorial button {
+  min-height: 2.75rem;
 }
 
 .guia-tutorial {

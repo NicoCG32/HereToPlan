@@ -17,6 +17,12 @@ import { App } from "../src/app/App";
 import type { ServiciosCalendario } from "../src/presentacion/calendario/ServiciosCalendario";
 import { comprobarAccesibilidad } from "./comprobarAccesibilidad";
 import type { ServiciosPerfil } from "../src/presentacion/perfil/ServiciosPerfil";
+import { StrictMode } from "react";
+import {
+  CLAVE_PREFERENCIAS_TUTORIAL,
+  PreferenciasTutorialLocalStorage,
+} from "../src/infraestructura/persistencia/preferencias/PreferenciasTutorialLocalStorage";
+import type { EstadoTutorialV1 } from "../src/aplicacion/tutorial/EstadoTutorialV1";
 
 beforeEach(() => {
   globalThis.location.hash = "#/calendario";
@@ -138,9 +144,7 @@ describe("guía contextual opcional", () => {
     expect(
       screen.queryByRole("heading", { name: "Empieza en Libre" }),
     ).toBeNull();
-    expect(
-      screen.getByRole("button", { name: "Guía de primeros pasos" }),
-    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Guía omitida" })).toBeTruthy();
     esperarSinEscrituras(entorno);
   });
 
@@ -345,6 +349,444 @@ describe("guía contextual opcional", () => {
     esperarSinEscrituras(entorno);
   });
 });
+
+describe("progreso persistente de la guía", () => {
+  it("rehidrata el paso activo y la pausa con un proveedor y adaptador nuevos", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearEntorno();
+    const almacen = crearAlmacenPreferencias();
+    let vista = render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    await screen.findByRole("button", { name: "Nueva agenda" });
+    await usuario.click(screen.getByRole("button", { name: "Iniciar guía" }));
+    await usuario.click(screen.getByRole("button", { name: "Siguiente paso" }));
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "EN_CURSO",
+      pasoActual: "LIBRE",
+    });
+    const guardados = almacen.almacen.setItem.mock.calls.length;
+    await usuario.click(screen.getByRole("button", { name: "Cerrar guía" }));
+    expect(almacen.almacen.setItem).toHaveBeenCalledTimes(guardados);
+    vista.unmount();
+    vista = render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    await screen.findByRole("heading", { name: "Empieza en Libre" });
+    expect(
+      screen.queryByRole("heading", { name: "Conoce HereToPlan a tu ritmo" }),
+    ).toBeNull();
+    await usuario.click(screen.getByRole("button", { name: "Posponer guía" }));
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "POSPUESTO",
+      pasoActual: "LIBRE",
+    });
+    vista.unmount();
+    render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    await screen.findByRole("button", { name: "Continuar guía" });
+    expect(
+      screen.queryByRole("heading", { name: "Empieza en Libre" }),
+    ).toBeNull();
+    await usuario.click(screen.getByRole("button", { name: "Continuar guía" }));
+    expect(
+      await screen.findByRole("heading", { name: "Empieza en Libre" }),
+    ).toBeTruthy();
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "EN_CURSO",
+      pasoActual: "LIBRE",
+    });
+    esperarSinEscrituras(entorno);
+  });
+
+  it("conserva la omisión y abrir la ayuda no inicia otro recorrido", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearEntorno();
+    const almacen = crearAlmacenPreferencias();
+    const vista = render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    await usuario.click(screen.getByRole("button", { name: "Omitir guía" }));
+    vista.unmount();
+    render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    await screen.findByRole("button", { name: "Guía omitida" });
+    const guardados = almacen.almacen.setItem.mock.calls.length;
+    await usuario.click(screen.getByRole("button", { name: "Guía omitida" }));
+    expect(screen.getByRole("heading", { name: "Guía omitida" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Iniciar guía" })).toBeNull();
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "OMITIDO",
+      pasoActual: null,
+    });
+    expect(almacen.almacen.setItem).toHaveBeenCalledTimes(guardados);
+    esperarSinEscrituras(entorno);
+  });
+
+  it("conserva el término después de una recarga y distingue mostrar de reiniciar", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearEntorno({ actividad: true, bloque: true });
+    const almacen = crearAlmacenPreferencias();
+    const vista = render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    await screen.findByRole("button", { name: "Nueva agenda" });
+    await avanzarHasta("EJECUCION", usuario);
+    await usuario.click(screen.getByRole("button", { name: "Terminar guía" }));
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "COMPLETADO",
+      pasoActual: null,
+    });
+    vista.unmount();
+    render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    await usuario.click(
+      await screen.findByRole("button", { name: "Guía completada" }),
+    );
+    expect(
+      screen.getByRole("heading", { name: "Recorrido completado" }),
+    ).toBeTruthy();
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "COMPLETADO",
+      pasoActual: null,
+    });
+    expect(screen.getByRole("button", { name: "Reiniciar guía" })).toBeTruthy();
+    esperarSinEscrituras(entorno);
+  });
+
+  it("el reinicio persiste sólo la guía y vuelve a ofrecer el inicio", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearEntorno();
+    const almacen = crearAlmacenPreferencias({
+      version: 1,
+      situacion: "POSPUESTO",
+      pasoActual: "ACTIVIDAD",
+    });
+    almacen.datos.set("preferencia-ajena", "conservar");
+    const vista = render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    await usuario.click(screen.getByRole("button", { name: "Reiniciar guía" }));
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "NO_INICIADO",
+      pasoActual: null,
+    });
+    expect(almacen.datos.get("preferencia-ajena")).toBe("conservar");
+    vista.unmount();
+    render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    expect(
+      screen.getByRole("heading", { name: "Conoce HereToPlan a tu ritmo" }),
+    ).toBeTruthy();
+    await comprobarAccesibilidad();
+    esperarSinEscrituras(entorno);
+  });
+
+  it("mantiene una versión incompatible al usar la guía temporal y exige reinicio explícito", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearEntorno();
+    const almacen = crearAlmacenPreferencias({ version: 9, estado: "futuro" });
+    const original = almacen.datos.get(CLAVE_PREFERENCIAS_TUTORIAL);
+    render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    expect(
+      screen.getByRole("heading", { name: "Recuperar la guía" }),
+    ).toBeTruthy();
+    await comprobarAccesibilidad();
+    expect(almacen.almacen.setItem).not.toHaveBeenCalled();
+    await usuario.click(
+      screen.getByRole("button", { name: "Usar guía sin guardar" }),
+    );
+    await screen.findByRole("button", { name: "Nueva agenda" });
+    await usuario.click(screen.getByRole("button", { name: "Iniciar guía" }));
+    await usuario.click(screen.getByRole("button", { name: "Siguiente paso" }));
+    expect(almacen.datos.get(CLAVE_PREFERENCIAS_TUTORIAL)).toBe(original);
+    expect(almacen.almacen.setItem).not.toHaveBeenCalled();
+    await usuario.click(screen.getByRole("button", { name: "Reiniciar guía" }));
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "NO_INICIADO",
+      pasoActual: null,
+    });
+    esperarSinEscrituras(entorno);
+  });
+
+  it("recupera una lectura fallida sin sobrescribir el registro ni perder el foco", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearEntorno();
+    const almacen = crearAlmacenPreferencias({
+      version: 1,
+      situacion: "POSPUESTO",
+      pasoActual: "LIBRE",
+    });
+    let disponible = false;
+    almacen.almacen.getItem.mockImplementation((clave: string) => {
+      if (!disponible) throw new Error("Lectura bloqueada");
+      return almacen.datos.get(clave) ?? null;
+    });
+    render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    expect(
+      screen.getByRole("heading", { name: "Recuperar la guía" }),
+    ).toBeTruthy();
+    expect(almacen.almacen.setItem).not.toHaveBeenCalled();
+    disponible = true;
+    await usuario.click(
+      screen.getByRole("button", { name: "Reintentar lectura" }),
+    );
+    const continuar = await screen.findByRole("button", {
+      name: "Continuar guía",
+    });
+    await waitFor(() => expect(document.activeElement).toBe(continuar));
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "POSPUESTO",
+      pasoActual: "LIBRE",
+    });
+    expect(almacen.almacen.setItem).not.toHaveBeenCalled();
+    await usuario.click(continuar);
+    expect(
+      await screen.findByRole("heading", { name: "Empieza en Libre" }),
+    ).toBeTruthy();
+    esperarSinEscrituras(entorno);
+  });
+
+  it("mantiene el avance en memoria al fallar el guardado y reintenta el estado más reciente", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearEntorno();
+    const almacen = crearAlmacenPreferencias();
+    let bloqueado = true;
+    almacen.almacen.setItem.mockImplementation(
+      (clave: string, valor: string) => {
+        if (bloqueado) throw new Error("Cuota agotada");
+        almacen.datos.set(clave, valor);
+      },
+    );
+    render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    await screen.findByRole("button", { name: "Nueva agenda" });
+    await usuario.click(screen.getByRole("button", { name: "Iniciar guía" }));
+    await usuario.click(screen.getByRole("button", { name: "Siguiente paso" }));
+    expect(
+      screen.getByRole("heading", { name: "Empieza en Libre" }),
+    ).toBeTruthy();
+    expect(screen.getByText(/No se pudo guardar la guía/)).toBeTruthy();
+    expect(almacen.datos.has(CLAVE_PREFERENCIAS_TUTORIAL)).toBe(false);
+    await comprobarAccesibilidad();
+    bloqueado = false;
+    await usuario.click(
+      screen.getByRole("button", { name: "Reintentar guardado" }),
+    );
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "EN_CURSO",
+      pasoActual: "LIBRE",
+    });
+    expect(screen.queryByText(/No se pudo guardar la guía/)).toBeNull();
+    esperarSinEscrituras(entorno);
+  });
+
+  it("no guarda durante el renderizado ni duplica comandos en StrictMode", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearEntorno();
+    const almacen = crearAlmacenPreferencias();
+    render(
+      <StrictMode>
+        <App
+          serviciosCalendario={entorno.servicios}
+          preferenciasTutorial={almacen.preferencias()}
+        />
+      </StrictMode>,
+    );
+    await screen.findByRole("button", { name: "Nueva agenda" });
+    expect(almacen.almacen.setItem).not.toHaveBeenCalled();
+    await usuario.click(screen.getByRole("button", { name: "Iniciar guía" }));
+    expect(almacen.almacen.setItem).toHaveBeenCalledTimes(1);
+    await usuario.click(screen.getByRole("button", { name: "Siguiente paso" }));
+    expect(almacen.almacen.setItem).toHaveBeenCalledTimes(2);
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "EN_CURSO",
+      pasoActual: "LIBRE",
+    });
+    esperarSinEscrituras(entorno);
+  });
+});
+
+describe("recuperación segura de preferencias", () => {
+  it("detecta un registro incompatible que aparece después de iniciar la aplicación", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearEntorno();
+    const almacen = crearAlmacenPreferencias();
+    render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    await screen.findByRole("button", { name: "Nueva agenda" });
+    const futuro = '{"version":4,"progreso":"futuro"}';
+    almacen.datos.set(CLAVE_PREFERENCIAS_TUTORIAL, futuro);
+    await usuario.click(screen.getByRole("button", { name: "Iniciar guía" }));
+    expect(
+      screen.getByRole("heading", { name: "Recuperar la guía" }),
+    ).toBeTruthy();
+    expect(almacen.datos.get(CLAVE_PREFERENCIAS_TUTORIAL)).toBe(futuro);
+    expect(almacen.almacen.setItem).not.toHaveBeenCalled();
+    await usuario.click(screen.getByRole("button", { name: "Cerrar guía" }));
+    await usuario.click(screen.getByRole("button", { name: "Recuperar guía" }));
+    expect(
+      screen.getByRole("heading", { name: "Recuperar la guía" }),
+    ).toBeTruthy();
+    expect(almacen.datos.get(CLAVE_PREFERENCIAS_TUTORIAL)).toBe(futuro);
+    esperarSinEscrituras(entorno);
+  });
+
+  it("mantiene JSON inválido y permite operar las páginas durante la recuperación", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearEntorno();
+    const almacen = crearAlmacenPreferencias();
+    almacen.datos.set(CLAVE_PREFERENCIAS_TUTORIAL, '{"version":');
+    render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    await screen.findByRole("button", { name: "Nueva agenda" });
+    expect(
+      screen.getByText(
+        "El progreso guardado de la guía no tiene un formato válido.",
+      ),
+    ).toBeTruthy();
+    await usuario.click(
+      screen.getByRole("button", { name: "Reintentar lectura" }),
+    );
+    expect(almacen.datos.get(CLAVE_PREFERENCIAS_TUTORIAL)).toBe('{"version":');
+    await usuario.click(screen.getByRole("button", { name: "Nueva agenda" }));
+    expect(screen.getByLabelText("Nombre")).toBeTruthy();
+    await usuario.click(screen.getByRole("button", { name: "Cancelar" }));
+    expect(almacen.almacen.setItem).not.toHaveBeenCalled();
+    await usuario.click(screen.getByRole("button", { name: "Reiniciar guía" }));
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "NO_INICIADO",
+      pasoActual: null,
+    });
+    esperarSinEscrituras(entorno);
+  });
+
+  it("reintenta un reinicio autorizado fallido guardando el avance actual", async () => {
+    const usuario = userEvent.setup();
+    const entorno = crearEntorno();
+    const almacen = crearAlmacenPreferencias({
+      version: 2,
+      progreso: "futuro",
+    });
+    const anterior = almacen.datos.get(CLAVE_PREFERENCIAS_TUTORIAL);
+    let bloqueado = true;
+    almacen.almacen.setItem.mockImplementation(
+      (clave: string, valor: string) => {
+        if (bloqueado) throw new Error("No disponible");
+        almacen.datos.set(clave, valor);
+      },
+    );
+    render(
+      <App
+        serviciosCalendario={entorno.servicios}
+        preferenciasTutorial={almacen.preferencias()}
+      />,
+    );
+    await screen.findByRole("button", { name: "Nueva agenda" });
+    await usuario.click(screen.getByRole("button", { name: "Reiniciar guía" }));
+    await usuario.click(screen.getByRole("button", { name: "Iniciar guía" }));
+    await usuario.click(screen.getByRole("button", { name: "Siguiente paso" }));
+    expect(almacen.datos.get(CLAVE_PREFERENCIAS_TUTORIAL)).toBe(anterior);
+    expect(
+      screen.getByRole("heading", { name: "Empieza en Libre" }),
+    ).toBeTruthy();
+    bloqueado = false;
+    await usuario.click(
+      screen.getByRole("button", { name: "Reintentar guardado" }),
+    );
+    expect(almacen.leer()).toEqual({
+      version: 1,
+      situacion: "EN_CURSO",
+      pasoActual: "LIBRE",
+    });
+    expect(screen.queryByText(/No se pudo guardar la guía/)).toBeNull();
+    esperarSinEscrituras(entorno);
+  });
+});
+
+function crearAlmacenPreferencias(inicial?: unknown) {
+  const datos = new Map<string, string>();
+  if (inicial !== undefined)
+    datos.set(CLAVE_PREFERENCIAS_TUTORIAL, JSON.stringify(inicial));
+  const almacen = {
+    getItem: vi.fn((clave: string) => datos.get(clave) ?? null),
+    setItem: vi.fn((clave: string, valor: string) => {
+      datos.set(clave, valor);
+    }),
+  };
+  return {
+    datos,
+    almacen,
+    preferencias: () => new PreferenciasTutorialLocalStorage(almacen),
+    leer: () =>
+      JSON.parse(datos.get(CLAVE_PREFERENCIAS_TUTORIAL)!) as EstadoTutorialV1,
+  };
+}
 
 const TITULOS = [
   "Tu espacio de trabajo",

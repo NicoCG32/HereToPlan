@@ -913,15 +913,38 @@ perfil ni del dominio.
 `ProveedorTutorial` conserva ese estado y los hitos observados durante la sesión.
 `GuiaTutorial` presenta una oferta opcional tras la bienvenida de perfil; puede
 cerrarse, posponerse, omitirse y retomarse al cambiar de ruta. El progreso se
-mantiene en memoria en este incremento; el puerto de persistencia corresponde
-al siguiente corte.
+rehidrata antes de presentar la oferta. `EstadoTutorialV1` es el contrato de
+preferencias en aplicación; las transiciones y el recorrido siguen en
+presentación. Los hitos de acciones se mantienen en memoria y los datos
+disponibles se consultan nuevamente al reconstruir la interfaz.
+
+`PreferenciasTutorial` constituye el puerto independiente. El adaptador
+`PreferenciasTutorialLocalStorage` utiliza una única clave estable,
+`here-to-plan.preferencias.tutorial`, con versión dentro del registro y sólo
+versión, situación y paso actual. La clave estable permite detectar una versión
+futura y conservarla; no se sobrescribe implícitamente cambiando de clave.
+No introduce almacenes IndexedDB ni mezcla preferencias con perfil o respaldo.
+
+`CargarPreferenciasTutorial` valida versión, pasos, situaciones y coherencia del
+registro. `GuardarPreferenciasTutorial` comprueba también el registro existente
+antes de una escritura habitual. Datos inválidos o de otra versión requieren
+reinicio explícito o uso temporal; errores de lectura impiden sobrescribir un
+registro que no se pudo inspeccionar. Los fallos de guardado se muestran y se
+puede reintentar el avance actual.
+
+Las escrituras se ejecutan desde acciones de presentación, fuera de renderizado
+y de actualizadores de estado de React; StrictMode no duplica comandos. Cerrar
+es efímero, mientras posponer, avanzar, omitir, finalizar y reiniciar se guardan.
+Reiniciar limpia sólo el progreso y los hitos de la guía. Una guía omitida o
+completada no vuelve al comienzo por consultar su estado.
 
 `atributosDestinoTutorial` declara destinos tipados junto a los controles reales.
 Un observador de presentación centraliza su disponibilidad, contexto y evidencia
 de término. `useSyncExternalStore` sincroniza esas observaciones sin buscar clases
 o textos dispersos. Los pasos operativos sólo se habilitan con datos existentes
 o hitos comunicados después de un resultado exitoso de la interfaz normal.
-Las acciones de la guía modifican exclusivamente presentación y navegación.
+Las acciones de la guía modifican presentación, navegación y su preferencia;
+no invocan operaciones del dominio ni escriben planificación o economía.
 
 La guía conserva su espacio y queda inerte mientras hay un diálogo modal, para
 evitar cambios de altura por esconderla. Los editores y la revisión muestran una

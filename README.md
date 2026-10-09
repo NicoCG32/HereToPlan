@@ -132,8 +132,18 @@ iniciarla, elegir «Más tarde», omitirla o retomarla desde «Continuar guía»
 «Ver control» señala el destino de cada paso; crear, asignar y resolver siguen
 requiriendo tus acciones habituales y la guía espera sus resultados.
 
-En este incremento el progreso se conserva durante la sesión. Guardarlo entre
-recargas y ofrecer su reinicio forman parte de la siguiente tarea del roadmap.
+El progreso se guarda en este navegador y se recupera al recargar, incluyendo
+pausa, omisión y finalización. «Reiniciar guía» vuelve a ofrecer el inicio y
+afecta únicamente al tutorial. Abrir una guía omitida o completada muestra su
+estado sin reiniciarla.
+
+«Posponer guía» conserva la pausa entre recargas. «Cerrar guía» sólo oculta la
+tarjeta durante la visita; si el recorrido sigue activo, se muestra al recargar.
+
+Si el registro no se puede leer, puedes recuperarlo explícitamente o utilizar
+la guía sin guardar. Un fallo de guardado conserva el avance de la sesión y
+permite reintentarlo. Esta preferencia local es independiente del respaldo de
+planificación.
 
 ## Verificación
 
@@ -191,7 +201,7 @@ reward `Día libre`. El recorrido principal permite:
   deriva de instantes persistidos, sin completar automáticamente el bloque;
 - acreditar una sola vez el excedente de sesiones finalizadas y consumir el
   saldo del banco de recuperación sobre carga futura que lo permita;
-- descargar un respaldo JSON versionado de todo el estado persistente y
+- descargar un respaldo JSON versionado del estado funcional de planificación y
   analizar su compatibilidad sin escribir, o restaurarlo con confirmación y
   reemplazo atómico de las quince colecciones y migración explícita desde V1 y
   V2;
