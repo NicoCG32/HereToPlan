@@ -44,8 +44,12 @@ descripción humana sin cambiar la semántica del contenido.
 | `recompensas-adquiridas`             | `id`           |
 | `aplicaciones-recompensas`           | `id`           |
 
-Cada colección es un arreglo. Cada registro declara `versionEsquema: 1`, tiene
-una clave primaria no vacía y satisface la forma mínima de su esquema. El perfil
+Cada colección es un arreglo. Cada registro declara una versión de esquema,
+tiene una clave primaria no vacía y satisface la forma mínima de su esquema.
+`actividades` usa `ActividadV2`, con `versionEsquema: 2` y modo de seguimiento;
+las otras colecciones utilizan registros V1. El análisis también admite
+actividades V1 históricas y la preparación las migra a V2 con modo `MANUAL`.
+Esta versión de registro no cambia la envolvente V3. El perfil
 es una entidad local única; por eso `perfil-usuario` contiene cero o un
 registro, aunque IndexedDB conserva una clave primaria ordinaria como defensa
 adicional.
@@ -133,6 +137,10 @@ instante, fecha y bloques. No crean una unidad disponible ni duplican el gasto.
 Una versión futura, por ejemplo V4, es `INCOMPATIBLE` hasta que exista una ruta
 probada. No se degrada ni se interpreta por conjetura.
 
+En las tres rutas se normalizan actividades V1 a V2 conservando identidad,
+tipo, estado, política e historia. Un modo de seguimiento desconocido se
+rechaza, sin suponer una configuración alternativa.
+
 ## 8. Reinicio selectivo de planificación
 
 Reiniciar planificación es distinto de restaurar. No reemplaza el estado desde
@@ -146,3 +154,15 @@ abiertas. Se conservan actividades, contextos, perfil, movimientos, saldo
 derivado, inventario, aplicaciones, resoluciones y demás hechos históricos. Si
 el estado cambió después del cálculo, la huella deja de coincidir y la
 operación se rechaza completa para presentar un impacto actualizado.
+
+## 9. Preferencias y portabilidad
+
+El archivo contiene el estado funcional de las quince colecciones, incluido
+el perfil. No incluye la frase del HUD, rutas, filtros, diálogos, hitos de
+presentación ni `here-to-plan.preferencias.tutorial`. Restaurar y reiniciar
+planificación no modifican esa preferencia; «Reiniciar guía» afecta sólo a ella.
+
+IndexedDB y localStorage se separan por navegador, perfil y origen. Para mover
+planificación desde desarrollo a Pages o entre navegadores, exporta e importa
+deliberadamente. El JSON es legible y no posee cifrado propio; la aplicación no
+lo sube a un servidor. [Uso y privacidad](Guia-uso.md).

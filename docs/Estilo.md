@@ -3,7 +3,7 @@
 ## 1. Propósito
 
 Este documento define el contrato visual y compositivo de HereToPlan. La
-interfaz debe evolucionar hacia una SPA con navegación permanente sin perder
+interfaz es una SPA con navegación permanente que conserva
 las capacidades existentes, su semántica ni sus garantías de accesibilidad.
 
 La estética no sustituye la arquitectura: React representa DTO y ejecuta
@@ -51,10 +51,10 @@ Cada módulo conserva junto a su responsabilidad los puntos de quiebre que la
 modifican. No se creará una segunda hoja global monolítica ni se usarán
 comentarios extensos como sustituto de esta documentación.
 
-## 4. Composición objetivo
+## 4. Composición vigente
 
-El armazón tendrá una navegación lateral y un HUD persistentes, seguidos por un
-único `main` que representa la ruta activa. Las rutas públicas serán:
+El armazón contiene una navegación lateral y un HUD persistentes, seguidos por
+un único `main` que representa la ruta activa. Las rutas públicas son:
 
 - `#/calendario`;
 - `#/crear`;
@@ -155,7 +155,7 @@ regla se validan las mismas rutas, recorridos y tamaños representativos. Un
 cambio de ubicación que altere especificidad, orden de cascada o resultado
 perceptible debe tratarse como un cambio visual independiente.
 
-Las verificaciones mínimas son `npm run audit:css`, `npm run format`,
+Las verificaciones mínimas son `npm run audit:css`, `npm run format:check`,
 `npm run lint`, `npm run test:a11y`, `npm test` y `npm run build`.
 `audit:css` exige que el agregador sólo importe módulos y que no existan
 comentarios CSS; además informa reglas, consultas responsivas y posibles clases

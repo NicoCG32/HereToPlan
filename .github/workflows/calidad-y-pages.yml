@@ -41,6 +41,12 @@ jobs:
       - name: Ejecutar análisis estático
         run: npm run lint
 
+      - name: Verificar enlaces de documentación
+        run: npm run verify:docs
+
+      - name: Auditar modularidad CSS
+        run: npm run audit:css
+
       - name: Auditar accesibilidad de los flujos principales
         run: npm run test:a11y
 

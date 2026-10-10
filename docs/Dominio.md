@@ -1,6 +1,8 @@
 # Contrato del dominio de HereToPlan
 
-El siguiente modelo ofrece una vista resumida de las entidades y relaciones implementadas:
+El siguiente modelo ofrece una vista resumida de las entidades y relaciones
+implementadas. Su fuente editable y procedimiento de actualización se describen
+en [Diagramas](Diagramas.md):
 
 ![Modelo de dominio de HereToPlan](modelo-dominio.svg)
 
@@ -164,7 +166,13 @@ La implementación disponible contiene `Agenda` y `BloqueTrabajo`.
 
 La agenda solo permite agregar o quitar bloques mientras está en `BORRADOR`. Al confirmarse, queda bloqueada. Los bloques internos no se exponen; `listarBloques()` devuelve vistas independientes para impedir modificaciones externas.
 
-Esta forma todavía concentra dos responsabilidades en `Agenda`: organizar un rango visible y controlar la confirmación de sus bloques. La nueva frontera de dominio las separa en `ContextoPlanificacion` y `CortePlanificacion`; la persistencia y los casos de uso de la `Agenda` legada se conservan hasta introducir una migración explícita. El tipo legado no debe ampliarse suponiendo que una agenda nombrada completa es siempre la unidad confirmable.
+Esta forma concentra dos responsabilidades en `Agenda`: organizar un rango
+visible y controlar la confirmación de sus bloques. La frontera vigente las
+separa en `ContextoPlanificacion`, `BloquePlanificacion` y `CortePlanificacion`.
+La migración de metadatos legados a contextos está implementada, conserva los
+registros de `Agenda` y no transforma sus compromisos en nuevos cortes. El tipo
+legado sigue disponible para historia y compatibilidad; no debe ampliarse
+suponiendo que una agenda nombrada completa es siempre la unidad confirmable.
 
 Estados de la agenda:
 
@@ -396,20 +404,27 @@ Por esta razón no se representa como agregado en el modelo de dominio SVG.
 
 El modelo y sus adaptadores aún deben incorporar:
 
-- reglas internas de tareas compuestas y proyectos;
+- edición y resolución de composición de tareas/proyectos desde la interfaz;
 - recurrencia abierta más allá del rango visible y administración posterior de series;
 - plantillas de agenda;
 - extensión de plazos;
 - calibración de la fórmula con observaciones de uso;
 
-Estas capacidades forman parte de la evolución prevista. Su diseño definitivo puede ajustarse a partir de la evidencia obtenida durante el uso del producto.
+Las reglas internas de tareas compuestas y proyectos sí están implementadas:
+prohibición de subtareas en tareas simples, referencias válidas, grafo acíclico
+y resolución explícita del contenedor. Falta exponer su administración completa
+en el recorrido de usuario. Las capacidades pendientes pueden ajustarse a partir
+de evidencia de uso; elegir un tipo visual no las declara terminadas.
+
+El tutorial no añade entidades a este dominio. Su progreso versionado pertenece
+a preferencias de aplicación; reiniciar esa guía conserva todos los agregados.
 
 ## 6. Evolución del modelo
 
 La base permite crecer sin romper la regla central:
 
 - nuevos tipos de actividad pueden añadirse sin cambiar el bloque;
-- contexto de calendario y corte confirmable evolucionarán como conceptos separados;
+- contexto de calendario y corte confirmable conservan sus fronteras separadas;
 - nuevos ajustes pueden implementarse dentro de `BloqueTrabajo.validarAjuste`;
 - nuevas recompensas pueden producir otros tipos de ajuste;
 - la capa de aplicación coordina transacciones atómicas entre agregados;
