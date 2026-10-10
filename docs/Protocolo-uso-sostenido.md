@@ -6,6 +6,17 @@ El protocolo convierte el uso cotidiano de HereToPlan en evidencia trazable.
 No busca acumular impresiones generales: registra una situación reproducible,
 su efecto sobre la planificación y una decisión explícita de seguimiento.
 
+**Estado documentado al 2026-10-09:** la ronda histórica siguiente registra una
+auditoría técnica y conserva seis días pendientes. No se reconstruyen sesiones
+ni se supone que el usuario dejó de usar la aplicación. Una nueva ronda exige
+acordar su contexto y registrar observaciones reales; la calidad técnica de
+[#104](https://github.com/NicoCG32/HereToPlan/issues/104) no la completa.
+
+El cierre de esta ronda tampoco sustituye la decisión de fase: falta un informe
+por hipótesis y una decisión explícita de continuar, iterar o detener. La
+hipótesis de reutilización de plantillas requiere acotar el experimento porque
+esa capacidad todavía no está implementada.
+
 ## 2. Ronda mínima
 
 Una ronda comprende siete días consecutivos y al menos quince minutos de uso

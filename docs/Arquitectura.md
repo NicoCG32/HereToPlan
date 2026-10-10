@@ -26,6 +26,10 @@ La vista `Despliegue` muestra cómo el código pasa del repositorio al sitio pú
 
 ![Diagrama de despliegue de HereToPlan](arquitectura-despliegue.svg)
 
+Los SVG son fuentes editables versionadas; [Diagramas](Diagramas.md) describe
+su mantenimiento. [Despliegue](Despliegue.md) reúne instalación reproducible,
+configuración de Pages, verificación posterior y recuperación.
+
 #### Contrato de entrega continua
 
 El workflow de GitHub Actions separa dos responsabilidades:
@@ -45,6 +49,18 @@ repositorio de proyecto y no al dominio raíz de la cuenta. La navegación usa
 posterior a `#` se resuelve en el navegador. Las rutas públicas son
 `#/calendario`, `#/crear`, `#/puntos` y `#/respaldo`; no requieren reglas de
 fallback del servidor.
+
+### 2.3. Ejecución y datos personales
+
+La aplicación se ejecuta en el navegador. IndexedDB v13 conserva quince
+colecciones funcionales y localStorage contiene únicamente la preferencia
+versionada del tutorial. El respaldo JSON transporta las colecciones de
+IndexedDB, incluido el perfil, y excluye la preferencia de guía.
+
+Navegador, perfil y origen —protocolo, host y puerto— determinan el espacio de
+datos. Pages, preview y desarrollo no sincronizan registros entre sí. No hay
+backend, cuentas ni autenticación; publicar assets no publica el estado local.
+La frase, rutas y filtros pertenecen a presentación y no se respaldan.
 
 ## 3. Conceptos fundamentales
 
@@ -133,7 +149,8 @@ Reglas obligatorias:
 
 ## 6. Contratos arquitectónicos
 
-Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño establece los siguientes contratos:
+Los puertos se incorporan cuando un caso de uso real los necesita. Los contratos
+disponibles incluyen:
 
 ### Puertos de entrada
 
@@ -142,10 +159,13 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 - preparar y confirmar un corte de planificación;
 - completar o incumplir un bloque;
 - consultar agenda e historial;
-- preparar y confirmar un canje de recompensa.
-- iniciar, pausar, reanudar, detener y consultar sesiones de cronómetro.
-- consultar, acreditar y consumir minutos del banco de recuperación.
-- exportar el estado persistente y analizar un respaldo sin importarlo.
+- adquirir una unidad de recompensa y preparar/confirmar su aplicación;
+- iniciar, pausar, reanudar, detener y consultar sesiones de cronómetro;
+- consultar, acreditar y consumir minutos del banco de recuperación;
+- exportar, analizar, preparar y restaurar un respaldo;
+- crear, consultar y editar el perfil local;
+- consultar el impacto y ejecutar el reinicio selectivo de planificación;
+- cargar y guardar la preferencia versionada del tutorial.
 
 ### Puertos de salida
 
@@ -154,13 +174,15 @@ Los puertos se incorporarán cuando un caso de uso real los necesite. El diseño
 - repositorio de contextos de planificación;
 - repositorio de resoluciones de bloques;
 - repositorio de billetera y transacciones;
-- repositorio de canjes;
+- contratos de inventario, aplicaciones, ajustes y canjes históricos;
 - repositorio de sesiones de cronómetro;
 - repositorio de movimientos de recuperación y reducciones de carga;
 - unidad de trabajo para confirmación atómica;
 - reloj;
 - generador de identificadores;
-- lector consistente del estado persistente para respaldo.
+- lector y restaurador consistentes del estado persistente;
+- unidad de trabajo para reinicio de planificación;
+- repositorio de perfil y puerto de preferencias de tutorial.
 
 Esta lista no autoriza a implementar contratos anticipadamente. Un puerto existe para servir a un caso de uso, no para completar una plantilla arquitectónica.
 
@@ -178,13 +200,15 @@ al caso de uso y se obtienen mediante los puertos `GeneradorIdentificadores` y
 
 ### 6.2. Semántica de `RepositorioAgendas`
 
-El puerto contiene únicamente las operaciones requeridas por el primer caso de
-uso:
+El puerto distingue alta y actualización, además de consulta individual y
+listado:
 
-| Operación          | Semántica contractual                                                                                                                               |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `guardar(agenda)`  | Registra una agenda nueva. Si el identificador ya existe, rechaza con `ErrorAgendaDuplicada` y conserva intacta la agenda anterior.                 |
-| `obtenerPorId(id)` | Recupera la agenda asociada o devuelve `undefined` cuando no existe. No garantiza identidad de referencia entre el objeto guardado y el recuperado. |
+| Operación            | Semántica contractual                                                                                                                               |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `guardar(agenda)`    | Registra una agenda nueva. Si el identificador ya existe, rechaza con `ErrorAgendaDuplicada` y conserva intacta la agenda anterior.                 |
+| `actualizar(agenda)` | Reemplaza una agenda existente; si falta, rechaza con `ErrorAgendaNoEncontrada` sin crearla.                                                        |
+| `obtenerPorId(id)`   | Recupera la agenda asociada o devuelve `undefined` cuando no existe. No garantiza identidad de referencia entre el objeto guardado y el recuperado. |
+| `listar()`           | Recupera todas las agendas sin exponer registros técnicos del almacenamiento.                                                                       |
 
 La suite `verificarContratoRepositorioAgendas` expresa estas reglas una sola vez.
 Los adaptadores en memoria e IndexedDB ejecutan la misma suite. Los fallos
@@ -240,11 +264,11 @@ para bloques y el ciclo histórico. Esta convivencia es temporal pero explícita
 ningún dato se sincroniza en ambas direcciones ni se reconstruyen operaciones
 de dominio a partir del historial.
 
-La separación posterior de planificación editable y corte confirmable queda
-fuera de esta migración. Deberá conservar identificadores, políticas, estados e
-instantes mediante nuevos registros versionados y otra transacción explícita.
-Día, semana y mes tampoco se persistirán como horizontes: son proyecciones del
-mismo calendario.
+La planificación nueva ya utiliza `BloquePlanificacionV1` y
+`CortePlanificacionV1`. Esta migración de metadatos no convierte los bloques
+legados a esos contratos: los conserva y el calendario compone ambos orígenes.
+Día, semana y mes no se persisten como horizontes: son proyecciones del mismo
+calendario.
 
 ### 6.4. Adaptador IndexedDB
 
@@ -267,8 +291,9 @@ el estado no depende de referencias conservadas en memoria.
 
 ### 6.5. Catálogo persistente de actividades
 
-`RepositorioActividades` define `guardar`, `obtenerPorId` y `listar`. Sus
-adaptadores en memoria e IndexedDB cumplen una misma suite contractual: ausencia
+`RepositorioActividades` define `guardar`, `actualizar`, `obtenerPorId`, `listar`
+y `eliminar`. Sus adaptadores en memoria e IndexedDB cumplen una misma suite
+contractual: ausencia
 como `undefined`, rechazo de identificadores duplicados y conservación del
 registro original.
 
@@ -302,7 +327,11 @@ conservación de una agenda legada como la conversión exacta de una actividad V
 
 `RepositorioContextosPlanificacion` expresa el contrato de almacenamiento del
 agregado `ContextoPlanificacion`: guardar sin reemplazar duplicados, recuperar,
-listar y eliminar únicamente contextos nombrados. La prohibición de eliminar
+listar, actualizar y eliminar. La edición por caso de uso y la eliminación
+protegen `Libre`. IndexedDB también rechaza su actualización directa; memoria
+todavía la permite. Esta discrepancia se reprodujo y quedó registrada en
+[#113](https://github.com/NicoCG32/HereToPlan/issues/113), sin atribuirla al
+recorrido de edición de usuario. La prohibición de eliminar
 `Libre` pertenece al dominio y ambos adaptadores —memoria e IndexedDB— propagan
 la misma semántica asíncrona.
 
@@ -856,12 +885,12 @@ mensual, de siete días y en lista consumen el mismo `CalendarioDto`; cambiar su
 composición CSS no modifica el rango, los filtros, el origen ni el estado de
 los bloques.
 
-Por debajo de `48rem`, las cuadrículas temporales abandonan las columnas con
-ancho mínimo fijo y adoptan columnas fluidas. Por debajo de `32rem`, se
-convierten en una sola secuencia vertical. Ninguna vista esencial depende así
-de un desplazamiento horizontal para consultar fechas o alcanzar acciones. El
-orden del DOM permanece estable, por lo que la transformación tampoco altera
-el recorrido de teclado.
+Por debajo de `48rem`, la vista mensual usa cuatro columnas fluidas con día de
+semana y cantidad de bloques. El detalle está en el diálogo del día y en la
+lista equivalente; las vistas semanales y los próximos siete días adaptan sus
+columnas y se apilan por debajo de `32rem`. Ninguna vista esencial depende de
+desplazamiento horizontal para consultar fechas o alcanzar acciones. El orden
+del DOM permanece estable y no altera el recorrido de teclado.
 
 La representación en lista no es un resumen degradado: expone los mismos
 bloques del rango visible, en orden temporal, junto con contexto, carga,
@@ -976,7 +1005,13 @@ Los cortes confirmados, `BilleteraPuntos` y el historial de recompensas poseen
 fronteras diferentes. El dominio evalúa reglas y prepara una decisión, pero no
 simula una transacción técnica entre agregados.
 
-El canje de un día libre sigue esta secuencia:
+La adquisición y aplicación vigente de Día libre usan dos fronteras:
+
+1. adquirir publica la unidad disponible y el gasto juntos;
+2. aplicar publica la unidad consumida, la aplicación y los ajustes juntos,
+   sin un nuevo movimiento de gasto.
+
+El canje directo legado conserva esta secuencia de compatibilidad:
 
 1. un adaptador de entrada solicita el canje mediante un puerto de entrada;
 2. el caso de uso carga cortes, resoluciones, ajustes y billetera mediante puertos de salida;
@@ -1017,20 +1052,28 @@ La arquitectura es un contrato de evolución; no debe confundirse con el grado a
 | Infraestructura | Repositorios, unidades atómicas, respaldo y reinicio transaccional en IndexedDB |
 | Composición     | Ensambla páginas y servicios sin introducir reglas de negocio                   |
 | Persistencia    | IndexedDB v13 opera atómicamente sobre los quince almacenes soportados          |
+| Tutorial        | Preferencia V1 independiente en localStorage; recorrido e hitos en presentación |
 
 HereToPlan cuenta con un **primer corte vertical hexagonal efectivo**: una acción
 originada en React atraviesa un puerto de entrada, un caso de uso, las invariantes
 del dominio y los puertos de persistencia antes de alcanzar IndexedDB. Contextos,
 actividades y bloques editables poseen almacenes independientes; las agendas
 legadas se consultan como fuente histórica. Los DTO impiden que presentación
-reciba referencias mutables de los agregados y las suites contractuales mantienen
-equivalencia entre memoria e IndexedDB.
+reciba referencias mutables de los agregados y las suites contractuales
+comprueban equivalencia entre memoria e IndexedDB en sus escenarios cubiertos.
+La actualización directa del contexto reservado es la excepción registrada en
+#113; una suite aprobada no convierte un caso ausente en una garantía probada.
 
 La prueba vertical del calendario crea planificación mediante los casos de uso,
 descarta toda la composición en memoria y construye otra sobre la misma base de
 datos. La segunda composición debe recuperar contextos, actividades programadas
 y sin programar, bloques y origen; además, las vistas global, filtrada, semanal y
 de lista deben derivarse nuevamente sin conservar estado accidental de React.
+
+La [auditoría integral](Auditoria-integral.md) vincula estas garantías con sus
+pruebas y registra la instalación limpia. Accesibilidad manual adicional,
+experimento de uso, plantillas y otras capacidades pendientes no se declaran
+completas por estas comprobaciones técnicas.
 
 ## 10. Criterios de conformidad
 

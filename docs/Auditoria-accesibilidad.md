@@ -2,13 +2,16 @@
 
 ## 1. Alcance
 
-Esta auditoría verifica la presentación de HereToPlan conforme a WCAG 2.2 AA
-en los recorridos que sostienen el producto: consulta del calendario, creación
+Esta auditoría registra comprobaciones de presentación basadas en criterios
+WCAG 2.2 A/AA en recorridos que sostienen el producto: consulta del calendario, creación
 de agenda, planificación de una fecha, confirmaciones destructivas, Rewards y
 restauración de datos.
 
-La ejecución registrada corresponde al 21 de julio de 2026 sobre la rama
-`auditoria` y el commit base `3c2c5c9`.
+Las secciones 2–4 conservan la ejecución histórica del 21 de julio de 2026,
+rama `auditoria`, commit base `3c2c5c9`. Las secciones posteriores añaden los
+incrementos revisados. No constituye una certificación completa de conformidad:
+lector de pantalla y ampliación real adicional siguen en
+[#109](https://github.com/NicoCG32/HereToPlan/issues/109).
 
 ## 2. Auditoría automática
 
@@ -36,14 +39,14 @@ sus extremos cromáticos de forma conservadora.
 
 ## 3. Revisión manual
 
-| Aspecto              | Evidencia                                                                                                                                               | Resultado |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| Teclado              | Los controles nativos son alcanzables y activables; las pruebas recorren apertura, cancelación, `Escape`, `Tab` y `Shift+Tab` en formularios y diálogos | Conforme  |
-| Foco                 | Abrir una agenda enfoca `Nombre`; cancelar devuelve el foco a `Nueva agenda`; planificar una fecha enfoca `Crear primera actividad`                     | Conforme  |
-| Foco visible         | Enlaces, botones y campos usan un contorno azul `#236797` de 3 px; su contraste mínimo contra `#e4e6e8` es 4,85:1                                       | Conforme  |
-| Nombres accesibles   | El árbol accesible identifica todos los botones, enlaces, campos y selectores; a 320 px no se detectaron controles visibles sin nombre                  | Conforme  |
-| Contraste            | Texto, acciones y gradientes se contrastaron contra el fondo claro más desfavorable                                                                     | Conforme  |
-| Ampliación y reflujo | A 320 px, equivalente al criterio de reflujo a 400 % sobre 1280 px, documento, calendario, siete días y lista conservan el ancho disponible             | Conforme  |
+| Aspecto            | Evidencia                                                                                                                                               | Resultado                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| Teclado            | Los controles nativos son alcanzables y activables; las pruebas recorren apertura, cancelación, `Escape`, `Tab` y `Shift+Tab` en formularios y diálogos | Conforme                 |
+| Foco               | Abrir una agenda enfoca `Nombre`; cancelar devuelve el foco a `Nueva agenda`; planificar una fecha enfoca `Crear primera actividad`                     | Conforme                 |
+| Foco visible       | Enlaces, botones y campos usan un contorno azul `#236797` de 3 px; su contraste mínimo contra `#e4e6e8` es 4,85:1                                       | Conforme                 |
+| Nombres accesibles | El árbol accesible identifica todos los botones, enlaces, campos y selectores; a 320 px no se detectaron controles visibles sin nombre                  | Conforme                 |
+| Contraste          | Texto, acciones y gradientes se contrastaron contra el fondo claro más desfavorable                                                                     | Conforme                 |
+| Reflujo a 320 px   | Documento, calendario, siete días y lista conservan el ancho disponible; corresponde al ancho CSS del criterio sobre 1280 px, sin demostrar zoom real   | Comprobado en ese tamaño |
 
 ### 3.1. Contrastes mínimos conservadores
 
@@ -142,3 +145,15 @@ pospuesto, omisión y reinicio. A 320, 360, 390, 430 y 1.280 px no se detectó
 desbordamiento horizontal, y acceso, reinicio y acciones de la guía conservaron
 al menos 44 px de alto. La consola no mostró errores. Lector de pantalla,
 Brave y ampliación real adicionales mantienen su seguimiento pospuesto en #109.
+
+## 9. Corte de auditoría integral — 2026-10-09
+
+La suite dedicada contiene 43 pruebas en cuatro archivos. Axe evalúa los estados
+de calendario, Día libre, respaldo y guía; otras suites comprueban navegación,
+perfil/HUD, teclado, retorno de foco y modos. Esta distribución no significa
+que se haya ejecutado axe sobre todas las pantallas y combinaciones posibles.
+El [informe integral](Auditoria-integral.md) conserva trazabilidad y resultados.
+
+Los resultados a 320–430 px y la aceptación visual de #107, #82 y #83 se
+conservan como evidencia de esos incrementos. No equivalen a una nueva revisión
+con lector de pantalla, Brave o zoom real para esta auditoría documental.

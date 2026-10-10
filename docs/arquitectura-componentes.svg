@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" role="img" aria-labelledby="titulo descripcion">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" style="max-width:100%;height:auto" role="img" aria-labelledby="titulo descripcion">
   <title id="titulo">HereToPlan — Arquitectura hexagonal implementada</title>
-  <desc id="descripcion">Diagrama de componentes de React, sesión compartida, casos de uso, dominio, puertos, persistencia, respaldo versionado y adaptadores del navegador.</desc>
+  <desc id="descripcion">React consume casos de uso y preferencias mediante puertos. IndexedDB conserva el estado funcional y localStorage sólo el progreso de la guía; el dominio permanece independiente de ambos.</desc>
   <defs>
     <filter id="sombra" x="-10%" y="-10%" width="120%" height="130%">
       <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.12"/>
@@ -62,7 +62,7 @@
     <circle cx="75" cy="48" r="25" fill="#ffffff" opacity="0.95"/>
     <path d="M35 124 C40 83 110 83 115 124" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round"/>
     <text class="nombre-claro" x="75" y="150" text-anchor="middle">Usuario</text>
-    <text class="detalle-claro" x="75" y="168" text-anchor="middle">planifica y revisa</text>
+    <text class="detalle-claro" x="75" y="163" text-anchor="middle">planifica y revisa</text>
   </g>
 
   <g transform="translate(300 188)">
@@ -84,7 +84,7 @@
     <text class="detalle" x="18" y="106">• sesión compartida, bienvenida, HUD y perfil editable</text>
     <text class="detalle" x="18" y="130">• calendario y catálogos editables de Crear</text>
     <text class="detalle" x="18" y="154">• ejecución, economías, respaldo y reinicio selectivo</text>
-    <text class="detalle" x="18" y="181">Sólo conoce DTO y puertos de entrada.</text>
+    <text class="detalle" x="18" y="181">Guía opcional · consume contratos de aplicación.</text>
     <text class="codigo" x="18" y="212">src/presentacion</text>
   </g>
 
@@ -108,7 +108,7 @@
     <text class="detalle" x="18" y="130">• revisar, asignar, corregir y sincronizar cortes</text>
     <text class="detalle" x="18" y="154">• proyectar calendario; eliminar contexto</text>
     <text class="detalle" x="18" y="178">• perfil, economías, respaldo, restauración y reinicio</text>
-    <text class="detalle" x="18" y="198">Orquestan reglas y límites transaccionales.</text>
+    <text class="detalle" x="18" y="198">Preferencias de guía · reglas y transacciones.</text>
     <text class="codigo" x="18" y="220">src/aplicacion</text>
   </g>
 
@@ -133,7 +133,7 @@
     <text class="detalle" x="18" y="82">RepositorioContextos · RepositorioActividades</text>
     <text class="detalle" x="18" y="106">RepositorioBloques · RepositorioCortes</text>
     <text class="detalle" x="18" y="130">Repositorios: perfil · resoluciones · sesiones · puntos · recuperación</text>
-    <text class="detalle" x="18" y="154">TransaccionEliminacionContextoPlanificacion</text>
+    <text class="detalle" x="18" y="154">EliminarContexto · PreferenciasTutorial</text>
     <text class="detalle" x="18" y="178">TransaccionCompletar · unidades de adquisición y aplicación</text>
     <text class="detalle" x="18" y="202">Lector/RestauradorEstado · UnidadReinicio · Reloj · UUID</text>
     <text class="codigo" x="18" y="226">src/aplicacion/puertos</text>
@@ -148,7 +148,7 @@
     <text class="detalle" x="18" y="106">• migrador de contextos legados</text>
     <text class="detalle" x="18" y="130">• unidades atómicas de cumplimiento, adquisición y recuperación</text>
     <text class="detalle" x="18" y="154">• respaldo, restauración y reinicio atómicos en IndexedDB</text>
-    <text class="detalle" x="18" y="178">• reloj, fecha local y UUID</text>
+    <text class="detalle" x="18" y="178">• sistema y preferencia de guía (localStorage)</text>
     <text class="detalle" x="18" y="202">Implementan contratos; no dictan reglas.</text>
     <text class="codigo" x="18" y="226">src/infraestructura</text>
   </g>
@@ -157,14 +157,14 @@
     <rect class="componente datos" width="400" height="238"/>
     <path class="cabecera-datos" d="M12 0 H388 A12 12 0 0 1 400 12 V52 H0 V12 A12 12 0 0 1 12 0"/>
     <text class="estereotipo" x="18" y="19">«ALMACENAMIENTO LOCAL»</text>
-    <text class="nombre" x="18" y="42">IndexedDB v13 · here-to-plan</text>
-    <text class="detalle" x="18" y="82">perfil · contextos · actividades · agendas</text>
-    <text class="detalle" x="18" y="106">bloques-planificacion · cortes-planificacion</text>
-    <text class="detalle" x="18" y="130">resoluciones-bloques · ResolucionV1</text>
-    <text class="detalle" x="18" y="154">transacciones-puntos · TransaccionPuntosV1</text>
-    <text class="detalle" x="18" y="178">inventario · aplicaciones · canjes legados · ajustes</text>
-    <text class="detalle" x="18" y="202">sesiones · movimientos-recuperacion · reducciones-carga</text>
-    <text class="detalle" x="18" y="226">Registros versionados rehidratables.</text>
+    <text class="nombre" x="18" y="42">Datos del navegador</text>
+    <text class="detalle" x="18" y="82">IndexedDB v13 · quince colecciones funcionales</text>
+    <text class="detalle" x="18" y="106">perfil · planificación · historia · economías</text>
+    <text class="detalle" x="18" y="130">Respaldo V3: sólo colecciones de IndexedDB</text>
+    <text class="detalle" x="18" y="154">localStorage · preferencia de guía</text>
+    <text class="detalle" x="18" y="178">EstadoTutorialV1: situación y paso</text>
+    <text class="detalle" x="18" y="202">Sin datos de planificación en esta preferencia.</text>
+    <text class="detalle" x="18" y="226">Contratos de almacenamiento independientes.</text>
   </g>
 
   <path class="flujo" d="M192 515 H298"/>
@@ -200,5 +200,5 @@
   <text class="leyenda" x="632" y="1077">dependencia hacia un contrato o el núcleo</text>
   <line x1="978" y1="1072" x2="1033" y2="1072" class="configura"/>
   <text class="leyenda" x="1045" y="1077">ensamblaje en la raíz de composición</text>
-  <text class="leyenda" x="1730" y="1077" text-anchor="end">Estado implementado · julio de 2026</text>
+  <text class="leyenda" x="1730" y="1077" text-anchor="end">Corte · 2026-10-09</text>
 </svg>

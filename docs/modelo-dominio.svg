@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1660" viewBox="0 0 1600 1660" role="img" aria-labelledby="titulo descripcion">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1660" viewBox="0 0 1600 1660" style="max-width:100%;height:auto" role="img" aria-labelledby="titulo descripcion">
   <title id="titulo">HereToPlan — Modelo de dominio implementado</title>
   <desc id="descripcion">Diagrama de entidades y relaciones entre perfil local, actividades, planificación, sesiones de cronómetro, resoluciones, puntos, recuperación y recompensas.</desc>
   <defs>
@@ -328,7 +328,7 @@
   <path class="relacion" d="M1317 802 V842 H590 V1118"/>
   <text class="relacion-etiqueta" x="760" y="837">sesiones finalizadas verifican excedente</text>
 
-  <g transform="translate(800 1330)">
+  <g transform="translate(650 1330)">
     <rect class="clase economia" width="420" height="80"/>
     <path class="cabecera-economia" d="M10 0 H410 A10 10 0 0 1 420 10 V42 H0 V10 A10 10 0 0 1 10 0"/>
     <text class="estereotipo" x="16" y="18">«POLÍTICA DE DOMINIO»</text>
@@ -342,9 +342,9 @@
     <text class="estereotipo" x="16" y="18">«ENTIDAD LOCAL ÚNICA»</text>
     <text class="nombre" x="16" y="40">PerfilUsuario</text>
     <text class="atributo" x="16" y="70">id · nombreVisible · creadoEn · actualizadoEn</text>
-    <text class="atributo" x="16" y="91">sin autenticación ni datos sensibles</text>
+    <text class="atributo" x="16" y="91">identidad local, sin autenticación</text>
   </g>
-  <path class="relacion" d="M798 1370 H770 V1085 H590 V1080"/>
+  <path class="relacion" d="M860 1328 V1308 H770 V1085 H590 V1080"/>
   <text class="relacion-etiqueta" x="758" y="1308" text-anchor="end">calcula puntos</text>
 
   <rect class="regla" x="72" y="1440" width="1454" height="90"/>
@@ -352,11 +352,13 @@
   <text class="regla-texto" x="92" y="1490">Completar publica resolución e ingreso juntos. Adquirir publica unidad disponible y gasto como una unidad.</text>
   <text class="regla-texto" x="92" y="1512">Consumir recuperación publica movimiento y reducción juntos; conserva la estimación original y deriva la carga efectiva.</text>
 
+  <text class="leyenda" x="92" y="1558">Tutorial, rutas y HUD quedan fuera del dominio. Los reinicios son comandos de aplicación, no agregados.</text>
+
   <line x1="60" y1="1610" x2="105" y2="1610" class="composicion"/>
   <text class="leyenda" x="116" y="1615">composición / control de ciclo</text>
   <line x1="350" y1="1610" x2="395" y2="1610" class="herencia"/>
   <text class="leyenda" x="406" y="1615">especialización</text>
   <line x1="590" y1="1610" x2="635" y2="1610" class="relacion"/>
   <text class="leyenda" x="646" y="1615">referencia o efecto</text>
-  <text class="leyenda" x="1518" y="1615" text-anchor="end">Estado implementado · julio de 2026</text>
+  <text class="leyenda" x="1518" y="1615" text-anchor="end">Corte · 2026-10-09</text>
 </svg>

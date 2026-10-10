@@ -17,6 +17,7 @@
     "format": "prettier . --write --ignore-unknown",
     "format:check": "prettier . --check --ignore-unknown",
     "verify:pages": "node scripts/verificar-build-pages.mjs",
+    "verify:docs": "node scripts/verificar-documentacion.mjs",
     "audit:css": "node scripts/auditar-css.mjs"
   },
   "dependencies": {
