@@ -93,6 +93,28 @@ export function verificarContratoRepositorioContextosPlanificacion(
       } satisfies Partial<ErrorContextoNoEncontrado>);
     });
 
+    it("impide actualizar Libre y conserva su identidad y creación", async () => {
+      const libre = ContextoPlanificacion.crearLibre(CREADA_EN);
+      await repositorio.guardar(libre);
+      const sustituto = ContextoPlanificacion.crearLibre(
+        new Date("2026-07-21T10:00:00.000Z"),
+      );
+
+      await expect(repositorio.actualizar(sustituto)).rejects.toMatchObject({
+        name: "ErrorDominio",
+        codigo: "CONTEXTO_LIBRE_NO_ELIMINABLE",
+      } satisfies Partial<ErrorDominio>);
+      await expect(
+        repositorio.obtenerPorId(IDENTIFICADOR_CONTEXTO_LIBRE),
+      ).resolves.toMatchObject({
+        id: IDENTIFICADOR_CONTEXTO_LIBRE,
+        nombre: "Libre",
+        tipo: "LIBRE",
+        creadaEn: CREADA_EN,
+      });
+      await expect(repositorio.listar()).resolves.toHaveLength(1);
+    });
+
     it("elimina un contexto nombrado y rechaza una segunda eliminación", async () => {
       const contexto = crearContexto("contexto-1");
       await repositorio.guardar(contexto);

@@ -328,12 +328,14 @@ conservación de una agenda legada como la conversión exacta de una actividad V
 `RepositorioContextosPlanificacion` expresa el contrato de almacenamiento del
 agregado `ContextoPlanificacion`: guardar sin reemplazar duplicados, recuperar,
 listar, actualizar y eliminar. La edición por caso de uso y la eliminación
-protegen `Libre`. IndexedDB también rechaza su actualización directa; memoria
-todavía la permite. Esta discrepancia se reprodujo y quedó registrada en
-[#113](https://github.com/NicoCG32/HereToPlan/issues/113), sin atribuirla al
-recorrido de edición de usuario. La prohibición de eliminar
-`Libre` pertenece al dominio y ambos adaptadores —memoria e IndexedDB— propagan
-la misma semántica asíncrona.
+protegen `Libre`. Ambos adaptadores —memoria e IndexedDB— también rechazan su
+actualización directa mediante la misma validación del dominio y una promesa
+rechazada, conservando su identidad y fecha de creación. La diferencia hallada
+en [#113](https://github.com/NicoCG32/HereToPlan/issues/113) se corrigió en memoria
+y quedó cubierta por la
+[suite contractual compartida](../tests/contratoRepositorioContextosPlanificacion.ts).
+La prohibición de eliminar `Libre` pertenece al dominio y conserva la misma
+semántica asíncrona en ambos adaptadores.
 
 `ContextoPlanificacionV1` es un registro plano y versionado. Conserva identidad,
 nombre, propósito opcional, tipo, rango civil opcional e instante de creación;
@@ -1061,8 +1063,9 @@ actividades y bloques editables poseen almacenes independientes; las agendas
 legadas se consultan como fuente histórica. Los DTO impiden que presentación
 reciba referencias mutables de los agregados y las suites contractuales
 comprueban equivalencia entre memoria e IndexedDB en sus escenarios cubiertos.
-La actualización directa del contexto reservado es la excepción registrada en
-#113; una suite aprobada no convierte un caso ausente en una garantía probada.
+El rechazo de actualización directa del contexto reservado, incorporado en
+#113, también se ejecuta sobre ambos adaptadores y comprueba la conservación del
+registro original.
 
 La prueba vertical del calendario crea planificación mediante los casos de uso,
 descarta toda la composición en memoria y construye otra sobre la misma base de

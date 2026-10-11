@@ -10,7 +10,12 @@ no añade funciones de producto ni cambia esquemas de datos.
 escenarios que el nuevo cálculo de cobertura dejó visibles. Npm audit completo
 y sin dev pasan a cero avisos, con 553 pruebas y umbrales intactos.
 [Inventario, decisión y comprobaciones](Dependencias.md). Las cifras siguientes
-conservan el corte anterior de #104; #113 y #109 mantienen su seguimiento.
+conservan el corte anterior de #104.
+
+**Actualización — 2026-10-11:** #113 alinea el rechazo de actualización directa
+de `Libre` en memoria con IndexedDB. La prueba compartida reproduce el fallo
+anterior y comprueba la conservación del registro original en ambos adaptadores.
+#109 mantiene el seguimiento manual adicional pospuesto.
 
 ## Contratos contrastados
 
@@ -53,17 +58,29 @@ repitan la implementación sólo para aumentar la cifra.
   o zoom real a partir de un ancho de 320 px. Se acota la evidencia histórica
   y se mantiene el seguimiento manual en #109.
 
-### Diferencia contractual registrada
+### Diferencia contractual de Libre: hallazgo y resolución
 
 Una prueba aislada reprodujo que actualizar directamente `Libre` con otra
 instancia sustituye su fecha de creación en memoria, mientras IndexedDB rechaza
 la operación y conserva el registro. El caso de uso de edición ya rechaza
 `Libre`; no se identificó esta modificación a través de la interfaz vigente.
-La suite contractual cubre actualización de contextos nombrados, pero no ese
-caso reservado. La corrección y su prueba compartida se registraron en
-[#113](https://github.com/NicoCG32/HereToPlan/issues/113), Backlog/P2. La
-discrepancia preexistente queda documentada sin cambiar comportamiento funcional
-durante esta tarea.
+En el corte de #104 la suite contractual cubría actualización de contextos
+nombrados, pero no ese caso reservado. La corrección y su prueba compartida se
+registraron en [#113](https://github.com/NicoCG32/HereToPlan/issues/113).
+
+El 2026-10-11 se incorporó el caso a la
+[suite contractual](../tests/contratoRepositorioContextosPlanificacion.ts): una
+instancia sustituta con creación posterior debe recibir una promesa rechazada
+con `CONTEXTO_LIBRE_NO_ELIMINABLE`, y el único registro debe conservar identidad,
+tipo, nombre y creación originales. Antes de corregir el adaptador, falló sólo
+memoria; IndexedDB ya lo cumplía. Memoria ahora ejecuta la misma validación del
+dominio antes de escribir. Se conservan las pruebas de actualización de contextos
+nombrados y de ausencia, sin cambiar el dominio ni los esquemas persistidos.
+
+La instalación limpia de #113 aprueba 555 pruebas en 76 archivos y 43 de
+accesibilidad. Cobertura: sentencias 91,34 %, ramas 80 %, funciones 93,12 % y
+líneas 92,20 %, con el alcance y los umbrales intactos. Formato, lint, enlaces
+locales, CSS, build y artefacto Pages pasan; npm audit conserva cero avisos.
 
 ## Calidad reproducible
 
@@ -161,20 +178,20 @@ un navegador remoto.
 
 ## Pendientes y decisiones
 
-La diferencia de actualización directa de `Libre` entre adaptadores mantiene
-seguimiento en [#113](https://github.com/NicoCG32/HereToPlan/issues/113),
-Backlog/P2, con reproducción y criterio de conservación del registro original.
+La diferencia de actualización directa de `Libre` se corrigió en
+[#113](https://github.com/NicoCG32/HereToPlan/issues/113), con reproducción previa
+y comprobación compartida de conservación del registro original.
 
-| Asunto                                                 | Estado y seguimiento                                                                                                                     |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Lector de pantalla, Brave y zoom real adicionales      | Pospuestos por decisión del usuario; [#109](https://github.com/NicoCG32/HereToPlan/issues/109) en Backlog                                |
-| Dependencias con avisos                                | [#112](https://github.com/NicoCG32/HereToPlan/issues/112), Backlog/P1; inventario, compatibilidad y comparación antes/después pendientes |
-| Uso sostenido y decisión de fase                       | Seis días sin registrar; falta informe por hipótesis y decisión explícita; [protocolo](Protocolo-uso-sostenido.md)                       |
-| Plantillas y recurrencia abierta                       | No implementadas; la hipótesis de plantillas requiere acotar el experimento                                                              |
-| Administración de subtareas/proyectos y ajustes nuevos | Reglas de composición en dominio; interfaz completa, reprogramación y extensión pendientes                                               |
-| Economía                                               | Fórmula inicial, costo y topes explícitos; calibración pendiente de observaciones                                                        |
-| Procedencia y permiso del banco original de recursos   | No se da por resuelta por estar integrado; requiere confirmar su registro de origen                                                      |
-| Tamaño del JavaScript                                  | Aviso de chunk de Vite; no se cambia el producto ni se divide código sólo para silenciarlo                                               |
+| Asunto                                                 | Estado y seguimiento                                                                                                                      |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Lector de pantalla, Brave y zoom real adicionales      | Pospuestos por decisión del usuario; [#109](https://github.com/NicoCG32/HereToPlan/issues/109) en Backlog                                 |
+| Dependencias con avisos                                | Resueltas en [#112](https://github.com/NicoCG32/HereToPlan/issues/112); [inventario y comparación](Dependencias.md), npm audit sin avisos |
+| Uso sostenido y decisión de fase                       | Seis días sin registrar; falta informe por hipótesis y decisión explícita; [protocolo](Protocolo-uso-sostenido.md)                        |
+| Plantillas y recurrencia abierta                       | No implementadas; la hipótesis de plantillas requiere acotar el experimento                                                               |
+| Administración de subtareas/proyectos y ajustes nuevos | Reglas de composición en dominio; interfaz completa, reprogramación y extensión pendientes                                                |
+| Economía                                               | Fórmula inicial, costo y topes explícitos; calibración pendiente de observaciones                                                         |
+| Procedencia y permiso del banco original de recursos   | No se da por resuelta por estar integrado; requiere confirmar su registro de origen                                                       |
+| Tamaño del JavaScript                                  | Aviso de chunk de Vite; no se cambia el producto ni se divide código sólo para silenciarlo                                                |
 
 Esta tarea deja documentación y verificación técnica coherentes. La épica y el
 programa conservan pendientes; no se declara superada la fase de validación ni
