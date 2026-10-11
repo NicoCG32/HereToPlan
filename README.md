@@ -119,7 +119,8 @@ en el alcance definido en `vitest.config.ts`. Axe complementa la revisión
 manual; sus límites están en la [auditoría de accesibilidad](docs/Auditoria-accesibilidad.md).
 
 El [workflow](.github/workflows/calidad-y-pages.yml) restaura el lockfile y
-verifica la entrega. Los cambios aceptados en `main` publican el artefacto
+comprueba avisos de dependencias y calidad. La [revisión de dependencias](docs/Dependencias.md)
+registra versiones y resultados. Los cambios aceptados en `main` publican el artefacto
 comprobado en Pages. Las rutas hash permiten navegación directa sin
 reescrituras del servidor. [Configuración y recuperación](docs/Despliegue.md).
 

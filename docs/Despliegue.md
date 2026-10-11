@@ -66,7 +66,8 @@ una aprobación del despliegue según la configuración de la cuenta.
 
 El workflow se ejecuta en PR hacia `main`, push a `main` y ejecución manual:
 
-1. `calidad` restaura el lockfile y comprueba formato, lint, documentación, CSS,
+1. `calidad` restaura el lockfile y comprueba avisos de dependencias, formato,
+   lint, documentación, CSS,
    accesibilidad, suite con cobertura, build y referencias del artefacto.
 2. Sólo un **push a main** configura Pages y empaqueta `dist/`.
 3. `desplegar` depende de calidad y publica exactamente ese artefacto. Una PR

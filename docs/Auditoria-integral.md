@@ -6,6 +6,12 @@ Fecha del corte: **2026-10-09**. Tarea:
 Este incremento modifica documentación, diagramas y comprobaciones de entrega;
 no añade funciones de producto ni cambia esquemas de datos.
 
+**Actualización — 2026-10-10:** #112 actualiza dependencias y completa los
+escenarios que el nuevo cálculo de cobertura dejó visibles. Npm audit completo
+y sin dev pasan a cero avisos, con 553 pruebas y umbrales intactos.
+[Inventario, decisión y comprobaciones](Dependencias.md). Las cifras siguientes
+conservan el corte anterior de #104; #113 y #109 mantienen su seguimiento.
+
 ## Contratos contrastados
 
 | Área                       | Implementación y evidencia                                                                                                                                                                                                         | Resultado del contraste                                                                                       |

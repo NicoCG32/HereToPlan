@@ -35,6 +35,9 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      - name: Comprobar avisos de dependencias
+        run: npm audit
+
       - name: Comprobar formato
         run: npm run format:check
 

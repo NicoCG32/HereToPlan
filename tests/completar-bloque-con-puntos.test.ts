@@ -1,5 +1,5 @@
 import { IDBFactory } from "fake-indexeddb";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   CasoDeUsoCompletarBloqueConPuntos,
   CasoDeUsoConsultarBilletera,
@@ -10,6 +10,7 @@ import {
   FechaLocal,
   FormulaPuntosBloque,
   PoliticaCompromiso,
+  ResolucionBloquePlanificacion,
 } from "../src/dominio";
 import {
   ALMACEN_TRANSACCIONES_PUNTOS,
@@ -29,6 +30,178 @@ import {
 const RESUELTO_EN = new Date("2026-07-20T12:00:00.000Z");
 
 describe("cumplimiento y acreditación atómicos", () => {
+  it.each([
+    { bloqueId: " ", operacionId: "operacion", campo: "bloqueId" },
+    { bloqueId: "bloque-1", operacionId: " ", campo: "operacionId" },
+  ])(
+    "rechaza un $campo vacío antes de escribir",
+    async ({ campo, ...comando }) => {
+      const entorno = await crearEntorno(`identificador-${campo}`, [
+        crearBloque("bloque-1", 30),
+      ]);
+      const resultado = await entorno.crearCaso([]).ejecutar(comando);
+      expect(resultado).toMatchObject({
+        exito: false,
+        error: { codigo: "IDENTIFICADOR_INVALIDO", campo },
+      });
+      await expect(entorno.resoluciones.listar()).resolves.toHaveLength(0);
+      await expect(
+        listarIngresos(entorno.fabrica, entorno.nombre),
+      ).resolves.toHaveLength(0);
+    },
+  );
+
+  it.each([
+    {
+      confirmado: true,
+      bloqueId: "ausente",
+      codigo: "BLOQUE_PLANIFICACION_NO_ENCONTRADO",
+    },
+    { confirmado: false, bloqueId: "bloque-1", codigo: "BLOQUE_NO_CONFIRMADO" },
+  ])(
+    "rechaza $codigo sin acreditar puntos",
+    async ({ confirmado, bloqueId, codigo }) => {
+      const entorno = await crearEntorno(
+        `sin-compromiso-${codigo}`,
+        [crearBloque("bloque-1", 30)],
+        confirmado,
+      );
+      expect(
+        await entorno
+          .crearCaso([])
+          .ejecutar({ bloqueId, operacionId: "operacion" }),
+      ).toMatchObject({ exito: false, error: { codigo } });
+      await expect(entorno.resoluciones.listar()).resolves.toHaveLength(0);
+      await expect(
+        listarIngresos(entorno.fabrica, entorno.nombre),
+      ).resolves.toHaveLength(0);
+    },
+  );
+
+  it("no reutiliza una operación cumplida para otro bloque", async () => {
+    const entorno = await crearEntorno("operacion-reutilizada", [
+      crearBloque("bloque-1", 30),
+      crearBloque("bloque-2", 30),
+    ]);
+    const caso = entorno.crearCaso(["ingreso-unico"]);
+    await caso.ejecutar({ bloqueId: "bloque-1", operacionId: "operacion" });
+    expect(
+      await caso.ejecutar({ bloqueId: "bloque-2", operacionId: "operacion" }),
+    ).toMatchObject({
+      exito: false,
+      error: { codigo: "OPERACION_RESOLUCION_EN_CONFLICTO" },
+    });
+    await expect(
+      entorno.resoluciones.obtenerPorBloqueId("bloque-2"),
+    ).resolves.toBeUndefined();
+    await expect(
+      listarIngresos(entorno.fabrica, entorno.nombre),
+    ).resolves.toHaveLength(1);
+  });
+
+  it("no acredita una resolución previa de incumplimiento", async () => {
+    const entorno = await crearEntorno("incumplimiento-previo", [
+      crearBloque("bloque-1", 30),
+    ]);
+    await entorno.resoluciones.guardar(
+      new ResolucionBloquePlanificacion({
+        bloqueId: "bloque-1",
+        operacionId: "operacion",
+        resultado: "INCUMPLIDO",
+        resueltoEn: RESUELTO_EN,
+      }),
+    );
+    expect(
+      await entorno
+        .crearCaso([])
+        .ejecutar({ bloqueId: "bloque-1", operacionId: "operacion" }),
+    ).toMatchObject({
+      exito: false,
+      error: { codigo: "OPERACION_RESOLUCION_EN_CONFLICTO" },
+    });
+    await expect(
+      listarIngresos(entorno.fabrica, entorno.nombre),
+    ).resolves.toHaveLength(0);
+  });
+
+  it("no acepta otra operación para un bloque resuelto", async () => {
+    const entorno = await crearEntorno("bloque-ya-resuelto", [
+      crearBloque("bloque-1", 30),
+    ]);
+    const caso = entorno.crearCaso(["ingreso-unico"]);
+    await caso.ejecutar({ bloqueId: "bloque-1", operacionId: "original" });
+    expect(
+      await caso.ejecutar({ bloqueId: "bloque-1", operacionId: "otra" }),
+    ).toMatchObject({ exito: false, error: { codigo: "BLOQUE_YA_RESUELTO" } });
+    await expect(
+      listarIngresos(entorno.fabrica, entorno.nombre),
+    ).resolves.toHaveLength(1);
+  });
+
+  it("rechaza un reintento histórico si falta la instantánea confirmada", async () => {
+    const entorno = await crearEntorno("sin-instantanea", []);
+    await entorno.resoluciones.guardar(
+      new ResolucionBloquePlanificacion({
+        bloqueId: "bloque-historico",
+        operacionId: "historica",
+        resultado: "COMPLETADO",
+        resueltoEn: RESUELTO_EN,
+      }),
+    );
+    expect(
+      await entorno
+        .crearCaso([])
+        .ejecutar({ bloqueId: "bloque-historico", operacionId: "historica" }),
+    ).toMatchObject({
+      exito: false,
+      error: { codigo: "BLOQUE_PLANIFICACION_NO_ENCONTRADO" },
+    });
+    await expect(
+      listarIngresos(entorno.fabrica, entorno.nombre),
+    ).resolves.toHaveLength(0);
+  });
+
+  it("propaga un fallo técnico sin declarar cumplimiento", async () => {
+    const entorno = await crearEntorno("fallo-tecnico", [
+      crearBloque("bloque-1", 30),
+    ]);
+    const causa = new Error("No hay espacio para confirmar");
+    const caso = new CasoDeUsoCompletarBloqueConPuntos(
+      entorno.cortes,
+      entorno.resoluciones,
+      { confirmar: vi.fn().mockRejectedValue(causa) },
+      new RelojFijo(RESUELTO_EN),
+      new GeneradorIdentificadoresPredefinidos(["ingreso"]),
+    );
+    await expect(
+      caso.ejecutar({ bloqueId: "bloque-1", operacionId: "operacion" }),
+    ).rejects.toBe(causa);
+    await expect(entorno.resoluciones.listar()).resolves.toHaveLength(0);
+    await expect(
+      listarIngresos(entorno.fabrica, entorno.nombre),
+    ).resolves.toHaveLength(0);
+  });
+
+  it("conserva un solo ganador entre órdenes concurrentes distintas", async () => {
+    const entorno = await crearEntorno("ordenes-concurrentes-distintas", [
+      crearBloque("bloque-1", 30),
+    ]);
+    const caso = entorno.crearCaso(["ingreso-a", "ingreso-b"]);
+    const resultados = await Promise.all([
+      caso.ejecutar({ bloqueId: "bloque-1", operacionId: "a" }),
+      caso.ejecutar({ bloqueId: "bloque-1", operacionId: "b" }),
+    ]);
+    expect(resultados.filter((r) => r.exito)).toHaveLength(1);
+    expect(resultados.find((r) => !r.exito)).toMatchObject({
+      exito: false,
+      error: { codigo: "BLOQUE_YA_RESUELTO" },
+    });
+    await expect(entorno.resoluciones.listar()).resolves.toHaveLength(1);
+    await expect(
+      listarIngresos(entorno.fabrica, entorno.nombre),
+    ).resolves.toHaveLength(1);
+  });
+
   it("registra juntos la resolución y el ingreso calculado", async () => {
     const entorno = await crearEntorno("cumplimiento-atomico", [
       crearBloque("bloque-1", 45),
@@ -158,7 +331,11 @@ describe("cumplimiento y acreditación atómicos", () => {
   });
 });
 
-async function crearEntorno(nombre: string, bloques: BloquePlanificacion[]) {
+async function crearEntorno(
+  nombre: string,
+  bloques: BloquePlanificacion[],
+  confirmado = true,
+) {
   const fabrica = new IDBFactory();
   const configuracion = { fabricaIndexedDB: fabrica, nombreBaseDatos: nombre };
   const cortes = new RepositorioCortesPlanificacionEnMemoria();
@@ -173,14 +350,17 @@ async function crearEntorno(nombre: string, bloques: BloquePlanificacion[]) {
     bloques,
     creadoEn: new Date("2026-07-20T10:00:00.000Z"),
   });
-  corte.iniciarRevision();
-  corte.asignar(new Date("2026-07-20T10:00:00.000Z"));
-  corte.actualizarSegunReloj(new Date("2026-07-20T10:10:00.000Z"));
+  if (bloques.length > 0 && confirmado) {
+    corte.iniciarRevision();
+    corte.asignar(new Date("2026-07-20T10:00:00.000Z"));
+    corte.actualizarSegunReloj(new Date("2026-07-20T10:10:00.000Z"));
+  }
   await cortes.guardar(corte);
   return {
     fabrica,
     nombre,
     resoluciones,
+    cortes,
     crearCaso: (idsTransacciones: readonly string[]) =>
       new CasoDeUsoCompletarBloqueConPuntos(
         cortes,

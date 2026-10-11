@@ -1,0 +1,563 @@
+{
+  "fecha": "2026-10-10",
+  "base": "0813980d1b5c82b31e780288683bef9333e30ef3",
+  "fuente": "npm audit --json sobre el lockfile",
+  "antes": {
+    "info": 0,
+    "low": 0,
+    "moderate": 4,
+    "high": 7,
+    "critical": 2,
+    "total": 13
+  },
+  "despues": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "paquetes": [
+    {
+      "paquete": "@vitest/coverage-v8",
+      "versionesAntes": "3.2.7",
+      "versionesDespues": "4.1.11",
+      "directa": true,
+      "uso": "desarrollo",
+      "padresAntes": "",
+      "severidadAntes": "moderate",
+      "avisosPropagados": ["vitest"],
+      "avisos": []
+    },
+    {
+      "paquete": "@vitest/mocker",
+      "versionesAntes": "3.2.7",
+      "versionesDespues": "4.1.11",
+      "directa": false,
+      "uso": "desarrollo",
+      "padresAntes": "vitest",
+      "severidadAntes": "moderate",
+      "avisosPropagados": [],
+      "avisos": [
+        {
+          "id": "GHSA-82fw-gwwq-j7x9",
+          "rango": ">=2.1.0 <4.1.11"
+        }
+      ]
+    },
+    {
+      "paquete": "baseline-browser-mapping",
+      "versionesAntes": "2.10.43",
+      "versionesDespues": "2.11.28",
+      "directa": false,
+      "uso": "desarrollo",
+      "padresAntes": "browserslist",
+      "severidadAntes": "moderate",
+      "avisosPropagados": [],
+      "avisos": [
+        {
+          "id": "GHSA-w5vr-8v7q-w6rv",
+          "rango": ">=2.0.0 <2.11.0"
+        }
+      ]
+    },
+    {
+      "paquete": "brace-expansion",
+      "versionesAntes": "5.0.7, 2.1.2",
+      "versionesDespues": "5.0.12",
+      "directa": false,
+      "uso": "desarrollo",
+      "padresAntes": "glob/minimatch, minimatch",
+      "severidadAntes": "high",
+      "avisosPropagados": [],
+      "avisos": [
+        {
+          "id": "GHSA-mh99-v99m-4gvg",
+          "rango": ">=2.0.0 <2.1.3"
+        },
+        {
+          "id": "GHSA-mh99-v99m-4gvg",
+          "rango": ">=4.0.0 <5.0.8"
+        },
+        {
+          "id": "GHSA-rgw5-rvv9-x895",
+          "rango": ">=4.0.0 <5.0.9"
+        },
+        {
+          "id": "GHSA-rgw5-rvv9-x895",
+          "rango": ">=2.0.0 <2.1.4"
+        },
+        {
+          "id": "GHSA-q2hr-2g5m-vwhr",
+          "rango": ">=2.0.0 <2.1.7"
+        },
+        {
+          "id": "GHSA-q2hr-2g5m-vwhr",
+          "rango": ">=4.0.0 <5.0.12"
+        },
+        {
+          "id": "GHSA-qhr7-859c-m2p7",
+          "rango": ">=2.0.0 <2.1.6"
+        },
+        {
+          "id": "GHSA-qhr7-859c-m2p7",
+          "rango": ">=4.0.0 <5.0.11"
+        },
+        {
+          "id": "GHSA-6j4f-fj2g-mc7p",
+          "rango": ">=2.0.0 <2.1.5"
+        },
+        {
+          "id": "GHSA-6j4f-fj2g-mc7p",
+          "rango": ">=4.0.0 <5.0.10"
+        }
+      ]
+    },
+    {
+      "paquete": "browserslist",
+      "versionesAntes": "4.28.6",
+      "versionesDespues": "4.29.3",
+      "directa": false,
+      "uso": "desarrollo",
+      "padresAntes": "@babel/helper-compilation-targets",
+      "severidadAntes": "high",
+      "avisosPropagados": [],
+      "avisos": [
+        {
+          "id": "GHSA-c83g-rgw3-j3cx",
+          "rango": "<=4.28.6"
+        },
+        {
+          "id": "GHSA-73wf-gq98-2v4g",
+          "rango": "<=4.28.6"
+        }
+      ]
+    },
+    {
+      "paquete": "nanoid",
+      "versionesAntes": "3.3.16",
+      "versionesDespues": "3.3.20",
+      "directa": false,
+      "uso": "desarrollo",
+      "padresAntes": "postcss",
+      "severidadAntes": "high",
+      "avisosPropagados": [],
+      "avisos": [
+        {
+          "id": "GHSA-2v37-7h3g-55p8",
+          "rango": "<3.3.18"
+        }
+      ]
+    },
+    {
+      "paquete": "postcss",
+      "versionesAntes": "8.5.18",
+      "versionesDespues": "8.5.29",
+      "directa": true,
+      "uso": "desarrollo",
+      "padresAntes": "vite, vite-node/vite, vitest/vite",
+      "severidadAntes": "moderate",
+      "avisosPropagados": [],
+      "avisos": [
+        {
+          "id": "GHSA-fxqj-rqcc-2cmp",
+          "rango": "<=8.5.22"
+        }
+      ]
+    },
+    {
+      "paquete": "react-router",
+      "versionesAntes": "7.18.1",
+      "versionesDespues": "7.18.4",
+      "directa": false,
+      "uso": "produccion",
+      "padresAntes": "react-router-dom",
+      "severidadAntes": "high",
+      "avisosPropagados": [],
+      "avisos": [
+        {
+          "id": "GHSA-qwww-vcr4-c8h2",
+          "rango": ">=7.12.0 <7.18.2"
+        }
+      ]
+    },
+    {
+      "paquete": "react-router-dom",
+      "versionesAntes": "7.18.1",
+      "versionesDespues": "7.18.4",
+      "directa": true,
+      "uso": "produccion",
+      "padresAntes": "",
+      "severidadAntes": "high",
+      "avisosPropagados": ["react-router"],
+      "avisos": []
+    },
+    {
+      "paquete": "source-map-js",
+      "versionesAntes": "1.2.1",
+      "versionesDespues": "1.2.2",
+      "directa": false,
+      "uso": "desarrollo",
+      "padresAntes": "css-tree, magicast, postcss",
+      "severidadAntes": "high",
+      "avisosPropagados": [],
+      "avisos": [
+        {
+          "id": "GHSA-68fv-2mgg-jv7q",
+          "rango": ">=1.0.0 <1.2.2"
+        }
+      ]
+    },
+    {
+      "paquete": "tinypool",
+      "versionesAntes": "1.1.1",
+      "versionesDespues": "",
+      "directa": false,
+      "uso": "desarrollo",
+      "padresAntes": "vitest",
+      "severidadAntes": "critical",
+      "avisosPropagados": [],
+      "avisos": [
+        {
+          "id": "GHSA-5gmw-xhrv-c9v3",
+          "rango": "<=2.1.0"
+        },
+        {
+          "id": "GHSA-85c8-ppgw-ccpr",
+          "rango": "<2.1.2"
+        }
+      ]
+    },
+    {
+      "paquete": "undici",
+      "versionesAntes": "7.28.0",
+      "versionesDespues": "7.30.0",
+      "directa": false,
+      "uso": "desarrollo",
+      "padresAntes": "jsdom",
+      "severidadAntes": "high",
+      "avisosPropagados": [],
+      "avisos": [
+        {
+          "id": "GHSA-8xcm-r25x-g524",
+          "rango": ">=7.0.0 <7.29.0"
+        },
+        {
+          "id": "GHSA-4cwx-7wf7-3272",
+          "rango": ">=7.0.0 <7.29.0"
+        },
+        {
+          "id": "GHSA-m8rv-5g2x-5cg5",
+          "rango": ">=7.0.0 <7.29.0"
+        },
+        {
+          "id": "GHSA-jr45-8vmc-qm54",
+          "rango": ">=7.0.0 <7.29.0"
+        },
+        {
+          "id": "GHSA-v3r7-h72x-cjcm",
+          "rango": ">=7.0.0 <7.29.0"
+        },
+        {
+          "id": "GHSA-3wwx-pv8p-q78v",
+          "rango": ">=7.28.0 <7.29.1"
+        },
+        {
+          "id": "GHSA-pmjh-fq2x-6v4x",
+          "rango": ">=7.11.0 <7.29.1"
+        },
+        {
+          "id": "GHSA-r53p-7pc4-xj5r",
+          "rango": ">=7.0.0 <7.29.1"
+        },
+        {
+          "id": "GHSA-rfgv-xxqx-mfg5",
+          "rango": ">=7.0.0 <7.29.1"
+        },
+        {
+          "id": "GHSA-3xpg-4rpp-hhhm",
+          "rango": ">=7.15.0 <7.29.1"
+        },
+        {
+          "id": "GHSA-2jfj-6hjv-fm6j",
+          "rango": ">=7.0.0 <7.29.1"
+        },
+        {
+          "id": "GHSA-2gqq-gqf2-x968",
+          "rango": ">=7.1.0 <7.29.1"
+        },
+        {
+          "id": "GHSA-w293-vg96-wgc3",
+          "rango": ">=7.24.1 <7.29.1"
+        },
+        {
+          "id": "GHSA-8436-99hf-9mmv",
+          "rango": ">=7.0.0 <7.29.1"
+        },
+        {
+          "id": "GHSA-rx4f-c7p8-82vq",
+          "rango": ">=7.0.0 <7.29.1"
+        }
+      ]
+    },
+    {
+      "paquete": "vitest",
+      "versionesAntes": "3.2.7",
+      "versionesDespues": "4.1.11",
+      "directa": true,
+      "uso": "desarrollo",
+      "padresAntes": "",
+      "severidadAntes": "critical",
+      "avisosPropagados": ["@vitest/mocker", "tinypool"],
+      "avisos": [
+        {
+          "id": "GHSA-82fw-gwwq-j7x9",
+          "rango": ">=2.1.0 <4.1.11"
+        }
+      ]
+    }
+  ],
+  "avisos": [
+    {
+      "id": "GHSA-2gqq-gqf2-x968",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to response truncation via oversized chunked responses in the dump interceptor",
+      "url": "https://github.com/advisories/GHSA-2gqq-gqf2-x968",
+      "severidad": "low",
+      "rangos": [">=7.1.0 <7.29.1"]
+    },
+    {
+      "id": "GHSA-2jfj-6hjv-fm6j",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to cross-user cookie disclosure via Set-Cookie caching in shared caches",
+      "url": "https://github.com/advisories/GHSA-2jfj-6hjv-fm6j",
+      "severidad": "moderate",
+      "rangos": [">=7.0.0 <7.29.1"]
+    },
+    {
+      "id": "GHSA-2v37-7h3g-55p8",
+      "paquete": "nanoid",
+      "titulo": "nanoid: custom generators can loop indefinitely when size is zero",
+      "url": "https://github.com/advisories/GHSA-2v37-7h3g-55p8",
+      "severidad": "high",
+      "rangos": ["<3.3.18"]
+    },
+    {
+      "id": "GHSA-3wwx-pv8p-q78v",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to Denial of Service via unhandled error in WebSocket permessage-deflate decompression",
+      "url": "https://github.com/advisories/GHSA-3wwx-pv8p-q78v",
+      "severidad": "moderate",
+      "rangos": [">=7.28.0 <7.29.1"]
+    },
+    {
+      "id": "GHSA-3xpg-4rpp-hhhm",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to Denial of Service via unbounded decompression of compressed responses",
+      "url": "https://github.com/advisories/GHSA-3xpg-4rpp-hhhm",
+      "severidad": "moderate",
+      "rangos": [">=7.15.0 <7.29.1"]
+    },
+    {
+      "id": "GHSA-4cwx-7wf7-3272",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to cross-user information disclosure and parse-time crash via degenerate private cache directives",
+      "url": "https://github.com/advisories/GHSA-4cwx-7wf7-3272",
+      "severidad": "high",
+      "rangos": [">=7.0.0 <7.29.0"]
+    },
+    {
+      "id": "GHSA-5gmw-xhrv-c9v3",
+      "paquete": "tinypool",
+      "titulo": "Tinypool: Prototype Pollution gadget in worker options leads to Remote Code Execution",
+      "url": "https://github.com/advisories/GHSA-5gmw-xhrv-c9v3",
+      "severidad": "critical",
+      "rangos": ["<=2.1.0"]
+    },
+    {
+      "id": "GHSA-68fv-2mgg-jv7q",
+      "paquete": "source-map-js",
+      "titulo": "source-map-js allows event-loop denial of service through indexed source-map section offsets",
+      "url": "https://github.com/advisories/GHSA-68fv-2mgg-jv7q",
+      "severidad": "high",
+      "rangos": [">=1.0.0 <1.2.2"]
+    },
+    {
+      "id": "GHSA-6j4f-fj2g-mc7p",
+      "paquete": "brace-expansion",
+      "titulo": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+      "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+      "severidad": "high",
+      "rangos": [">=2.0.0 <2.1.5", ">=4.0.0 <5.0.10"]
+    },
+    {
+      "id": "GHSA-73wf-gq98-2v4g",
+      "paquete": "browserslist",
+      "titulo": "Browserslist: Uncaught crash / prototype write via untrusted browserslist-stats.json custom stats (normalizeStats)",
+      "url": "https://github.com/advisories/GHSA-73wf-gq98-2v4g",
+      "severidad": "high",
+      "rangos": ["<=4.28.6"]
+    },
+    {
+      "id": "GHSA-82fw-gwwq-j7x9",
+      "paquete": "@vitest/mocker",
+      "titulo": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+      "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+      "severidad": "moderate",
+      "rangos": [">=2.1.0 <4.1.11"]
+    },
+    {
+      "id": "GHSA-8436-99hf-9mmv",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to caching and replay of unsafe HTTP method responses",
+      "url": "https://github.com/advisories/GHSA-8436-99hf-9mmv",
+      "severidad": "low",
+      "rangos": [">=7.0.0 <7.29.1"]
+    },
+    {
+      "id": "GHSA-85c8-ppgw-ccpr",
+      "paquete": "tinypool",
+      "titulo": "Tinypool: Prototype Pollution Gadget to RCE in run() options",
+      "url": "https://github.com/advisories/GHSA-85c8-ppgw-ccpr",
+      "severidad": "critical",
+      "rangos": ["<2.1.2"]
+    },
+    {
+      "id": "GHSA-8xcm-r25x-g524",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to downstream response desynchronization via retry interceptor",
+      "url": "https://github.com/advisories/GHSA-8xcm-r25x-g524",
+      "severidad": "moderate",
+      "rangos": [">=7.0.0 <7.29.0"]
+    },
+    {
+      "id": "GHSA-c83g-rgw3-j3cx",
+      "paquete": "browserslist",
+      "titulo": "Browserslist: Unbounded memory growth (no cache eviction) via distinct query results, leading to eventual OOM",
+      "url": "https://github.com/advisories/GHSA-c83g-rgw3-j3cx",
+      "severidad": "high",
+      "rangos": ["<=4.28.6"]
+    },
+    {
+      "id": "GHSA-fxqj-rqcc-2cmp",
+      "paquete": "postcss",
+      "titulo": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q — attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+      "url": "https://github.com/advisories/GHSA-fxqj-rqcc-2cmp",
+      "severidad": "moderate",
+      "rangos": ["<=8.5.22"]
+    },
+    {
+      "id": "GHSA-jr45-8vmc-qm54",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to cross-user information disclosure via whitespace around equals in Cache-Control directives",
+      "url": "https://github.com/advisories/GHSA-jr45-8vmc-qm54",
+      "severidad": "moderate",
+      "rangos": [">=7.0.0 <7.29.0"]
+    },
+    {
+      "id": "GHSA-m8rv-5g2x-5cg5",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to CRLF Injection via blob-like body 'type' property",
+      "url": "https://github.com/advisories/GHSA-m8rv-5g2x-5cg5",
+      "severidad": "moderate",
+      "rangos": [">=7.0.0 <7.29.0"]
+    },
+    {
+      "id": "GHSA-mh99-v99m-4gvg",
+      "paquete": "brace-expansion",
+      "titulo": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+      "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+      "severidad": "high",
+      "rangos": [">=2.0.0 <2.1.3", ">=4.0.0 <5.0.8"]
+    },
+    {
+      "id": "GHSA-pmjh-fq2x-6v4x",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to Denial of Service via orphaned RetryHandler response body",
+      "url": "https://github.com/advisories/GHSA-pmjh-fq2x-6v4x",
+      "severidad": "moderate",
+      "rangos": [">=7.11.0 <7.29.1"]
+    },
+    {
+      "id": "GHSA-q2hr-2g5m-vwhr",
+      "paquete": "brace-expansion",
+      "titulo": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+      "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+      "severidad": "moderate",
+      "rangos": [">=2.0.0 <2.1.7", ">=4.0.0 <5.0.12"]
+    },
+    {
+      "id": "GHSA-qhr7-859c-m2p7",
+      "paquete": "brace-expansion",
+      "titulo": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+      "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+      "severidad": "high",
+      "rangos": [">=2.0.0 <2.1.6", ">=4.0.0 <5.0.11"]
+    },
+    {
+      "id": "GHSA-qwww-vcr4-c8h2",
+      "paquete": "react-router",
+      "titulo": "React Router: RSC Mode CSRF Bypass Allows Action Execution Before 400 Response",
+      "url": "https://github.com/advisories/GHSA-qwww-vcr4-c8h2",
+      "severidad": "high",
+      "rangos": [">=7.12.0 <7.18.2"]
+    },
+    {
+      "id": "GHSA-r53p-7pc4-xj5r",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to downstream response splitting via retry interceptor",
+      "url": "https://github.com/advisories/GHSA-r53p-7pc4-xj5r",
+      "severidad": "low",
+      "rangos": [">=7.0.0 <7.29.1"]
+    },
+    {
+      "id": "GHSA-rfgv-xxqx-mfg5",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to Denial of Service via unrequested WebSocket subprotocol",
+      "url": "https://github.com/advisories/GHSA-rfgv-xxqx-mfg5",
+      "severidad": "high",
+      "rangos": [">=7.0.0 <7.29.1"]
+    },
+    {
+      "id": "GHSA-rgw5-rvv9-x895",
+      "paquete": "brace-expansion",
+      "titulo": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+      "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
+      "severidad": "high",
+      "rangos": [">=4.0.0 <5.0.9", ">=2.0.0 <2.1.4"]
+    },
+    {
+      "id": "GHSA-rx4f-c7p8-82vq",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to Denial of Service via WebSocketStream unclean close",
+      "url": "https://github.com/advisories/GHSA-rx4f-c7p8-82vq",
+      "severidad": "moderate",
+      "rangos": [">=7.0.0 <7.29.1"]
+    },
+    {
+      "id": "GHSA-v3r7-h72x-cjcm",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to cookie attribute injection via unsanitized domain and unparsed setCookie fields",
+      "url": "https://github.com/advisories/GHSA-v3r7-h72x-cjcm",
+      "severidad": "moderate",
+      "rangos": [">=7.0.0 <7.29.0"]
+    },
+    {
+      "id": "GHSA-w293-vg96-wgc3",
+      "paquete": "undici",
+      "titulo": "undici vulnerable to TLS certificate validation bypass via dropped connect options in BalancedPool",
+      "url": "https://github.com/advisories/GHSA-w293-vg96-wgc3",
+      "severidad": "high",
+      "rangos": [">=7.24.1 <7.29.1"]
+    },
+    {
+      "id": "GHSA-w5vr-8v7q-w6rv",
+      "paquete": "baseline-browser-mapping",
+      "titulo": "baseline-browser-mapping process termination on invalid input causes denial of service",
+      "url": "https://github.com/advisories/GHSA-w5vr-8v7q-w6rv",
+      "severidad": "moderate",
+      "rangos": [">=2.0.0 <2.11.0"]
+    }
+  ]
+}
