@@ -19,6 +19,7 @@ y su revisión.
 | Consultar alcance, resultados y pendientes de calidad       | [Auditoría integral](Auditoria-integral.md)                 |
 | Distinguir axe, revisión manual y comprobaciones pospuestas | [Accesibilidad](Auditoria-accesibilidad.md)                 |
 | Registrar evidencia de uso cotidiano                        | [Protocolo de uso sostenido](Protocolo-uso-sostenido.md)    |
+| Preparar escenarios y registrar resultados por hipótesis    | [Validación de producto](Validacion-producto.md)            |
 | Consultar procedencia y presupuesto de recursos de interfaz | [Recursos visuales](../src/presentacion/recursos/README.md) |
 
 La [revisión de dependencias](Dependencias.md) conserva el inventario de avisos,
