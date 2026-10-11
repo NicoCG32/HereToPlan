@@ -182,16 +182,16 @@ La diferencia de actualización directa de `Libre` se corrigió en
 [#113](https://github.com/NicoCG32/HereToPlan/issues/113), con reproducción previa
 y comprobación compartida de conservación del registro original.
 
-| Asunto                                                 | Estado y seguimiento                                                                                                                      |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Lector de pantalla, Brave y zoom real adicionales      | Pospuestos por decisión del usuario; [#109](https://github.com/NicoCG32/HereToPlan/issues/109) en Backlog                                 |
-| Dependencias con avisos                                | Resueltas en [#112](https://github.com/NicoCG32/HereToPlan/issues/112); [inventario y comparación](Dependencias.md), npm audit sin avisos |
-| Uso sostenido y decisión de fase                       | Seis días sin registrar; falta informe por hipótesis y decisión explícita; [protocolo](Protocolo-uso-sostenido.md)                        |
-| Plantillas y recurrencia abierta                       | No implementadas; la hipótesis de plantillas requiere acotar el experimento                                                               |
-| Administración de subtareas/proyectos y ajustes nuevos | Reglas de composición en dominio; interfaz completa, reprogramación y extensión pendientes                                                |
-| Economía                                               | Fórmula inicial, costo y topes explícitos; calibración pendiente de observaciones                                                         |
-| Procedencia y permiso del banco original de recursos   | No se da por resuelta por estar integrado; requiere confirmar su registro de origen                                                       |
-| Tamaño del JavaScript                                  | Aviso de chunk de Vite; no se cambia el producto ni se divide código sólo para silenciarlo                                                |
+| Asunto                                                 | Estado y seguimiento                                                                                                                                                      |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lector de pantalla, Brave y zoom real adicionales      | Pospuestos por decisión del usuario; [#109](https://github.com/NicoCG32/HereToPlan/issues/109) en Backlog                                                                 |
+| Dependencias con avisos                                | Resueltas en [#112](https://github.com/NicoCG32/HereToPlan/issues/112); [inventario y comparación](Dependencias.md), npm audit sin avisos                                 |
+| Uso sostenido y decisión de fase                       | Preparación vigente en [#117](https://github.com/NicoCG32/HereToPlan/issues/117) y [validación de producto](Validacion-producto.md); sesiones nuevas e informe pendientes |
+| Plantillas y recurrencia abierta                       | No implementadas; la hipótesis de plantillas requiere acotar el experimento                                                                                               |
+| Administración de subtareas/proyectos y ajustes nuevos | Reglas de composición en dominio; interfaz completa, reprogramación y extensión pendientes                                                                                |
+| Economía                                               | Fórmula inicial, costo y topes explícitos; calibración pendiente de observaciones                                                                                         |
+| Procedencia y permiso del banco original de recursos   | No se da por resuelta por estar integrado; requiere confirmar su registro de origen                                                                                       |
+| Tamaño del JavaScript                                  | Aviso de chunk de Vite; no se cambia el producto ni se divide código sólo para silenciarlo                                                                                |
 
 Esta tarea deja documentación y verificación técnica coherentes. La épica y el
 programa conservan pendientes; no se declara superada la fase de validación ni

@@ -17,10 +17,22 @@ por hipótesis y una decisión explícita de continuar, iterar o detener. La
 hipótesis de reutilización de plantillas requiere acotar el experimento porque
 esa capacidad todavía no está implementada.
 
+**Preparación vigente — 2026-10-11:**
+[#117](https://github.com/NicoCG32/HereToPlan/issues/117) prepara una ronda para
+trabajo, estudio y vida personal. El
+[instrumento de validación](Validacion-producto.md) vincula H1–H8, siete
+escenarios, registro privado y conclusión por hipótesis con el alcance actual.
+Su inicio y sus observaciones permanecen pendientes; el historial siguiente se
+conserva sin convertirlo en sesiones de la nueva ronda.
+
 ## 2. Ronda mínima
 
-Una ronda comprende siete días consecutivos y al menos quince minutos de uso
-por día. La primera ronda queda fijada entre el 21 y el 27 de julio de 2026.
+El diseño de una ronda comprende siete días consecutivos y al menos quince
+minutos de uso por día. La primera ronda histórica se fijó entre el 21 y el 27
+de julio de 2026. Para otra ronda, registrar el comienzo real y las sesiones
+realizadas; si se interrumpe, conservar las fechas y describir la limitación.
+El informe de fase debe considerar uso durante varias semanas, no únicamente
+el cierre operativo de una ronda.
 
 Cada día debe incluir consulta del calendario y, según la rotación, al menos uno
 de estos recorridos:
@@ -60,6 +72,9 @@ revisión.
 
 ## 5. Bitácora diaria
 
+Esta tabla es el antecedente de julio. Copiar el registro del instrumento a un
+archivo privado para la nueva ronda, con fechas, duración y hechos reales.
+
 | Día | Fecha      |          Duración | Recorridos cubiertos                                        | Incidencias          | Resultado        |
 | --: | ---------- | ----------------: | ----------------------------------------------------------- | -------------------- | ---------------- |
 |   1 | 2026-07-21 | Auditoría técnica | Calendario, formularios, diálogos, Rewards, respaldo, móvil | `ACC-001`, `ACC-002` | Ambas corregidas |
@@ -82,3 +97,9 @@ La ronda puede cerrarse cuando:
 
 Los ajustes estéticos posteriores pueden agruparse, pero nunca deben rebajar
 contraste, tamaño táctil, nombres accesibles ni previsibilidad del foco.
+
+El mínimo de cinco días permite cerrar una ronda con limitaciones documentadas;
+no convierte los días sin registro en completados. El informe distingue este
+cierre de la decisión de fase y conserva como inconclusas las hipótesis sin
+evidencia suficiente. Cada observación nueva enlaza su versión y las incidencias
+reales con el Project.
