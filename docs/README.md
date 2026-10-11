@@ -21,6 +21,9 @@ y su revisión.
 | Registrar evidencia de uso cotidiano                        | [Protocolo de uso sostenido](Protocolo-uso-sostenido.md)    |
 | Consultar procedencia y presupuesto de recursos de interfaz | [Recursos visuales](../src/presentacion/recursos/README.md) |
 
+La [revisión de dependencias](Dependencias.md) conserva el inventario de avisos,
+las versiones corregidas y la comprobación de la migración del runner.
+
 ## Vistas del sistema
 
 - [Componentes y dependencias](arquitectura-componentes.svg).
