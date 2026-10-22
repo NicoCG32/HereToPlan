@@ -1,4 +1,38 @@
-# Revisión de dependencias — #112
+# Revisión de dependencias
+
+## Actualización compatible — 2026-10-21, #122
+
+La instalación limpia para la [revisión UX/UI](Revision-ux-ui.md) detectó cuatro
+paquetes señalados: Vite con severidad alta, y Vitest, su mocker y coverage con
+severidad moderada, incluidos avisos propagados. No contradice el resultado
+histórico del 10 de octubre: corresponde a un corte posterior del registro.
+
+| Paquete directo | Antes  | Después |
+| --------------- | ------ | ------- |
+| Vite            | 8.1.4  | 8.1.6   |
+| Vitest          | 4.1.11 | 4.1.12  |
+| Coverage V8     | 4.1.11 | 4.1.12  |
+
+El manifiesto conserva rangos compatibles y eleva sus mínimos. El lockfile
+sincroniza los paquetes internos de Vitest en 4.1.12. No se usa `--force`,
+no se introducen overrides y se mantiene Node 24.18.0 y npm 11.16.0.
+
+El [inventario de este corte](dependencias-auditoria-2026-10-21.json) guarda los
+rangos y siete avisos propios únicos, además de su propagación entre los cuatro
+paquetes. Incluye los avisos del mocker por
+[registro de mocks](https://github.com/advisories/GHSA-qxg6-89mg-rqv8) y
+[redirecciones en Windows](https://github.com/advisories/GHSA-xp26-3454-mjgp).
+La actualización se limita a herramientas de desarrollo y pruebas; no acredita
+una explotación del sitio estático.
+
+`npm ci` instala 246 paquetes y audita 247. `npm ls --all` confirma un árbol
+válido; `npm audit` y `npm audit --omit=dev` terminan en cero avisos. La suite
+completa pasa con 561 pruebas en 77 archivos y la cobertura mantiene 91,34 % de
+sentencias, 80 % de ramas, 93,12 % de funciones y 92,20 % de líneas sobre el
+mismo alcance. La tarea [#122](https://github.com/NicoCG32/HereToPlan/issues/122)
+acompaña la entrega de #121 y su comprobación del artefacto.
+
+## Corte histórico — 2026-10-10, #112
 
 Fecha del corte: **2026-10-10**. Base: `0813980`, después de la auditoría
 documental. [Tarea y evidencia](https://github.com/NicoCG32/HereToPlan/issues/112).
