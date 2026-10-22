@@ -100,6 +100,11 @@ agenda y actividad forman dos columnas paralelas; en móvil, una secuencia
 vertical. La creación y la edición reutilizan los mismos contratos de
 validación.
 
+Crear actividad es la acción principal; las agendas son opcionales. Al guardar
+sin programar o cancelar, el foco vuelve al control que abrió el editor. Guardar
+y asignar lleva la solicitud a Calendario una sola vez: los parámetros de esa
+solicitud se retiran de la URL para que recargar no reabra el diálogo.
+
 ### 4.3. Puntos
 
 Concentra la billetera y su historial, el catálogo e inventario de recompensas,
@@ -136,6 +141,8 @@ las acciones se distribuyen en dos columnas con una altura mínima de 44 px.
 En escritorio, la navegación lateral permanece visible sin cubrir el contenido.
 En móvil se reemplaza por un panel controlado mediante botón, con cierre por
 ruta, cobertura y `Escape`, retorno de foco y bloqueo temporal del scroll.
+El panel cerrado queda fuera del recorrido de teclado. Abierto contiene el
+foco y deja el fondo inerte; al ampliar a escritorio libera ambos bloqueos.
 
 El contrato transversal conserva:
 
@@ -143,10 +150,14 @@ El contrato transversal conserva:
 - foco visible de al menos 3 px;
 - orden del DOM equivalente al recorrido visual;
 - alternativa por teclado para cualquier arrastre;
-- áreas táctiles mínimas de `2.75rem`;
+- objetivo de áreas táctiles de `2.75rem` en móvil;
 - reflujo sin desplazamiento horizontal esencial;
 - adaptación a `prefers-reduced-motion`;
 - estados de carga, vacío, error y resultado comprensibles.
+
+Los títulos de panel son inferiores al título de página y el espaciado no debe
+desplazar las acciones por una jerarquía invertida. La
+[revisión UX/UI](Revision-ux-ui.md) registra las correcciones y sus límites.
 
 ## 6. Protocolo de cambio
 

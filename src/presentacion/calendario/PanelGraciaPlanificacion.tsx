@@ -159,8 +159,8 @@ export function PanelGraciaPlanificacion({
               <h3 id="titulo-periodo-gracia">Período de gracia</h3>
             </div>
             <p>
-              Puedes volver a editar mediante una decisión explícita mientras el
-              reloj autoritativo conserve abierta la ventana.
+              Aún puedes corregir esta selección. Al terminar la cuenta atrás se
+              confirmará automáticamente.
             </p>
           </div>
           <ul className="lista-cortes-gracia">

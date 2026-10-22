@@ -791,14 +791,13 @@ export function PantallaCalendario({
           <p className="sobrelinea">Planificación global</p>
           <h2 id="titulo-calendario">Calendario general</h2>
           <p className="descripcion-panel">
-            Toda actividad ocupa una fecha únicamente mediante un bloque. Puedes
-            consultar conjuntamente Libre y las agendas nombradas sin alterar su
-            origen.
+            Planifica en Libre o filtra una agenda. Selecciona un día para
+            añadir actividades.
           </p>
         </div>
         <button
           ref={botonCrearContextoRef}
-          className="boton-primario"
+          className="boton-secundario"
           type="button"
           onClick={() => {
             setFormularioContextoVisible(true);
@@ -1280,8 +1279,14 @@ function VistaCalendario({
           <h3 id="vista-activa">{calendario.seleccion.nombre}</h3>
         </div>
         <p>
-          {calendario.resumenSeleccion.cantidadBloques} bloques ·{" "}
-          {calendario.resumenSeleccion.minutosPlanificados} minutos
+          {calendario.resumenSeleccion.cantidadBloques}{" "}
+          {calendario.resumenSeleccion.cantidadBloques === 1
+            ? "bloque"
+            : "bloques"}{" "}
+          · {calendario.resumenSeleccion.minutosPlanificados}{" "}
+          {calendario.resumenSeleccion.minutosPlanificados === 1
+            ? "minuto"
+            : "minutos"}
         </p>
       </div>
       <div

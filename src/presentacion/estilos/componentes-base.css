@@ -118,8 +118,8 @@
 }
 
 .cabecera-panel-agenda h2 {
-  font-size: clamp(1.75rem, 4vw, 3rem);
-  line-height: 1.05;
+  font-size: clamp(1.3rem, 2vw, 1.65rem);
+  line-height: 1.2;
 }
 
 .titulo-region h3 {

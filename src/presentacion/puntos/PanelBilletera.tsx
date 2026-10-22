@@ -54,8 +54,8 @@ export function PanelBilletera({ servicios, revision }: PanelBilleteraProps) {
           <p className="sobrelinea">Economía trazable</p>
           <h2 id="titulo-billetera">Billetera de puntos</h2>
           <p className="descripcion-panel">
-            El saldo se deriva de movimientos históricos; no se almacena como un
-            número independiente.
+            Completar un bloque confirmado suma puntos. Aquí puedes revisar cada
+            ingreso y gasto.
           </p>
         </div>
         {estado.tipo === "lista" && (

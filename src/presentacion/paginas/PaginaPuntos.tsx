@@ -32,7 +32,7 @@ export function PaginaPuntos({
       <EncabezadoPagina
         sobrelinea="Economía y flexibilidad"
         titulo="Puntos"
-        descripcion="Consulta movimientos trazables, prepara recompensas y administra recuperación sin confundir flexibilidad con eliminación de compromisos."
+        descripcion="Consulta tus puntos, adquiere recompensas y usa tus minutos de recuperación."
         ilustracion={ilustracionPuntos}
       />
       {serviciosPuntos && (

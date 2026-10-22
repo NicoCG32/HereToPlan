@@ -20,7 +20,7 @@ export function PaginaRespaldo({
       <EncabezadoPagina
         sobrelinea="Portabilidad y seguridad"
         titulo="Respaldo"
-        descripcion="Exporta, analiza y restaura el estado local fuera del flujo cotidiano. Analizar un archivo nunca modifica la información vigente."
+        descripcion="Guarda una copia de tus datos o recupera un respaldo. Puedes revisar un archivo antes de decidir si lo restauras."
         ilustracion={ilustracionRespaldo}
       />
       {serviciosRespaldo ? (
