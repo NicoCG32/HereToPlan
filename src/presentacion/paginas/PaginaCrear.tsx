@@ -52,6 +52,7 @@ export function PaginaCrear({
   const [procesando, setProcesando] = useState(false);
   const [errorDialogo, setErrorDialogo] = useState<string>();
   const origenDialogoRef = useRef<HTMLElement | undefined>(undefined);
+  const origenEditorRef = useRef<HTMLElement | undefined>(undefined);
 
   useEffect(() => {
     if (!serviciosCalendario) return;
@@ -82,22 +83,36 @@ export function PaginaCrear({
     };
   }, [revision, serviciosCalendario]);
 
-  const registrarContexto = (contexto: ContextoPlanificacionDto) => {
+  const abrirEditor = (nuevoEditor: EditorVisible, origen: HTMLElement) => {
+    origenEditorRef.current = origen;
+    setMensaje(undefined);
+    setEditor(nuevoEditor);
+  };
+
+  const cerrarEditor = () => {
     setEditor(undefined);
+    requestAnimationFrame(() => {
+      if (origenEditorRef.current?.isConnected) origenEditorRef.current.focus();
+    });
+  };
+
+  const registrarContexto = (contexto: ContextoPlanificacionDto) => {
+    cerrarEditor();
     setMensaje(`La agenda ${contexto.nombre} quedó guardada.`);
     setRevision((actual) => actual + 1);
   };
 
   const registrarActividad = (actividad: ActividadDto, asignar: boolean) => {
     tutorial?.informarHito("ACTIVIDAD_CREADA");
-    setEditor(undefined);
     setRevision((actual) => actual + 1);
     if (asignar) {
+      setEditor(undefined);
       void navegar(
         `/calendario?actividad=${encodeURIComponent(actividad.id)}&fecha=${hoyLocal()}`,
       );
       return;
     }
+    cerrarEditor();
     setMensaje(`${actividad.titulo} quedó disponible sin programar.`);
   };
 
@@ -197,7 +212,7 @@ export function PaginaCrear({
       <EncabezadoPagina
         sobrelinea="Elementos reutilizables"
         titulo="Crear"
-        descripcion="Define y administra agendas y actividades. Programar siempre requiere un bloque explícito en el calendario."
+        descripcion="Crea actividades y organízalas con agendas opcionales. Asígnales una fecha desde Calendario."
         ilustracion={ilustracionCrear}
       />
 
@@ -208,17 +223,19 @@ export function PaginaCrear({
             aria-label="Crear elementos"
           >
             <button
-              className="boton-primario"
+              className="boton-secundario"
               type="button"
               aria-expanded={editor?.tipo === "CREAR_AGENDA"}
               {...atributosDestinoTutorial("CREAR_AGENDA")}
-              onClick={() => setEditor({ tipo: "CREAR_AGENDA" })}
+              onClick={(evento) =>
+                abrirEditor({ tipo: "CREAR_AGENDA" }, evento.currentTarget)
+              }
             >
               <img src={iconoAgenda} alt="" aria-hidden="true" />
               Crear agenda
             </button>
             <button
-              className="boton-secundario"
+              className="boton-primario"
               type="button"
               aria-expanded={editor?.tipo === "CREAR_ACTIVIDAD"}
               {...atributosDestinoTutorial(
@@ -227,7 +244,9 @@ export function PaginaCrear({
                   ? ["CREAR_ACTIVIDAD"]
                   : [],
               )}
-              onClick={() => setEditor({ tipo: "CREAR_ACTIVIDAD" })}
+              onClick={(evento) =>
+                abrirEditor({ tipo: "CREAR_ACTIVIDAD" }, evento.currentTarget)
+              }
             >
               <img src={iconoActividad} alt="" aria-hidden="true" />
               Crear actividad
@@ -245,7 +264,7 @@ export function PaginaCrear({
                     contexto: editor.contexto,
                   }
                 : {})}
-              onCancelar={() => setEditor(undefined)}
+              onCancelar={cerrarEditor}
               onCreado={registrarContexto}
             />
           )}
@@ -260,7 +279,7 @@ export function PaginaCrear({
                     actividad: editor.actividad,
                   }
                 : { fechaDestino: hoyLocal() })}
-              onCancelar={() => setEditor(undefined)}
+              onCancelar={cerrarEditor}
               onCreada={registrarActividad}
             />
           )}
@@ -283,8 +302,8 @@ export function PaginaCrear({
               eliminable={Boolean(
                 serviciosCalendario.consultarImpactoEliminacion,
               )}
-              onEditar={(contexto) =>
-                setEditor({ tipo: "EDITAR_AGENDA", contexto })
+              onEditar={(contexto, origen) =>
+                abrirEditor({ tipo: "EDITAR_AGENDA", contexto }, origen)
               }
               onEliminar={(contexto, origen) =>
                 void prepararEliminacionAgenda(contexto, origen)
@@ -294,8 +313,8 @@ export function PaginaCrear({
               actividades={catalogo?.actividadesAsignables ?? []}
               editable={Boolean(serviciosCalendario.editarActividad)}
               eliminable={Boolean(serviciosCalendario.eliminarActividad)}
-              onEditar={(actividad) =>
-                setEditor({ tipo: "EDITAR_ACTIVIDAD", actividad })
+              onEditar={(actividad, origen) =>
+                abrirEditor({ tipo: "EDITAR_ACTIVIDAD", actividad }, origen)
               }
               onEliminar={(actividad, origen) => {
                 origenDialogoRef.current = origen;
@@ -347,7 +366,10 @@ interface CatalogoAgendasProps {
   readonly contextos: readonly ContextoPlanificacionDto[];
   readonly editable: boolean;
   readonly eliminable: boolean;
-  readonly onEditar: (contexto: ContextoPlanificacionDto) => void;
+  readonly onEditar: (
+    contexto: ContextoPlanificacionDto,
+    origen: HTMLElement,
+  ) => void;
   readonly onEliminar: (
     contexto: ContextoPlanificacionDto,
     origen: HTMLElement,
@@ -384,7 +406,7 @@ function CatalogoAgendas({
                   <button
                     className="boton-texto"
                     type="button"
-                    onClick={() => onEditar(agenda)}
+                    onClick={(evento) => onEditar(agenda, evento.currentTarget)}
                   >
                     Editar
                   </button>
@@ -413,7 +435,7 @@ interface CatalogoActividadesProps {
   readonly actividades: readonly ActividadDto[];
   readonly editable: boolean;
   readonly eliminable: boolean;
-  readonly onEditar: (actividad: ActividadDto) => void;
+  readonly onEditar: (actividad: ActividadDto, origen: HTMLElement) => void;
   readonly onEliminar: (actividad: ActividadDto, origen: HTMLElement) => void;
   readonly onAgendar: (actividad: ActividadDto) => void;
 }
@@ -458,7 +480,9 @@ function CatalogoActividades({
                   <button
                     className="boton-texto"
                     type="button"
-                    onClick={() => onEditar(actividad)}
+                    onClick={(evento) =>
+                      onEditar(actividad, evento.currentTarget)
+                    }
                   >
                     Editar
                   </button>

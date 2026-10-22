@@ -53,9 +53,10 @@ describe("página Crear", () => {
     renderPagina(servicios);
 
     const itemAgenda = (await screen.findByText("Semestre")).closest("li")!;
-    await usuario.click(
-      within(itemAgenda).getByRole("button", { name: "Editar" }),
-    );
+    const editarAgenda = within(itemAgenda).getByRole("button", {
+      name: "Editar",
+    });
+    await usuario.click(editarAgenda);
     const nombreAgenda = screen.getByRole("textbox", { name: "Nombre" });
     expect((nombreAgenda as HTMLInputElement).value).toBe("Semestre");
     await usuario.clear(nombreAgenda);
@@ -69,11 +70,13 @@ describe("página Crear", () => {
         nombre: "Semestre editado",
       }),
     );
+    await waitFor(() => expect(document.activeElement).toBe(editarAgenda));
 
     const itemActividad = screen.getByText("Preparar informe").closest("li")!;
-    await usuario.click(
-      within(itemActividad).getByRole("button", { name: "Editar" }),
-    );
+    const editarActividadOrigen = within(itemActividad).getByRole("button", {
+      name: "Editar",
+    });
+    await usuario.click(editarActividadOrigen);
     const titulo = screen.getByRole("textbox", { name: "Título" });
     expect((titulo as HTMLInputElement).value).toBe("Preparar informe");
     await usuario.clear(titulo);
@@ -87,6 +90,53 @@ describe("página Crear", () => {
         titulo: "Informe editado",
       }),
     );
+    await waitFor(() =>
+      expect(document.activeElement).toBe(editarActividadOrigen),
+    );
+  });
+
+  it.each(["Crear agenda", "Crear actividad"])(
+    "devuelve el foco a %s al cancelar su formulario",
+    async (nombre) => {
+      const usuario = userEvent.setup();
+      renderPagina(crearServicios());
+      const origen = await screen.findByRole("button", { name: nombre });
+
+      await usuario.click(origen);
+      await usuario.click(screen.getByRole("button", { name: "Cancelar" }));
+
+      await waitFor(() => expect(document.activeElement).toBe(origen));
+      expect(origen.getAttribute("aria-expanded")).toBe("false");
+    },
+  );
+
+  it("conserva una continuación por teclado tras guardar sin programar", async () => {
+    const usuario = userEvent.setup();
+    const crearActividad = vi.fn().mockResolvedValue({
+      exito: true,
+      actividad: { ...ACTIVIDAD, id: "actividad-nueva", titulo: "Lectura" },
+    });
+    renderPagina(crearServicios({ crearActividad }));
+    const origen = await screen.findByRole("button", {
+      name: "Crear actividad",
+    });
+
+    await usuario.click(origen);
+    await usuario.type(
+      screen.getByRole("textbox", { name: "Título" }),
+      "Lectura",
+    );
+    await usuario.click(
+      screen.getByRole("button", { name: "Guardar sin programar" }),
+    );
+
+    expect(
+      await screen.findByText("Lectura quedó disponible sin programar."),
+    ).toBeTruthy();
+    await waitFor(() => expect(document.activeElement).toBe(origen));
+    await usuario.tab();
+    expect(document.activeElement).not.toBe(document.body);
+    expect(screen.queryByRole("textbox", { name: "Título" })).toBeNull();
   });
 
   it("confirma la eliminación de una actividad y restaura el foco al cancelar", async () => {

@@ -119,8 +119,8 @@ export function PanelRespaldo({
           <p className="sobrelinea">Portabilidad local</p>
           <h2 id="titulo-respaldo">Respaldo de datos</h2>
           <p className="descripcion-panel">
-            Descarga una instantánea versionada de todo el estado persistente o
-            analiza y restaura una instantánea compatible de forma controlada.
+            Descarga una copia completa de tus datos o revisa un archivo para
+            restaurarlo.
           </p>
         </div>
       </header>
@@ -173,8 +173,8 @@ export function PanelRespaldo({
         >
           <h3 id="titulo-preparacion-restauracion">Restauración preparada</h3>
           <p>
-            {plan.totalRegistros} registros · ruta V1 → estado persistente
-            actual. El reemplazo todavía no se ha ejecutado.
+            {plan.totalRegistros} registros listos para restaurar. Tus datos
+            actuales todavía no han cambiado.
           </p>
           <button
             ref={abrirRestauracionRef}

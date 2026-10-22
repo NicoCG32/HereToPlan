@@ -141,8 +141,8 @@ export function PanelRecuperacion({
           <p className="sobrelinea">Descanso compensatorio</p>
           <h2 id="titulo-recuperacion">Banco de recuperación</h2>
           <p className="descripcion-panel">
-            Compensa sobretrabajo cronometrado reduciendo carga flexible futura;
-            no premia estimaciones infladas ni modifica el historial original.
+            Acredita tiempo extra medido y úsalo para reducir carga en bloques
+            flexibles futuros.
           </p>
         </div>
         <output

@@ -19,7 +19,12 @@
 }
 
 .pagina-calendario .cabecera-panel-agenda {
-  padding-bottom: 1rem;
+  padding-bottom: 0.75rem;
+}
+
+.pagina-calendario .descripcion-panel {
+  margin: 0.4rem 0 0;
+  line-height: 1.5;
 }
 
 .pagina-calendario .navegacion-calendario {

@@ -13,6 +13,7 @@ y su revisión.
 | Entender entidades, reglas y límites disponibles            | [Dominio](Dominio.md)                                       |
 | Seguir casos de uso, puertos, adaptadores y transacciones   | [Arquitectura](Arquitectura.md)                             |
 | Mantener vistas, CSS, foco y adaptación móvil               | [Estilo](Estilo.md)                                         |
+| Consultar recorridos y correcciones de usabilidad           | [Revisión UX/UI](Revision-ux-ui.md)                         |
 | Comprender JSON V3, migraciones, restauración y reinicio    | [Respaldo](Respaldo.md)                                     |
 | Instalar, comprobar y publicar mediante GitHub Pages        | [Despliegue](Despliegue.md)                                 |
 | Editar las fuentes de los tres diagramas                    | [Diagramas](Diagramas.md)                                   |

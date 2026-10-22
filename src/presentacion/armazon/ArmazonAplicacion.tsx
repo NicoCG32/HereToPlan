@@ -21,6 +21,7 @@ export function ArmazonAplicacion({ children }: ArmazonAplicacionProps) {
   const [navegacionAbierta, setNavegacionAbierta] = useState(false);
   const botonAbrirRef = useRef<HTMLButtonElement>(null);
   const botonCerrarRef = useRef<HTMLButtonElement>(null);
+  const navegacionRef = useRef<HTMLElement>(null);
   const contenidoRef = useRef<HTMLElement>(null);
 
   const cerrarNavegacion = useCallback(() => {
@@ -36,9 +37,35 @@ export function ArmazonAplicacion({ children }: ArmazonAplicacionProps) {
 
     const cerrarConEscape = (evento: KeyboardEvent) => {
       if (evento.key === "Escape") cerrarNavegacion();
+      if (evento.key !== "Tab") return;
+      const controles = navegacionRef.current?.querySelectorAll<HTMLElement>(
+        "button:not([disabled]), a[href]",
+      );
+      if (!controles?.length) return;
+      const primero = controles[0]!;
+      const ultimo = controles[controles.length - 1]!;
+      if (evento.shiftKey && document.activeElement === primero) {
+        evento.preventDefault();
+        ultimo.focus();
+      } else if (!evento.shiftKey && document.activeElement === ultimo) {
+        evento.preventDefault();
+        primero.focus();
+      }
     };
+    const consultaMovil = globalThis.matchMedia?.("(max-width: 64rem)");
+    const cerrarAlAmpliar = () => {
+      if (consultaMovil?.matches !== false) return;
+      setNavegacionAbierta(false);
+      requestAnimationFrame(() =>
+        navegacionRef.current
+          ?.querySelector<HTMLElement>('a[aria-current="page"]')
+          ?.focus({ preventScroll: true }),
+      );
+    };
+    consultaMovil?.addEventListener("change", cerrarAlAmpliar);
     globalThis.addEventListener("keydown", cerrarConEscape);
     return () => {
+      consultaMovil?.removeEventListener("change", cerrarAlAmpliar);
       globalThis.removeEventListener("keydown", cerrarConEscape);
       document.body.style.overflow = desbordamientoAnterior;
     };
@@ -81,10 +108,14 @@ export function ArmazonAplicacion({ children }: ArmazonAplicacionProps) {
       )}
 
       <aside
+        ref={navegacionRef}
         id="navegacion-lateral"
         {...atributosDestinoTutorial("NAVEGACION")}
         className="navegacion-lateral"
         data-abierta={navegacionAbierta ? "true" : "false"}
+        role={navegacionAbierta ? "dialog" : undefined}
+        aria-modal={navegacionAbierta ? true : undefined}
+        aria-label={navegacionAbierta ? "Navegación principal" : undefined}
       >
         <button
           ref={botonCerrarRef}
@@ -97,7 +128,7 @@ export function ArmazonAplicacion({ children }: ArmazonAplicacionProps) {
         <NavegacionPrincipal onNavegar={cerrarNavegacion} />
       </aside>
 
-      <div className="region-aplicacion">
+      <div className="region-aplicacion" inert={navegacionAbierta}>
         <HudAplicacion />
         <main
           ref={contenidoRef}

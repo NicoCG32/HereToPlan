@@ -165,11 +165,13 @@
     width: min(17rem, calc(100% - 3.5rem));
     height: 100dvh;
     transform: translateX(-110%);
+    visibility: hidden;
     transition: transform var(--duracion-media) var(--curva-principal);
   }
 
   .navegacion-lateral[data-abierta="true"] {
     transform: translateX(0);
+    visibility: visible;
   }
 
   .boton-cerrar-navegacion {

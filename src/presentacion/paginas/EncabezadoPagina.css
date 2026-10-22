@@ -8,7 +8,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: clamp(1rem, 2vw, 1.6rem);
+  padding: clamp(0.85rem, 1.5vw, 1.15rem);
   border: 1px solid var(--borde-metalico);
   background: linear-gradient(
     120deg,
@@ -45,7 +45,7 @@
 
 .encabezado-pagina h1 {
   margin: 0.1rem 0 0.35rem;
-  font-size: clamp(1.85rem, 3.2vw, 3rem);
+  font-size: clamp(1.75rem, 2.8vw, 2.4rem);
   letter-spacing: -0.04em;
 }
 

@@ -157,3 +157,17 @@ El [informe integral](Auditoria-integral.md) conserva trazabilidad y resultados.
 Los resultados a 320–430 px y la aceptación visual de #107, #82 y #83 se
 conservan como evidencia de esos incrementos. No equivalen a una nueva revisión
 con lector de pantalla, Brave o zoom real para esta auditoría documental.
+
+## 10. Revisión de UX/UI — 2026-10-21
+
+[#121](https://github.com/NicoCG32/HereToPlan/issues/121) corrige enlaces móviles
+ocultos que seguían recibiendo Tab, escape del foco desde el menú abierto,
+pérdida de foco al cerrar editores en Crear y reapertura de una asignación al
+recargar. Se verifica el recorrido móvil en ambos sentidos, Escape, retorno y
+ampliación a escritorio; las pruebas protegen también el fondo inerte y su
+liberación. Se conserva la paleta y el contorno de foco documentados.
+
+La [revisión UX/UI](Revision-ux-ui.md) detalla escenarios, criterios WCAG y
+heurísticos, severidad, correcciones y alcance real. La matriz de reflujo cubre
+las cuatro rutas a 320, 360, 390, 430 y 1280 px, con datos de prueba. Esta
+evidencia no se presenta como la comprobación adicional de #109.

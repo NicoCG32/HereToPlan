@@ -1,4 +1,5 @@
 import { PantallaAgendaBorrador } from "../agendas/PantallaAgendaBorrador";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { ServiciosAgendaBorrador } from "../agendas/ServiciosAgendaBorrador";
 import { PantallaCalendario } from "../calendario/PantallaCalendario";
@@ -19,15 +20,30 @@ export function PaginaCalendario({
   revisionDatos,
   onDatosCambiados,
 }: PaginaCalendarioProps) {
-  const [parametros] = useSearchParams();
-  const actividadInicialId = parametros.get("actividad") ?? undefined;
-  const fechaInicial = parametros.get("fecha") ?? undefined;
+  const [parametros, setParametros] = useSearchParams();
+  const [{ actividadInicialId, fechaInicial }] = useState(() => ({
+    actividadInicialId: parametros.get("actividad") ?? undefined,
+    fechaInicial: parametros.get("fecha") ?? undefined,
+  }));
+
+  useEffect(() => {
+    if (!parametros.has("actividad") && !parametros.has("fecha")) return;
+    setParametros(
+      (actuales) => {
+        const siguientes = new URLSearchParams(actuales);
+        siguientes.delete("actividad");
+        siguientes.delete("fecha");
+        return siguientes;
+      },
+      { replace: true },
+    );
+  }, [parametros, setParametros]);
   return (
     <div className="pagina-aplicacion pagina-calendario">
       <EncabezadoPagina
         sobrelinea="Trabajo diario"
         titulo="Calendario"
-        descripcion="Consulta todo lo planificado, organiza una fecha concreta y ejecuta compromisos sin perder su contexto ni su historial."
+        descripcion="Planifica tus actividades, revisa tus compromisos y consulta lo que viene."
       />
       {serviciosAgenda ? (
         <PantallaAgendaBorrador servicios={serviciosAgenda} />
