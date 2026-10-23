@@ -1,5 +1,23 @@
 # Revisión de dependencias
 
+## Resolución transitiva — 2026-10-23, #125
+
+La instalación limpia de [#124](https://github.com/NicoCG32/HereToPlan/issues/124)
+señala Zod 4.4.3 con severidad alta. El
+[aviso actualizado](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5) informa
+consumo de recursos sin límite y corrección desde 4.6.6. El lockfile resuelve
+4.6.7 dentro del rango `^3.25.0 || ^4.0.0` de eslint-plugin-react-hooks y
+zod-validation-error. Es una dependencia de desarrollo de las herramientas de
+lint; no forma parte de la aplicación construida.
+
+Sólo cambian versión, URL e integridad de Zod en el lockfile: no se añade una
+dependencia directa, override ni actualización mayor. Node, Vite, React y Vitest
+mantienen sus versiones. La auditoría completa pasa de un paquete señalado a
+cero; producción permanece en cero y el árbol instalado es válido. El
+[inventario fechado](dependencias-auditoria-2026-10-23.json) conserva el corte.
+Los resultados anteriores se mantienen como evidencia histórica, sin atribuir
+una explotación del sitio estático a este aviso de herramientas.
+
 ## Actualización compatible — 2026-10-21, #122
 
 La instalación limpia para la [revisión UX/UI](Revision-ux-ui.md) detectó cuatro
