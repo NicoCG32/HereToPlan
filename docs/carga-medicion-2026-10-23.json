@@ -1,0 +1,167 @@
+{
+  "fecha": "2026-10-23",
+  "base": "3bbc2fb71cca9a3baba314bdf198684c3536fcd6",
+  "tarea": 124,
+  "herramientas": {
+    "node": "v24.18.0",
+    "zlib": "1.3.1-e00f703",
+    "gzip": "nivel 9, cada archivo por separado",
+    "brotli": "calidad 11, cada archivo por separado"
+  },
+  "vite": "8.1.6",
+  "react": "19.2.7",
+  "metodo": "Suma de cada archivo inicial y sus imports estáticos según manifest de Vite; las entradas dinámicas no se cuentan hasta usarlas. Compresión de laboratorio, no transferencia HTTP observada.",
+  "umbralAhorroGzipPorcentaje": 15,
+  "baseMedida": {
+    "javascriptInicial": {
+      "archivos": ["assets/index-BT27deW9.js"],
+      "bytes": 606367,
+      "gzip": 155338,
+      "brotli": 128922
+    },
+    "cssInicial": {
+      "archivos": ["assets/index-CoHZ69ZV.css"],
+      "bytes": 100454,
+      "gzip": 15993,
+      "brotli": 13681
+    },
+    "rutasDiferidas": [],
+    "archivosIniciales": [
+      {
+        "archivo": "assets/index-BT27deW9.js",
+        "bytes": 606367,
+        "gzip": 155338,
+        "brotli": 128922,
+        "sha256": "27905c00a6bbc553bba3bbb575bbc42005bcb6c86409919b7ae3b463c3ea7930"
+      },
+      {
+        "archivo": "assets/index-CoHZ69ZV.css",
+        "bytes": 100454,
+        "gzip": 15993,
+        "brotli": 13681,
+        "sha256": "8b1ad1f843d0b7ce6330c77d54187d058d64f4ad32d03fda71c7b1aa1e3ba65a"
+      }
+    ],
+    "logo": [
+      {
+        "archivo": "assets/HereToPlanLogo-BJYrkRZs.svg",
+        "bytes": 530970,
+        "gzip": 182827,
+        "brotli": 116745,
+        "sha256": "b40647a02c00ecbf61c1be6f57048e2ed5ca0f5960a51b3276d9be8d6fbacdfe"
+      }
+    ]
+  },
+  "variante": {
+    "javascriptInicial": {
+      "archivos": [
+        "assets/index-CWapqhNF.js",
+        "assets/EncabezadoPagina-DtkBY2s3.js",
+        "assets/etiquetasActividad-CuOwLHvc.js",
+        "assets/chunk-OB3PAWPO-BSiAq0RJ.js",
+        "assets/aplicacion-lVl21kK4.js"
+      ],
+      "bytes": 558444,
+      "gzip": 151288,
+      "brotli": 131025
+    },
+    "cssInicial": {
+      "archivos": [
+        "assets/index-FyTQVOK5.css",
+        "assets/EncabezadoPagina-DWpmaTVz.css"
+      ],
+      "bytes": 96579,
+      "gzip": 15798,
+      "brotli": 13506
+    },
+    "rutasDiferidas": [
+      {
+        "origen": "src/presentacion/paginas/PaginaCrear.tsx",
+        "archivo": "assets/PaginaCrear-Bu1XbILB.js",
+        "imports": [
+          "_EncabezadoPagina-DtkBY2s3.js",
+          "_etiquetasActividad-CuOwLHvc.js",
+          "_chunk-OB3PAWPO-BSiAq0RJ.js"
+        ]
+      },
+      {
+        "origen": "src/presentacion/paginas/PaginaPuntos.tsx",
+        "archivo": "assets/PaginaPuntos-CLmB34WB.js",
+        "imports": ["_EncabezadoPagina-DtkBY2s3.js"]
+      },
+      {
+        "origen": "src/presentacion/paginas/PaginaRespaldo.tsx",
+        "archivo": "assets/PaginaRespaldo-BWqIyejp.js",
+        "imports": [
+          "_EncabezadoPagina-DtkBY2s3.js",
+          "_chunk-OB3PAWPO-BSiAq0RJ.js",
+          "_aplicacion-lVl21kK4.js"
+        ]
+      }
+    ],
+    "archivosIniciales": [
+      {
+        "archivo": "assets/EncabezadoPagina-DWpmaTVz.css",
+        "bytes": 1215,
+        "gzip": 577,
+        "brotli": 483,
+        "sha256": "588f24297f01b2bd8e6815e7102a3343f6163156927016eecb0bbdcfee30d6a3"
+      },
+      {
+        "archivo": "assets/EncabezadoPagina-DtkBY2s3.js",
+        "bytes": 9980,
+        "gzip": 3923,
+        "brotli": 3495,
+        "sha256": "4773a6b975fba6e85185c29a782d35680a5f6683e4d062a7f69db10bfdd80a95"
+      },
+      {
+        "archivo": "assets/aplicacion-lVl21kK4.js",
+        "bytes": 104414,
+        "gzip": 25490,
+        "brotli": 21871,
+        "sha256": "4b3c4665d7da249fa80014ecd981f4740b8b3acc7e5abc3ec62b6a13f52dd60f"
+      },
+      {
+        "archivo": "assets/chunk-OB3PAWPO-BSiAq0RJ.js",
+        "bytes": 43714,
+        "gzip": 15478,
+        "brotli": 13865,
+        "sha256": "b37e0c6210926f24bc56ad05034999aef16239360152f5327f532d83887989ee"
+      },
+      {
+        "archivo": "assets/etiquetasActividad-CuOwLHvc.js",
+        "bytes": 33756,
+        "gzip": 9054,
+        "brotli": 7999,
+        "sha256": "118f54bf8c6ef77863da0f7097ae6442601a0165d22f10079594e04413a861f9"
+      },
+      {
+        "archivo": "assets/index-CWapqhNF.js",
+        "bytes": 366580,
+        "gzip": 97343,
+        "brotli": 83795,
+        "sha256": "b74e791d5c2072f5774fd618b6f6520f8f7b96b0a3fef462a91cd41be8725e07"
+      },
+      {
+        "archivo": "assets/index-FyTQVOK5.css",
+        "bytes": 95364,
+        "gzip": 15221,
+        "brotli": 13023,
+        "sha256": "7c7276582a617d4c163ab4dd717111ccc13f2133d4053e8872fbc274c55c2c3a"
+      }
+    ],
+    "logo": [
+      {
+        "archivo": "assets/HereToPlanLogo-BJYrkRZs.svg",
+        "bytes": 530970,
+        "gzip": 182827,
+        "brotli": 116745,
+        "sha256": "b40647a02c00ecbf61c1be6f57048e2ed5ca0f5960a51b3276d9be8d6fbacdfe"
+      }
+    ]
+  },
+  "ahorroGzipPorcentaje": 2.6072,
+  "incrementoBrotliPorcentaje": 1.6312,
+  "decision": "Conservar importaciones estáticas; la variante no alcanza el umbral de adopción.",
+  "parche": "experimentos/carga-rutas.patch"
+}

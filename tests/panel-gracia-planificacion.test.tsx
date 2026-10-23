@@ -1,10 +1,13 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { CortePlanificacionDto } from "../src/aplicacion";
 import { PanelGraciaPlanificacion } from "../src/presentacion/calendario/PanelGraciaPlanificacion";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe("panel de gracia de la planificación", () => {
   it("ofrece reintentar cuando falla la sincronización", async () => {
@@ -32,6 +35,7 @@ describe("panel de gracia de la planificación", () => {
   });
 
   it("actualiza la cuenta visual sin convertir cada segundo en un anuncio accesible", async () => {
+    vi.useFakeTimers();
     const ejecutar = vi
       .fn()
       .mockResolvedValueOnce([crearCorteActivo(60_000)])
@@ -45,17 +49,24 @@ describe("panel de gracia de la planificación", () => {
       />,
     );
 
-    const primeraCuenta = await screen.findByText("01:00");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    const primeraCuenta = screen.getByText("01:00");
     expect(primeraCuenta.getAttribute("aria-hidden")).toBe("true");
     expect(screen.queryByRole("status")).toBeNull();
     expect(screen.getByText(/Confirmación automática:/)).toBeTruthy();
 
-    await screen.findByText("00:59");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(screen.getByText("00:59").getAttribute("aria-hidden")).toBe("true");
     expect(screen.queryByRole("status")).toBeNull();
     expect(ejecutar.mock.calls.length).toBeGreaterThanOrEqual(2);
   });
 
   it("anuncia una sola vez la transición materializada y detiene la cuenta", async () => {
+    vi.useFakeTimers();
     const ejecutar = vi
       .fn()
       .mockResolvedValueOnce([crearCorteActivo(1_000)])
@@ -69,15 +80,25 @@ describe("panel de gracia de la planificación", () => {
       />,
     );
 
-    await screen.findByText("00:01");
-    const anuncio = await screen.findByRole("status");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(screen.getByText("00:01")).toBeTruthy();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    const anuncio = screen.getByRole("status");
     expect(anuncio.textContent).toBe(
       "Preparar informe quedó confirmado automáticamente.",
     );
     expect(
       screen.queryByRole("heading", { name: "Período de gracia" }),
     ).toBeNull();
-    await waitFor(() => expect(ejecutar).toHaveBeenCalledTimes(2));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(50);
+    });
+    expect(ejecutar).toHaveBeenCalledTimes(2);
+    expect(screen.getAllByRole("status")).toHaveLength(1);
   });
 
   it("exige una decisión explícita, permite cancelar y devuelve el corte corregido", async () => {

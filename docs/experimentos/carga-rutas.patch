@@ -1,0 +1,98 @@
+diff --git a/src/app/App.tsx b/src/app/App.tsx
+index 1621237..dcf9ef9 100644
+--- a/src/app/App.tsx
++++ b/src/app/App.tsx
+@@ -0,0 +1 @@
++import { lazy, Suspense } from "react";
+@@ -9,3 +9,0 @@ import { PaginaCalendario } from "../presentacion/paginas/PaginaCalendario";
+-import { PaginaCrear } from "../presentacion/paginas/PaginaCrear";
+-import { PaginaPuntos } from "../presentacion/paginas/PaginaPuntos";
+-import { PaginaRespaldo } from "../presentacion/paginas/PaginaRespaldo";
+@@ -32,0 +31,16 @@ import {
++const PaginaCrear = lazy(() =>
++  import("../presentacion/paginas/PaginaCrear").then((modulo) => ({
++    default: modulo.PaginaCrear,
++  })),
++);
++const PaginaPuntos = lazy(() =>
++  import("../presentacion/paginas/PaginaPuntos").then((modulo) => ({
++    default: modulo.PaginaPuntos,
++  })),
++);
++const PaginaRespaldo = lazy(() =>
++  import("../presentacion/paginas/PaginaRespaldo").then((modulo) => ({
++    default: modulo.PaginaRespaldo,
++  })),
++);
++
+@@ -142,34 +156,36 @@ function ContenidoAplicacion({
+-      <RutasAplicacion
+-        calendario={
+-          <PaginaCalendario
+-            {...(servicios ? { serviciosAgenda: servicios } : {})}
+-            {...(calendario ? { serviciosCalendario: calendario } : {})}
+-            revisionDatos={revisionDatos}
+-            onDatosCambiados={actualizarDatos}
+-          />
+-        }
+-        crear={
+-          <PaginaCrear
+-            {...(calendario ? { serviciosCalendario: calendario } : {})}
+-            {...(servicios ? { serviciosAgenda: servicios } : {})}
+-          />
+-        }
+-        puntos={
+-          <PaginaPuntos
+-            {...(puntos ? { serviciosPuntos: puntos } : {})}
+-            {...(recompensas ? { serviciosRecompensas: recompensas } : {})}
+-            {...(inventarioRecompensas
+-              ? { serviciosInventarioRecompensas: inventarioRecompensas }
+-              : {})}
+-            {...(recuperacion ? { serviciosRecuperacion: recuperacion } : {})}
+-            revisionDatos={revisionDatos}
+-            onDatosCambiados={actualizarDatos}
+-          />
+-        }
+-        respaldo={
+-          <PaginaRespaldo
+-            {...(respaldo ? { serviciosRespaldo: respaldo } : {})}
+-            onDatosRestaurados={restaurarDatos}
+-          />
+-        }
+-      />
++      <Suspense fallback={<p role="status">Cargando página…</p>}>
++        <RutasAplicacion
++          calendario={
++            <PaginaCalendario
++              {...(servicios ? { serviciosAgenda: servicios } : {})}
++              {...(calendario ? { serviciosCalendario: calendario } : {})}
++              revisionDatos={revisionDatos}
++              onDatosCambiados={actualizarDatos}
++            />
++          }
++          crear={
++            <PaginaCrear
++              {...(calendario ? { serviciosCalendario: calendario } : {})}
++              {...(servicios ? { serviciosAgenda: servicios } : {})}
++            />
++          }
++          puntos={
++            <PaginaPuntos
++              {...(puntos ? { serviciosPuntos: puntos } : {})}
++              {...(recompensas ? { serviciosRecompensas: recompensas } : {})}
++              {...(inventarioRecompensas
++                ? { serviciosInventarioRecompensas: inventarioRecompensas }
++                : {})}
++              {...(recuperacion ? { serviciosRecuperacion: recuperacion } : {})}
++              revisionDatos={revisionDatos}
++              onDatosCambiados={actualizarDatos}
++            />
++          }
++          respaldo={
++            <PaginaRespaldo
++              {...(respaldo ? { serviciosRespaldo: respaldo } : {})}
++              onDatosRestaurados={restaurarDatos}
++            />
++          }
++        />
++      </Suspense>
