@@ -1,5 +1,10 @@
 <div align="center">
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="branding/heretoplan-banner-oscuro.webp" />
+  <img src="branding/heretoplan-banner-claro.webp" alt="Identidad visual de HereToPlan" width="100%" />
+</picture>
+
 # HereToPlan
 
 **Planificar con intención. Cumplir, ajustar y aprender.**
@@ -54,6 +59,8 @@ Abre la dirección que indica Vite bajo `/HereToPlan/`. Para trasladar los datos
 | General    | [Problema, cliente y solución](docs/00-problematica-cliente-y-valor.md) · [Motivación](docs/16-motivacion-y-contexto.md)                                                         |
 | Técnica    | [Arquitectura y diagramas](docs/01-arquitectura-general.md) · [Dominio y datos](docs/04-base-de-datos.md)                                                                        |
 | Desarrollo | [Etapas y metodología](docs/17-desarrollo-y-metodologia.md) · [Proyección](docs/15-escalabilidad-y-nuevos-mercados.md) · [Costos CLP/USD](docs/18-analisis-economico-clp-usd.md) |
+
+[Identidad visual](branding/README.md): logos, banners y variantes de aplicación.
 
 ## Licencia y créditos
 
