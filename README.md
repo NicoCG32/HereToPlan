@@ -1,8 +1,34 @@
+<div align="center">
+
 # HereToPlan
+
+**Planificar con intención. Cumplir, ajustar y aprender.**
+
+[![Estado: En validación](https://img.shields.io/badge/Estado-En%20validaci%C3%B3n-5265B1?style=flat-square&labelColor=263244)](#sobre-el-proyecto) [![Plataforma: Web / Local](https://img.shields.io/badge/Plataforma-Web%20%2F%20Local-386B8F?style=flat-square&labelColor=263244)](#usar-o-descargar) [![Licencia: PolyForm NC](https://img.shields.io/badge/Licencia-PolyForm%20NC-596273?style=flat-square&labelColor=263244)](LICENSING.md)
+
+[![React 19](https://img.shields.io/badge/React%2019-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](#tecnologías) [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=FFFFFF)](#tecnologías) [![Vite 8](https://img.shields.io/badge/Vite%208-646CFF?style=for-the-badge&logo=vite&logoColor=FFFFFF)](#tecnologías) [![IndexedDB](https://img.shields.io/badge/IndexedDB-6D28D9?style=for-the-badge)](#tecnologías)
+
+[Abrir aplicación](https://nicocg32.github.io/HereToPlan/) · [Documentación](docs/README.md) · [Arquitectura](docs/01-arquitectura-general.md) · [Inicio rápido](#ejecutar-desde-el-código)
+
+</div>
+
+---
+
+## Sobre el proyecto
 
 Planificador personal que separa actividades y compromisos del calendario. Permite planificar, ejecutar, revisar consecuencias y respaldar la información, con puntos y herramientas de recuperación.
 
 **Estado:** Fase de validación publicada en GitHub Pages. Los datos permanecen en este navegador y dispositivo, sin cuenta ni sincronización. No hay instaladores publicados en GitHub Releases.
+
+## Tecnologías
+
+| Área             | Tecnologías y responsabilidad                                      |
+| ---------------- | ------------------------------------------------------------------ |
+| **Interfaz**     | React 19 y TypeScript 6; compilación con Vite 8.                   |
+| **Datos**        | IndexedDB local, respaldos JSON y navegación con rutas hash.       |
+| **Verificación** | Vitest, Testing Library y comprobaciones de accesibilidad con axe. |
+
+> **Enfoque técnico:** Arquitectura hexagonal: dominio, casos de uso y adaptadores del navegador.
 
 ## Usar o descargar
 
