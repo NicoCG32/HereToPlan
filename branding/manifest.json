@@ -1,40 +1,379 @@
 {
   "schemaVersion": 1,
   "project": "HereToPlan",
-  "bannerLight": "heretoplan-banner-claro.webp",
-  "bannerDark": "heretoplan-banner-oscuro.webp",
+  "bannerLight": "banners/heretoplan-banner-claro.webp",
+  "bannerDark": "banners/heretoplan-banner-oscuro.webp",
   "resources": [
-    "favicon.ico",
-    "heretoplan-banner-claro.png",
-    "heretoplan-banner-claro.svg",
-    "heretoplan-banner-claro.webp",
-    "heretoplan-banner-oscuro.png",
-    "heretoplan-banner-oscuro.svg",
-    "heretoplan-banner-oscuro.webp",
-    "heretoplan-icono-180.png",
-    "heretoplan-icono-192.png",
-    "heretoplan-icono-32.png",
-    "heretoplan-icono-48.png",
-    "heretoplan-icono-512.png",
-    "heretoplan-icono-64.png",
-    "heretoplan-icono-96.png",
-    "heretoplan-icono-app-claro.png",
-    "heretoplan-icono-app-claro.svg",
-    "heretoplan-icono-app-claro.webp",
-    "heretoplan-icono-app-oscuro.png",
-    "heretoplan-icono-app-oscuro.svg",
-    "heretoplan-icono-app-oscuro.webp",
-    "heretoplan-isotipo-transparente.png",
-    "heretoplan-isotipo-transparente.svg",
-    "heretoplan-isotipo-transparente.webp",
-    "heretoplan-logo-horizontal-dark.png",
-    "heretoplan-logo-horizontal-dark.svg",
-    "heretoplan-logo-horizontal-dark.webp",
-    "heretoplan-logo-horizontal.png",
-    "heretoplan-logo-horizontal.svg",
-    "heretoplan-logo-horizontal.webp",
-    "heretoplan-open-graph-1200x630.jpg",
-    "heretoplan-portada-vertical.png",
-    "heretoplan-portada-vertical.svg"
-  ]
+    "banners/heretoplan-banner-claro.png",
+    "banners/heretoplan-banner-claro.svg",
+    "banners/heretoplan-banner-claro.webp",
+    "banners/heretoplan-banner-oscuro.png",
+    "banners/heretoplan-banner-oscuro.svg",
+    "banners/heretoplan-banner-oscuro.webp",
+    "iconos/favicon.ico",
+    "iconos/heretoplan-icono-180.png",
+    "iconos/heretoplan-icono-192.png",
+    "iconos/heretoplan-icono-32.png",
+    "iconos/heretoplan-icono-48.png",
+    "iconos/heretoplan-icono-512.png",
+    "iconos/heretoplan-icono-64.png",
+    "iconos/heretoplan-icono-96.png",
+    "iconos/heretoplan-icono-app-claro.png",
+    "iconos/heretoplan-icono-app-claro.svg",
+    "iconos/heretoplan-icono-app-claro.webp",
+    "iconos/heretoplan-icono-app-oscuro.png",
+    "iconos/heretoplan-icono-app-oscuro.svg",
+    "iconos/heretoplan-icono-app-oscuro.webp",
+    "logos/heretoplan-isotipo-transparente.png",
+    "logos/heretoplan-isotipo-transparente.svg",
+    "logos/heretoplan-isotipo-transparente.webp",
+    "logos/heretoplan-logo-horizontal-dark.png",
+    "logos/heretoplan-logo-horizontal-dark.svg",
+    "logos/heretoplan-logo-horizontal-dark.webp",
+    "logos/heretoplan-logo-horizontal.png",
+    "logos/heretoplan-logo-horizontal.svg",
+    "logos/heretoplan-logo-horizontal.webp",
+    "portadas/heretoplan-open-graph-1200x630.jpg",
+    "portadas/heretoplan-portada-vertical.png",
+    "portadas/heretoplan-portada-vertical.svg"
+  ],
+  "groups": {
+    "logos": [
+      "logos/heretoplan-isotipo-transparente.png",
+      "logos/heretoplan-isotipo-transparente.svg",
+      "logos/heretoplan-isotipo-transparente.webp",
+      "logos/heretoplan-logo-horizontal-dark.png",
+      "logos/heretoplan-logo-horizontal-dark.svg",
+      "logos/heretoplan-logo-horizontal-dark.webp",
+      "logos/heretoplan-logo-horizontal.png",
+      "logos/heretoplan-logo-horizontal.svg",
+      "logos/heretoplan-logo-horizontal.webp"
+    ],
+    "iconos": [
+      "iconos/favicon.ico",
+      "iconos/heretoplan-icono-180.png",
+      "iconos/heretoplan-icono-192.png",
+      "iconos/heretoplan-icono-32.png",
+      "iconos/heretoplan-icono-48.png",
+      "iconos/heretoplan-icono-512.png",
+      "iconos/heretoplan-icono-64.png",
+      "iconos/heretoplan-icono-96.png",
+      "iconos/heretoplan-icono-app-claro.png",
+      "iconos/heretoplan-icono-app-claro.svg",
+      "iconos/heretoplan-icono-app-claro.webp",
+      "iconos/heretoplan-icono-app-oscuro.png",
+      "iconos/heretoplan-icono-app-oscuro.svg",
+      "iconos/heretoplan-icono-app-oscuro.webp"
+    ],
+    "banners": [
+      "banners/heretoplan-banner-claro.png",
+      "banners/heretoplan-banner-claro.svg",
+      "banners/heretoplan-banner-claro.webp",
+      "banners/heretoplan-banner-oscuro.png",
+      "banners/heretoplan-banner-oscuro.svg",
+      "banners/heretoplan-banner-oscuro.webp"
+    ],
+    "portadas": [
+      "portadas/heretoplan-open-graph-1200x630.jpg",
+      "portadas/heretoplan-portada-vertical.png",
+      "portadas/heretoplan-portada-vertical.svg"
+    ],
+    "referencias": []
+  },
+  "metadata": {
+    "banners/heretoplan-banner-claro.png": {
+      "format": "png",
+      "bytes": 596708,
+      "sha256": "44b1a3d116496f3f2cee22d69bc39b7f6f60fdd41b8fda6a25904879253cdd41",
+      "width": 3000,
+      "height": 1212,
+      "scalable": false,
+      "alpha": true
+    },
+    "banners/heretoplan-banner-claro.svg": {
+      "format": "svg",
+      "bytes": 29759,
+      "sha256": "517b6c0b90af826035d5b1ed26958c0138729437a156a8b303e82da13d750d8a",
+      "width": 2400.0,
+      "height": 970.0,
+      "viewBox": [0.0, 0.0, 2400.0, 970.0],
+      "scalable": true
+    },
+    "banners/heretoplan-banner-claro.webp": {
+      "format": "webp",
+      "bytes": 101960,
+      "sha256": "58271adc067b6bbfeed652064e8f6d8ce08e1a93146fbe87f0f54d8d13181299",
+      "width": 3000,
+      "height": 1212,
+      "scalable": false,
+      "alpha": true
+    },
+    "banners/heretoplan-banner-oscuro.png": {
+      "format": "png",
+      "bytes": 535705,
+      "sha256": "1a4e0985bd9c418d051faf2a81667c9d001c35541e1fd284f023bb97d7130a80",
+      "width": 3000,
+      "height": 1212,
+      "scalable": false,
+      "alpha": true
+    },
+    "banners/heretoplan-banner-oscuro.svg": {
+      "format": "svg",
+      "bytes": 29763,
+      "sha256": "3a3e10041234a346319ed2b0f7799760809903b4b354ac16bad6e97f3a901cc9",
+      "width": 2400.0,
+      "height": 970.0,
+      "viewBox": [0.0, 0.0, 2400.0, 970.0],
+      "scalable": true
+    },
+    "banners/heretoplan-banner-oscuro.webp": {
+      "format": "webp",
+      "bytes": 104878,
+      "sha256": "027a5c2bf8cc350b5f03a715d714d33db037cf3f99ed27cf64340b6e11646f72",
+      "width": 3000,
+      "height": 1212,
+      "scalable": false,
+      "alpha": true
+    },
+    "iconos/favicon.ico": {
+      "format": "ico",
+      "bytes": 14426,
+      "sha256": "8de5a2bf9f15b993ccb1b136b11d0a92bee868819be46a5b5195367e777afd9d",
+      "width": 64,
+      "height": 64,
+      "scalable": false,
+      "alpha": true,
+      "frames": [
+        [16, 16],
+        [32, 32],
+        [48, 48],
+        [64, 64]
+      ]
+    },
+    "iconos/heretoplan-icono-180.png": {
+      "format": "png",
+      "bytes": 21976,
+      "sha256": "798811e7dbbccb640cccfa8624f2f64ac7ba8830356652f361ab4c1fad349d1a",
+      "width": 180,
+      "height": 180,
+      "scalable": false,
+      "alpha": true
+    },
+    "iconos/heretoplan-icono-192.png": {
+      "format": "png",
+      "bytes": 23622,
+      "sha256": "d44bdb5139762b042f1fee9ed681fb2d7e75f042ac4ca27fd4a610b74d0c5aa8",
+      "width": 192,
+      "height": 192,
+      "scalable": false,
+      "alpha": true
+    },
+    "iconos/heretoplan-icono-32.png": {
+      "format": "png",
+      "bytes": 2450,
+      "sha256": "d7c8a7a9bc7e3c69c44a67647d25fcec76741c1574882a372fe2116c85c57767",
+      "width": 32,
+      "height": 32,
+      "scalable": false,
+      "alpha": true
+    },
+    "iconos/heretoplan-icono-48.png": {
+      "format": "png",
+      "bytes": 4347,
+      "sha256": "1e260380d3a3ea07db7ead68145b52b9ffeff7c2ab548ebbfcc2b4779e14bf06",
+      "width": 48,
+      "height": 48,
+      "scalable": false,
+      "alpha": true
+    },
+    "iconos/heretoplan-icono-512.png": {
+      "format": "png",
+      "bytes": 66628,
+      "sha256": "a330570f6c338a9a34accbd606948b61ed13058f017a8fadf0c1e5a284a01c9a",
+      "width": 512,
+      "height": 512,
+      "scalable": false,
+      "alpha": true
+    },
+    "iconos/heretoplan-icono-64.png": {
+      "format": "png",
+      "bytes": 6573,
+      "sha256": "54df0f2a1981188cb25219585e0c9c650622d1148e85a5ac0806ada65e58cfa0",
+      "width": 64,
+      "height": 64,
+      "scalable": false,
+      "alpha": true
+    },
+    "iconos/heretoplan-icono-96.png": {
+      "format": "png",
+      "bytes": 10853,
+      "sha256": "ed59f18bf17ee1650f5b3651812e4332fa927ae4cd77d68b80a80cbeb20ee590",
+      "width": 96,
+      "height": 96,
+      "scalable": false,
+      "alpha": true
+    },
+    "iconos/heretoplan-icono-app-claro.png": {
+      "format": "png",
+      "bytes": 124416,
+      "sha256": "6c1ba411be685f6e2e9d5a665bbc822c86ada20d102a901bc76fafda14c9aecf",
+      "width": 1024,
+      "height": 1024,
+      "scalable": false,
+      "alpha": true
+    },
+    "iconos/heretoplan-icono-app-claro.svg": {
+      "format": "svg",
+      "bytes": 4833,
+      "sha256": "2a342a41dd8b0fbad4ee3c962b9788b8b36b7af4554a3108e6e7447b533df335",
+      "width": 1024.0,
+      "height": 1024.0,
+      "viewBox": [0.0, 0.0, 1024.0, 1024.0],
+      "scalable": true
+    },
+    "iconos/heretoplan-icono-app-claro.webp": {
+      "format": "webp",
+      "bytes": 33158,
+      "sha256": "0aa5e949988e38ccf30659afc4e0bf3e0389b5cca4be06fb3c9d7c685673ab3a",
+      "width": 1024,
+      "height": 1024,
+      "scalable": false,
+      "alpha": true
+    },
+    "iconos/heretoplan-icono-app-oscuro.png": {
+      "format": "png",
+      "bytes": 132336,
+      "sha256": "ab95011502ccbb234879622f7b8bf4c805d04ba2c9bfd29d9d7c8f4709913db5",
+      "width": 1024,
+      "height": 1024,
+      "scalable": false,
+      "alpha": true
+    },
+    "iconos/heretoplan-icono-app-oscuro.svg": {
+      "format": "svg",
+      "bytes": 4891,
+      "sha256": "1ba0f4ab1bf9963499c5bddab22aa596a92044ffe3a029b50d9331da88b49438",
+      "width": 1024.0,
+      "height": 1024.0,
+      "viewBox": [0.0, 0.0, 1024.0, 1024.0],
+      "scalable": true
+    },
+    "iconos/heretoplan-icono-app-oscuro.webp": {
+      "format": "webp",
+      "bytes": 35198,
+      "sha256": "3199c06cb5327194e08676736c1f9a2d389023a299a50ef51fe1427c8a876019",
+      "width": 1024,
+      "height": 1024,
+      "scalable": false,
+      "alpha": true
+    },
+    "logos/heretoplan-isotipo-transparente.png": {
+      "format": "png",
+      "bytes": 146543,
+      "sha256": "d88af254e49e7ce10860a6be9294d5e8e5d6b67bf0c685b109114ab7d0c6ba59",
+      "width": 1200,
+      "height": 1200,
+      "scalable": false,
+      "alpha": true
+    },
+    "logos/heretoplan-isotipo-transparente.svg": {
+      "format": "svg",
+      "bytes": 4765,
+      "sha256": "56cb4463fc5600288f3eb699b7b2c39e0ce2a6387ea7e7448d0ba7182b193110",
+      "width": 1200.0,
+      "height": 1200.0,
+      "viewBox": [0.0, 0.0, 1200.0, 1200.0],
+      "scalable": true
+    },
+    "logos/heretoplan-isotipo-transparente.webp": {
+      "format": "webp",
+      "bytes": 44512,
+      "sha256": "f00a9aaa1bb4b98466aacd6cc431286537fb8582cf93366db6bfd1a4ad0e9cb9",
+      "width": 1200,
+      "height": 1200,
+      "scalable": false,
+      "alpha": true
+    },
+    "logos/heretoplan-logo-horizontal-dark.png": {
+      "format": "png",
+      "bytes": 66214,
+      "sha256": "2a9803876c066831092ebd3ea57d9a4747a404b551c4cf64d4c8253b369beec7",
+      "width": 1650,
+      "height": 420,
+      "scalable": false,
+      "alpha": true
+    },
+    "logos/heretoplan-logo-horizontal-dark.svg": {
+      "format": "svg",
+      "bytes": 11462,
+      "sha256": "a15a9c1662148d1c61da52be7c96aa7ac8dfcc0fb2657c26d19c51c19b3f899e",
+      "width": 1650.0,
+      "height": 420.0,
+      "viewBox": [0.0, 0.0, 1650.0, 420.0],
+      "scalable": true
+    },
+    "logos/heretoplan-logo-horizontal-dark.webp": {
+      "format": "webp",
+      "bytes": 28732,
+      "sha256": "d5faa7f08358f2d11e33f9f97875bddadd096125e7c46e73e801ccd07763ffd9",
+      "width": 1650,
+      "height": 420,
+      "scalable": false,
+      "alpha": true
+    },
+    "logos/heretoplan-logo-horizontal.png": {
+      "format": "png",
+      "bytes": 66864,
+      "sha256": "be66002044d1dc2d521a3eb22f3ef0520dbbf2dc31ffd44b306f59d9fba94bde",
+      "width": 1650,
+      "height": 420,
+      "scalable": false,
+      "alpha": true
+    },
+    "logos/heretoplan-logo-horizontal.svg": {
+      "format": "svg",
+      "bytes": 11458,
+      "sha256": "9a2bd163c47d6881306985cf0c5b4ff5298f5a54cb0843bf7d992ed7f23b2a40",
+      "width": 1650.0,
+      "height": 420.0,
+      "viewBox": [0.0, 0.0, 1650.0, 420.0],
+      "scalable": true
+    },
+    "logos/heretoplan-logo-horizontal.webp": {
+      "format": "webp",
+      "bytes": 30116,
+      "sha256": "affead53dff85c237598101a50cf0795b168983a8a1835f3b4bd58e047fa3b76",
+      "width": 1650,
+      "height": 420,
+      "scalable": false,
+      "alpha": true
+    },
+    "portadas/heretoplan-open-graph-1200x630.jpg": {
+      "format": "jpg",
+      "bytes": 109478,
+      "sha256": "c42ddf976dc98314d2d251fdfe14b946a5959001e4280cb2ac44d6e7c1a0b7bc",
+      "width": 1200,
+      "height": 630,
+      "scalable": false,
+      "alpha": false
+    },
+    "portadas/heretoplan-portada-vertical.png": {
+      "format": "png",
+      "bytes": 189383,
+      "sha256": "2d8251a31c0df1dda386da8c61e1d638caf5bfb8d0a77ee44fdff28f0fe74029",
+      "width": 1200,
+      "height": 1300,
+      "scalable": false,
+      "alpha": true
+    },
+    "portadas/heretoplan-portada-vertical.svg": {
+      "format": "svg",
+      "bytes": 11682,
+      "sha256": "05e61bac2b84fb3a2286a78c1dcd56cdca168be3fb6b7c84d4db7dfd829e8e6b",
+      "width": 1200.0,
+      "height": 1300.0,
+      "viewBox": [0.0, 0.0, 1200.0, 1300.0],
+      "scalable": true
+    }
+  }
 }

@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="branding/heretoplan-banner-oscuro.webp" />
-  <img src="branding/heretoplan-banner-claro.webp" alt="Identidad visual de HereToPlan" width="100%" />
+  <source media="(prefers-color-scheme: dark)" srcset="branding/banners/heretoplan-banner-oscuro.webp" />
+  <img src="branding/banners/heretoplan-banner-claro.webp" alt="Identidad visual de HereToPlan" width="100%" />
 </picture>
 
 # HereToPlan

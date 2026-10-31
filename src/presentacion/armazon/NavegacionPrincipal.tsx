@@ -21,7 +21,7 @@ export function NavegacionPrincipal({ onNavegar }: NavegacionPrincipalProps) {
   return (
     <nav className="navegacion-principal" aria-label="Navegación principal">
       <div className="marca-navegacion">
-        <img src={logoHereToPlan} width="1536" height="384" alt="HereToPlan" />
+        <img src={logoHereToPlan} width="1270" height="402" alt="HereToPlan" />
       </div>
       <p className="etiqueta-navegacion">Planificación consciente</p>
       <div className="opciones-navegacion">
