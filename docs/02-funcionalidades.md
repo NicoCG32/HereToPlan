@@ -1,14 +1,8 @@
 # 02 — Catálogo funcional
 
-<!-- DOCUMENTACION:nivel-2026-10-29:BEGIN -->
+## Capacidades y límites
 
-**Nivel:** general / técnica.
-
-## Catálogo de capacidades — revisión 2026-10-29
-
-Revisión documental: 2026-10-29. Base `5b406d21faed` en `main`; 4 entradas de cambios locales conservadas al iniciar la revisión. La inspección de fuentes no sustituye pruebas de ejecución.
-
-**Estado y alcance:** Aplicación web de validación con persistencia local y publicación Pages documentada. La fase de producción separada depende de evidencia de uso, no de completar funcionalidades o documentos.
+**Disponibilidad:** Aplicación web de planificación en fase de validación, con datos locales y respaldo. La evolución hacia producción depende de la evaluación de uso sostenido.
 
 | Módulo        | Capacidad / propósito             | Caso borde o límite                         |
 | ------------- | --------------------------------- | ------------------------------------------- |
@@ -18,9 +12,8 @@ Revisión documental: 2026-10-29. Base `5b406d21faed` en `main`; 4 entradas de c
 | Economía      | Puntos, inventario y recuperación | Saldo, doble aplicación y política estricta |
 | Portabilidad  | Respaldo y restauración           | Compatibilidad e importación inválida       |
 
-Los módulos propuestos se identifican expresamente. La disponibilidad en una plataforma no se extrapola a las demás; la aceptación debe cubrir los casos borde del recorrido principal.
+Las capacidades previstas se distinguen de las disponibles. Consulta los requisitos de la plataforma que vas a utilizar.
 
-## Fuentes de implementación y contratos
+## Código y documentación relacionada
 
 [README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
-<!-- DOCUMENTACION:nivel-2026-10-29:END -->

@@ -1,14 +1,6 @@
 # 01 — Arquitectura por niveles
 
-<!-- DOCUMENTACION:nivel-2026-10-29:BEGIN -->
-
-**Nivel:** técnica.
-
 ## Arquitectura del sistema por niveles
-
-Revisión documental: 2026-10-29. Base `5b406d21faed` en `main`; 4 entradas de cambios locales conservadas al iniciar la revisión. La inspección de fuentes no sustituye pruebas de ejecución.
-
-**Estado y alcance:** Aplicación web de validación con persistencia local y publicación Pages documentada. La fase de producción separada depende de evidencia de uso, no de completar funcionalidades o documentos.
 
 ### Nivel 1 — Contexto y fronteras de ejecución
 
@@ -38,7 +30,7 @@ Actividades reutilizables se asignan a bloques por fecha y contextos opcionales.
 | Presentación    | Calendario, editores y feedback    | [src/presentacion](../src/presentacion)       |
 | Composición     | Conecta adaptadores y navegación   | [src/app](../src/app)                         |
 
-Las flechas del contexto representan comunicación/flujo. No se deduce una dependencia de código o transacción compartida sólo porque dos componentes intercambien datos.
+Las flechas muestran el flujo de información entre componentes. Las transacciones y dependencias de código se detallan en los contratos de cada módulo.
 
 ### Nivel 3 — Dominio, contratos y adaptadores
 
@@ -48,7 +40,7 @@ IndexedDB detrás de puertos y transacciones de los adaptadores. Persistencia lo
 - Confirmar conserva instantáneas; no autoriza borrar libremente compromisos históricos.
 - Completar y acreditar deben ser atómicos e idempotentes.
 
-Consultar [04-base-de-datos.md](04-base-de-datos.md) para entidades, cardinalidades y representación; [05-motor-o-nucleo-de-negocio.md](05-motor-o-nucleo-de-negocio.md) para invariantes. En un prototipo, las piezas rotuladas propuestas no son clases implementadas.
+Consultar [04-base-de-datos.md](04-base-de-datos.md) para entidades, cardinalidades y representación; [05-motor-o-nucleo-de-negocio.md](05-motor-o-nucleo-de-negocio.md) para invariantes. Las piezas marcadas como propuestas pertenecen al diseño del prototipo.
 
 ### Nivel 4 — Despliegue y distribución
 
@@ -62,7 +54,7 @@ Consultar [04-base-de-datos.md](04-base-de-datos.md) para entidades, cardinalida
                                                           [Usuario y sus datos]
 ```
 
-La persistencia y los servicios del contexto anterior conservan sus propias fronteras. Distribuir un APK no incorpora automáticamente el servidor, una PWA no acredita un instalador y el firmware requiere dispositivo. El capítulo [09-instalacion-y-despliegue.md](09-instalacion-y-despliegue.md) concreta la puesta en marcha.
+La web estática se publica con el prefijo configurado para Pages. Los datos pertenecen al navegador y al origen: exporta un respaldo antes de cambiar de dominio, navegador o dispositivo. El capítulo [09-instalacion-y-despliegue.md](09-instalacion-y-despliegue.md) concreta la puesta en marcha.
 
 ### Calidad y límites arquitectónicos
 
@@ -71,9 +63,8 @@ La persistencia y los servicios del contexto anterior conservan sus propias fron
 - Cronómetro/economía que incentiven comportamiento no deseado
 - Confundir validación técnica con utilidad personal
 
-No se publican garantías de latencia, disponibilidad o escala sin medición para la revisión/entorno concretos. Un diagrama explica responsabilidades; no es una certificación de ejecución o seguridad del servicio desplegado.
+El rendimiento y la capacidad dependen del entorno de ejecución. Consulta las guías de instalación y las limitaciones de cada plataforma antes de desplegar.
 
-## Fuentes de implementación y contratos
+## Código y documentación relacionada
 
 [README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
-<!-- DOCUMENTACION:nivel-2026-10-29:END -->

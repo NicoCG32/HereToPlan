@@ -1,14 +1,6 @@
 # 04 — Dominio, entidades y persistencia
 
-<!-- DOCUMENTACION:nivel-2026-10-29:BEGIN -->
-
-**Nivel:** técnica.
-
 ## Dominio y representación de datos
-
-Revisión documental: 2026-10-29. Base `5b406d21faed` en `main`; 4 entradas de cambios locales conservadas al iniciar la revisión. La inspección de fuentes no sustituye pruebas de ejecución.
-
-**Estado y alcance:** Aplicación web de validación con persistencia local y publicación Pages documentada. La fase de producción separada depende de evidencia de uso, no de completar funcionalidades o documentos.
 
 ### Entidades y conceptos
 
@@ -43,7 +35,7 @@ Revisión documental: 2026-10-29. Base `5b406d21faed` en `main`; 4 entradas de c
 
 IndexedDB detrás de puertos y transacciones de los adaptadores. Persistencia local por origen/navegador; no hay cuenta cloud implícita. Migraciones y respaldo son contratos versionados. Referencia conceptual no equivale a FK SQL; las invariantes se comprueban por aplicación y transacción.
 
-La cardinalidad de dominio no prueba que exista una FK física. Revisar adaptadores/migraciones para identificar qué se valida por esquema, por caso de uso o por lectura. No usar «RLS» para almacenamiento que no dispone de esas políticas.
+El diagrama describe relaciones del dominio. Los adaptadores y el esquema de persistencia determinan cómo se mantienen esas relaciones al guardar o recuperar datos.
 
 ### Consistencia y evolución
 
@@ -54,9 +46,8 @@ La cardinalidad de dominio no prueba que exista una FK física. Revisar adaptado
 - Adquirir una recompensa y aplicarla son operaciones diferentes; la vista previa no escribe.
 - Restaurar/reiniciar requiere conocer impacto y preservar los contratos documentados.
 
-Cambios de formato, referencias y restauración se comprueban con datos de prueba. El respaldo/artefacto debe indicar versión; la documentación no autoriza transformar datos reales ni rebajar un esquema para abrirlo con un ejecutable anterior.
+Antes de cambiar el formato de almacenamiento, comprueba la migración y la restauración con una copia de prueba. Conserva la versión del respaldo y verifica su compatibilidad con la aplicación que lo abrirá.
 
-## Fuentes de implementación y contratos
+## Código y documentación relacionada
 
 [README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
-<!-- DOCUMENTACION:nivel-2026-10-29:END -->
