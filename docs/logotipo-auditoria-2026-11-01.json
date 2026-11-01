@@ -1,0 +1,185 @@
+{
+  "herramientas": {
+    "node": "v24.18.0",
+    "svgo": "4.1.0",
+    "resvg": "2.6.2",
+    "gzip": 9,
+    "brotli": 11
+  },
+  "base": {
+    "bytes": 11460,
+    "gzip": 3095,
+    "brotli": 2681,
+    "sha256": "cbc68bde9e9fedfdb1c0de8cab4875d4d8295c1172fcb203bbb2a19b02ec05d3",
+    "viewBox": "10 18 1270 402"
+  },
+  "variantes": [
+    {
+      "nombre": "conservador",
+      "bytes": 13273,
+      "gzip": 3103,
+      "brotli": 2695,
+      "sha256": "30f3e3b39314933d049a3b7af490d29b98ba67a884b9bf4f15af42470f6ee492",
+      "viewBox": "10 18 1270 402",
+      "ahorroGzip": -0.25848142164781596,
+      "comparaciones": [
+        {
+          "ancho": 180,
+          "alto": 57,
+          "pixeles": 10260,
+          "distintos": 0,
+          "diferenciaMaxima": 0
+        },
+        {
+          "ancho": 232,
+          "alto": 73,
+          "pixeles": 16936,
+          "distintos": 0,
+          "diferenciaMaxima": 0
+        },
+        {
+          "ancho": 1270,
+          "alto": 402,
+          "pixeles": 510540,
+          "distintos": 0,
+          "diferenciaMaxima": 0
+        },
+        {
+          "ancho": 2540,
+          "alto": 804,
+          "pixeles": 2042160,
+          "distintos": 0,
+          "diferenciaMaxima": 0
+        }
+      ],
+      "configuracion": {
+        "multipass": true,
+        "floatPrecision": 6,
+        "plugins": [
+          {
+            "name": "preset-default",
+            "params": {
+              "overrides": {
+                "cleanupIds": false,
+                "removeDesc": false,
+                "convertPathData": false,
+                "convertTransform": false,
+                "convertShapeToPath": false,
+                "mergePaths": false,
+                "convertEllipseToCircle": false,
+                "removeHiddenElems": false
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "nombre": "compacto",
+      "bytes": 11361,
+      "gzip": 3251,
+      "brotli": 3020,
+      "sha256": "715664cac5b0aca27e83b96eed5c0e9e3aee4051b27cb62848753047fc5836aa",
+      "viewBox": "10 18 1270 402",
+      "ahorroGzip": -5.040387722132467,
+      "comparaciones": [
+        {
+          "ancho": 180,
+          "alto": 57,
+          "pixeles": 10260,
+          "distintos": 0,
+          "diferenciaMaxima": 0
+        },
+        {
+          "ancho": 232,
+          "alto": 73,
+          "pixeles": 16936,
+          "distintos": 0,
+          "diferenciaMaxima": 0
+        },
+        {
+          "ancho": 1270,
+          "alto": 402,
+          "pixeles": 510540,
+          "distintos": 1,
+          "diferenciaMaxima": 16
+        },
+        {
+          "ancho": 2540,
+          "alto": 804,
+          "pixeles": 2042160,
+          "distintos": 8,
+          "diferenciaMaxima": 16
+        }
+      ],
+      "configuracion": {
+        "multipass": true,
+        "floatPrecision": 6,
+        "plugins": [
+          {
+            "name": "preset-default",
+            "params": {
+              "overrides": {
+                "cleanupIds": false,
+                "removeDesc": false,
+                "convertPathData": {
+                  "floatPrecision": 6,
+                  "transformPrecision": 8
+                },
+                "convertTransform": {
+                  "floatPrecision": 6,
+                  "transformPrecision": 8
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "fecha": "2026-11-01",
+  "tarea": 126,
+  "commitBase": "19d5f92e5801b8c2d7d3c94e5e4fe7573277d729",
+  "decision": "Conservar el SVG vigente; ninguna variante mejora el tamaño comprimido.",
+  "navegadorAplicacion": [
+    {
+      "alt": "HereToPlan",
+      "ancho": 1280,
+      "complete": true,
+      "height": 56,
+      "naturalHeight": 402,
+      "naturalWidth": 1270,
+      "objectFit": "contain",
+      "overflow": false,
+      "src": "/HereToPlan/assets/HereToPlanLogo-CrKihdDx.svg",
+      "vista": "escritorio",
+      "width": 230
+    },
+    {
+      "alt": "HereToPlan",
+      "ancho": 390,
+      "complete": true,
+      "height": 56,
+      "naturalHeight": 402,
+      "naturalWidth": 1270,
+      "objectFit": "contain",
+      "overflow": false,
+      "vista": "movil-menu-abierto",
+      "width": 215,
+      "x": 21
+    },
+    {
+      "alt": "HereToPlan",
+      "ancho": 320,
+      "complete": true,
+      "height": 56,
+      "naturalHeight": 402,
+      "naturalWidth": 1270,
+      "objectFit": "contain",
+      "overflow": false,
+      "vista": "movil-320-menu-abierto",
+      "width": 192,
+      "x": 21
+    }
+  ]
+}
