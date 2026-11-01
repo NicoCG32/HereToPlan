@@ -1,5 +1,16 @@
 # Peso de carga y decisión de composición
 
+## Corte del logotipo — 2026-11-01
+
+La identidad integrada después del experimento de octubre ya sustituyó el SVG
+de 530 970 bytes. El recurso vigente pesa 11 460 bytes, 3095 con gzip nivel 9
+y 2681 con Brotli calidad 11. #126 compara dos variantes de SVGO y conserva
+el SVG actual: ninguna reduce el tamaño comprimido. La
+[revisión del logotipo](Revision-logotipo.md) registra la base, la atribución
+de la reducción anterior, las configuraciones y la comprobación visual.
+
+## Corte de carga — 2026-10-23
+
 El experimento de [#124](https://github.com/NicoCG32/HereToPlan/issues/124),
 del 2026-10-23, conserva las importaciones estáticas de las cuatro páginas.
 Cargar Crear, Puntos y Respaldo bajo demanda reduce sólo un 2,61 % el JavaScript

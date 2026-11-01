@@ -45,3 +45,11 @@ import logoHereToPlan from "../recursos/logos/HereToPlanLogo.svg";
 ```
 
 Los archivos que deban conservar un nombre público exacto, como `favicon.ico`, `robots.txt` o un manifiesto web, pertenecen excepcionalmente a `public/`.
+
+## Logotipo vigente
+
+`logos/HereToPlanLogo.svg` conserva la identidad integrada y el viewBox
+`10 18 1270 402`. La navegación lo presenta con proporciones 1270/402,
+`object-fit: contain` y nombre accesible HereToPlan. La
+[revisión del 2026-11-01](../../../docs/Revision-logotipo.md) compara variantes
+de optimización y conserva este archivo por su menor peso comprimido.
