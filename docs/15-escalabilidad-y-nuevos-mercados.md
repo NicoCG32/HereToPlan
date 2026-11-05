@@ -1,45 +1,20 @@
-# 15 — Justificación, proyección y escalabilidad
+# 15 · Validar antes de ampliar
 
-## Justificación y proyección
+Quiero comprobar si HereToPlan ayuda a organizar el día antes de ampliar sus funciones. La siguiente etapa consiste en observar el uso: ¿se entiende el compromiso?, ¿hay espacio para ajustar el plan?, ¿los puntos y la recuperación ayudan o generan presión?
 
-### Ajuste entre problema y solución
+## Prioridades actuales
 
-| Necesidad                 | Razón del diseño                                                              |
-| ------------------------- | ----------------------------------------------------------------------------- |
-| Compromisos involuntarios | La revisión y la gracia hacen explícita la confirmación                       |
-| Edición sin trazabilidad  | Cortes/resoluciones conservan la decisión y su resultado                      |
-| Flexibilidad arbitraria   | Políticas y recompensas declaran qué ajustes son posibles antes del resultado |
+- Mantener la ejecución local sin cuenta ni servidor de datos propio mientras se evalúa el recorrido.
+- Probar la continuidad de datos —recargas, cambios de sesión, exportación y restauración— con escenarios concretos.
+- Registrar ambigüedades de lenguaje y situaciones que inducen a confirmar más trabajo del razonable.
+- Observar la fórmula de puntos y sus incentivos, sin equiparar más tiempo o puntos con mejor resultado.
 
-Porcentaje de trabajo cerrado explícitamente, realismo de carga y valoración cualitativa de utilidad; no maximizar puntos o tiempo cronometrado.
+## Posibles evoluciones
 
-### Qué se puede abstraer y qué no
+El acceso desde varios dispositivos, las plantillas reutilizables, la composición completa de proyectos y la integración con calendarios son posibles ampliaciones. Su prioridad dependerá de las necesidades observadas y del esfuerzo de implementación.
 
-Las entidades, reglas y fronteras de [04-base-de-datos.md](04-base-de-datos.md) permiten evaluar reutilización. Cambiar un nombre o una categoría no prueba compatibilidad con otro sector: datos, permisos, reglas, operación y costos deben validarse de nuevo.
+La separación entre actividades y bloques confirmados podría servir para estudio, entrenamiento o proyectos creativos. Cada contexto requiere evaluar sus propias reglas de compromiso, descanso y recuperación.
 
-### Posibles líneas de evolución
+## Criterio para continuar
 
-- Planificación académica individual
-- Entrenamiento personal
-- Proyectos creativos personales
-- Seguimiento de hábitos con compromisos explícitos
-
-### Límites y trade-offs
-
-- Pérdida de almacenamiento local sin respaldo
-- Reglas comprensibles sólo para su autor
-- Cronómetro/economía que incentiven comportamiento no deseado
-- Confundir validación técnica con utilidad personal
-
-### Prioridad de inversión
-
-| Prioridad   | Iniciativa                                                                  | Impacto a comprobar                                                                                                                              | Criterio económico                                                    |
-| ----------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| Alta        | Ciclo de validación de uso, recuperación y corrección de fricción observada | Porcentaje de trabajo cerrado explícitamente, realismo de carga y valoración cualitativa de utilidad; no maximizar puntos o tiempo cronometrado. | Rango de esfuerzo y costo en capítulo 18; no presupuesto comprometido |
-| Media       | Reproducción, soporte y recuperación por plataforma                         | Menos fallos de entrega y pérdida de datos                                                                                                       | Costo recurrente separado de implementación                           |
-| Estratégica | Validar una extensión/forma de sostenimiento                                | Uso y aceptación fuera del contexto inicial                                                                                                      | Investigar costos, demanda y condiciones antes de monetizar           |
-
-Las cifras CLP/USD, supuestos, sensibilidad y retorno se presentan en [18-analisis-economico-clp-usd.md](18-analisis-economico-clp-usd.md); no son una valoración comercial del repositorio.
-
-## Código y documentación relacionada
-
-[README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
+El [protocolo](Protocolo-uso-sostenido.md) y la [validación de producto](Validacion-producto.md) permiten reunir observaciones para decidir **continuar, iterar o detener** y priorizar los cambios necesarios.

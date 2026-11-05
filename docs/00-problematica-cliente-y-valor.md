@@ -1,39 +1,29 @@
-# 00 — Problemática, cliente y solución
+# 00 · Problema y propuesta
 
-## Síntesis general — HereToPlan
+Empecé HereToPlan durante unas vacaciones, después de mis estudios. Quería organizar mi propio calendario y probar la idea de un **sistema de hábitos y recompensas** que me incentivara a cumplir metas. De esa necesidad personal salió una pregunta que fue creciendo con el proyecto: **¿cómo distingo una actividad que quiero hacer, el tiempo que planeo dedicarle y lo que finalmente hice?**
 
-**Disponibilidad:** Aplicación web de planificación en fase de validación, con datos locales y respaldo. La evolución hacia producción depende de la evaluación de uso sostenido.
+Una lista de tareas responde qué queda por hacer. Un calendario responde cuándo podría hacerlo. HereToPlan intenta conectar ambos mundos y dar un lugar propio a la revisión: lo que se programó, lo que se confirmó, lo que se cumplió y lo que se ajustó con reglas conocidas.
 
-### Problemática
+## La dificultad que quiero abordar
 
-Planificar sólo como una lista editable facilita comprometer tiempo sin revisar capacidad o borrar lo incumplido sin aprendizaje. Se busca equilibrar responsabilidad, flexibilidad y trazabilidad sin convertir la organización en un sistema punitivo.
+Un plan cambia. A veces se sobrestima el tiempo disponible, una tarea no se puede completar o resulta necesario descansar. Si todo puede borrarse silenciosamente, es difícil distinguir un cambio razonable de una promesa de tiempo que nunca se revisó. Si todo es rígido, la herramienta puede resultar punitiva. El proyecto explora ese equilibrio, no lo da por resuelto.
 
-### Cliente, usuario y beneficiario
+## A quién puede servir
 
-| Perfil            | Contexto                                         | Necesidad                                                |
-| ----------------- | ------------------------------------------------ | -------------------------------------------------------- |
-| Usuario inicial   | Persona que valida su planificación              | Comprometer tiempo de forma realista                     |
-| Usuario potencial | Estudiante o trabajador que organiza actividades | Distinguir actividad, bloque, seguimiento y flexibilidad |
-| Comprador         | Sin modelo de venta definido                     | La utilidad se valida antes de cuentas/producción        |
+El proyecto nació **para mi propio uso**. Una persona que estudia, trabaja o combina distintos tipos de actividades podría encontrar útil separar catálogo, programación y compromiso. Esa utilidad sigue pendiente de evaluación con otras personas.
 
-### Solución y límites
+## La propuesta concreta
 
-Actividades reutilizables se asignan a bloques por fecha y contextos opcionales. Los cortes de planificación confirman compromisos; resolución, puntos, inventario y recuperación preservan historia con reglas explícitas. IndexedDB conserva estado y el respaldo permite trasladarlo.
+1. **Definir:** guardar una actividad independiente de la fecha en que se hará.
+2. **Planificar:** asociarla a bloques de tiempo en un contexto o en `Libre`.
+3. **Confirmar:** revisar un corte de planificación y conservar lo que se comprometió.
+4. **Resolver:** registrar cumplimiento o incumplimiento y, cuando corresponda, aplicar puntos y políticas.
+5. **Aprender:** consultar lo registrado, evaluar las reglas y conservar una copia de los datos.
 
-### Por qué corresponde al problema
+La aplicación ofrece estos mecanismos en una web estática con persistencia en el navegador y respaldos exportables.
 
-| Fricción / necesidad      | Mecanismo de la solución                                                      |
-| ------------------------- | ----------------------------------------------------------------------------- |
-| Compromisos involuntarios | La revisión y la gracia hacen explícita la confirmación                       |
-| Edición sin trazabilidad  | Cortes/resoluciones conservan la decisión y su resultado                      |
-| Flexibilidad arbitraria   | Políticas y recompensas declaran qué ajustes son posibles antes del resultado |
+## Cómo evaluaría el valor
 
-### Validación pendiente o continua
+Buscaría señales de que la planificación es más realista y comprensible, que los compromisos se cierran explícitamente y que las políticas no generan presión innecesaria. El [protocolo de uso sostenido](Protocolo-uso-sostenido.md) y la [validación de producto](Validacion-producto.md) explican cómo registrar observaciones sin presentarlas como resultados ya obtenidos.
 
-Porcentaje de trabajo cerrado explícitamente, realismo de carga y valoración cualitativa de utilidad; no maximizar puntos o tiempo cronometrado.
-
-Puedes conocer el origen del proyecto en [16-motivacion-y-contexto.md](16-motivacion-y-contexto.md); el análisis de costos y proyección se separa en [18-analisis-economico-clp-usd.md](18-analisis-economico-clp-usd.md).
-
-## Código y documentación relacionada
-
-[README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
+[Motivación](16-motivacion-y-contexto.md) · [Funcionalidades](02-funcionalidades.md)

@@ -1,12 +1,11 @@
-# Validación de producto: preparación de la ronda
+# Validación de producto
 
-Preparación del **2026-10-11**, [#117](https://github.com/NicoCG32/HereToPlan/issues/117).
-Contexto elegido: trabajo, estudio y vida personal. Base disponible:
-`25788966a0dc0b2ae7c22c6b024d268188a36fcf`. Las fechas de ejecución y los
-resultados se registrarán cuando existan sesiones reales.
+Este instrumento permite evaluar HereToPlan en trabajo, estudio y vida personal.
+Cada ronda identifica la versión utilizada y registra sus fechas, sesiones y
+resultados en una bitácora privada.
 
-El [protocolo](Protocolo-uso-sostenido.md) conserva la ronda histórica y sus
-criterios. Este instrumento permite preparar otra ronda, registrar el uso y
+El [protocolo](Protocolo-uso-sostenido.md) define la duración y los criterios
+de cierre de una ronda. Este instrumento reúne los escenarios y permite
 redactar una conclusión por hipótesis. La
 [guía de uso](Guia-uso.md) explica los controles disponibles; recurrir a ella
 durante una sesión cuenta como asistencia y debe anotarse.

@@ -1,19 +1,25 @@
-# 02 — Catálogo funcional
+# 02 · Funcionalidades y límites
 
-## Capacidades y límites
+HereToPlan es un **prototipo web funcional en fase de validación**. Estas son sus capacidades y sus límites actuales.
 
-**Disponibilidad:** Aplicación web de planificación en fase de validación, con datos locales y respaldo. La evolución hacia producción depende de la evaluación de uso sostenido.
+| Área                  | Implementado en el repositorio                                                            | Límite que importa                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Catálogo              | Crear y editar actividades, clasificación por tarea/proyecto/hábito; modos de seguimiento | La composición y administración de subtareas/proyectos no constituyen un editor completo |
+| Calendario            | Bloques con fecha, minutos y contexto `Libre` o nombrado                                  | Los bloques se guardan en el navegador                                                   |
+| Compromisos           | Revisión, cortes de planificación, gracia y resolución explícita                          | Un bloque confirmado no se edita libremente; hay políticas y transiciones                |
+| Cronómetro            | Inicio, pausa, reanudación y cierre de sesiones vinculadas                                | Medir tiempo no resuelve automáticamente el compromiso                                   |
+| Puntos                | Movimientos, saldo derivado y acreditación al completar                                   | La fórmula no mide calidad del trabajo                                                   |
+| Recompensas           | Adquisición, inventario y aplicación de `Día libre`                                       | El catálogo actual ofrece `Día libre`                                                    |
+| Recuperación          | Banco de minutos y reducciones bajo reglas y topes                                        | Las reducciones respetan la política de cada bloque                                      |
+| Respaldo              | Exportar JSON V3; analizar y restaurar V1–V3; reinicio selectivo                          | La restauración sustituye datos; el respaldo no está cifrado automáticamente             |
+| Accesibilidad y ayuda | Rutas, navegación por teclado, estados de error y tutorial contextual                     | Quedan comprobaciones con lector de pantalla y zoom real                                 |
 
-| Módulo        | Capacidad / propósito             | Caso borde o límite                         |
-| ------------- | --------------------------------- | ------------------------------------------- |
-| Planificación | Calendario y actividades          | Sin programación o contexto Libre           |
-| Confirmación  | Cortes y gracia                   | Instantáneas y concurrencia                 |
-| Seguimiento   | Resolución y cronómetro           | Recarga y cierre explícito                  |
-| Economía      | Puntos, inventario y recuperación | Saldo, doble aplicación y política estricta |
-| Portabilidad  | Respaldo y restauración           | Compatibilidad e importación inválida       |
+## No implementado como producto actual
 
-Las capacidades previstas se distinguen de las disponibles. Consulta los requisitos de la plataforma que vas a utilizar.
+Quedan fuera del alcance actual las cuentas, la sincronización entre dispositivos, las conexiones con calendarios externos y la colaboración. También están pendientes las plantillas de agenda, la recurrencia abierta y el editor completo de composición de tareas.
 
-## Código y documentación relacionada
+## Estado de producto
 
-[README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
+La documentación y las pruebas describen un sistema capaz de conservar estados, reintentos y respaldos en condiciones controladas. Queda por observar el **uso sostenido**: claridad de términos, carga realista, utilidad y posible presión de las reglas. Consulta [Validación de producto](Validacion-producto.md) para hipótesis y sesiones planificadas.
+
+[Recorrido](03-flujo-de-usuario.md) · [Reglas](05-motor-o-nucleo-de-negocio.md) · [Manual](Guia-uso.md)

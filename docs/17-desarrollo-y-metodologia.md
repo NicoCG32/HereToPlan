@@ -1,34 +1,38 @@
-# 17 — Etapas y metodología
+# 17 · Desarrollo y metodología
 
-## Desarrollo del proyecto: etapas y método
+## Organización del desarrollo
 
-Validación por hipótesis y uso sostenido antes de una implementación de producción separada. Desarrollo en incrementos con contratos de dominio, pruebas de atomicidad/persistencia, accesibilidad y CI. La validación incluye la experiencia de uso, además de la corrección técnica.
+El sistema separa reglas de dominio, casos de uso, puertos, adaptadores e interfaz. El desarrollo se centra en un ciclo completo de planificación: preparar, confirmar, ejecutar y revisar. Las pruebas comprueban que se conserva la historia, los reintentos no duplican operaciones y los datos pueden recuperarse.
 
-### Etapas del proyecto
+GitHub Actions ejecuta las comprobaciones de formato, análisis estático, accesibilidad, cobertura y compilación. Los cambios que superan estos controles en `main` se publican en GitHub Pages.
 
-| Etapa                   | Alcance                                              |
-| ----------------------- | ---------------------------------------------------- |
-| Diseño                  | Reglas y contratos del sistema                       |
-| Validación implementada | Calendario, persistencia, economía y respaldo        |
-| Uso sostenido           | Registrar utilidad, presión y errores de comprensión |
-| Puerta de decisión      | Continuar, iterar o detener antes de producción      |
+## Ciclo de trabajo
 
-### Ciclo de trabajo y decisión
+```mermaid
+flowchart LR
+  N[Necesidad o fricción observada] --> R[Regla de dominio / criterio]
+  R --> C[Caso de uso y contrato de puerto]
+  C --> A[Adaptador y UI]
+  A --> T[Pruebas de dominio e integración]
+  T --> V[Revisión de accesibilidad y recorrido]
+  V --> D[Documentación / decisión siguiente]
+  D -. retroalimentación .-> N
+```
 
-1. Caracterizar una necesidad y un escenario observable.
-2. Revisar contratos, datos y límites del alcance.
-3. Implementar o prototipar el incremento apropiado a la etapa.
-4. Verificar el recorrido y sus errores relevantes; conservar resultados negativos.
-5. Decidir continuar, corregir, limitar o posponer y actualizar documentación vigente.
+## Cómo comprobar un cambio
 
-Los siguientes incrementos siguen este ciclo y se contrastan con los criterios de aceptación del producto.
+1. Leer el contrato afectado: [Dominio](Dominio.md), [Arquitectura](Arquitectura.md) o [Respaldo](Respaldo.md).
+2. Modificar la capa que corresponde sin saltarse puertos por comodidad.
+3. Añadir pruebas para caso válido, error relevante y reintento / reapertura si cambia persistencia.
+4. Ejecutar formato, lint, pruebas, build y verificaciones de Pages/documentación.
+5. Actualizar el diagrama correspondiente y registrar las limitaciones que permanezcan.
 
-### Cierre y continuidad
+## Validación técnica y de producto
 
-La entrega identifica fuente, plataforma, límites, guía de uso e integridad de datos/artefactos. Los informes académicos conservan su etapa, cuando aplican, y no se actualizan como si fueran manuales del runtime. La proyección no obliga a desarrollar extensiones antes de validar el núcleo.
+Las pruebas automatizadas comprueban reglas y recorridos concretos. La revisión con axe detecta problemas de accesibilidad en los estados evaluados y el workflow comprueba la publicación. El [protocolo de uso sostenido](Protocolo-uso-sostenido.md) complementa esos controles con observaciones sobre claridad y utilidad cotidiana.
 
-Justificación y prioridades: [15-escalabilidad-y-nuevos-mercados.md](15-escalabilidad-y-nuevos-mercados.md). Esfuerzo futuro y operación: [18-analisis-economico-clp-usd.md](18-analisis-economico-clp-usd.md).
+## Prioridad actual
 
-## Código y documentación relacionada
+La fase actual se centra en comprender las reglas durante el uso cotidiano y comprobar la continuidad de los datos. Las observaciones guiarán los ajustes antes de ampliar el catálogo de recompensas o incorporar sincronización.
 
-[README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
+[Origen y motivación](16-motivacion-y-contexto.md) · [Próximos pasos](15-escalabilidad-y-nuevos-mercados.md) · [Validación de uso](Validacion-producto.md)

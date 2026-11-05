@@ -18,10 +18,10 @@ Para un uso comercial fuera de los permisos expresos de LICENSE, solicita una au
 
 La solicitud debe indicar producto/servicio, finalidad, partes reutilizadas, distribución prevista y escala aproximada. El acuerdo puede establecer un pago único, regalías u otra modalidad, su moneda (CLP o USD), período, atribución, actualizaciones y soporte. Ninguna modalidad se considera aceptada hasta que ambas partes la acuerden. Contacto: [perfil de NicoCG32](https://github.com/NicoCG32); no publiques información confidencial en issues.
 
-Que una aplicación sea gratuita para su usuario no determina por sí solo que la reutilización del código sea no comercial. La licencia del código tampoco concede acceso a los servicios alojados, a sus cuentas o a datos reales. El uso de una instancia o APK distribuida por el titular sigue las condiciones que este haya autorizado para esa entrega.
+Que una aplicación sea gratuita para su usuario no determina por sí solo que la reutilización del código sea no comercial. La licencia del código tampoco concede acceso a los servicios alojados, a sus cuentas o a datos reales. El uso de una versión distribuida por el titular sigue las condiciones que este haya autorizado para esa entrega.
 
 ## Versiones y distribución
 
-Consulta los avisos incluidos en cada APK o ZIP para conocer las condiciones de esa versión. Al redistribuir el proyecto, incluye LICENSE, NOTICE y este documento, además de los avisos de terceros aplicables.
+Consulta los avisos incluidos en cada distribución para conocer las condiciones de esa versión. Al redistribuir el proyecto, incluye LICENSE, NOTICE y este documento, además de los avisos de terceros aplicables.
 
 Texto oficial: [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0). El texto de LICENSE prevalece para su autorización gratuita; el uso comercial adicional requiere el acuerdo separado descrito arriba.

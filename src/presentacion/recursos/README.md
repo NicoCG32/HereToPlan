@@ -50,6 +50,5 @@ Los archivos que deban conservar un nombre público exacto, como `favicon.ico`, 
 
 `logos/HereToPlanLogo.svg` conserva la identidad integrada y el viewBox
 `10 18 1270 402`. La navegación lo presenta con proporciones 1270/402,
-`object-fit: contain` y nombre accesible HereToPlan. La
-[revisión del 2026-11-01](../../../docs/Revision-logotipo.md) compara variantes
-de optimización y conserva este archivo por su menor peso comprimido.
+`object-fit: contain` y nombre accesible HereToPlan. Consulta las variantes y
+los criterios de uso en el [catálogo de identidad](../../../branding/README.md).

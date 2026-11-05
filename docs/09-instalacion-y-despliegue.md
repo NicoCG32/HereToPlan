@@ -1,44 +1,52 @@
-# 09 — Puesta en marcha y distribución
+# 09 · Instalar, comprobar y publicar
 
-## Puesta en marcha y distribución por plataforma
+HereToPlan se compila como sitio estático. Las carpetas de código y el servidor local se usan para desarrollo; el producto que recibe la persona es HTML, CSS y JavaScript servido bajo `/HereToPlan/`.
 
-**Disponibilidad:** Aplicación web de planificación en fase de validación, con datos locales y respaldo. La evolución hacia producción depende de la evaluación de uso sostenido.
+## Requisitos y comandos
 
-**Destinos:** Webpage de validación.
+La versión declarada es **Node.js 24.18.0** en [`.nvmrc`](../.nvmrc) y npm con lockfile. Ejecutar desde la raíz del repositorio:
 
-Entorno declarado: engines `{"node": ">=24.18.0 <25"}`; packageManager `consultar lockfile/guía específica`. Instala las versiones fijadas en el lockfile.
+```bash
+npm ci
+npm run dev
+```
 
-| Script existente | Definición en package.json                 |
-| ---------------- | ------------------------------------------ |
-| dev              | `vite`                                     |
-| build            | `tsc -b && vite build`                     |
-| preview          | `vite preview`                             |
-| test             | `vitest run`                               |
-| lint             | `eslint . --max-warnings 0`                |
-| format:check     | `prettier . --check --ignore-unknown`      |
-| verify:pages     | `node scripts/verificar-build-pages.mjs`   |
-| verify:docs      | `node scripts/verificar-documentacion.mjs` |
+Para comprobar cambios:
 
-### Secuencia de puesta en marcha
+```bash
+npm run format:check
+npm run lint
+npm run verify:docs
+npm run audit:css
+npm run test:a11y
+npm run test:coverage
+npm run build
+npm run verify:pages
+```
 
-1. Preparar el runtime/editor y la configuración que indiquen las fuentes enlazadas; usar valores de prueba y restaurar el lockfile apropiado.
-2. Ejecutar la modalidad local y sus comprobaciones existentes desde la carpeta indicada por esa guía. No confundir preview web con el runtime nativo o montaje físico.
-3. Construir/instalar el artefacto de ese target y comprobar recorrido principal, error relevante y reapertura/actualización antes de declararlo entregado.
+`npm test` ejecuta la suite Vitest sin cobertura. `npm ci` usa `package-lock.json`; evita sustituciones manuales de versiones antes de diagnosticar un fallo.
 
-Ejecuta los comandos de comprobación antes de distribuir una compilación. Puedes consultar sus resultados remotos en la pestaña Actions del repositorio.
+## Entorno de desarrollo y producción
 
-### Datos, servicios y distribución
+| Aspecto                  | Configuración verificable                                                     |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| Enrutamiento             | `HashRouter` (`#/calendario`, `#/crear`, `#/puntos`, `#/respaldo`)            |
+| Base Vite/Pages          | `/HereToPlan/`                                                                |
+| Artefacto generado       | `dist/`                                                                       |
+| CI                       | [Workflow de calidad y publicación](../.github/workflows/calidad-y-pages.yml) |
+| Publicación              | [HereToPlan en GitHub Pages](https://nicocg32.github.io/HereToPlan/)          |
+| Persistencia del usuario | Navegador / perfil / origen; no incluida en el build                          |
 
-IndexedDB detrás de puertos y transacciones de los adaptadores. Persistencia local por origen/navegador; no hay cuenta cloud implícita. Migraciones y respaldo son contratos versionados. Referencia conceptual no equivale a FK SQL; las invariantes se comprueban por aplicación y transacción.
+La CI verifica en PR y en cambios; publica desde `main` según las condiciones declaradas en su workflow. Una prueba verde no sustituye revisar un recorrido real con un perfil limpio.
 
-La web estática se publica con el prefijo configurado para Pages. Los datos pertenecen al navegador y al origen: exporta un respaldo antes de cambiar de dominio, navegador o dispositivo.
+## Verificación funcional mínima
 
-GitHub Releases distribuye los archivos de cada versión. Los servicios de servidor se despliegan por separado; consulta la guía de la plataforma para instalar o alojar la aplicación.
+1. En un navegador de prueba, crear una actividad y un bloque; recargar y comprobar persistencia.
+2. Revisar un corte, confirmar, resolver y comprobar resultado y puntos sin duplicar al reintentar.
+3. Probar exportación y **análisis sin escritura** de un archivo inválido.
+4. En un origen de prueba con copia previa, restaurar un respaldo válido y comprobar estado íntegro.
+5. Revisar teclado, foco y lectura móvil; registrar lo que todavía no se ha probado.
 
-### Recuperación
+No ejecutes restauración ni reinicio con datos importantes sin verificar antes un respaldo independiente.
 
-Conservar el artefacto anterior y su procedencia. Retroceder código no revierte automáticamente datos o migraciones. Revisar compatibilidad de guardado/snapshot y restauración antes de instalar una versión antigua. Consulta las notas de la versión para conocer los requisitos y límites de la entrega.
-
-## Código y documentación relacionada
-
-[README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
+**Guía completa y recuperación de publicación:** [Despliegue](Despliegue.md).

@@ -138,7 +138,7 @@ inmutables. La rehidratación rechaza estados sin los instantes requeridos, grac
 distintas de diez minutos y confirmaciones que no coincidan con el vencimiento
 previsto.
 
-`ResolucionBloquePlanificacion` registra el desenlace humano de una instantánea
+`ResolucionBloquePlanificacion` registra el resultado declarado de una instantánea
 incluida en un corte confirmado. Es un hecho histórico independiente del bloque
 editable: conserva `bloqueId`, `operacionId`, resultado `COMPLETADO` o
 `INCUMPLIDO` e instante de resolución. Esta separación permite eliminar el
@@ -196,7 +196,7 @@ PENDIENTE → COMPLETADO
 | `BloquePlanificacion`           | identificador, actividad, contexto de origen, fecha local, minutos y política efectiva                         | Situar de manera editable una actividad en una fecha concreta                    |
 | `BloqueTrabajo`                 | identificador, actividad, fecha local, minutos, política efectiva y estado                                     | Conservar el compromiso individual dentro de una planificación confirmable       |
 | `CortePlanificacion`            | identificador, instantáneas seleccionadas, estado, creación, asignación, vencimiento y confirmación            | Controlar qué conjunto atraviesa revisión, gracia y confirmación como una unidad |
-| `ResolucionBloquePlanificacion` | bloque confirmado, operación, resultado e instante                                                             | Conservar el desenlace humano como hecho histórico idempotente                   |
+| `ResolucionBloquePlanificacion` | bloque confirmado, operación, resultado e instante                                                             | Conservar el resultado declarado como hecho histórico idempotente                |
 | Vista de calendario             | rango visible, filtros y proyecciones diaria, semanal o mensual                                                | Presentar datos; no introduce estados ni horizontes nuevos en el dominio         |
 
 Reglas de la frontera:
@@ -285,7 +285,7 @@ abajo para no acreditar tiempo no verificado.
 pendiente, flexible y cuya política permita `REDUCIR_CARGA`. No reescribe
 `minutosPlanificados`: la proyección calcula
 `carga efectiva = minutos planificados - minutos reducidos`, conservando así la
-estimación original para auditoría. Debe quedar al menos un minuto de carga; una
+estimación original en el historial. Debe quedar al menos un minuto de carga; una
 exención completa pertenece a la regla de Día libre.
 
 Movimiento de consumo y reducción se confirman en una única transacción. La

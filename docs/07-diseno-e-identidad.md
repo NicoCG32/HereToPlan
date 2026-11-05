@@ -1,26 +1,23 @@
-# 07 — Diseño y accesibilidad
+# 07 · Diseño y accesibilidad
 
-## Identidad y experiencia de uso
+HereToPlan utiliza una identidad visual propia que puede verse en los [banners y logotipos](../branding/README.md). La interfaz debe comunicar **qué se está planificando, qué ya se comprometió y qué efecto tendrá una acción**. Esa claridad importa más que adornar las pantallas con métricas.
 
-Calendario y formularios con rutas explícitas, foco y teclado; versión móvil puede usar lista equivalente. El diseño debe comunicar impacto y motivo de las acciones indisponibles sin inducir compromisos accidentales.
+![Vista de marca clara de HereToPlan](../branding/banners/heretoplan-banner-claro.webp)
 
-### Criterios verificables
+## Estructura de navegación
 
-- Estados vacíos, carga, confirmación y error distinguibles por texto además de color.
-- Orden de foco, teclado y nombres accesibles cuando la plataforma los utilice.
-- Legibilidad y controles suficientes para el dispositivo objetivo; considerar área segura y ciclo de vida en móvil.
-- Evitar que animación, espera o respuesta tardía apliquen efectos ajenos a la selección vigente.
+Las cuatro rutas visibles son Calendario, Crear, Puntos y Respaldo. Cada una reúne sus formularios, diálogos y ayudas contextuales. En pantallas estrechas, el calendario ofrece un resumen mensual y una lista accesible con las acciones disponibles.
 
-Comprueba estos criterios en los recorridos principales y en los tamaños de pantalla de la plataforma que vas a utilizar.
+## Criterios que se pueden comprobar
 
-## Código y documentación relacionada
+- **Estados legibles:** `BORRADOR`, `EN_GRACIA`, `CONFIRMADA` y resultados finales deben explicarse con texto, no solo color.
+- **Prevención de errores:** restaurar, reiniciar, consumir recompensas y modificar compromisos deben mostrar consecuencias antes de confirmar.
+- **Teclado y foco:** diálogos, errores y rutas deben ser utilizables con teclado; las pruebas de axe apoyan, pero no sustituyen pruebas reales con tecnologías de asistencia.
+- **Responsive:** comprobar calendario, formularios y diálogos a varios anchos y con aumento de zoom.
+- **Carga cognitiva:** puntos y recuperación no deben ocultar el recorrido fundamental de planificación.
 
-[README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
+## Qué queda por validar
 
-## Recursos de identidad y distribución
+Queda por comprobar el recorrido con lector de pantalla, zoom real y uso sostenido. La [validación de producto](Validacion-producto.md) recoge los escenarios y las observaciones necesarias para evaluar claridad y facilidad de uso.
 
-[Catálogo de originales y variantes](../branding/README.md) · [Manifest de identidad](../branding/manifest.json).
-
-La navegación utiliza el nuevo SVG horizontal sin cambiar su ruta de importación. Favicon, Apple Touch y tarjeta de enlace respetan el prefijo /HereToPlan/ de la aplicación estática.
-
-Los banners de presentación se seleccionan por tema en el README. Las aplicaciones incorporan sólo los recursos necesarios, con dimensiones/proporción estables; las variantes y originales permanecen en branding. La identidad visual no amplía funcionalidades ni cambia las condiciones de uso.
+[Guía visual](Estilo.md) · [Recursos originales](../branding/README.md)

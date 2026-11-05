@@ -24,7 +24,7 @@ secretos.
 
 ## Instalación reproducible
 
-Utiliza el runtime del pin y npm 11, como se indica en el [README](../README.md).
+Utiliza Node.js según `.nvmrc` y npm 11.
 Desde una copia limpia del repositorio:
 
 ```bash
@@ -42,10 +42,8 @@ npm run verify:pages
 ```
 
 La suite con cobertura incluye todas las pruebas de `npm test`; este último
-también puede ejecutarse por separado para diagnosticar un fallo. La
-[auditoría integral](Auditoria-integral.md) registra una ejecución limpia y sus
-límites. No es necesario alterar umbrales ni incluir archivos locales ajenos al
-repositorio para reproducirla.
+también puede ejecutarse por separado para diagnosticar un fallo. Los umbrales
+de cobertura se definen en `vitest.config.ts`.
 
 Para revisar el artefacto construido:
 

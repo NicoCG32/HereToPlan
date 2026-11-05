@@ -907,19 +907,18 @@ contratos de operabilidad de presentación; las decisiones cromáticas y el
 acabado visual pueden evolucionar sin reducir el área táctil ni ocultar una
 operación existente en escritorio.
 
-### 6.25. Auditoría reproducible de la presentación
+### 6.25. Verificación de la presentación
 
 La accesibilidad se protege mediante dos niveles complementarios. Vitest y
 `axe-core` inspeccionan estados representativos del calendario, formularios,
-diálogos, Rewards y restauración en cada ejecución de CI. Las reglas de
+diálogos, recompensas y restauración en cada ejecución de CI. Las reglas de
 contraste se revisan además en un navegador real porque JSDOM no compone
 gradientes ni superficies translúcidas.
 
 El contrato automático rechaza infracciones WCAG A y AA y buenas prácticas. La
 revisión manual verifica orden de teclado, traslado y retorno del foco, nombres
-accesibles, contraste y reflujo. Sus resultados y límites se conservan en
-`docs/Auditoria-accesibilidad.md`; no se consideran evidencia implícita de una
-prueba que no fue ejecutada.
+accesibles, contraste y reflujo. Al registrar sus resultados se identifica
+la versión, el entorno probado y las comprobaciones realizadas.
 
 Las incidencias de uso se registran de forma append-only mediante identificador,
 versión, pasos, severidad, decisión y estado. El protocolo distingue defectos
@@ -1073,10 +1072,9 @@ datos. La segunda composición debe recuperar contextos, actividades programadas
 y sin programar, bloques y origen; además, las vistas global, filtrada, semanal y
 de lista deben derivarse nuevamente sin conservar estado accidental de React.
 
-La [auditoría integral](Auditoria-integral.md) vincula estas garantías con sus
-pruebas y registra la instalación limpia. Accesibilidad manual adicional,
-experimento de uso, plantillas y otras capacidades pendientes no se declaran
-completas por estas comprobaciones técnicas.
+Estas pruebas comprueban persistencia y reconstrucción de las vistas. La
+evaluación de accesibilidad manual y el [uso sostenido](Protocolo-uso-sostenido.md)
+complementan la verificación técnica.
 
 ## 10. Criterios de conformidad
 

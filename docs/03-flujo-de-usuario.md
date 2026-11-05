@@ -1,25 +1,49 @@
-# 03 — Recorrido y estados
+# 03 · Recorrido de uso
 
-## Recorrido operativo y estados
+## Del catálogo a una planificación revisable
 
-1. Crear actividad o reutilizar catálogo.
-2. Asignar tiempo y política en una fecha/contexto.
-3. Revisar y confirmar el corte.
-4. Ejecutar con o sin cronómetro y resolver explícitamente.
-5. Consultar historia/economía y exportar respaldo.
+```mermaid
+flowchart TD
+  A[Entrar a HereToPlan] --> B[Crear o elegir actividad]
+  B --> C[Seleccionar contexto Libre o nombrado]
+  C --> D[Programar bloque: fecha, duración y política]
+  D --> E[Revisar selección del corte]
+  E --> F{¿Confirmar compromiso?}
+  F -->|No| D
+  F -->|Sí| G[Etapa de revisión y gracia]
+  G --> H[Compromiso confirmado]
+  H --> I{¿Cómo se realiza?}
+  I -->|Manual| J[Declarar resultado]
+  I -->|Cronometrado| K[Iniciar / pausar / detener medición]
+  K --> J
+  J --> L{Resultado}
+  L -->|Completado| M[Guardar resolución y acreditar puntos]
+  L -->|Incumplido| N[Guardar resolución sin acreditar puntos]
+  M --> O[Consultar historial y economía]
+  N --> O
+  O --> P[Exportar respaldo cuando corresponda]
+  classDef committed fill:#e8f2eb,stroke:#41815e,color:#173b26;
+  class H,M,N committed;
+```
 
-### Confirmación y resultado
+El cronómetro es opcional. Los estados del corte y sus condiciones de transición se detallan en [10 · Estados](10-estados-y-secuencias.md) y [Dominio](Dominio.md).
 
-Una actividad puede existir sin bloque temporal.
+## Cuatro pantallas públicas
 
-Restaurar/reiniciar requiere conocer impacto y preservar los contratos documentados.
+| Ruta hash      | Para qué se usa                                 |
+| -------------- | ----------------------------------------------- |
+| `#/calendario` | Planificar, consultar y resolver bloques        |
+| `#/crear`      | Gestionar las definiciones de actividades       |
+| `#/puntos`     | Revisar saldo, recompensas y recuperación       |
+| `#/respaldo`   | Exportación, análisis y restauración / reinicio |
 
-### Criterio de aceptación del recorrido
+El nombre visible del perfil es local y no constituye una cuenta autenticada.
 
-Porcentaje de trabajo cerrado explícitamente, realismo de carga y valoración cualitativa de utilidad; no maximizar puntos o tiempo cronometrado.
+## Decisiones que merecen confirmación
 
-Validar inicio, camino principal, error relevante, cancelación y reapertura según la plataforma; registrar también los escenarios aún no ejecutados. Para HereToPlan, atender especialmente: pérdida de almacenamiento local sin respaldo.
+- **Antes de confirmar:** revisar carga temporal y rigidez de los bloques elegidos.
+- **Después de confirmar:** no borrar silenciosamente el compromiso; registrar su resolución o una modificación permitida.
+- **Antes de restaurar:** leer el diagnóstico del archivo. `RESTAURAR` reemplaza las colecciones funcionales, no fusiona datos.
+- **Antes de reiniciar:** revisar el impacto y conservar un respaldo; `REINICIAR` es una operación distinta, con elementos históricos preservados.
 
-## Código y documentación relacionada
-
-[README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
+[Guía de uso paso a paso](Guia-uso.md) · [Respaldo](Respaldo.md)

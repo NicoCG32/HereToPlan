@@ -6,31 +6,16 @@ El protocolo convierte el uso cotidiano de HereToPlan en evidencia trazable.
 No busca acumular impresiones generales: registra una situación reproducible,
 su efecto sobre la planificación y una decisión explícita de seguimiento.
 
-**Estado documentado al 2026-10-09:** la ronda histórica siguiente registra una
-auditoría técnica y conserva seis días pendientes. No se reconstruyen sesiones
-ni se supone que el usuario dejó de usar la aplicación. Una nueva ronda exige
-acordar su contexto y registrar observaciones reales; la calidad técnica de
-[#104](https://github.com/NicoCG32/HereToPlan/issues/104) no la completa.
-
-El cierre de esta ronda tampoco sustituye la decisión de fase: falta un informe
-por hipótesis y una decisión explícita de continuar, iterar o detener. La
-hipótesis de reutilización de plantillas requiere acotar el experimento porque
-esa capacidad todavía no está implementada.
-
-**Preparación vigente — 2026-10-11:**
-[#117](https://github.com/NicoCG32/HereToPlan/issues/117) prepara una ronda para
-trabajo, estudio y vida personal. El
-[instrumento de validación](Validacion-producto.md) vincula H1–H8, siete
-escenarios, registro privado y conclusión por hipótesis con el alcance actual.
-Su inicio y sus observaciones permanecen pendientes; el historial siguiente se
-conserva sin convertirlo en sesiones de la nueva ronda.
+El [instrumento de validación](Validacion-producto.md) define las hipótesis,
+los escenarios de trabajo, estudio y vida personal, y el registro privado de
+cada sesión. Al terminar una ronda se redacta una conclusión por hipótesis y
+se decide qué corregir, mantener o volver a evaluar.
 
 ## 2. Ronda mínima
 
 El diseño de una ronda comprende siete días consecutivos y al menos quince
-minutos de uso por día. La primera ronda histórica se fijó entre el 21 y el 27
-de julio de 2026. Para otra ronda, registrar el comienzo real y las sesiones
-realizadas; si se interrumpe, conservar las fechas y describir la limitación.
+minutos de uso por día. Registrar el comienzo y las sesiones realizadas;
+si se interrumpe, conservar las fechas y describir la limitación.
 El informe de fase debe considerar uso durante varias semanas, no únicamente
 el cierre operativo de una ronda.
 
@@ -45,9 +30,8 @@ de estos recorridos:
 6. exportar y analizar un respaldo sin restaurarlo;
 7. usar la aplicación a 320 px o con ampliación del navegador.
 
-No deben crearse datos ficticios para ocultar un estado vacío. El protocolo se
-ejecuta sobre planificación representativa y cada sesión comienza comprobando
-que la información del día anterior se recuperó correctamente.
+Utilizar planificación representativa. Cada sesión comienza comprobando que
+la información del día anterior se recuperó correctamente.
 
 ## 3. Severidad
 
@@ -60,10 +44,8 @@ que la información del día anterior se recuperó correctamente.
 
 ## 4. Registro de incidencias
 
-| ID        | Fecha      | Versión                          | Contexto y pasos                                                  | Resultado observado                                         | Severidad | Decisión                    | Estado o enlace         |
-| --------- | ---------- | -------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------- | --------- | --------------------------- | ----------------------- |
-| `ACC-001` | 2026-07-21 | `3c2c5c9` + cambios de auditoría | Ejecutar axe sobre la pantalla completa                           | Tres nombres ARIA dependían de elementos sin rol compatible | S1        | Corregir antes de cerrar M3 | Resuelta en `auditoria` |
-| `ACC-002` | 2026-07-21 | `3c2c5c9` + cambios de auditoría | Revisar contraste del texto y del botón primario sobre gradientes | Algunos extremos no garantizaban 4,5:1                      | S1        | Corregir antes de cerrar M3 | Resuelta en `auditoria` |
+Registrar cada incidencia con identificador, fecha, versión, pasos, resultado
+esperado y observado, severidad, decisión y estado o enlace de seguimiento.
 
 Una fila nunca se elimina. Si el hallazgo no se reproduce, se conserva con la
 decisión `No reproducible`, el entorno probado y al menos dos intentos. Si se
@@ -72,18 +54,10 @@ revisión.
 
 ## 5. Bitácora diaria
 
-Esta tabla es el antecedente de julio. Copiar el registro del instrumento a un
-archivo privado para la nueva ronda, con fechas, duración y hechos reales.
-
-| Día | Fecha      |          Duración | Recorridos cubiertos                                        | Incidencias          | Resultado        |
-| --: | ---------- | ----------------: | ----------------------------------------------------------- | -------------------- | ---------------- |
-|   1 | 2026-07-21 | Auditoría técnica | Calendario, formularios, diálogos, Rewards, respaldo, móvil | `ACC-001`, `ACC-002` | Ambas corregidas |
-|   2 | 2026-07-22 |         Pendiente |                                                             |                      |                  |
-|   3 | 2026-07-23 |         Pendiente |                                                             |                      |                  |
-|   4 | 2026-07-24 |         Pendiente |                                                             |                      |                  |
-|   5 | 2026-07-25 |         Pendiente |                                                             |                      |                  |
-|   6 | 2026-07-26 |         Pendiente |                                                             |                      |                  |
-|   7 | 2026-07-27 |         Pendiente |                                                             |                      |                  |
+Conservar la bitácora fuera del repositorio, utilizando el
+[registro breve de sesión](Validacion-producto.md#registro-breve-y-privado).
+Anotar fecha, duración, recorridos cubiertos, incidencias y resultado de cada
+día. Publicar únicamente conclusiones agregadas y pasos anonimizados.
 
 ## 6. Cierre de una ronda
 

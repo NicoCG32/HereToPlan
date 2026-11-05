@@ -1,53 +1,117 @@
-# 04 — Dominio, entidades y persistencia
+# 04 · Modelo del dominio y datos locales
 
-## Dominio y representación de datos
+**IndexedDB** almacena registros en _object stores_ con claves e índices. La aplicación valida las relaciones entre identificadores y utiliza transacciones para mantener su consistencia.
 
-### Entidades y conceptos
+## Entidades principales (vista conceptual)
 
-| Entidad / concepto                     | Identidad y significado              | Representación / estado             |
-| -------------------------------------- | ------------------------------------ | ----------------------------------- |
-| Actividad                              | Definición de tarea/proyecto/hábito  | Independiente de programación       |
-| Contexto / Agenda                      | Organización libre o nombrada        | IndexedDB                           |
-| BloquePlanificación                    | Actividad, fecha, minutos y política | IndexedDB                           |
-| CortePlanificación                     | Instantánea confirmable y estado     | IndexedDB                           |
-| Resolución                             | Completar/incumplir con historia     | IndexedDB; idempotencia             |
-| Movimiento / inventario / recuperación | Economía y ajustes permitidos        | Operaciones conjuntas y persistidas |
-
-### Relaciones de dominio
-
-```text
-[Actividad] -- 1:N --> [Bloque]
-[Contexto] -- 1:N --> [Bloque]
-[Corte] -- contiene --> [InstantáneaBloque]
-[Bloque] -- 0:1 --> [Resolución]
-[Resolución] -- origina --> [Movimiento]
+```mermaid
+erDiagram
+  ACTIVIDAD ||--o{ BLOQUE_PLANIFICACION : se_programa_como
+  CONTEXTO_PLANIFICACION ||--o{ BLOQUE_PLANIFICACION : organiza
+  CORTE_PLANIFICACION ||--o{ INSTANTANEA_BLOQUE : conserva
+  BLOQUE_PLANIFICACION ||--o| RESOLUCION_BLOQUE : se_resuelve
+  BLOQUE_PLANIFICACION ||--o{ SESION_CRONOMETRO : puede_medirse
+  RESOLUCION_BLOQUE ||--o| TRANSACCION_PUNTOS : puede_acreditar
+  DEFINICION_RECOMPENSA ||--o{ CANJE_RECOMPENSA : registra_canje_historico
+  DEFINICION_RECOMPENSA ||--o{ RECOMPENSA_ADQUIRIDA : permite_adquirir
+  RECOMPENSA_ADQUIRIDA ||--o| APLICACION_RECOMPENSA : puede_consumirse
+  BLOQUE_PLANIFICACION ||--o| AJUSTE_COMPROMISO : puede_ajustarse
+  BLOQUE_PLANIFICACION ||--o{ MOVIMIENTO_RECUPERACION : puede_originar
+  BLOQUE_PLANIFICACION ||--o| REDUCCION_CARGA : puede_recibir
+  ACTIVIDAD {
+    string id PK
+  }
+  CONTEXTO_PLANIFICACION {
+    string id PK
+  }
+  BLOQUE_PLANIFICACION {
+    string id PK
+    string actividadId
+    string contextoId
+  }
+  CORTE_PLANIFICACION {
+    string id PK
+    string estado
+  }
+  INSTANTANEA_BLOQUE {
+    string id
+    string corteId
+  }
+  RESOLUCION_BLOQUE {
+    string bloqueId PK
+    string operacionId
+  }
+  SESION_CRONOMETRO {
+    string id PK
+    string bloqueId
+  }
+  TRANSACCION_PUNTOS {
+    string id PK
+    string fuenteId
+  }
+  CANJE_RECOMPENSA {
+    string id PK
+  }
+  DEFINICION_RECOMPENSA {
+    string id PK
+  }
+  RECOMPENSA_ADQUIRIDA {
+    string id PK
+    string recompensaId
+  }
+  APLICACION_RECOMPENSA {
+    string id PK
+    string recompensaAdquiridaId
+  }
+  AJUSTE_COMPROMISO {
+    string id PK
+    string bloqueId
+  }
+  MOVIMIENTO_RECUPERACION {
+    string id PK
+  }
+  REDUCCION_CARGA {
+    string id PK
+    string bloqueId
+  }
 ```
 
-| Origen     | Cardinalidad / relación | Destino           | Semántica                                     |
-| ---------- | ----------------------- | ----------------- | --------------------------------------------- |
-| Actividad  | 1:N                     | Bloque            | Una definición puede programarse varias veces |
-| Contexto   | 1:N                     | Bloque            | Libre no exige crear agenda                   |
-| Corte      | contiene                | InstantáneaBloque | Congela el compromiso confirmado              |
-| Bloque     | 0:1                     | Resolución        | Resolución histórica no duplicable            |
-| Resolución | origina                 | Movimiento        | Acreditación atómica cuando corresponde       |
+Las relaciones son conceptuales: IndexedDB no impone claves foráneas. `INSTANTANEA_BLOQUE` está **embebida** en el corte y las definiciones de recompensas se configuran en código. Los canjes históricos y las unidades adquiridas se guardan por separado; la migración convierte cada canje antiguo en una unidad consumida.
 
-### Persistencia y garantías
+## Modelo físico: object stores IndexedDB (versión 13)
 
-IndexedDB detrás de puertos y transacciones de los adaptadores. Persistencia local por origen/navegador; no hay cuenta cloud implícita. Migraciones y respaldo son contratos versionados. Referencia conceptual no equivale a FK SQL; las invariantes se comprueban por aplicación y transacción.
+```mermaid
+flowchart TB
+  DB[(Base IndexedDB v13)]
+  DB --> CORE["Planificación<br/>agendas, actividades, contextos-planificacion<br/>bloques-planificacion, cortes-planificacion"]
+  DB --> HIST["Resultado e historia<br/>resoluciones-bloques-planificacion<br/>sesiones-cronometro, ajustes-compromisos"]
+  DB --> ECON["Economía<br/>transacciones-puntos, canjes-recompensas<br/>recompensas-adquiridas, aplicaciones-recompensas"]
+  DB --> REC["Recuperación<br/>movimientos-recuperacion, reducciones-carga"]
+  DB --> PROFILE["Identidad local<br/>perfil-usuario"]
+  classDef data fill:#eaf3f7,stroke:#47839e,color:#173f53;
+  class CORE,HIST,ECON,REC,PROFILE data;
+```
 
-El diagrama describe relaciones del dominio. Los adaptadores y el esquema de persistencia determinan cómo se mantienen esas relaciones al guardar o recuperar datos.
+Son **15 almacenes**. Las colecciones se respaldan mediante un contrato JSON V3. `localStorage` guarda una preferencia del tutorial que **no forma parte de las 15 colecciones**.
 
-### Consistencia y evolución
+## Correspondencia de operaciones y almacenes
 
-- Una actividad puede existir sin bloque temporal.
-- Confirmar conserva instantáneas; no autoriza borrar libremente compromisos históricos.
-- Completar y acreditar deben ser atómicos e idempotentes.
-- El cronómetro no sustituye la declaración humana de cumplimiento.
-- Adquirir una recompensa y aplicarla son operaciones diferentes; la vista previa no escribe.
-- Restaurar/reiniciar requiere conocer impacto y preservar los contratos documentados.
+| Operación                     | Lecturas/escrituras que importan                                           |
+| ----------------------------- | -------------------------------------------------------------------------- |
+| Crear y programar             | Actividades, contextos, bloques; sin comprometer hasta el corte            |
+| Confirmar                     | Cortes con instantánea y estado; historia independiente del catálogo       |
+| Completar con puntos          | Resolución de bloque + ingreso de puntos en una transacción                |
+| Adquirir / aplicar recompensa | Egreso de puntos, unidad adquirida y aplicación; sin doble consumo         |
+| Cronometrar                   | Sesión vinculada y operaciones idempotentes                                |
+| Recuperar                     | Movimientos y reducciones, ligados a reglas de cálculo                     |
+| Restaurar                     | Vaciar y reponer las 15 colecciones en una sola transacción, tras análisis |
 
-Antes de cambiar el formato de almacenamiento, comprueba la migración y la restauración con una copia de prueba. Conserva la versión del respaldo y verifica su compatibilidad con la aplicación que lo abrirá.
+**Índices reales relevantes:** `por-operacion-id` en resoluciones y sesiones; `por-fuente-semantica` en movimientos de puntos; `por-bloque-id` en varios registros; estos ayudan a impedir duplicados de operación según el adaptador.
 
-## Código y documentación relacionada
+## Versiones de almacenamiento y respaldo
 
-[README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
+- **Base local:** `VERSION_BASE_DATOS = 13`, en [`esquemaBaseDatos.ts`](../src/infraestructura/persistencia/indexeddb/esquemaBaseDatos.ts).
+- **Formato exportado:** `versionFormato = 3`, independiente de la base interna.
+- **Registros:** actividades V2; otros mapeadores V1, con compatibilidad según el contrato de respaldo.
+
+[Contrato del dominio](Dominio.md) · [Contrato del respaldo](Respaldo.md) · [Estados](10-estados-y-secuencias.md)

@@ -2,66 +2,85 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="branding/banners/heretoplan-banner-oscuro.webp" />
-  <img src="branding/banners/heretoplan-banner-claro.webp" alt="Identidad visual de HereToPlan" width="100%" />
+  <img src="branding/banners/heretoplan-banner-claro.webp" alt="HereToPlan: identidad gráfica del proyecto" width="100%" />
 </picture>
 
 # HereToPlan
 
-**Planificar con intención. Cumplir, ajustar y aprender.**
+**Planificar con intención. Revisar lo hecho. Ajustar sin perder la historia.**
 
-[![Estado: En validación](https://img.shields.io/badge/Estado-En%20validaci%C3%B3n-5265B1?style=flat-square&labelColor=263244)](#sobre-el-proyecto) [![Plataforma: Web / Local](https://img.shields.io/badge/Plataforma-Web%20%2F%20Local-386B8F?style=flat-square&labelColor=263244)](#usar-o-descargar) [![Licencia: PolyForm NC](https://img.shields.io/badge/Licencia-PolyForm%20NC-596273?style=flat-square&labelColor=263244)](LICENSING.md)
+[![Estado](https://img.shields.io/badge/Estado-Validaci%C3%B3n%20de%20uso-5265B1?style=flat-square)](docs/15-escalabilidad-y-nuevos-mercados.md)
+[![Web](https://img.shields.io/badge/Aplicaci%C3%B3n-Web%20local--first-347B77?style=flat-square)](docs/01-arquitectura-general.md)
+[![Licencia](https://img.shields.io/badge/Licencia-PolyForm%20NC-596273?style=flat-square)](LICENSING.md)
 
-[![React 19](https://img.shields.io/badge/React%2019-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](#tecnologías) [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=FFFFFF)](#tecnologías) [![Vite 8](https://img.shields.io/badge/Vite%208-646CFF?style=for-the-badge&logo=vite&logoColor=FFFFFF)](#tecnologías) [![IndexedDB](https://img.shields.io/badge/IndexedDB-6D28D9?style=for-the-badge)](#tecnologías)
-
-[Abrir aplicación](https://nicocg32.github.io/HereToPlan/) · [Documentación](docs/README.md) · [Arquitectura](docs/01-arquitectura-general.md) · [Inicio rápido](#ejecutar-desde-el-código)
+[**Abrir HereToPlan**](https://nicocg32.github.io/HereToPlan/) · [**Conocer el proyecto**](docs/00-problematica-cliente-y-valor.md) · [**Documentación**](docs/README.md)
 
 </div>
 
 ---
 
-## Sobre el proyecto
+## Resumen ejecutivo
 
-Planificador personal que separa actividades y compromisos del calendario. Permite planificar, ejecutar, revisar consecuencias y respaldar la información, con puntos y herramientas de recuperación.
+HereToPlan es una aplicación web de planificación personal que conecta actividades, bloques de tiempo y compromisos con un registro de sus resultados. Incluye cronómetro opcional, puntos, recompensas y herramientas para ajustar la carga de trabajo. Está en fase de validación y guarda los datos en el navegador, con respaldos exportables y sin sincronización entre dispositivos.
 
-**Estado:** Fase de validación publicada en GitHub Pages. Los datos permanecen en este navegador y dispositivo, sin cuenta ni sincronización. No hay instaladores publicados en GitHub Releases.
+## Por qué existe
 
-## Tecnologías
+HereToPlan comenzó durante unas vacaciones, después de mis estudios. Tenía tiempo libre y se me ocurrió crear mi propio calendario para organizar mejor los días. La idea inicial era sencilla: combinar actividades y hábitos con un **sistema de recompensas** que me animara a cumplir las metas que me propusiera.
 
-| Área             | Tecnologías y responsabilidad                                      |
-| ---------------- | ------------------------------------------------------------------ |
-| **Interfaz**     | React 19 y TypeScript 6; compilación con Vite 8.                   |
-| **Datos**        | IndexedDB local, respaldos JSON y navegación con rutas hash.       |
-| **Verificación** | Vitest, Testing Library y comprobaciones de accesibilidad con axe. |
+Al desarrollar esa idea, quise ir más allá de marcar tareas como completadas. Me interesó distinguir entre **lo que quiero hacer, cuándo planeo hacerlo, el tiempo que me comprometo a dedicarle y lo que efectivamente ocurrió**. De ahí nacieron reglas para registrar compromisos, puntos y formas de ajustar la planificación sin borrar su historia.
 
-> **Enfoque técnico:** Arquitectura hexagonal: dominio, casos de uso y adaptadores del navegador.
+Quiero comprobar con el uso si estos incentivos ayudan a cumplir las metas y si el sistema resulta práctico.
 
-## Usar o descargar
+## Qué permite hacer
 
-[Abrir la aplicación](https://nicocg32.github.io/HereToPlan/) · [Guía de uso y respaldos](docs/Guia-uso.md). La validación de uso sostenido sigue pendiente.
+- Crear actividades reutilizables —incluidos tipos de tarea, proyecto y hábito— y organizar la agenda mediante un calendario y contextos de planificación.
+- Asignar bloques de tiempo, revisar y confirmar compromisos; resolverlos con estados e historia, distinguiendo políticas estrictas y flexibles.
+- Elegir seguimiento manual o cronometrado; registrar sesiones cuando corresponde.
+- Consultar puntos, recompensas y recuperación, con operaciones sometidas a reglas de negocio y controles para evitar duplicados.
+- Exportar un respaldo JSON, analizarlo antes de importar y restaurar el estado local con confirmación explícita.
 
-## Ejecutar desde el código
+**Alcance actual:** aplicación web sin cuenta ni servidor de datos propio. Los registros se guardan en el navegador mediante IndexedDB; las preferencias del tutorial usan `localStorage`. No hay sincronización automática entre dispositivos. La validación de uso sostenido, la calibración de reglas y algunas funciones de composición/recurrencia siguen pendientes. [Estado y límites](docs/02-funcionalidades.md).
 
-Con Node.js 24.18.0 y npm 11, desde la raíz de esta fase:
+## Tecnología y arquitectura
 
-```sh
+| Parte        | Implementación                                             |
+| ------------ | ---------------------------------------------------------- |
+| Interfaz     | React 19, TypeScript 6, React Router 7 y Vite 8            |
+| Núcleo       | Dominio en TypeScript, casos de uso, puertos y adaptadores |
+| Persistencia | IndexedDB local; contratos de respaldo JSON versionados    |
+| Calidad      | Vitest, Testing Library, axe-core, ESLint y GitHub Actions |
+| Publicación  | Sitio estático en GitHub Pages, bajo `/HereToPlan/`        |
+
+La arquitectura separa reglas de negocio, coordinación de casos de uso, almacenamiento y componentes visuales. [Ver arquitectura, diagramas y fronteras](docs/01-arquitectura-general.md).
+
+## Ejecutarlo localmente
+
+Se necesita Node.js 24 desde la versión **24.18.0**, npm 11 y un navegador moderno. La CI usa la versión fijada en [`.nvmrc`](.nvmrc):
+
+```bash
 npm ci
 npm run dev
 ```
 
-Abre la dirección que indica Vite bajo `/HereToPlan/`. Para trasladar los datos a otro navegador, exporta y restaura un respaldo. [Build y publicación](docs/Despliegue.md).
+El proyecto configura la base `/HereToPlan/`; abre la dirección que indique Vite. Para validar un cambio antes de publicarlo:
 
-## Documentación
+```bash
+npm run lint
+npm run test
+npm run build
+npm run verify:docs
+```
 
-[Índice completo y rutas de lectura](docs/README.md) · [Guía de uso](docs/Guia-uso.md).
+La guía de [despliegue](docs/Despliegue.md) detalla la instalación, las comprobaciones y la publicación en Pages. Para trasladar tu planificación a otro navegador o dispositivo, exporta y restaura un respaldo.
 
-| Tipo       | Lectura                                                                                                                                                                          |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| General    | [Problema, cliente y solución](docs/00-problematica-cliente-y-valor.md) · [Motivación](docs/16-motivacion-y-contexto.md)                                                         |
-| Técnica    | [Arquitectura y diagramas](docs/01-arquitectura-general.md) · [Dominio y datos](docs/04-base-de-datos.md)                                                                        |
-| Desarrollo | [Etapas y metodología](docs/17-desarrollo-y-metodologia.md) · [Proyección](docs/15-escalabilidad-y-nuevos-mercados.md) · [Costos CLP/USD](docs/18-analisis-economico-clp-usd.md) |
+## Documentación, por perfil
 
-[Identidad visual](branding/README.md): logos, banners y variantes de aplicación.
+- **General:** [problema y propuesta](docs/00-problematica-cliente-y-valor.md), [funciones](docs/02-funcionalidades.md), [uso](docs/Guia-uso.md).
+- **Técnica:** [arquitectura](docs/01-arquitectura-general.md), [datos](docs/04-base-de-datos.md), [reglas](docs/05-motor-o-nucleo-de-negocio.md), [estados](docs/10-estados-y-secuencias.md).
+- **Desarrollo:** [proceso y límites de validación](docs/17-desarrollo-y-metodologia.md), [instalación](docs/09-instalacion-y-despliegue.md), [evaluación](docs/Validacion-producto.md).
 
-## Licencia y créditos
+[**Índice completo y guías especializadas**](docs/README.md) · [Recursos de identidad](branding/README.md).
 
-Código y documentación propios: [PolyForm Noncommercial 1.0.0](LICENSE), con [atribución](NOTICE). Uso comercial fuera de sus permisos: acuerdo previo de créditos y compensación. [Alcance y contacto](LICENSING.md).
+## Licencia
+
+El proyecto se distribuye bajo PolyForm Noncommercial 1.0.0. Consulta [LICENSE](LICENSE), [LICENSING.md](LICENSING.md) y [NOTICE](NOTICE) para las condiciones y atribuciones.

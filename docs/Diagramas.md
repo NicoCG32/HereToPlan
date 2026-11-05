@@ -1,46 +1,26 @@
 # Mantenimiento de diagramas
 
-Los tres SVG versionados son fuentes editables de documentación. No hay un
-archivo de diseño separado ni un generador obligatorio. El diagrama de
-despliegue anterior era una exportación sin fuente de diseño en este
-repositorio; la vista vigente utiliza SVG legible y editable directamente.
+HereToPlan dispone de **tres vistas SVG versionadas** para consultar la arquitectura y el dominio. Los diagramas Mermaid de cada capítulo detallan flujos, relaciones y estados junto a su explicación.
 
-| Vista       | Fuente editable                                              | Contrastar con                                                                                                      |
-| ----------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| Componentes | [arquitectura-componentes.svg](arquitectura-componentes.svg) | [Composición](../src/app/configurarAplicacion.ts), puertos de aplicación y adaptadores; [contrato](Arquitectura.md) |
-| Despliegue  | [arquitectura-despliegue.svg](arquitectura-despliegue.svg)   | [Workflow](../.github/workflows/calidad-y-pages.yml), [Vite](../vite.config.ts) y [guía de entrega](Despliegue.md)  |
-| Dominio     | [modelo-dominio.svg](modelo-dominio.svg)                     | Entidades de `src/dominio/` y [contrato del modelo](Dominio.md)                                                     |
+| Vista                                            | Archivo                                                      | Fuente de verificación                                  |
+| ------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------- |
+| Componentes SVG                                  | [arquitectura-componentes.svg](arquitectura-componentes.svg) | `src/app/configurarAplicacion.ts`, puertos, adaptadores |
+| Despliegue SVG                                   | [arquitectura-despliegue.svg](arquitectura-despliegue.svg)   | workflow Pages y `vite.config.ts`                       |
+| Dominio SVG                                      | [modelo-dominio.svg](modelo-dominio.svg)                     | `src/dominio/`, contrato [Dominio](Dominio.md)          |
+| Contexto, contenedores, componentes y despliegue | [01 · Arquitectura](01-arquitectura-general.md)              | `src/app/`, `src/aplicacion/`, infraestructura          |
+| Camino de la persona                             | [03 · Recorrido](03-flujo-de-usuario.md)                     | rutas y casos de uso                                    |
+| Entidades lógicas e IndexedDB                    | [04 · Datos](04-base-de-datos.md)                            | `esquemaBaseDatos.ts` y mapeadores                      |
+| Operación atómica de cumplimiento                | [05 · Reglas](05-motor-o-nucleo-de-negocio.md)               | `CompletarBloqueConPuntos.ts`                           |
+| Respaldo/restauración                            | [08 · Salidas](08-exportacion-e-informes.md)                 | `RestaurarRespaldo.ts`, `Respaldo.md`                   |
+| Máquinas de estados y secuencia                  | [10 · Estados](10-estados-y-secuencias.md)                   | tipos y entidades del dominio                           |
 
-## Qué muestra cada vista
+## Reglas para mantenerlos claros
 
-Componentes resume la dirección hacia el núcleo y el flujo mediante puertos.
-IndexedDB contiene el estado funcional; el puerto de preferencias conecta
-separadamente el tutorial con localStorage. Las transacciones de planificación
-no se extienden a esta preferencia.
+1. Distinguir una asociación lógica del dominio de una relación física con clave foránea: IndexedDB no ofrece FKs SQL.
+2. Mostrar sólo las transiciones respaldadas por el código; las funciones pendientes se describen aparte.
+3. Usar nombres de negocio legibles; situar los nombres de tipos y paths fuera de las cajas o en tablas anexas.
+4. Evitar conectores que aparenten sincronización con Pages o un backend inexistente.
+5. Abrir cada SVG y cada Mermaid en un visor; revisar solapes, contraste y legibilidad de móvil antes de publicar.
+6. Ejecutar `npm run verify:docs`, que comprueba rutas locales pero **no** comprueba semántica ni render visual.
 
-Despliegue separa verificación de PR, publicación tras push a main y ejecución
-del sitio estático. En el navegador distingue los quince almacenes de IndexedDB,
-la única preferencia de guía y el archivo de respaldo. Las flechas del respaldo
-representan una acción explícita del usuario, sin sincronización remota.
-
-Dominio resume entidades y hechos implementados. El perfil no es autenticación;
-los contextos organizan y los cortes confirman una selección. El tutorial, el
-HUD y las rutas son contratos de aplicación/presentación y quedan fuera de este
-modelo. La política de reinicio tampoco es un agregado nuevo.
-
-## Procedimiento de cambio
-
-1. Identificar el contrato y código que cambiaron; actualizar la vista que
-   corresponde, sin añadir una entidad de dominio por cada control visual.
-2. Editar el SVG con texto o un editor vectorial. Conservar `viewBox`, título,
-   descripción accesible, textos legibles y trazado de las conexiones.
-3. Abrirlo en navegador a su tamaño y en el ancho de lectura del documento.
-   Comprobar texto dentro de paneles, cruces de flechas y recortes. Las fuentes
-   del sistema permiten mostrarlo sin descargar tipografías ni otros recursos.
-4. Actualizar la fecha del corte cuando el contenido haya cambiado. Revisar el
-   diff y ejecutar `npm run verify:docs`; los SVG están excluidos de Prettier
-   para conservar el formato editable.
-
-Los diagramas son resúmenes, no inventarios exhaustivos de clases o almacenes.
-Si una conexión cambia el significado, corregir también el contrato textual y
-registrar la decisión en la tarea correspondiente.
+Las vistas SVG son editables como XML. Para cambiarlas, conservar `viewBox`, `<title>`, descripciones y contraste. Los bloques Mermaid se editan directamente en Markdown, sin exportaciones binarias obligatorias.

@@ -1,16 +1,12 @@
 # Referencia ampliada de uso
 
-Esta guía conserva las instrucciones detalladas del README anterior. Para el estado y las descargas vigentes consulta el [README principal](../README.md); para la licencia y créditos, [LICENSING](../LICENSING.md).
-
-# HereToPlan
-
 HereToPlan es una aplicación de planificación personal que combina compromisos
 explícitos, flexibilidad y trazabilidad. Las actividades existen antes de
 programarlas; un bloque confirmado se completa, se declara incumplido o recibe
 un ajuste permitido por su política.
 
 [Abrir la aplicación](https://nicocg32.github.io/HereToPlan/) ·
-[Guía de uso](../docs/Guia-uso.md) · [Documentación](../docs/README.md) ·
+[Guía de uso](Guia-uso.md) · [Documentación](README.md) ·
 [Tablero de trabajo](https://github.com/users/NicoCG32/projects/3)
 
 ## Estado
@@ -20,13 +16,10 @@ estática en GitHub Pages. Ofrece una SPA con cuatro rutas, perfil local, HUD,
 calendario persistente, ejecución manual o cronometrada, puntos, inventario,
 recuperación, respaldo y tutorial opcional persistente.
 
-La calidad técnica y la aceptación de la interfaz no sustituyen la evidencia
-de uso sostenido. La bitácora conserva seis días sin registrar; la evaluación
-de hipótesis y la decisión de salida de validación siguen pendientes. Las
-plantillas de agenda, la administración de series abiertas y los ajustes de
-reprogramación/extensión de plazo tampoco están implementados. El
-[informe integral](../docs/Auditoria-integral.md) distingue capacidades, pruebas y
-pendientes.
+La evaluación de uso sostenido y la calibración de reglas siguen pendientes.
+Tampoco están implementadas las plantillas de agenda, la administración de
+series abiertas ni los ajustes de reprogramación o extensión de plazo.
+Consulta el [alcance actual](02-funcionalidades.md).
 
 ## Recorrido disponible
 
@@ -52,7 +45,7 @@ Los datos funcionales se guardan en IndexedDB; sólo la preferencia de la guía
 usa localStorage. Permanecen en el navegador, perfil y origen utilizados, sin
 cuentas ni sincronización remota. Cambiar de navegador o dominio requiere
 exportar y restaurar un respaldo para trasladar la planificación. La guía no se
-incluye en ese archivo. Consulta [privacidad y portabilidad](../docs/Guia-uso.md).
+incluye en ese archivo. Consulta [privacidad y portabilidad](Guia-uso.md).
 
 ## Ejecución local
 
@@ -82,7 +75,8 @@ npm ci
 npm run dev
 ```
 
-`node --version` debe mostrar `v24.18.0`. Vite indica la dirección local; la
+La CI utiliza `v24.18.0`; el desarrollo admite versiones compatibles de Node 24
+desde ese mínimo. Vite indica la dirección local; la
 aplicación se sirve bajo `/HereToPlan/`.
 
 ## Arquitectura
@@ -100,7 +94,7 @@ src/
 
 React consume contratos de aplicación; los repositorios y las unidades de
 trabajo concentran almacenamiento y atomicidad. Los
-[diagramas](../docs/Diagramas.md) y el [contrato](../docs/Arquitectura.md) muestran
+[diagramas](Diagramas.md) y el [contrato](Arquitectura.md) muestran
 las fronteras, incluidas IndexedDB v13 y la preferencia del tutorial.
 
 ## Verificación y entrega
@@ -120,13 +114,12 @@ npm run verify:pages
 La suite comprueba dominio, aplicación, adaptadores y flujos React. La
 cobertura exige al menos 85 % de líneas/sentencias y funciones, y 80 % de ramas
 en el alcance definido en `vitest.config.ts`. Axe complementa la revisión
-manual; sus límites están en la [auditoría de accesibilidad](../docs/Auditoria-accesibilidad.md).
+manual de teclado, lector de pantalla, contraste y zoom.
 
 El [workflow](../.github/workflows/calidad-y-pages.yml) restaura el lockfile y
-comprueba avisos de dependencias y calidad. La [revisión de dependencias](../docs/Dependencias.md)
-registra versiones y resultados. Los cambios aceptados en `main` publican el artefacto
+comprueba avisos de dependencias y calidad. Los cambios aceptados en `main` publican el artefacto
 comprobado en Pages. Las rutas hash permiten navegación directa sin
-reescrituras del servidor. [Configuración y recuperación](../docs/Despliegue.md).
+reescrituras del servidor. [Configuración y recuperación](Despliegue.md).
 
 El [GitHub Project](https://github.com/users/NicoCG32/projects/3) organiza épicas
 y tareas por alcance, con Backlog → Ready → In progress → In review → Done,

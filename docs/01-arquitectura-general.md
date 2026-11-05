@@ -1,70 +1,101 @@
-# 01 — Arquitectura por niveles
+# 01 · Arquitectura: del contexto al código
 
-## Arquitectura del sistema por niveles
+HereToPlan es una **aplicación web estática con datos locales**, organizada con arquitectura hexagonal: dominio, casos de uso, puertos y adaptadores. Las reglas de negocio son independientes de React e IndexedDB; los adaptadores del navegador ejecutan las transacciones de persistencia.
 
-### Nivel 1 — Contexto y fronteras de ejecución
+## Nivel 1 · Contexto del sistema
 
-```text
-[Persona] -> [React / HashRouter]
-                     |
-          [Casos de uso y puertos]
-                     |
-        [Dominio: actividades / bloques / economía]
-                     |
-             [Adaptadores IndexedDB]
-                     |
-            [Respaldo JSON versionado]
-
-[GitHub Actions] -> [dist] -> [Pages /HereToPlan/]
+```mermaid
+flowchart LR
+  U[Persona que planifica] -->|usa| W[HereToPlan en el navegador]
+  W -->|lee y escribe datos locales| I[(IndexedDB del origen)]
+  W -->|preferencias del tutorial| L[(localStorage)]
+  U -->|exporta respaldo| F[Archivo de respaldo JSON]
+  F -->|selecciona para importar| W
+  G[GitHub Pages] -.->|recursos estáticos| W
+  classDef core fill:#edf3fb,stroke:#4676a1,color:#172b42;
+  classDef data fill:#edf7f1,stroke:#39775e,color:#153a2b;
+  class W core;
+  class I,L,F data;
 ```
 
-Actividades reutilizables se asignan a bloques por fecha y contextos opcionales. Los cortes de planificación confirman compromisos; resolución, puntos, inventario y recuperación preservan historia con reglas explícitas. IndexedDB conserva estado y el respaldo permite trasladarlo.
+GitHub Pages entrega el código y los recursos; las actividades, compromisos y saldos permanecen en el navegador de cada persona.
 
-### Nivel 2 — Componentes y responsabilidades
+## Nivel 2 · Contenedores en ejecución
 
-| Componente      | Responsabilidad                    | Fuente                                        |
-| --------------- | ---------------------------------- | --------------------------------------------- |
-| Dominio         | Invariantes independientes de UI   | [src/dominio](../src/dominio)                 |
-| Aplicación      | Casos de uso, puertos y atomicidad | [src/aplicacion](../src/aplicacion)           |
-| Infraestructura | IndexedDB, reloj e identidades     | [src/infraestructura](../src/infraestructura) |
-| Presentación    | Calendario, editores y feedback    | [src/presentacion](../src/presentacion)       |
-| Composición     | Conecta adaptadores y navegación   | [src/app](../src/app)                         |
-
-Las flechas muestran el flujo de información entre componentes. Las transacciones y dependencias de código se detallan en los contratos de cada módulo.
-
-### Nivel 3 — Dominio, contratos y adaptadores
-
-IndexedDB detrás de puertos y transacciones de los adaptadores. Persistencia local por origen/navegador; no hay cuenta cloud implícita. Migraciones y respaldo son contratos versionados. Referencia conceptual no equivale a FK SQL; las invariantes se comprueban por aplicación y transacción.
-
-- Una actividad puede existir sin bloque temporal.
-- Confirmar conserva instantáneas; no autoriza borrar libremente compromisos históricos.
-- Completar y acreditar deben ser atómicos e idempotentes.
-
-Consultar [04-base-de-datos.md](04-base-de-datos.md) para entidades, cardinalidades y representación; [05-motor-o-nucleo-de-negocio.md](05-motor-o-nucleo-de-negocio.md) para invariantes. Las piezas marcadas como propuestas pertenecen al diseño del prototipo.
-
-### Nivel 4 — Despliegue y distribución
-
-**Destino:** Webpage de validación.
-
-```text
-[Revisión de fuente] -> [Verificación de su plataforma] -> [Build / artefacto]
-                                                                  |
-                                                          [Instalación / hosting]
-                                                                  |
-                                                          [Usuario y sus datos]
+```mermaid
+flowchart TB
+  subgraph N[Equipo y navegador]
+    UI[SPA React y React Router]
+    APP[Casos de uso TypeScript]
+    DOM[Reglas del dominio]
+    AD[Adaptadores de persistencia y sistema]
+    IDB[(IndexedDB v13)]
+    LS[(localStorage: tutorial)]
+    JSON[Lectura y descarga JSON]
+    UI --> APP
+    APP --> DOM
+    APP -->|puertos| AD
+    AD --> IDB
+    AD --> LS
+    AD --> JSON
+  end
+  P[GitHub Pages: HTML / CSS / JS] -->|descarga de recursos| UI
+  classDef store fill:#f0f7f1,stroke:#4b8061,color:#163b28;
+  class IDB,LS,JSON store;
 ```
 
-La web estática se publica con el prefijo configurado para Pages. Los datos pertenecen al navegador y al origen: exporta un respaldo antes de cambiar de dominio, navegador o dispositivo. El capítulo [09-instalacion-y-despliegue.md](09-instalacion-y-despliegue.md) concreta la puesta en marcha.
+El navegador es a la vez interfaz y entorno de ejecución. No hay API de negocio alojada en un servidor ni autenticación remota en esta versión. Algunas preferencias de ayuda no se incluyen en el respaldo funcional.
 
-### Calidad y límites arquitectónicos
+## Nivel 3 · Componentes y dirección de dependencias
 
-- Pérdida de almacenamiento local sin respaldo
-- Reglas comprensibles sólo para su autor
-- Cronómetro/economía que incentiven comportamiento no deseado
-- Confundir validación técnica con utilidad personal
+```mermaid
+flowchart LR
+  V["Presentación<br/>Pantallas y componentes"] --> A["Aplicación<br/>Casos de uso"]
+  A --> D["Dominio<br/>Entidades y políticas"]
+  A --> P{{"Puertos<br/>Repositorios y servicios"}}
+  X["Infraestructura<br/>Adaptadores IndexedDB / sistema"] -. implementa .-> P
+  C["Composición<br/>src/app"] --> V
+  C --> A
+  C --> X
+  classDef core fill:#ebf1fb,stroke:#5576ac,color:#233960;
+  classDef boundary fill:#fff7e8,stroke:#b48b41,color:#5c4220;
+  class A,D core;
+  class P boundary;
+```
 
-El rendimiento y la capacidad dependen del entorno de ejecución. Consulta las guías de instalación y las limitaciones de cada plataforma antes de desplegar.
+| Nivel           | Carpeta real                                     | Responsabilidad                                                 |
+| --------------- | ------------------------------------------------ | --------------------------------------------------------------- |
+| Dominio         | [`src/dominio/`](../src/dominio)                 | Invariantes, estados, fórmulas y reglas independientes de React |
+| Aplicación      | [`src/aplicacion/`](../src/aplicacion)           | Coordinar operaciones y contratos de puertos                    |
+| Infraestructura | [`src/infraestructura/`](../src/infraestructura) | IndexedDB, mapeadores, reloj, UUID, archivos y preferencias     |
+| Presentación    | [`src/presentacion/`](../src/presentacion)       | Calendario, actividad, billetera, respaldo, tutorial y feedback |
+| Composición     | [`src/app/`](../src/app)                         | Crear adaptadores reales e inyectarlos en casos de uso y vistas |
 
-## Código y documentación relacionada
+Consulta los contratos de cada componente en [Arquitectura](Arquitectura.md).
 
-[README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
+## Nivel 4 · Distribución y datos
+
+```mermaid
+flowchart LR
+  SRC[Repositorio GitHub] --> CI["GitHub Actions<br/>pruebas y build"]
+  CI -->|push a main y calidad aprobada| PG["GitHub Pages<br/>/HereToPlan/"]
+  PG -->|recursos estáticos| BR[Navegador]
+  BR --> DB[("IndexedDB<br/>datos de la persona")]
+  BR --> TU[("localStorage<br/>tutorial")]
+  BR -->|exportación explícita| BK[Respaldo JSON]
+  BK -->|análisis y restauración confirmada| BR
+  classDef store fill:#ecf6f0,stroke:#488369,color:#1e4a35;
+  class DB,TU,BK store;
+```
+
+**La publicación no traslada los datos entre navegadores u orígenes.** Cada navegador y perfil conserva su almacenamiento; dentro de ellos, cada origen tiene una base independiente. Para trasladar la planificación, exporta y restaura un respaldo.
+
+## Principales fronteras de consistencia
+
+- El catálogo de actividades existe aunque no se programe ningún bloque.
+- El corte confirmado conserva instantáneas, aunque después cambie la definición de la actividad.
+- Resolver un compromiso y acreditar puntos forman una operación atómica; reintentar no puede duplicar resultados.
+- Comprar una recompensa y consumirla no son sinónimos.
+- Restaurar un respaldo sustituye el estado funcional, por lo que la aplicación analiza antes de escribir y exige confirmación.
+
+[Diagrama de componentes](arquitectura-componentes.svg) · [Arquitectura detallada](Arquitectura.md) · [Persistencia](04-base-de-datos.md) · [Despliegue](Despliegue.md)

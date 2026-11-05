@@ -4,7 +4,7 @@
 
 Este documento define el contrato visual y compositivo de HereToPlan. La
 interfaz es una SPA con navegación permanente que conserva
-las capacidades existentes, su semántica ni sus garantías de accesibilidad.
+las capacidades existentes, su semántica y sus garantías de accesibilidad.
 
 La estética no sustituye la arquitectura: React representa DTO y ejecuta
 puertos de entrada; no calcula reglas de planificación, puntos, recompensas o
@@ -155,9 +155,8 @@ El contrato transversal conserva:
 - adaptación a `prefers-reduced-motion`;
 - estados de carga, vacío, error y resultado comprensibles.
 
-Los títulos de panel son inferiores al título de página y el espaciado no debe
-desplazar las acciones por una jerarquía invertida. La
-[revisión UX/UI](Revision-ux-ui.md) registra las correcciones y sus límites.
+Los títulos de panel son inferiores al título de página. El espaciado debe
+mantener visibles las acciones principales y facilitar la lectura del contenido.
 
 ## 6. Protocolo de cambio
 

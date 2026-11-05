@@ -1,16 +1,30 @@
-# 08 — Salidas y entregables
+# 08 · Respaldos y salidas
 
-## Salidas, respaldo e informes
+La salida portátil más importante de HereToPlan es un **respaldo JSON del estado funcional local**. No es un informe automático de productividad ni una copia sincronizada en la nube.
 
-Respaldo JSON versionado de las colecciones de planificación, identidad e historia según contrato. Su análisis previo no escribe; restauración válida y reinicio son acciones distintas con consecuencias visibles.
+## Exportar, analizar, restaurar y reiniciar
 
-### Separación de entregables
+```mermaid
+flowchart LR
+  A[(IndexedDB actual)] -->|exportar: solo lectura| B[Archivo JSON V3]
+  B -->|analizar sin escritura| C{Diagnóstico}
+  C -->|Inválido o incompatible| D[Rechazar; datos intactos]
+  C -->|Válido y confirmar RESTAURAR| E[Restauración transaccional]
+  E --> A
+  A -->|reinicio selectivo + confirmar REINICIAR| F[Retirar elementos editables según política]
+  F --> A
+  classDef safe fill:#eff6f1,stroke:#50816c,color:#1b4b31;
+  class B,C,D safe;
+```
 
-- **Resultado de uso:** información/experiencia que obtiene la persona al completar el recorrido.
-- **Datos o respaldo:** sólo los formatos explícitamente implementados y su contrato de restauración.
-- **Distribución:** aplicación, APK, ZIP o firmware, con fuente y versión; no incluye datos privados por defecto.
-- **Documentación académica:** informes/anexos históricos, cuando el origen formativo aplica; se catalogan en su cuarto nivel, sin reescribirlos como especificación vigente.
+**Exportar** genera un archivo sin cambiar la base. **Analizar** informa compatibilidad y cantidades sin escribir. **Restaurar** reemplaza las quince colecciones en una transacción después de una confirmación explícita. **Reiniciar** no importa archivos: aplica una política selectiva sobre el estado actual y conserva determinados hechos históricos.
 
-## Código y documentación relacionada
+## Versionado y alcance
 
-[README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
+- Formato exportado actual `HereToPlan.respaldo`, `versionFormato: 3`.
+- Compatibilidad documentada de importación V1, V2 y V3 mediante rutas de migración definidas.
+- Las 15 colecciones están en [04 · Datos](04-base-de-datos.md) y en el contrato [Respaldo](Respaldo.md).
+- La preferencia del tutorial en `localStorage` no se incluye en el respaldo funcional.
+- El JSON no está cifrado por defecto: quien conserve el archivo debe protegerlo y revisar qué información contiene.
+
+[Guía práctica](Guia-uso.md) · [Contrato detallado V3](Respaldo.md) · [Estados y secuencia](10-estados-y-secuencias.md)

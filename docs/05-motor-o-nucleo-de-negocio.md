@@ -1,24 +1,69 @@
-# 05 — Reglas y núcleo
+# 05 · Reglas que sostienen el producto
 
-## Núcleo e invariantes
+Las **reglas y operaciones del dominio** determinan el comportamiento de HereToPlan y pueden probarse independientemente de la interfaz.
 
-- Una actividad puede existir sin bloque temporal.
-- Confirmar conserva instantáneas; no autoriza borrar libremente compromisos históricos.
-- Completar y acreditar deben ser atómicos e idempotentes.
-- El cronómetro no sustituye la declaración humana de cumplimiento.
-- Adquirir una recompensa y aplicarla son operaciones diferentes; la vista previa no escribe.
-- Restaurar/reiniciar requiere conocer impacto y preservar los contratos documentados.
+## Compromiso y trazabilidad
 
-### Entradas, decisión y efectos
+- Una `Actividad` puede existir sin fecha ni bloque.
+- El bloque se programa con minutos, contexto, fecha y política; un corte confirmado guarda una instantánea del compromiso.
+- `ESTRICTO` y `FLEXIBLE` tienen permisos distintos; los ajustes permitidos se fijan mediante políticas. No puede ampliarse desde la aplicación un plazo externo cuya autoridad no le pertenece.
+- Un bloque confirmado se resuelve explícitamente; el cronómetro solo registra tiempo.
 
-El recorrido de [03-flujo-de-usuario.md](03-flujo-de-usuario.md) proporciona entradas al núcleo. Las reglas anteriores determinan lo aceptado y sus efectos; UI y proveedores externos no deben sustituir silenciosamente esas decisiones. El modelo de [04-base-de-datos.md](04-base-de-datos.md) identifica los estados/referencias afectados.
+## Puntos: fórmula inicial del código
 
-Los documentos especializados enlazados detallan las fórmulas, parámetros y efectos de cada operación.
+En [`FormulaPuntosBloque.ts`](../src/dominio/puntos/FormulaPuntosBloque.ts) la configuración inicial es **30 minutos por punto** y **máximo 4 puntos por bloque**. Para minutos planificados positivos:
 
-### Pruebas con propósito
+$$
+P(m)=\min\left(4,\left\lceil\frac{m}{30}\right\rceil\right)
+$$
 
-Para comprobar el núcleo, cubre una operación válida, una entrada rechazada y la reapertura o repetición de la operación. Los comandos de prueba están en [instalación y despliegue](09-instalacion-y-despliegue.md).
+| Minutos del bloque | Puntos al completarlo |
+| -----------------: | --------------------: |
+|                 15 |                     1 |
+|                 30 |                     1 |
+|                 31 |                     2 |
+|                 90 |                     3 |
+|                150 |                     4 |
 
-## Código y documentación relacionada
+La fórmula usa **minutos planificados**, no minutos medidos por el cronómetro; no representa una métrica objetiva de esfuerzo, salud o productividad. Un incumplimiento no recibe este ingreso.
 
-[README.md](../README.md) · [docs/README.md](README.md) · [docs/Dominio.md](Dominio.md) · [docs/Arquitectura.md](Arquitectura.md) · [docs/Respaldo.md](Respaldo.md) · [docs/Protocolo-uso-sostenido.md](Protocolo-uso-sostenido.md).
+## Atomicidad e idempotencia
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor U as Persona
+  participant UI as Vista React
+  participant CU as Caso de uso
+  participant DB as IndexedDB (transacción)
+  U->>UI: Completar bloque confirmado
+  UI->>CU: bloqueId + operacionId
+  CU->>CU: Validar corte y duplicados
+  alt Ya existe la misma operación
+    CU-->>UI: Devolver resultado anterior sin duplicar
+  else Operación nueva
+    CU->>DB: Registrar resolución + ingreso de puntos
+    alt Confirma transacción
+      DB-->>CU: Confirmada
+      CU-->>UI: Resultado y puntos acreditados
+    else Conflicto o fallo
+      DB-->>CU: Abortar o informar colisión
+      CU-->>UI: Error o conciliación, sin doble ingreso
+    end
+  end
+```
+
+El contrato del adaptador es tan importante como la fórmula: **resolver y acreditar deben confirmarse juntos**. Otras operaciones sensibles, como canjear/aplicar recompensas o restaurar, también utilizan unidades transaccionales específicas.
+
+## Recompensas, descanso y recuperación
+
+- Adquirir una unidad de recompensa implica descontar puntos; su estado inicial es `DISPONIBLE`.
+- Aplicarla puede pasarla a `CONSUMIDA`, sujeto a restricciones. La vista previa no aplica cambios.
+- `Día libre` es una recompensa implementada cuyo efecto depende de elegibilidad y política.
+- La recuperación utiliza minutos excedentes y topes diarios/semanales; su cálculo no concede recuperación sin límite.
+
+## Garantías y advertencias
+
+Los tests prueban casos específicos del contrato, no la utilidad de la política. El modelo no debe inducir a trabajar más para maximizar puntos ni convertir la recuperación en una sanción. Antes de modificar una fórmula o un estado, se deben revisar la persistencia, las migraciones, los respaldos y las pruebas existentes.
+
+[Contrato del dominio](Dominio.md) · [Operaciones y adaptadores](Arquitectura.md) · [Pruebas](17-desarrollo-y-metodologia.md)
