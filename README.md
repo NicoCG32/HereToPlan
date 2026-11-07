@@ -23,6 +23,21 @@
 
 HereToPlan es una aplicación web de planificación personal que conecta actividades, bloques de tiempo y compromisos con un registro de sus resultados. Incluye cronómetro opcional, puntos, recompensas y herramientas para ajustar la carga de trabajo. Está en fase de validación y guarda los datos en el navegador, con respaldos exportables y sin sincronización entre dispositivos.
 
+## Estado real del proyecto
+
+| Nivel | Alcance de esta versión |
+| --- | --- |
+| ✅ **Implementado** | Aplicación web local con actividades, bloques, cronómetro opcional, puntos/recompensas y registro de resultados; datos en IndexedDB y respaldos exportables. |
+| 🧪 **En validación** | Uso sostenido, claridad del sistema de compromisos, utilidad de los incentivos y recuperación de datos tras exportar/restaurar. |
+| 🧭 **Propuesto** | Sincronización entre dispositivos, integración con calendarios y nuevas formas de organizar proyectos; no están disponibles en la versión actual. |
+
+<details>
+<summary><strong>¿Qué significa cada estado?</strong></summary>
+
+«Implementado» describe algo respaldado por código o una entrega identificable; no garantiza una validación completa. «En validación» necesita pruebas adicionales, y «propuesto» es una aspiración, no una función disponible. Las notas de versión y los documentos especializados detallan los límites concretos.
+
+</details>
+
 ## Por qué existe
 
 HereToPlan comenzó durante unas vacaciones, después de mis estudios. Tenía tiempo libre y se me ocurrió crear mi propio calendario para organizar mejor los días. La idea inicial era sencilla: combinar actividades y hábitos con un **sistema de recompensas** que me animara a cumplir las metas que me propusiera.
