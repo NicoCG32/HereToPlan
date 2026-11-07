@@ -35,4 +35,4 @@ Las pruebas automatizadas comprueban reglas y recorridos concretos. La revisión
 
 La fase actual se centra en comprender las reglas durante el uso cotidiano y comprobar la continuidad de los datos. Las observaciones guiarán los ajustes antes de ampliar el catálogo de recompensas o incorporar sincronización.
 
-[Origen y motivación](16-motivacion-y-contexto.md) · [Próximos pasos](15-escalabilidad-y-nuevos-mercados.md) · [Validación de uso](Validacion-producto.md)
+[Origen y motivación](16-motivacion-y-contexto.md) · [Próximos pasos](15-validacion-y-evolucion.md) · [Validación de uso](Validacion-producto.md)

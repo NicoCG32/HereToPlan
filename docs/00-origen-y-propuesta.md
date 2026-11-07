@@ -1,4 +1,4 @@
-# 00 · Problema y propuesta
+# 00 · Origen y propuesta
 
 Empecé HereToPlan durante unas vacaciones, después de mis estudios. Quería organizar mi propio calendario y probar la idea de un **sistema de hábitos y recompensas** que me incentivara a cumplir metas. De esa necesidad personal salió una pregunta que fue creciendo con el proyecto: **¿cómo distingo una actividad que quiero hacer, el tiempo que planeo dedicarle y lo que finalmente hice?**
 

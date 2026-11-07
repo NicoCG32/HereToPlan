@@ -1,4 +1,4 @@
-# 04 · Modelo del dominio y datos locales
+# 04 · Dominio y persistencia local
 
 **IndexedDB** almacena registros en _object stores_ con claves e índices. La aplicación valida las relaciones entre identificadores y utiliza transacciones para mantener su consistencia.
 

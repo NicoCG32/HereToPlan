@@ -1,6 +1,8 @@
 # Identidad visual de HereToPlan
 
-Este catálogo reúne los originales y variantes de la identidad. Las dimensiones indican el lienzo del archivo: en SVG son unidades vectoriales; en PNG, WebP y JPG son píxeles.
+Este catálogo reúne los originales y variantes de la identidad. **Los logos, banners, iconos, fondos e ilustraciones son recursos visuales míos**, según mi declaración como responsable del proyecto. No confundo esa atribución con las licencias de las herramientas, dependencias o posibles componentes externos, que deben verificarse por separado en [Licencias y recursos](../docs/Licencias-y-recursos.md).
+
+Las dimensiones indican el lienzo del archivo: en SVG son unidades vectoriales; en PNG, WebP y JPG son píxeles.
 
 - [Banner claro](banners/heretoplan-banner-claro.webp) · [Banner oscuro](banners/heretoplan-banner-oscuro.webp).
 - Utiliza logos horizontales en cabeceras, isotipos en espacios compactos y banners en presentaciones. Conserva la proporción y deja espacio alrededor de la marca.

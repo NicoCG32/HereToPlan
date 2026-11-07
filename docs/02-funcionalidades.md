@@ -22,4 +22,4 @@ Quedan fuera del alcance actual las cuentas, la sincronización entre dispositiv
 
 La documentación y las pruebas describen un sistema capaz de conservar estados, reintentos y respaldos en condiciones controladas. Queda por observar el **uso sostenido**: claridad de términos, carga realista, utilidad y posible presión de las reglas. Consulta [Validación de producto](Validacion-producto.md) para hipótesis y sesiones planificadas.
 
-[Recorrido](03-flujo-de-usuario.md) · [Reglas](05-motor-o-nucleo-de-negocio.md) · [Manual](Guia-uso.md)
+[Recorrido](03-flujo-de-usuario.md) · [Reglas](05-compromisos-puntos-y-recuperacion.md) · [Manual](Guia-uso.md)
