@@ -29,12 +29,12 @@ No doy por comprobado que esas reglas mejoren la productividad. Esa es precisame
 
 ## Qué puedes hacer hoy
 
-| Espacio            | Funciones disponibles                                                                      |
-| ------------------ | ------------------------------------------------------------------------------------------ |
-| 🗓️ **Calendario** | Organizar bloques, revisar cortes, confirmar compromisos y resolver resultados.            |
-| ✍️ **Crear**       | Guardar tareas, proyectos y hábitos reutilizables; asignarlos después a fechas.            |
-| ✦ **Puntos**       | Consultar saldo, recompensa Día libre, inventario y banco de recuperación.                 |
-| ◈ **Respaldo**     | Exportar JSON, analizar un archivo, restaurar con confirmación o reiniciar selectivamente. |
+| Espacio        | Funciones disponibles                                                                      |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| **Calendario** | Organizar bloques, revisar cortes, confirmar compromisos y resolver resultados.            |
+| **Crear**      | Guardar tareas, proyectos y hábitos reutilizables; asignarlos después a fechas.            |
+| **Puntos**     | Consultar saldo, recompensa Día libre, inventario y banco de recuperación.                 |
+| **Respaldo**   | Exportar JSON, analizar un archivo, restaurar con confirmación o reiniciar selectivamente. |
 
 El seguimiento puede ser manual o con cronómetro. **Medir tiempo no completa automáticamente un bloque.** La aplicación guarda la planificación en este navegador mediante IndexedDB; el perfil visible no es una cuenta remota.
 
@@ -56,11 +56,11 @@ Un bloque confirmado no se borra libremente. Las políticas estricta y flexible 
 
 ## Estado real del proyecto
 
-| Estado               | Alcance comprobable en el repositorio                                                                                                        |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| ✅ **Implementado**   | Web local con actividades, planificación, cortes, cronómetro, puntos, Día libre, recuperación y respaldo JSON V3.                            |
-| 🧪 **En validación** | Comprensión del recorrido, utilidad de incentivos, continuidad de datos y pruebas de accesibilidad con personas y tecnologías de asistencia. |
-| 🧭 **Propuesto**     | Sincronización entre dispositivos, cuentas, calendarios externos, plantillas de agenda y editor completo de composición de tareas.           |
+| Estado            | Alcance comprobable en el repositorio                                                                                                        |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Implementado**  | Web local con actividades, planificación, cortes, cronómetro, puntos, Día libre, recuperación y respaldo JSON V3.                            |
+| **En validación** | Comprensión del recorrido, utilidad de incentivos, continuidad de datos y pruebas de accesibilidad con personas y tecnologías de asistencia. |
+| **Propuesto**     | Sincronización entre dispositivos, cuentas, calendarios externos, plantillas de agenda y editor completo de composición de tareas.           |
 
 **No se promete** colaboración, sincronización ni acceso a los datos desde otro navegador por el solo hecho de abrir el mismo sitio. Los tests existentes evalúan reglas y recorridos técnicos; no reemplazan la [evaluación de uso sostenido](docs/Validacion-producto.md).
 
