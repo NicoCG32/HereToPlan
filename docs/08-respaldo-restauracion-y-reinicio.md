@@ -1,4 +1,4 @@
-# 08 · Respaldos y salidas
+# 08 · Respaldo, restauración y reinicio
 
 La salida portátil más importante de HereToPlan es un **respaldo JSON del estado funcional local**. No es un informe automático de productividad ni una copia sincronizada en la nube.
 
@@ -23,7 +23,7 @@ flowchart LR
 
 - Formato exportado actual `HereToPlan.respaldo`, `versionFormato: 3`.
 - Compatibilidad documentada de importación V1, V2 y V3 mediante rutas de migración definidas.
-- Las 15 colecciones están en [04 · Datos](04-base-de-datos.md) y en el contrato [Respaldo](Respaldo.md).
+- Las 15 colecciones están en [04 · Datos](04-dominio-y-persistencia-local.md) y en el contrato [Respaldo](Respaldo.md).
 - La preferencia del tutorial en `localStorage` no se incluye en el respaldo funcional.
 - El JSON no está cifrado por defecto: quien conserve el archivo debe protegerlo y revisar qué información contiene.
 

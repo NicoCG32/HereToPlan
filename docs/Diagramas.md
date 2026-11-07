@@ -9,9 +9,9 @@ HereToPlan dispone de **tres vistas SVG versionadas** para consultar la arquitec
 | Dominio SVG                                      | [modelo-dominio.svg](modelo-dominio.svg)                     | `src/dominio/`, contrato [Dominio](Dominio.md)          |
 | Contexto, contenedores, componentes y despliegue | [01 · Arquitectura](01-arquitectura-general.md)              | `src/app/`, `src/aplicacion/`, infraestructura          |
 | Camino de la persona                             | [03 · Recorrido](03-flujo-de-usuario.md)                     | rutas y casos de uso                                    |
-| Entidades lógicas e IndexedDB                    | [04 · Datos](04-base-de-datos.md)                            | `esquemaBaseDatos.ts` y mapeadores                      |
-| Operación atómica de cumplimiento                | [05 · Reglas](05-motor-o-nucleo-de-negocio.md)               | `CompletarBloqueConPuntos.ts`                           |
-| Respaldo/restauración                            | [08 · Salidas](08-exportacion-e-informes.md)                 | `RestaurarRespaldo.ts`, `Respaldo.md`                   |
+| Entidades lógicas e IndexedDB                    | [04 · Datos](04-dominio-y-persistencia-local.md)                            | `esquemaBaseDatos.ts` y mapeadores                      |
+| Operación atómica de cumplimiento                | [05 · Reglas](05-compromisos-puntos-y-recuperacion.md)               | `CompletarBloqueConPuntos.ts`                           |
+| Respaldo/restauración                            | [08 · Salidas](08-respaldo-restauracion-y-reinicio.md)                 | `RestaurarRespaldo.ts`, `Respaldo.md`                   |
 | Máquinas de estados y secuencia                  | [10 · Estados](10-estados-y-secuencias.md)                   | tipos y entidades del dominio                           |
 
 ## Reglas para mantenerlos claros

@@ -16,4 +16,4 @@ No busco afirmar que una recompensa siempre motiva ni que un calendario deba med
 
 Lo he desarrollado de forma independiente. Su valor, por ahora, está tanto en explorar esta idea como en construirla y ponerla a prueba.
 
-[Problema y propuesta](00-problematica-cliente-y-valor.md) · [Proceso de desarrollo](17-desarrollo-y-metodologia.md) · [Validación de uso](Protocolo-uso-sostenido.md)
+[Problema y propuesta](00-origen-y-propuesta.md) · [Proceso de desarrollo](17-desarrollo-y-metodologia.md) · [Validación de uso](Protocolo-uso-sostenido.md)

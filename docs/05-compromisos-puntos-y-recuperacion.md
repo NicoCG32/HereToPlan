@@ -1,4 +1,4 @@
-# 05 · Reglas que sostienen el producto
+# 05 · Compromisos, puntos y recuperación
 
 Las **reglas y operaciones del dominio** determinan el comportamiento de HereToPlan y pueden probarse independientemente de la interfaz.
 

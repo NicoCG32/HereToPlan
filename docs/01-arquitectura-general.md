@@ -98,4 +98,4 @@ flowchart LR
 - Comprar una recompensa y consumirla no son sinónimos.
 - Restaurar un respaldo sustituye el estado funcional, por lo que la aplicación analiza antes de escribir y exige confirmación.
 
-[Diagrama de componentes](arquitectura-componentes.svg) · [Arquitectura detallada](Arquitectura.md) · [Persistencia](04-base-de-datos.md) · [Despliegue](Despliegue.md)
+[Diagrama de componentes](arquitectura-componentes.svg) · [Arquitectura detallada](Arquitectura.md) · [Persistencia](04-dominio-y-persistencia-local.md) · [Despliegue](Despliegue.md)

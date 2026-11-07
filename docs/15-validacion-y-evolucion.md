@@ -1,4 +1,4 @@
-# 15 · Validar antes de ampliar
+# 15 · Validación y posibles evoluciones
 
 Quiero comprobar si HereToPlan ayuda a organizar el día antes de ampliar sus funciones. La siguiente etapa consiste en observar el uso: ¿se entiende el compromiso?, ¿hay espacio para ajustar el plan?, ¿los puntos y la recuperación ayudan o generan presión?
 

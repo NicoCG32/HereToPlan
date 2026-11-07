@@ -20,6 +20,12 @@ La solicitud debe indicar producto/servicio, finalidad, partes reutilizadas, dis
 
 Que una aplicación sea gratuita para su usuario no determina por sí solo que la reutilización del código sea no comercial. La licencia del código tampoco concede acceso a los servicios alojados, a sus cuentas o a datos reales. El uso de una versión distribuida por el titular sigue las condiciones que este haya autorizado para esa entrega.
 
+## Atribuciones que todavía deben verificarse
+
+`NOTICE` contiene actualmente los avisos `Required Notice:` del proyecto y su enlace de procedencia. **No es todavía un inventario exhaustivo de licencias de dependencias, logos o recursos incorporados.** Esas atribuciones se verifican separadamente; no se inventan autores, permisos ni avisos de terceros para completar una plantilla.
+
+Consulta el [registro de licencias y recursos](docs/Licencias-y-recursos.md) para conocer los elementos revisados y los pendientes. Este archivo explica el régimen existente y no modifica el texto ni los permisos de `LICENSE`.
+
 ## Versiones y distribución
 
 Consulta los avisos incluidos en cada distribución para conocer las condiciones de esa versión. Al redistribuir el proyecto, incluye LICENSE, NOTICE y este documento, además de los avisos de terceros aplicables.
