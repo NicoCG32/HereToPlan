@@ -22,7 +22,7 @@ Que una aplicación sea gratuita para su usuario no determina por sí solo que l
 
 ## Atribuciones que todavía deben verificarse
 
-`NOTICE` contiene actualmente los avisos `Required Notice:` del proyecto y su enlace de procedencia. **No es todavía un inventario exhaustivo de licencias de dependencias, logos o recursos incorporados.** Esas atribuciones se verifican separadamente; no se inventan autores, permisos ni avisos de terceros para completar una plantilla.
+`NOTICE` contiene actualmente los avisos `Required Notice:` del proyecto y su enlace de procedencia. El responsable confirmó que **los logotipos, banners, iconos, fondos e ilustraciones de HereToPlan son de su titularidad**. Aun así, el NOTICE **no es un inventario exhaustivo de las licencias de dependencias o de eventuales componentes externos**. La declaración de titularidad no determina por sí sola el método de elaboración ni reemplaza la revisión de condiciones de terceros; no se inventan autores, permisos ni avisos para completar una plantilla.
 
 Consulta el [registro de licencias y recursos](docs/Licencias-y-recursos.md) para conocer los elementos revisados y los pendientes. Este archivo explica el régimen existente y no modifica el texto ni los permisos de `LICENSE`.
 
